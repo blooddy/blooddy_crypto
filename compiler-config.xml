@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<flex-config>
+
+	<compiler>
+
+		<define>
+			<name>CONFIG::debug</name>
+			<value>true</value>
+		</define>
+
+		<accessible>false</accessible>
+
+		<locale>
+			<locale-element>en_US</locale-element>
+		</locale>
+
+		<!--
+		<source-path>
+			<path-element>string</path-element>
+		</source-path>
+		-->
+
+		<show-actionscript-warnings>true</show-actionscript-warnings>
+
+		<!--
+		<debug>true</debug>
+		-->
+
+		<!--
+		<external-library-path>
+			<path-element>libs/player</path-element>
+		</external-library-path>
+		-->
+
+		<keep-generated-actionscript>true</keep-generated-actionscript>
+
+		<!--
+		<include-libraries>
+			<library>string</library>
+		</include-libraries>
+		-->
+
+		<!--
+		<library-path>
+			<path-element>libs</path-element>
+		</library-path>
+		-->
+
+		<!--namespaces>
+			<namespace>
+				<uri>http://www.blooddy.by/core/</uri>
+				<manifest>manifest.xml</manifest>
+			</namespace>
+		</namespaces-->
+
+		<optimize>true</optimize>
+
+		<keep-as3-metadata>
+			<name>Event</name>
+			<name>Exclude</name>
+			<name>ExcludeClass</name>
+			<name>Inspectable</name>
+			<name>PercentProxy</name>
+		</keep-as3-metadata>
+
+		<show-binding-warnings>true</show-binding-warnings>
+
+		<show-deprecation-warnings>true</show-deprecation-warnings>
+ 
+		<show-unused-type-selector-warnings>true</show-unused-type-selector-warnings>
+
+		<strict>true</strict>
+		<as3>true</as3>
+		<es>false</es>
+
+		<verbose-stacktraces>true</verbose-stacktraces>
+
+		<actionscript-file-encoding>utf-8</actionscript-file-encoding>
+
+		<fonts>
+			<advanced-anti-aliasing>true</advanced-anti-aliasing>
+			<max-cached-fonts>20</max-cached-fonts>
+			<max-glyphs-per-face>1000</max-glyphs-per-face>
+			<!--
+			<languages>
+				<language-range>
+					<lang>englishRange</lang>
+					<range>U+0020-U+007E</range>
+				</language-range>
+			</languages>
+			-->
+			<managers>
+				<manager-class>flash.fonts.JREFontManager</manager-class>
+				<manager-class>flash.fonts.BatikFontManager</manager-class>
+			</managers>
+		</fonts> 
+
+		<warn-array-tostring-changes>true</warn-array-tostring-changes>
+		<warn-assignment-within-conditional>true</warn-assignment-within-conditional>
+		<warn-bad-array-cast>true</warn-bad-array-cast>
+		<warn-bad-bool-assignment>true</warn-bad-bool-assignment>
+		<warn-bad-date-cast>true</warn-bad-date-cast>
+		<warn-bad-es3-type-method>true</warn-bad-es3-type-method>
+		<warn-bad-es3-type-prop>true</warn-bad-es3-type-prop>
+		<warn-bad-nan-comparison>true</warn-bad-nan-comparison>
+		<warn-bad-null-assignment>true</warn-bad-null-assignment>
+		<warn-bad-null-comparison>true</warn-bad-null-comparison>
+		<warn-bad-undefined-comparison>true</warn-bad-undefined-comparison>
+		<warn-boolean-constructor-with-no-args>true</warn-boolean-constructor-with-no-args>
+		<warn-changes-in-resolve>true</warn-changes-in-resolve>
+		<warn-class-is-sealed>true</warn-class-is-sealed>
+		<warn-const-not-initialized>true</warn-const-not-initialized>
+		<warn-constructor-returns-value>true</warn-constructor-returns-value>
+		<warn-deprecated-event-handler-error>true</warn-deprecated-event-handler-error>
+		<warn-deprecated-function-error>true</warn-deprecated-function-error>
+		<warn-deprecated-property-error>true</warn-deprecated-property-error>
+		<warn-duplicate-argument-names>true</warn-duplicate-argument-names>
+		<warn-duplicate-variable-def>true</warn-duplicate-variable-def>
+		<warn-for-var-in-changes>false</warn-for-var-in-changes>
+		<warn-import-hides-class>true</warn-import-hides-class>
+		<warn-instance-of-changes>true</warn-instance-of-changes>
+		<warn-internal-error>true</warn-internal-error>
+		<warn-level-not-supported>true</warn-level-not-supported>
+		<warn-missing-namespace-decl>true</warn-missing-namespace-decl>
+		<warn-negative-uint-literal>true</warn-negative-uint-literal>
+		<warn-no-constructor>true</warn-no-constructor>
+		<warn-no-explicit-super-call-in-constructor>true</warn-no-explicit-super-call-in-constructor>
+		<warn-no-type-decl>true</warn-no-type-decl>
+		<warn-number-from-string-changes>true</warn-number-from-string-changes>
+		<warn-scoping-change-in-this>false</warn-scoping-change-in-this>
+		<warn-slow-text-field-addition>true</warn-slow-text-field-addition>
+		<warn-unlikely-function-value>true</warn-unlikely-function-value>
+		<warn-xml-class-has-changed>false</warn-xml-class-has-changed>
+	</compiler>
+
+	<static-link-runtime-shared-libraries>false</static-link-runtime-shared-libraries>
+
+	<benchmark>true</benchmark>
+	<!--omit-trace-statements>true</omit-trace-statements-->
+
+	<target-player>10.0.0</target-player>
+
+	<use-network>true</use-network>
+
+	<metadata>
+		<publisher>BlooDHounD</publisher>
+		<creator>BlooDHounD</creator>
+		<language>en</language>
+		<description>http://www.blooddy.by</description>
+	</metadata>
+
+</flex-config>
