@@ -58,6 +58,8 @@
         </excludedEntries>
       </libraryPathEntry>
       <libraryPathEntry kind="1" linkType="2" path="libs"/>
+      <libraryPathEntry kind="1" linkType="2" path="${FLEXUNIT_LIB_LOCATION}/version4libs/Common/"/>
+      <libraryPathEntry kind="1" linkType="2" path="${FLEXUNIT_LIB_LOCATION}/version4libs/ASProject/"/>
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>
