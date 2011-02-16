@@ -12,6 +12,7 @@ package by.blooddy.math.utils {
 	
 	import flash.utils.ByteArray;
 
+	[ExcludeClass]
 	/**
 	 * @author					BlooDHounD
 	 * @version					1.0
