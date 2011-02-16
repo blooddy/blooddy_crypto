@@ -6,8 +6,12 @@
 
 package by.blooddy.crypto {
 
-	import flash.utils.ByteArray;
+	import by.blooddy.system.Memory;
+	
 	import flash.errors.IllegalOperationError;
+	import flash.system.ApplicationDomain;
+	import flash.utils.ByteArray;
+	import flash.utils.getQualifiedClassName;
 
 	/**
 	 * Encodes and decodes binary data using
@@ -18,7 +22,24 @@ package by.blooddy.crypto {
 	 * @playerversion			Flash 10
 	 * @langversion				3.0
 	 */
-	public class Base64 {
+	public final class Base64 {
+
+		//--------------------------------------------------------------------------
+		//
+		//  Class variables
+		//
+		//--------------------------------------------------------------------------
+
+		/**
+		 * @private
+		 */
+		private static const _domain:ApplicationDomain = ApplicationDomain.currentDomain;
+		
+		/**
+		 * @private
+		 */
+		private static const _DECODE_TABLE:ByteArray = new ByteArray();
+		_DECODE_TABLE.writeUTFBytes( '\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x3e\x40\x40\x40\x3f\x34\x35\x36\x37\x38\x39\x3a\x3b\x3c\x3d\x40\x40\x40\x40\x40\x40\x40\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x40\x40\x40\x40\x40\x40\x1a\x1b\x1c\x1d\x1e\x1f\x20\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2a\x2b\x2c\x2d\x2e\x2f\x30\x31\x32\x33\x40\x40\x40\x40\x40' );
 
 		//--------------------------------------------------------------------------
 		//
@@ -49,12 +70,59 @@ package by.blooddy.crypto {
 		 * @return					The array of bytes obtained by decoding the <code>source</code>
 		 * 							string.
 		 *
-		 * @throws	VerifyError		страка не валидна
+		 * @throws	VerifyError		string is not valid
 		 */
 		public static function decode(str:String):ByteArray {
-			throw new IllegalOperationError( 'TODO: plz, implement this!' );
+			
+			var len:uint = str.length * 0.75;
+			var tmp:ByteArray = _domain.domainMemory;
+
+			var mem:ByteArray = new ByteArray();
+			mem.writeBytes( _DECODE_TABLE );
+			mem.writeUTFBytes( str );
+			// помещаем в пямять
+			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+			_domain.domainMemory = mem;
+			
+			var i:uint = 256;
+			var j:uint = 256;
+			
+			try {
+				
+				// TODO
+				
+			} finally {
+				_domain.domainMemory = tmp;
+			}
+			
+			var bytes:ByteArray = new ByteArray();
+			if ( j > 256 ) {
+				mem.position = 256;
+				mem.readBytes( bytes, 0, j - 256 );
+			}
+			return bytes;
 		}
 
+		//--------------------------------------------------------------------------
+		//
+		//  Private class methods
+		//
+		//--------------------------------------------------------------------------
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Constructor
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * Constructor
+		 */
+		public function Base64() {
+			super();
+			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
+		}
+		
 	}
 
 }
