@@ -13,7 +13,7 @@ package by.blooddy.crypto {
 	 * @langversion				3.0
 	 * @created					28.01.2011 20:07:33
 	 */
-	public class CRC32 {
+	public final class CRC32 {
 
 		//--------------------------------------------------------------------------
 		//
