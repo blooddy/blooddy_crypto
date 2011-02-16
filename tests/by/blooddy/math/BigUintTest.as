@@ -504,26 +504,6 @@ package by.blooddy.math {
 			);
 		}
 
-		public static function $divAndMod_long1():Array {
-			var result:Array = new Array();
-			for ( var i:Number = 0xFFFFFFFF; i<0x100FFFFFFFF; i += 0xFFFFFFFF ) {
-				for ( var j:Number = 0xFFFFFFFF; j<0x100FFFFFFFF; j += 0xFFFFFFFFF ) {
-					result.push( [ i.toString( 16 ), j.toString( 16 ) ] );
-				}
-			}
-			return result;
-		}
-
-		[Test( order="22", dataProvider="$divAndMod_long1" )]
-		public function divAndMod_long1(v1:String, v2:String):void {
-			var o:Object = getDefinitionByName( 'com.hurlant.math.BigInteger' );
-			var R:Array = BigUintStr.divAndMod( v1, v2 );
-			Assert.assertEquals(
-				'0x' + v1.toLowerCase() + ' / 0x' + v2.toLowerCase(),
-				R.join( ',' ).toString().toLowerCase(), ( new o( v1, 16, true ) ).divideAndRemainder( new o( v2, 16, true ) ).join( ',' ).toLowerCase()
-			);
-		}
-		
 //		//----------------------------------
 //		//  divAndMod_error
 //		//----------------------------------
