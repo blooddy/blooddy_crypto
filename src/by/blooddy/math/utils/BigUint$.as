@@ -12,6 +12,7 @@ package by.blooddy.math.utils {
 	
 	import flash.utils.ByteArray;
 
+	[ExcludeClass]
 	/**
 	 * @author					BlooDHounD
 	 * @version					1.0
@@ -27,6 +28,7 @@ package by.blooddy.math.utils {
 		//
 		//--------------------------------------------------------------------------
 
+		[Inline( "direct_copy" )]
 		public static function fillZero(mem:ByteArray, pos:uint, end:uint, i:uint):void {
 			Memory.setI32( pos, 0 );
 			mem.position = pos + 4;
@@ -41,12 +43,14 @@ package by.blooddy.math.utils {
 			}
 		}
 		
+		[Inline( "direct_copy" )]
 		public static function clean(pos:uint, len:uint):void {
 			while ( len > 0 && Memory.getI32( pos + len - 4 ) == 0 ) {
 				len -= 4;
 			}
 		}
 
+		[Inline( "direct_copy" )]
 		public static function getShift(pos:uint, len:uint, e:int, c:uint):void {
 			c = pos + len - 4;
 			e = Memory.getI32( c );
@@ -66,8 +70,9 @@ package by.blooddy.math.utils {
 			}
 		}
 
+		[Inline( "direct_copy" )]
 		/**
-		 * @private
+		 * result = 1 << n
 		 */
 		public static function shiftLeftOne(
 			mem:ByteArray,
@@ -85,8 +90,9 @@ package by.blooddy.math.utils {
 			len = s - pos + 4;
 		}
 
+		[Inline( "direct_copy" )]
 		/**
-		 * @return		v1 * v2
+		 * result = v1 * v2
 		 */
 		public static function mult_s(
 			p1:uint, l1:uint, v2:uint, pos:uint, len:uint,
@@ -106,8 +112,9 @@ package by.blooddy.math.utils {
 			}
 		}
 
+		[Inline( "direct_copy" )]
 		/**
-		 * @return		v1 * v2
+		 * result = v1 * v2
 		 */
 		public static function mult(
 			mem:ByteArray,
@@ -174,8 +181,9 @@ package by.blooddy.math.utils {
 			BigUint$.clean( pos, len );
 		}
 
+		[Inline( "direct_copy" )]
 		/**
-		 * @return		v * v
+		 * result = v * v
 		 */
 		public static function sqr(
 			mem:ByteArray,
@@ -224,8 +232,9 @@ package by.blooddy.math.utils {
 			BigUint$.clean( pos, len );
 		}
 
+		[Inline( "direct_copy" )]
 		/**
-		 * @reutrn		v1 / v2
+		 * result = v1 / v2
 		 */
 		public static function div_s(
 			p1:uint, l1:uint, v2:uint, pos:uint, len:uint,
@@ -243,8 +252,9 @@ package by.blooddy.math.utils {
 			BigUint$.clean( pos, len );
 		}
 
+		[Inline( "direct_copy" )]
 		/**
-		 * @reutrn		v1 / v2
+		 * result = v1 / v2
 		 */
 		public static function mod_s(
 			p1:uint, l1:uint, v2:uint,
