@@ -1118,7 +1118,7 @@ package by.blooddy.math.utils {
 						}
 					}
 				} else {
-					return _divAndMod( p1, l1, p2, l2, pos )[ 0 ];
+					return _div( p1, l1, p2, l2, pos );
 				}
 			}
 		}
@@ -1172,7 +1172,7 @@ package by.blooddy.math.utils {
 						}
 					}
 				} else {
-					return _divAndMod( p1, l1, p2, l2, pos )[ 1 ];
+					return _mod( p1, l1, p2, l2, pos );
 				}
 			}
 		}
@@ -1752,7 +1752,22 @@ package by.blooddy.math.utils {
 
 		/**
 		 * @private
-		 * return		pow( v1, e ) % v2;
+		 * @return		v1 / v2
+		 */
+		private static function _div(p1:uint, l1:uint, p2:uint, l2:uint, pos:uint):BigUint {
+			return _divAndMod( p1, l1, p2, l2, pos )[ 0 ];
+		}
+
+		/**
+		 * @private		v1 % v2
+		 */
+		private static function _mod(p1:uint, l1:uint, p2:uint, l2:uint, pos:uint):BigUint {
+			return _divAndMod( p1, l1, p2, l2, pos )[ 1 ];
+		}
+
+		/**
+		 * @private
+		 * @return		pow( v1, e ) % v2;
 		 */
 		private static function _modPowInt_simple(p1:uint, l1:uint, e:uint, v2:uint, pos:uint):uint {
 			var i:uint = _getHighestBit( e );
