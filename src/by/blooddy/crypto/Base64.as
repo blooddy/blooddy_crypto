@@ -117,20 +117,20 @@ package by.blooddy.crypto {
 						if ( a == 0x41 ) { // наткнулись на pad
 							b = c = d = 0x41;
 							break;
-						} else if ( a > 40 ) { // не валидный символ
+						} else if ( a == 0x40 ) { // не валидный символ
 							Error.throwError( VerifyError, 1509 );
 						}
 					}
 
 					b = Memory.getUI8( Memory.getUI8( ++i ) );
 					if ( b >= 0x40 ) {
-						while ( a == 0x43 ) { // пропускаем пробелы
+						while ( b == 0x43 ) { // пропускаем пробелы
 							b = Memory.getUI8( Memory.getUI8( ++i ) );
 						}
 						if ( b == 0x41 ) { // наткнулись на pad
 							c = d = 0x41;
 							break;
-						} else if ( b > 40 ) { // не валидный символ
+						} else if ( b == 0x40 ) { // не валидный символ
 							Error.throwError( VerifyError, 1509 );
 						}
 					}
@@ -143,7 +143,7 @@ package by.blooddy.crypto {
 						if ( c == 0x41 ) { // наткнулись на pad
 							d = 0x41;
 							break;
-						} else if ( c > 40 ) { // не валидный символ
+						} else if ( c == 0x40 ) { // не валидный символ
 							Error.throwError( VerifyError, 1509 );
 						}
 					}
@@ -155,7 +155,7 @@ package by.blooddy.crypto {
 						}
 						if ( d == 0x41 ) { // наткнулись на pad
 							break;
-						} else if ( d > 40 ) { // не валидный символ
+						} else if ( d == 0x40 ) { // не валидный символ
 							Error.throwError( VerifyError, 1509 );
 						}
 					}
