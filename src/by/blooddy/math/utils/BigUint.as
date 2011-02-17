@@ -37,38 +37,6 @@ package by.blooddy.math.utils {
 		//
 		//--------------------------------------------------------------------------
 
-		public static function toString(v:BigUint):String {
-			if ( v.len == 0 ) return '0';
-			var p:uint = v.pos;
-			var s:String;
-			var i:uint = p + v.len - 4;
-			var result:String = uint( Memory.getI32( i ) ).toString( 16 );
-			while ( i > p ) {
-				i -= 4;
-				s = uint( Memory.getI32( i ) ).toString( 16 );
-				result += '0000000'.substr( 0, 8 - s.length ) + s;
-			}
-			return result;
-		}
-
-		public static function fromString(v:String, pos:uint):BigUint {
-			var p:uint = pos;
-			var i:int = v.length;
-			do {
-				Memory.setI32( p, parseInt( v.substring( Math.max( 0, i - 8 ), i ), 16 ) );
-				i -= 8;
-				p += 4;
-			} while ( i > 0 );
-			i = p - pos;
-			CRYPTO::inline {
-				BigUint$.clean( pos, i );
-				return new BigUint( pos, i );
-			}
-			CRYPTO::debug {
-				return _clean( pos, i );
-			}
-		}
-
 		/**
 		 * @return		v & ( 1 << n ) != 0
 		 */
