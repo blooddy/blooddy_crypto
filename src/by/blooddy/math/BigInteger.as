@@ -8,10 +8,10 @@ package by.blooddy.math {
 	
 	import by.blooddy.math.utils.BigUint;
 	
+	import flash.errors.IllegalOperationError;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
-	import flash.errors.IllegalOperationError;
 	
 	/**
 	 * @author					BlooDHounD
@@ -65,6 +65,12 @@ package by.blooddy.math {
 			);
 		}
 		
+		public static function fromVector(value:Vector.<uint>, negative:Boolean=false):BigInteger {
+			return fromBigValue(
+				getValueFromVector( value, negative )
+			);
+		}
+		
 		public static function fromByteArray(value:ByteArray, negative:Boolean=false):BigInteger {
 			return fromBigValue(
 				getValueFromByteArray( value, negative )
@@ -101,8 +107,9 @@ package by.blooddy.math {
 				case 'string':	return getValueFromString( value, 16 );
 				case 'object':
 					switch ( true ) {
-						case value is ByteArray:	return getValueFromByteArray( value, false );
-						case value is BigInteger:	return ( value as BigInteger )._value;
+						case value is ByteArray:		return getValueFromByteArray( value, false );
+						case value is Vector.<uint>:	return getValueFromVector( value, false );
+						case value is BigInteger:		return ( value as BigInteger )._value;
 					}
 			}
 			throw new ArgumentError();
@@ -125,7 +132,7 @@ package by.blooddy.math {
 				} else if ( value is int ) {
 					result = new BigValue();
 					result.negative = value < 0; 
-					result.writeInt( result.negative ? Math.abs( value ) : value );
+					result.writeUnsignedInt( result.negative ? Math.abs( value ) : value );
 				} else {
 					result = getValueFromString( value.toString( 16 ), 16 );
 				}
@@ -148,6 +155,17 @@ package by.blooddy.math {
 		/**
 		 * @private
 		 */
+		private static function getValueFromVector(value:Vector.<uint>, negative:Boolean):BigValue {
+			if ( value.length == 0 ) return ZERO._value;
+			var result:BigValue;
+			// TODO: normalize
+			if ( result && result.length == 0 ) result = null;
+			return result;
+		}
+		
+		/**
+		 * @private
+		 */
 		private static function getValueFromByteArray(value:ByteArray, negative:Boolean):BigValue {
 			if ( value.length == 0 ) return ZERO._value;
 			var result:BigValue;
@@ -157,14 +175,27 @@ package by.blooddy.math {
 					result.writeBytes( value );
 					break;
 				case Endian.BIG_ENDIAN:
-					//					result = new BigValue();
-					// TODO: read big endian
+					result = new BigValue();
+					result.length = value.length;
+					var i:uint = value.length;
+					var j:uint = 0;
+					do {
+						result[ j++ ] = value[ --i ];
+					} while ( i > 0 );
 					break;
 				default:
 					throw new ArgumentError();
 			}
-			// TODO: normalize
-			if ( result && result.length == 0 ) result = null;
+			result.position = result.length;
+			while ( result.length & 3 ) {
+				result.writeByte( 0 );
+			}
+			result.position -= 4;
+			while ( result.length > 0 && result.readInt() == 0 ) {
+				result.length -= 4;
+				result.position -= 4;
+			}
+			if ( result.length == 0 ) result = null;
 			return result;
 		}
 		
@@ -182,8 +213,8 @@ package by.blooddy.math {
 			var l:uint = args.length;
 			if ( l > 0 ) {
 				var value:* = args[ 0 ];
-				var bytes:ByteArray;
 				switch ( typeof value ) {
+					
 					case 'number':
 						if ( l != 1 ) throw new ArgumentError();
 						this._value = getValueFromNumber( value );
@@ -203,9 +234,9 @@ package by.blooddy.math {
 						break;
 					
 					case 'object':
+						var negative:Boolean;
 						switch ( true ) {
 							case value is ByteArray:
-								var negative:Boolean;
 								if ( args.length > 1 ) {
 									if ( typeof args[ 1 ] != 'boolean' ) throw new ArgumentError();
 									if ( l != 2 ) throw new ArgumentError();
@@ -213,17 +244,23 @@ package by.blooddy.math {
 								}
 								this._value = getValueFromByteArray( value, negative );
 								break;
+							case value is Vector.<uint>:
+								if ( args.length > 1 ) {
+									if ( typeof args[ 1 ] != 'boolean' ) throw new ArgumentError();
+									if ( l != 2 ) throw new ArgumentError();
+									negative = args[ 1 ];
+								}
+								this._value = getValueFromVector( value as Vector.<uint>, negative );
+								break;
 							case value is BigInteger:
 								this._value = value._value;
 								break;
-							//							case args[ 0 ] is Array:
-							//							case args[ 0 ] is Vector.<*>:
-							//								break;
 						}
 						break;
 					
 					default:
 						throw new ArgumentError();
+						
 				}
 			}
 		}
