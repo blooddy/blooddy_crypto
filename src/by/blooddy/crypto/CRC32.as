@@ -26,7 +26,12 @@ package by.blooddy.crypto {
 		//  Class variables
 		//
 		//--------------------------------------------------------------------------
-
+		
+		/**
+		 * @private
+		 */
+		private static const _domain:ApplicationDomain = ApplicationDomain.currentDomain;
+		
 		/**
 		 * @private
 		 */
@@ -45,14 +50,14 @@ package by.blooddy.crypto {
 
 				len += 1024;
 
-				var app:ApplicationDomain = ApplicationDomain.currentDomain;
+				var tmp:ByteArray = _domain.domainMemory;
 
-				var tmp:ByteArray = app.domainMemory;
 				var mem:ByteArray = new ByteArray();
 				mem.writeBytes( _TABLE );
 				mem.writeBytes( bytes );
 
-				app.domainMemory = mem;
+				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+				_domain.domainMemory = mem;
 
 				var c:uint = 0xFFFFFFFF;
 				var i:uint = 1024;
@@ -60,7 +65,7 @@ package by.blooddy.crypto {
 					c = Memory.getI32( ( ( ( c ^ Memory.getUI8( i ) ) & 0xFF ) << 2 ) ) ^ ( c >>> 8 );
 				} while ( ++i < len );
 
-				app.domainMemory = tmp;
+				_domain.domainMemory = tmp;
 
 				return c ^ 0xFFFFFFFF;
 
@@ -83,13 +88,12 @@ package by.blooddy.crypto {
 		 */
 		private static function createTable():ByteArray {
 
-			var app:ApplicationDomain = ApplicationDomain.currentDomain;
+			var tmp:ByteArray = _domain.domainMemory;
 
-			var tmp:ByteArray = app.domainMemory;
 			var mem:ByteArray = new ByteArray();
 			mem.length = Math.max( 1024, ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH );
 
-			app.domainMemory = mem;
+			_domain.domainMemory = mem;
 
 			var c:uint;
 			var j:uint;
@@ -106,7 +110,7 @@ package by.blooddy.crypto {
 				Memory.setI32( i << 2, c );
 			}
 
-			app.domainMemory = tmp;
+			_domain.domainMemory = tmp;
 
 			mem.length = 1024;
 
