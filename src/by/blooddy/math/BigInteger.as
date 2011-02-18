@@ -21,7 +21,7 @@ package by.blooddy.math {
 	 * @created					09.02.2011 2:45:56
 	 */
 	public class BigInteger {
-		
+
 		//--------------------------------------------------------------------------
 		//
 		//  Class variables
@@ -32,20 +32,25 @@ package by.blooddy.math {
 		 * @private
 		 */
 		private static const _domain:ApplicationDomain = ApplicationDomain.currentDomain;
-		
+
+		/**
+		 * @private
+		 */
+		private static const _PATTERN:RegExp = /(^\s+|\s+$)/g;
+
 		//--------------------------------------------------------------------------
 		//
 		//  Class constants
 		//
 		//--------------------------------------------------------------------------
 		
-		public static const ZERO:BigInteger =	new BigInteger( 0x00 );
+		public static const ZERO:BigInteger =	new BigInteger();
 		
-		public static const ONE:BigInteger =	new BigInteger( 0x01 );
+		public static const ONE:BigInteger =	new BigInteger();
 		
-		public static const TWO:BigInteger =	new BigInteger( 0x02 );
+		public static const TWO:BigInteger =	new BigInteger();
 		
-		public static const TEN:BigInteger =	new BigInteger( 0x0A );
+		public static const TEN:BigInteger =	new BigInteger();
 		
 		//--------------------------------------------------------------------------
 		//
@@ -54,27 +59,27 @@ package by.blooddy.math {
 		//--------------------------------------------------------------------------
 		
 		public static function fromNumber(value:Number):BigInteger {
-			return fromBigValue(
-				getValueFromNumber( value )
-			);
+			var result:BigInteger = new BigInteger();
+			result._value = getValueFromNumber( value )
+			return result;
 		}
 		
 		public static function fromString(value:String, radix:uint=16):BigInteger {
-			return fromBigValue(
-				getValueFromString( value, radix )
-			);
+			var result:BigInteger = new BigInteger();
+			result._value = getValueFromString( value, radix )
+			return result;
 		}
 		
 		public static function fromVector(value:Vector.<uint>, negative:Boolean=false):BigInteger {
-			return fromBigValue(
-				getValueFromVector( value, negative )
-			);
+			var result:BigInteger = new BigInteger();
+			result._value = getValueFromVector( value, negative )
+			return result;
 		}
 		
 		public static function fromByteArray(value:ByteArray, negative:Boolean=false):BigInteger {
-			return fromBigValue(
-				getValueFromByteArray( value, negative )
-			);
+			var result:BigInteger = new BigInteger();
+			result._value = getValueFromByteArray( value, negative )
+			return result;
 		}
 		
 		//--------------------------------------------------------------------------
@@ -82,17 +87,20 @@ package by.blooddy.math {
 		//  Private class methods
 		//
 		//--------------------------------------------------------------------------
-		
+
+		$private static function init():void {
+			ONE._value = new BigValue();
+			ONE._value.writeInt( 0x01 );
+			TWO._value = new BigValue();
+			TWO._value.writeInt( 0x02 );
+			TEN._value = new BigValue();
+			TEN._value.writeInt( 0x0A );
+		}
+
 		/**
 		 * @private
 		 */
 		private static function fromBigValue(value:BigValue):BigInteger {
-			switch ( value ) {
-				case ZERO._value:	return ZERO;
-				case ONE._value:	return ONE;
-				case TWO._value:	return TWO;
-				case TEN._value:	return TEN;
-			}
 			var result:BigInteger = new BigInteger();
 			result._value = value;
 			return result;
@@ -103,14 +111,16 @@ package by.blooddy.math {
 		 */
 		private static function getValue(value:*):BigValue {
 			switch ( typeof value ) {
-				case 'number':	return getValueFromNumber( value );
-				case 'string':	return getValueFromString( value, 16 );
+				case 'number':		return getValueFromNumber( value );
+				case 'string':		return getValueFromString( value, 16 );
 				case 'object':
 					switch ( true ) {
 						case value is ByteArray:		return getValueFromByteArray( value, false );
 						case value is Vector.<uint>:	return getValueFromVector( value, false );
 						case value is BigInteger:		return ( value as BigInteger )._value;
+						case null:						return null;
 					}
+				case 'undefined':	return null;
 			}
 			throw new ArgumentError();
 		}
@@ -120,23 +130,21 @@ package by.blooddy.math {
 		 */
 		private static function getValueFromNumber(value:Number):BigValue {
 			if ( !isFinite( value ) ) throw new ArgumentError();
-			if ( value == 0 )		return ZERO._value;
-			else if ( value == 1 )	return ONE._value;
-			else if ( value == 2 )	return TWO._value;
-			else if ( value == 10 )	return TEN._value;
-			else {
-				var result:BigValue;
-				if ( result is uint ) {
-					result = new BigValue();
-					result.writeUnsignedInt( value );
-				} else if ( value is int ) {
-					result = new BigValue();
-					result.negative = value < 0; 
-					result.writeUnsignedInt( result.negative ? Math.abs( value ) : value );
+			if ( value <= uint.MAX_VALUE && value >= int.MIN_VALUE ) {
+				var result:BigValue = new BigValue();
+				if ( value < 0 ) {
+					result.negative = true; 
+					value = -int( value );
 				} else {
-					result = getValueFromString( value.toString( 16 ), 16 );
+					value = uint( value );
 				}
-				return result;
+				if ( value == 0 ) return null;
+				else {
+					result.writeInt( value );
+					return result;
+				}
+			} else {
+				return getValueFromString( value.toString( 16 ), 16 );
 			}
 		}
 		
@@ -145,10 +153,30 @@ package by.blooddy.math {
 		 */
 		private static function getValueFromString(value:String, radix:uint):BigValue {
 			if ( radix < 2 || radix > 32 ) throw new ArgumentError();
-			if ( !value ) return ZERO._value;
-			var result:BigValue;
-			// TODO: normalize
-			if ( result && result.length == 0 ) result = null;
+			if ( !value ) return null;
+			var result:BigValue = new BigValue();
+			value = value.replace( _PATTERN, '' );
+			var len:uint = value.length;
+			if ( !len ) return null;
+			var i:uint = 0;
+			if ( value.charAt( 0 ) == '-' ) {
+				result.negative = true;
+				++i;
+			}
+			if ( radix == 16 && len - i >= 2 && value.substr( i, 2 ).toLocaleLowerCase() == '0x' ) {
+				i += 2;
+			}
+			var c:uint = 0;
+			for ( i; i < len; ++i ) {
+				// TODO
+			}
+			result.writeInt( c );
+			result.position -= 4;
+			while ( result.length > 0 && result.readInt() == 0 ) {
+				result.length -= 4;
+				result.position -= 4;
+			}
+			if ( result.length == 0 ) return null;
 			return result;
 		}
 		
@@ -156,10 +184,18 @@ package by.blooddy.math {
 		 * @private
 		 */
 		private static function getValueFromVector(value:Vector.<uint>, negative:Boolean):BigValue {
-			if ( value.length == 0 ) return ZERO._value;
-			var result:BigValue;
-			// TODO: normalize
-			if ( result && result.length == 0 ) result = null;
+			if ( value.length == 0 ) return null;
+			var result:BigValue = new BigValue();
+			for each ( var v:uint in value ) {
+				result.writeInt( v );
+			}
+			if ( v == 0 ) {
+				do {
+					result.length -= 4;
+					result.position -= 4;
+				} while ( result.length > 0 && result.readInt() == 0 );
+			}
+			if ( result.length == 0 ) return null;
 			return result;
 		}
 		
@@ -167,8 +203,9 @@ package by.blooddy.math {
 		 * @private
 		 */
 		private static function getValueFromByteArray(value:ByteArray, negative:Boolean):BigValue {
-			if ( value.length == 0 ) return ZERO._value;
+			if ( value.length == 0 ) return null;
 			var result:BigValue;
+			var i:uint;
 			switch ( value.endian ) {
 				case Endian.LITTLE_ENDIAN:
 					result = new BigValue();
@@ -177,7 +214,7 @@ package by.blooddy.math {
 				case Endian.BIG_ENDIAN:
 					result = new BigValue();
 					result.length = value.length;
-					var i:uint = value.length;
+					i = value.length;
 					var j:uint = 0;
 					do {
 						result[ j++ ] = value[ --i ];
@@ -195,10 +232,10 @@ package by.blooddy.math {
 				result.length -= 4;
 				result.position -= 4;
 			}
-			if ( result.length == 0 ) result = null;
+			if ( result.length == 0 ) return null;
 			return result;
 		}
-		
+
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -508,7 +545,30 @@ package by.blooddy.math {
 	
 }
 
+//==============================================================================
+//
+//  Inner definitions
+//
+//==============================================================================
+
+import by.blooddy.math.BigInteger;
+
 import flash.utils.ByteArray;
+import flash.utils.Endian;
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Helper namespace: $private
+//
+////////////////////////////////////////////////////////////////////////////////
+
+internal namespace $private;
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Helper class: EventContainer
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @private
@@ -517,8 +577,17 @@ internal final class BigValue extends ByteArray {
 	
 	public function BigValue() {
 		super();
+		super.endian = Endian.LITTLE_ENDIAN;
 	}
 	
 	public var negative:Boolean;
 	
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Initialization
+//
+////////////////////////////////////////////////////////////////////////////////
+
+BigInteger.$private::init();
