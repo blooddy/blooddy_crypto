@@ -27,7 +27,7 @@ package by.blooddy.math {
 		//  Class variables
 		//
 		//--------------------------------------------------------------------------
-		
+
 		/**
 		 * @private
 		 */
@@ -43,15 +43,15 @@ package by.blooddy.math {
 		//  Class constants
 		//
 		//--------------------------------------------------------------------------
-		
+
 		public static const ZERO:BigInteger =	new BigInteger();
-		
+
 		public static const ONE:BigInteger =	new BigInteger();
-		
+
 		public static const TWO:BigInteger =	new BigInteger();
-		
+
 		public static const TEN:BigInteger =	new BigInteger();
-		
+
 		//--------------------------------------------------------------------------
 		//
 		//  Class methods
@@ -158,19 +158,34 @@ package by.blooddy.math {
 			value = value.replace( _PATTERN, '' );
 			var len:uint = value.length;
 			if ( !len ) return null;
-			var i:uint = 0;
+			var p:uint = 0;
 			if ( value.charAt( 0 ) == '-' ) {
 				result.negative = true;
-				++i;
+				++p;
 			}
-			if ( radix == 16 && len - i >= 2 && value.substr( i, 2 ).toLocaleLowerCase() == '0x' ) {
-				i += 2;
+			var size:uint = ( 0xFF ).toString( radix ).length;
+			if ( radix == 2 || radix == 4 || radix == 16 ) {
+				if (
+					radix == 16 &&
+					len - p >= 2 &&
+					value.charAt( p ) == '0' &&
+					value.charAt( p + 1 ).toLocaleLowerCase() == 'x'
+				) {
+					p += 2;
+				}
+				var i:uint = len;
+				var j:uint = p;
+//				var i:int = v.length;
+//				do {
+//					Memory.setI32( p, parseInt( v.substring( Math.max( 0, i - 8 ), i ), 16 ) );
+//					i -= 8;
+//					p += 4;
+//				} while ( i > 0 );
+//				i = p - pos;
+			} else {
+				var c:uint = 0;
+				result.writeInt( c );
 			}
-			var c:uint = 0;
-			for ( i; i < len; ++i ) {
-				// TODO
-			}
-			result.writeInt( c );
 			result.position -= 4;
 			while ( result.length > 0 && result.readInt() == 0 ) {
 				result.length -= 4;
@@ -213,17 +228,27 @@ package by.blooddy.math {
 					break;
 				case Endian.BIG_ENDIAN:
 					result = new BigValue();
-					result.length = value.length;
-					i = value.length;
-					var j:uint = 0;
-					do {
-						result[ j++ ] = value[ --i ];
-					} while ( i > 0 );
+					if ( value.length >= 4 ) {
+						value.position = value.length + 4;
+						do {
+							value.position -= 8;
+							result.writeInt( value.readInt() );
+						} while ( value.position >= 8 );
+						value.position -= 4;
+					} else {
+						value.position = value.length;
+					}
+					if ( value.position > 0 ) {
+						++value.position;
+						do {
+							value.position -= 2;
+							result.writeByte( value.readByte() );
+						} while ( value.position >= 2 );
+					}
 					break;
 				default:
 					throw new ArgumentError();
 			}
-			result.position = result.length;
 			while ( result.length & 3 ) {
 				result.writeByte( 0 );
 			}
