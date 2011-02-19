@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ ~ (C) 2011 BlooDHounD
+-->
+<project name="blooddy_crypto" default="" basedir=".">
+
+	<property file="build.properties" />
+	<property file="build.exec.properties" />
+
+	<property name="src.dir"				value="${basedir}/src" />
+	<property name="tests.dir"				value="${basedir}/tests" />
+
+	<property name="output.dir"				value="${basedir}/bin-debug" />
+	<property name="tmp.dir"				value="${output.dir}/generated" />
+	<property name="output.name"			value="blooddy_crypto_git.swc" />
+
+</project>
