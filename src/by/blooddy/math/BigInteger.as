@@ -63,8 +63,12 @@ package by.blooddy.math {
 			result._value = getValueFromNumber( value )
 			return result;
 		}
-		
+
+		/**
+		 * @throws	RangeError
+		 */
 		public static function fromString(value:String, radix:uint=16):BigInteger {
+			if ( radix < 2 || radix > 36 ) Error.throwError( RangeError, 1003, radix );
 			var result:BigInteger = new BigInteger();
 			result._value = getValueFromString( value, radix )
 			return result;
@@ -166,7 +170,6 @@ package by.blooddy.math {
 		 * @private
 		 */
 		private static function getValueFromString(value:String, radix:uint):BigValue {
-			if ( radix < 2 || radix > 36 ) throw new ArgumentError();
 			if ( !value ) return null;
 			var pattern:RadixPattern = _PATTERNS[ radix ];
 			var m:Array = value.match( pattern.pattern );
@@ -291,6 +294,9 @@ package by.blooddy.math {
 		
 		/**
 		 * Constructor
+		 * 
+		 * @throws	RangeError
+		 * @throws	ArgumentError
 		 */
 		public function BigInteger(...args) {
 			super();
@@ -310,7 +316,7 @@ package by.blooddy.math {
 							if ( typeof args[ 1 ] != 'number' ) throw new ArgumentError();
 							if ( l != 2 ) throw new ArgumentError();
 							radix = args[ 1 ];
-							if ( radix < 2 || radix > 32 ) throw new ArgumentError();
+							if ( radix < 2 || radix > 36 ) Error.throwError( RangeError, 1003, radix );
 						} else {
 							radix = 16;
 						}
@@ -394,49 +400,101 @@ package by.blooddy.math {
 			}
 		}
 		
+		/**
+		 * @throws	RangeError
+		 */
 		public function toString(radix:uint=16):String {
-			throw new IllegalOperationError( 'TODO' );
+			if ( radix < 2 || radix > 36 ) Error.throwError( RangeError, 1003, radix );
+			if ( this._value ) {
+				var list:Vector.<uint> = new Vector.<uint>();
+				var v:uint;
+				var c:uint;
+				var r:uint;
+				var i:uint = 0;
+				var j:uint;
+				var l:uint;
+				this._value.position = this._value.length + 4;
+				do {
+					this._value.position -= 8;
+					v = this._value.readUnsignedInt();
+					i = 0;
+					while ( i < 8 ) {
+						c = v >>> 28;
+						r = 0;
+						l = j;
+						j = 0;
+						while ( j < l ) {
+							r += list[ j ] << 4;
+							c += r % radix;
+							list[ j ] = c % radix;
+							r /= radix;
+							c /= radix;
+							++j;
+						}
+						while ( c > 0 || r > 0 ) {
+							c += r % radix;
+							list[ j ] = c % radix;
+							r /= radix;
+							c /= radix;
+							++j;
+						}
+						v <<= 4;
+						++i;
+					}
+				} while ( this._value.position > 4 );
+	
+				var result:String = '';
+				i = list.length;
+				while ( i-- > 0 ) {
+					result += list[ i ].toString( radix );
+				}
+				return result;
+			} else {
+				return '0'
+			}
 		}
 		
 		public function toByteArray(endian:String=Endian.LITTLE_ENDIAN):ByteArray {
 			var result:ByteArray = new ByteArray();
 			result.endian = endian;
-			switch ( endian ) {
-				case Endian.LITTLE_ENDIAN:
-					result.writeBytes( this._value );
-					--result.position;
-					while ( result.readByte() == 0 ) {
-						--result.length;
+			if ( this._value ) {
+				switch ( result.endian ) {
+					case Endian.LITTLE_ENDIAN:
+						result.writeBytes( this._value );
 						--result.position;
-					}
-					break;
-				case Endian.BIG_ENDIAN:
-					this._value.position = this._value.length - 1;
-					var c:uint = this._value.readUnsignedByte();
-					if ( c == 0 ) { // в первом разряде есть ведущие нули. надо пропустить
-						do {
-							this._value.position -= 2;
-							c = this._value.readUnsignedByte();
-						} while ( c == 0 );
-						result.writeByte( c );
-						c = this._value.length - 4;
-						while ( this._value.position > c ) {
-							this._value.position -= 2;
-							result.writeByte( this._value.readByte() );
+						while ( result.readByte() == 0 ) {
+							--result.length;
+							--result.position;
 						}
-						this._value.position = this._value.length;
-					} else {
-						this._value.position = this._value.length + 4;
-					}
-					do {
-						this._value.position -= 8;
-						result.writeInt( this._value.readInt() );
-					} while ( this._value.position >= 8 );
-					break;
-				default:
-					throw new ArgumentError();
+						break;
+					case Endian.BIG_ENDIAN:
+						this._value.position = this._value.length - 1;
+						var c:uint = this._value.readUnsignedByte();
+						if ( c == 0 ) { // в первом разряде есть ведущие нули. надо пропустить
+							do {
+								this._value.position -= 2;
+								c = this._value.readUnsignedByte();
+							} while ( c == 0 );
+							result.writeByte( c );
+							c = this._value.length - 4;
+							while ( this._value.position > c ) {
+								this._value.position -= 2;
+								result.writeByte( this._value.readByte() );
+							}
+							this._value.position = this._value.length;
+						} else {
+							this._value.position = this._value.length + 4;
+						}
+						do {
+							this._value.position -= 8;
+							result.writeInt( this._value.readInt() );
+						} while ( this._value.position >= 8 );
+						break;
+					default:
+						throw new ArgumentError();
+				}
+				result.position = 0;
 			}
-			result.position = 0;
 			return result;
 		}
 		
