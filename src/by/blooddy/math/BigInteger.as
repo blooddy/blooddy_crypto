@@ -243,15 +243,13 @@ package by.blooddy.math {
 		 */
 		private static function getValueFromByteArray(value:ByteArray, negative:Boolean):BigValue {
 			if ( value.length == 0 ) return null;
-			var result:BigValue;
+			var result:BigValue = new BigValue();
 			var i:uint;
 			switch ( value.endian ) {
 				case Endian.LITTLE_ENDIAN:
-					result = new BigValue();
 					result.writeBytes( value );
 					break;
 				case Endian.BIG_ENDIAN:
-					result = new BigValue();
 					if ( value.length >= 4 ) {
 						value.position = value.length + 4;
 						do {
@@ -400,8 +398,46 @@ package by.blooddy.math {
 			throw new IllegalOperationError( 'TODO' );
 		}
 		
-		public function toBytes(endian:String=Endian.LITTLE_ENDIAN):ByteArray {
-			throw new IllegalOperationError( 'TODO' );
+		public function toByteArray(endian:String=Endian.LITTLE_ENDIAN):ByteArray {
+			var result:ByteArray = new ByteArray();
+			result.endian = endian;
+			switch ( endian ) {
+				case Endian.LITTLE_ENDIAN:
+					result.writeBytes( this._value );
+					--result.position;
+					while ( result.readByte() == 0 ) {
+						--result.length;
+						--result.position;
+					}
+					break;
+				case Endian.BIG_ENDIAN:
+					this._value.position = this._value.length - 1;
+					var c:uint = this._value.readUnsignedByte();
+					if ( c == 0 ) { // в первом разряде есть ведущие нули. надо пропустить
+						do {
+							this._value.position -= 2;
+							c = this._value.readUnsignedByte();
+						} while ( c == 0 );
+						result.writeByte( c );
+						c = this._value.length - 4;
+						while ( this._value.position > c ) {
+							this._value.position -= 2;
+							result.writeByte( this._value.readByte() );
+						}
+						this._value.position = this._value.length;
+					} else {
+						this._value.position = this._value.length + 4;
+					}
+					do {
+						this._value.position -= 8;
+						result.writeInt( this._value.readInt() );
+					} while ( this._value.position >= 8 );
+					break;
+				default:
+					throw new ArgumentError();
+			}
+			result.position = 0;
+			return result;
 		}
 		
 		/**
