@@ -383,7 +383,17 @@ package by.blooddy.math {
 		//--------------------------------------------------------------------------
 		
 		public function toNumber():Number {
-			throw new IllegalOperationError( 'TODO' );
+			if ( this._value ) {
+				this._value.position = 0;
+				var result:Number = this._value.readUnsignedInt();
+				var i:uint = 1;
+				while ( this._value.bytesAvailable ) {
+					result += this._value.readUnsignedInt() * Math.pow( 0xFFFFFFFF, i );
+				}
+				return ( this._value.negative ? -result : result );
+			} else {
+				return 0;
+			}
 		}
 		
 		public function toString(radix:uint=16):String {
