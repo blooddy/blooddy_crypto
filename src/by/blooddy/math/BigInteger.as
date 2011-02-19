@@ -36,7 +36,7 @@ package by.blooddy.math {
 		/**
 		 * @private
 		 */
-		private static const _PATTERN:RegExp = /(^\s+|\s+$)/g;
+		private static const _PATTERNS:Object = new Object();
 
 		//--------------------------------------------------------------------------
 		//
@@ -95,6 +95,20 @@ package by.blooddy.math {
 			TWO._value.writeInt( 0x02 );
 			TEN._value = new BigValue();
 			TEN._value.writeInt( 0x0A );
+			
+			var i:uint = 2;
+			for ( ; i <= 9; ++i ) {
+				_PATTERNS[ i ] = new RadixPattern( i, new RegExp( '^\\s*(-)?([0-' + ( i - 1 ) + ']+)\\s*$' ) );
+			}
+			_PATTERNS[ i++ ] = new RadixPattern( 10, new RegExp( '^\\s*(-)?(\\d+)(?:\\.\\d+)?\\s*$' ) );
+			_PATTERNS[ i++ ] = new RadixPattern( 11, new RegExp( '^\\s*(-)?([\\da]+)\\s*$', 'i' ) );
+			for ( ; i <= 15; ++i ) {
+				_PATTERNS[ i ] =  new RadixPattern( i );
+			}
+			_PATTERNS[ i++ ] = new RadixPattern( 16, new RegExp( '^\\s*(-)?(?:0x)?([\\da-f]+)\\s*$', 'i' ) );
+			for ( ; i <= 36; ++i ) {
+				_PATTERNS[ i ] = new RadixPattern( i );
+			}
 		}
 
 		/**
@@ -147,44 +161,54 @@ package by.blooddy.math {
 				return getValueFromString( value.toString( 16 ), 16 );
 			}
 		}
-		
+
 		/**
 		 * @private
 		 */
 		private static function getValueFromString(value:String, radix:uint):BigValue {
-			if ( radix < 2 || radix > 32 ) throw new ArgumentError();
+			if ( radix < 2 || radix > 36 ) throw new ArgumentError();
 			if ( !value ) return null;
+			var pattern:RadixPattern = _PATTERNS[ radix ];
+			var m:Array = value.match( pattern.pattern );
+			if ( !m ) throw new ArgumentError();
 			var result:BigValue = new BigValue();
-			value = value.replace( _PATTERN, '' );
+			result.negative = Boolean( m[ 1 ] );
+			value = m[ 2 ];
+			// TODO: optimize 2,4,16
 			var len:uint = value.length;
-			if ( !len ) return null;
-			var p:uint = 0;
-			if ( value.charAt( 0 ) == '-' ) {
-				result.negative = true;
-				++p;
-			}
-			var size:uint = ( 0xFF ).toString( radix ).length;
-			if ( radix == 2 || radix == 4 || radix == 16 ) {
-				if (
-					radix == 16 &&
-					len - p >= 2 &&
-					value.charAt( p ) == '0' &&
-					value.charAt( p + 1 ).toLocaleLowerCase() == 'x'
-				) {
-					p += 2;
+			var list:Vector.<uint> = new Vector.<uint>();
+			var i:uint = 0;
+			var j:uint;
+			var l:uint;
+			var c:uint;
+			var r:uint;
+			while ( i < len ) {
+				c = parseInt( value.charAt( i ), radix );
+				r = 0;
+				l = j;
+				j = 0;
+				while ( j < l ) {
+					r += list[ j ] * radix;
+					c += r & 0xFFFF;
+					list[ j ] = c & 0xFFFF;
+					r >>>= 16;
+					c >>>= 16;
+					++j;
 				}
-				var i:uint = len;
-				var j:uint = p;
-//				var i:int = v.length;
-//				do {
-//					Memory.setI32( p, parseInt( v.substring( Math.max( 0, i - 8 ), i ), 16 ) );
-//					i -= 8;
-//					p += 4;
-//				} while ( i > 0 );
-//				i = p - pos;
-			} else {
-				var c:uint = 0;
-				result.writeInt( c );
+				while ( c > 0 || r > 0 ) {
+					c += r & 0xFFFF;
+					list[ j ] = c & 0xFFFF;
+					r >>>= 16;
+					c >>>= 16;
+					++j;
+				}
+				++i;
+			}
+			for each ( c in list ) {
+				result.writeShort( c );
+			}
+			if ( result.length & 3 ) {
+				result.writeShort( 0 );
 			}
 			result.position -= 4;
 			while ( result.length > 0 && result.readInt() == 0 ) {
@@ -591,7 +615,7 @@ internal namespace $private;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-//  Helper class: EventContainer
+//  Helper class: BigValue
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -607,6 +631,27 @@ internal final class BigValue extends ByteArray {
 	
 	public var negative:Boolean;
 	
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Helper class: RadixPattern
+//
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @private
+ */
+internal final class RadixPattern {
+	
+	public function RadixPattern(radix:uint, pattern:RegExp=null) {
+		super();
+		var c:String = ( radix - 1 ).toString( radix );
+		this.pattern = pattern || new RegExp( '^\\s*(-)?([\\da-' + c + ']+)\\s*$', 'i' );
+	}
+	
+	public var pattern:RegExp;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
