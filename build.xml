@@ -2,7 +2,7 @@
 <!--
  ~ (C) 2011 BlooDHounD
 -->
-<project name="blooddy_crypto" default="apparat.debug" basedir=".">
+<project name="blooddy_crypto" default="build.debug.default" basedir=".">
 
 	<!-- properties -->
 	
@@ -32,17 +32,17 @@
 		-external-library-path+='${FLEXUNIT_LIB_LOCATION}/version4libs/Common'
 		-external-library-path+='${FLEXUNIT_LIB_LOCATION}/version4libs/ASProject'
 		-include-sources+='${tests.dir}'
-	"/>
+	" />
 
-	<property name="compile.arg.line.debug" value="
+	<property name="compile.arg.line.default" value="
 		-load-config='${basedir}/compiler-config-debug.xml'
 		-external-library-path+='${APPARAT_HOME}'
-	"/>
+	" />
 
 	<property name="compile.arg.line.apparat" value="
 		-load-config='${basedir}/compiler-config-apparat.xml'
 		-external-library-path+='${APPARAT_HOME}'
-	"/>
+	" />
 
 	<!--
 	 ~ targets
@@ -53,19 +53,40 @@
 		<mkdir  dir= "${output.dir}" />
 	</target>
 
-	<!-- debug target-->
+	<target name="clean">
+		<delete dir= "${tmp.dir}" />
+	</target>
+
+	<!-- default target-->
 	
-	<target name="debug" depends="clear" description="debug build">
-		<antcall target="compile.debug" />
+	<target name="build.debug.default" description="debug build">
+		<antcall target="compile.debug.default" />
 		<antcall target="clean" />
 	</target>
 
-	<target name="compile.debug" depends="clear">
+	<target name="compile.debug.default" depends="clear">
 		<exec executable="${compc}" failonerror="true">
 			<arg line="${compile.arg.line.common}" />
 			<arg line="${compile.arg.line.tests}" />
-			<arg line="${compile.arg.line.debug}" />
+			<arg line="${compile.arg.line.default}" />
 			<arg line="
+				-include-sources+='${src.dir}'
+				-output+='${output.path}'
+			" />
+		</exec>
+	</target>
+
+	<target name="build.release.default" description="release build">
+		<antcall target="compile.release.default" />
+		<antcall target="clean" />
+	</target>
+
+	<target name="compile.release.default" depends="clear">
+		<exec executable="${compc}" failonerror="true">
+			<arg line="${compile.arg.line.common}" />
+			<arg line="${compile.arg.line.default}" />
+			<arg line="
+				-debug=false
 				-include-sources+='${src.dir}'
 				-output+='${output.path}'
 			" />
@@ -74,15 +95,19 @@
 
 	<!-- apparat compile -->
 	
-	<target name="apparat.debug" depends="compile.apparat.debug, apparat" description="debug apparat build">
+	<target name="build.debug.apparat" description="apparat debug build">
+		<antcall target="compile.debug.apparat" />
+		<antcall target="apparat" />
 		<antcall target="clean" />
 	</target>
 
-	<target name="apparat.release" depends="compile.apparat.release, apparat" description="debug release build">
+	<target name="build.release.apparat" description="apparat release build">
+		<antcall target="compile.release.apparat" />
+		<antcall target="apparat" />
 		<antcall target="clean" />
 	</target>
 
-	<target name="compile.apparat.debug" depends="clear">
+	<target name="compile.debug.apparat" depends="clear">
 		<exec executable="${compc}" failonerror="true">
 			<arg line="${compile.arg.line.common}" />
 			<arg line="${compile.arg.line.tests}" />
@@ -94,11 +119,12 @@
 		</exec>
 	</target>
 
-	<target name="compile.apparat.release" depends="clear">
+	<target name="compile.release.apparat" depends="clear">
 		<exec executable="${compc}" failonerror="true">
 			<arg line="${compile.arg.line.common}" />
 			<arg line="${compile.arg.line.apparat}" />
 			<arg line="
+				-debug=false
 				-include-sources+='${src.dir}'
 				-output+='${output.path}'
 			" />
@@ -117,10 +143,6 @@
 				-s true
 			"/>
 		</exec>
-	</target>
-
-	<target name="clean">
-		<delete dir= "${tmp.dir}" />
 	</target>
 
 </project>
