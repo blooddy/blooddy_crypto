@@ -20,7 +20,7 @@ package by.blooddy.math.utils {
 	 * @langversion				3.0
 	 * @created					31.01.2011 10:59:37
 	 */
-	public final class BigUint$ extends Macro { // internal?
+	internal final class BigUint$ extends Macro { // internal?
 
 		//--------------------------------------------------------------------------
 		//
@@ -234,6 +234,33 @@ package by.blooddy.math.utils {
 
 		[Inline( "direct_copy" )]
 		/**
+		 * result = [ v1 / v2, v1 % v2 ]
+		 */
+		public static function divAndMod_s(
+			p1:uint, l1:uint, v2:uint, pos:uint, len:uint, posx:uint, lenx:uint,
+			c:uint, i:uint
+		):void {
+			c = 0;
+			i = l1;
+			do {
+				i -= 2;
+				c = Memory.getUI16( p1 + i ) | ( c << 16 );
+				Memory.setI16( pos + i, c / v2 );
+				c %= v2;
+			} while ( i > 0 );
+			len = l1;
+			BigUint$.clean( pos, len );
+			if ( c > 0 ) {
+				posx = pos + len;
+				lenx = 4;
+				Memory.setI32( posx, c );
+			} else {
+				lenx = 0;
+			}
+		}
+
+		[Inline( "direct_copy" )]
+		/**
 		 * result = v1 / v2
 		 */
 		public static function div_s(
@@ -247,7 +274,7 @@ package by.blooddy.math.utils {
 				c = Memory.getUI16( p1 + i ) | ( c << 16 );
 				Memory.setI16( pos + i, c / v2 );
 				c %= v2;
-			} while ( i > 0 ) ;
+			} while ( i > 0 );
 			len = l1;
 			BigUint$.clean( pos, len );
 		}

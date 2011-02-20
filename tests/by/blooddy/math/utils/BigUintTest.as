@@ -484,15 +484,20 @@ package by.blooddy.math.utils {
 		//----------------------------------
 
 		public static var $divAndMod:Array = [
+			[ '0', '123', '0', '0' ],
 			[ '1234', '123456789', '0', '1234' ],
-			[ '123456789', '1', '123456789', '0' ],
+			[ '123', '1', '123', '0' ],
 			[ '123', '123', '1', '0' ],
 			[ '12', '123', '0', '12' ],
 			[ '6F9', '7', 'FF', '0' ],
 			[ '14EB', '8', '29D', '3' ],
+			[ '123456789', '1', '123456789', '0' ],
 			[ '123456789', '3', '61172283', '0' ],
 			[ '123456789', '7', '299C335C', '5' ],
-			[ '1234567890FFFFFFFF', '1234567890', '100000000', 'FFFFFFFF' ]
+			[ '1234567890FFFFFFFF', 'FFFFFFFFFFFF', '123456', '789100123455' ],
+			[ '1234567890FFFFFFFF', '9876543210', '1E9131AB', '859D1D7F4F' ],
+			[ '1234567890FFFFFFFF', '1234567890', '100000000', 'FFFFFFFF' ],
+			[ 'F926CAD0655A246E5FA1F9918ACFA7E3A5C066275D342E9F', '320A7BD3DF175319', '4fa9ca4ad127067c933000454773cd53c', '23f44e9492bce7c3' ]
 		];
 
 		[Test( order="21", dataProvider="$divAndMod" )]
@@ -504,18 +509,18 @@ package by.blooddy.math.utils {
 			);
 		}
 
-//		//----------------------------------
-//		//  divAndMod_error
-//		//----------------------------------
-//
-//		public static var $divAndMod_error:Array = [
-//			[ '123456', '0' ]
-//		];
-//
-//		[Test( order="22", dataProvider="$divAndMod_error", expects="ArgumentError" )]
-//		public function divAndMod_error(v1:String, v2:String):void {
-//			BigUintStr.divAndMod( v1, v2 );
-//		}
+		//----------------------------------
+		//  divAndMod_error
+		//----------------------------------
+
+		public static var $divAndMod_error:Array = [
+			[ '123456', '0' ]
+		];
+
+		[Test( order="22", dataProvider="$divAndMod_error", expects="ArgumentError" )]
+		public function divAndMod_error(v1:String, v2:String):void {
+			BigUintStr.divAndMod( v1, v2 );
+		}
 
 //		//----------------------------------
 //		//  div
