@@ -4,9 +4,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package by.blooddy.math {
+package by.blooddy.math.utils {
 
-	import by.blooddy.math.utils.BigUint;
 	import by.blooddy.system.Memory;
 
 	/**

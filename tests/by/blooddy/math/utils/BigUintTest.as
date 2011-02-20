@@ -4,7 +4,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package by.blooddy.math {
+package by.blooddy.math.utils {
 
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
