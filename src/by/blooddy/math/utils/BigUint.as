@@ -1032,7 +1032,17 @@ package by.blooddy.math.utils {
 						}
 					}
 				} else {
-					return _divAndMod( p1, l1, p2, l2, pos );
+					CRYPTO::debug {
+						return _divAndMod( p1, l1, p2, l2, pos );
+					}
+					CRYPTO::inline {
+						var mem:ByteArray = _domain.domainMemory;
+						var scale:uint;
+						var t1:uint, t2:uint, t3:int;
+						var qGuess:int, borrow:int, carry:int, _j:int, _i:int;
+						BigUint$.divAndMod( mem, p1, l1, p2, l2, pos, len, posx, lenx, scale, i, t1, t2, t3, qGuess, borrow, carry, c2, c1, _j, _i );
+						return new <BigUint>[ new BigUint( pos, len ), new BigUint( posx, lenx ) ];
+					}
 				}
 			}
 		}
