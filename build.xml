@@ -51,6 +51,11 @@
 			<arg value="-include-sources+=${src.dir}" />
 			<arg value="-output+=${output.dir}/${output.name}" />
 		</exec>
+		<antcall target="clean" />
+	</target>
+
+	<target name="clean">
+		<delete dir= "${tmp.dir}" />
 	</target>
 
 </project>
