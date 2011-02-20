@@ -2,8 +2,10 @@
 <!--
  ~ (C) 2011 BlooDHounD
 -->
-<project name="blooddy_crypto" default="" basedir=".">
+<project name="blooddy_crypto" default="compile.debug" basedir=".">
 
+	<!-- properties -->
+	
 	<property file="build.properties" />
 	<property file="build.exec.properties" />
 
@@ -13,5 +15,42 @@
 	<property name="output.dir"				value="${basedir}/bin-debug" />
 	<property name="tmp.dir"				value="${output.dir}/generated" />
 	<property name="output.name"			value="blooddy_crypto_git.swc" />
+
+	<!-- compile arguments -->
+	
+	<property name="compile.arg.line.common" value="
+		-external-library-path+='${PROJECT_FRAMEWORKS}/libs/player/10.1/playerglobal.swc'
+		-load-config='${basedir}/compiler-config.xml'
+		-tools-locale=en_US
+		-target-player=10.1
+	" />
+
+	<property name="compile.arg.line.tests"	value="
+		-external-library-path+='${FLEXUNIT_LIB_LOCATION}/version4libs/Common'
+		-external-library-path+='${FLEXUNIT_LIB_LOCATION}/version4libs/ASProject'
+		-include-sources+='${tests.dir}'
+	"/>
+
+	<property name="compile.arg.line.debug" value="
+		-load-config='${basedir}/compiler-config-debug.xml'
+		-external-library-path+='${APPARAT_HOME}'
+	"/>
+
+	<!-- targets -->
+	
+	<target name="clear">
+		<delete dir= "${output.dir}" failonerror="true" />
+		<mkdir  dir= "${output.dir}" />
+	</target>
+
+	<target name="compile.debug" depends="clear" description="default build">
+		<exec executable="${compc}" failonerror="true">
+			<arg line="${compile.arg.line.common}" />
+			<arg line="${compile.arg.line.tests}" />
+			<arg line="${compile.arg.line.debug}" />
+			<arg value="-include-sources+=${src.dir}" />
+			<arg value="-output+=${output.dir}/${output.name}" />
+		</exec>
+	</target>
 
 </project>
