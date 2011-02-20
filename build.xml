@@ -2,7 +2,7 @@
 <!--
  ~ (C) 2011 BlooDHounD
 -->
-<project name="blooddy_crypto" default="compile.debug" basedir=".">
+<project name="blooddy_crypto" default="apparat.debug" basedir=".">
 
 	<!-- properties -->
 	
@@ -16,7 +16,10 @@
 	<property name="tmp.dir"				value="${output.dir}/generated" />
 	<property name="output.name"			value="blooddy_crypto_git.swc" />
 
-	<!-- compile arguments -->
+	<property name="output.path"			value="${output.dir}/${output.name}" />
+	<property name="output.apparat.path"	value="${tmp.dir}/apparat_${output.name}" />
+
+		<!-- compile arguments -->
 	
 	<property name="compile.arg.line.common" value="
 		-external-library-path+='${PROJECT_FRAMEWORKS}/libs/player/10.1/playerglobal.swc'
@@ -36,22 +39,84 @@
 		-external-library-path+='${APPARAT_HOME}'
 	"/>
 
-	<!-- targets -->
+	<property name="compile.arg.line.apparat" value="
+		-load-config='${basedir}/compiler-config-apparat.xml'
+		-external-library-path+='${APPARAT_HOME}'
+	"/>
+
+	<!--
+	 ~ targets
+	-->
 	
 	<target name="clear">
 		<delete dir= "${output.dir}" failonerror="true" />
 		<mkdir  dir= "${output.dir}" />
 	</target>
 
-	<target name="compile.debug" depends="clear" description="default build">
+	<!-- debug target-->
+	
+	<target name="debug" depends="clear" description="debug build">
+		<antcall target="compile.debug" />
+		<antcall target="clean" />
+	</target>
+
+	<target name="compile.debug" depends="clear">
 		<exec executable="${compc}" failonerror="true">
 			<arg line="${compile.arg.line.common}" />
 			<arg line="${compile.arg.line.tests}" />
 			<arg line="${compile.arg.line.debug}" />
-			<arg value="-include-sources+=${src.dir}" />
-			<arg value="-output+=${output.dir}/${output.name}" />
+			<arg line="
+				-include-sources+='${src.dir}'
+				-output+='${output.path}'
+			" />
 		</exec>
+	</target>
+
+	<!-- apparat compile -->
+	
+	<target name="apparat.debug" depends="compile.apparat.debug, apparat" description="debug apparat build">
 		<antcall target="clean" />
+	</target>
+
+	<target name="apparat.release" depends="compile.apparat.release, apparat" description="debug release build">
+		<antcall target="clean" />
+	</target>
+
+	<target name="compile.apparat.debug" depends="clear">
+		<exec executable="${compc}" failonerror="true">
+			<arg line="${compile.arg.line.common}" />
+			<arg line="${compile.arg.line.tests}" />
+			<arg line="${compile.arg.line.apparat}" />
+			<arg line="
+				-include-sources+='${src.dir}'
+				-output+='${output.path}'
+			" />
+		</exec>
+	</target>
+
+	<target name="compile.apparat.release" depends="clear">
+		<exec executable="${compc}" failonerror="true">
+			<arg line="${compile.arg.line.common}" />
+			<arg line="${compile.arg.line.apparat}" />
+			<arg line="
+				-include-sources+='${src.dir}'
+				-output+='${output.path}'
+			" />
+		</exec>
+	</target>
+
+	<target name="apparat">
+		<exec executable="${tdsi}" failonerror="true">
+			<arg line="
+				-i '${output.path}'
+				-o '${output.path}'
+				-f true
+				-a true
+				-e true
+				-m true
+				-s true
+			"/>
+		</exec>
 	</target>
 
 	<target name="clean">
