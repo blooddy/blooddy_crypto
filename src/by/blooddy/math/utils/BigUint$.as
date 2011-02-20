@@ -448,8 +448,8 @@ package by.blooddy.math.utils {
 		 * result = v1 / v2
 		 */
 		public static function mod_s(
-			p1:uint, l1:uint, v2:uint,
-			c:uint, i:uint
+			p1:uint, l1:uint, v2:uint, c:uint,
+			i:uint
 		):void {
 			c = 0;
 			i = l1;

@@ -1677,7 +1677,7 @@ package by.blooddy.math.utils {
 						Memory.setI16( pos + j, qGuess );
 					}
 
-				} else { // частное равно 0 
+				} else { // частное равно 0
 					Memory.setI16( pos + j, 0 );
 				}
 				
@@ -1740,7 +1740,173 @@ package by.blooddy.math.utils {
 		 * @return		v1 / v2
 		 */
 		private static function _div(p1:uint, l1:uint, p2:uint, l2:uint, pos:uint):BigUint {
-			return _divAndMod( p1, l1, p2, l2, pos )[ 0 ];
+			
+			var scale:uint = Memory.getUI16( p2 + l2 - 2 );
+			if ( !scale ) scale = Memory.getUI16( p2 + l2 - 4 );
+			scale = 0x10000 / ( scale + 1 ); // коэффициент нормализации
+			
+			var d:BigUint;
+			var len:uint;
+			if ( scale > 1 ) {
+				// Нормализация
+				CRYPTO::inline {
+					BigUint$.mult_s( p1, l1, scale, pos, len, t1 );
+					p1 = pos;
+					l1 = len;
+				}
+				CRYPTO::debug {
+					d = _mult_s( p1, l1, scale, pos );
+					p1 = d.pos;
+					l1 = d.len;
+				}
+				pos = p1 + l1;
+				Memory.setI16( pos, 0 );
+				pos += 2;
+				CRYPTO::inline {
+					BigUint$.mult_s( p2, l2, scale, pos, len, t1 );
+					p2 = pos;
+					l2 = len;
+				}
+				CRYPTO::debug {
+					d = _mult_s( p2, l2, scale, pos );
+					p2 = d.pos;
+					l2 = d.len;
+				}
+				pos = p2 + l2;
+			} else {
+				var mem:ByteArray = _domain.domainMemory;
+				mem.position = p1;
+				mem.readBytes( mem, pos, l1 );
+				p1 = pos;
+				pos += l1;
+				Memory.setI16( pos, 0 );
+				pos += 2;
+			}
+			
+			while ( Memory.getUI16( p1 + l1 - 2 ) == 0 ) l1 -= 2;
+			while ( Memory.getUI16( p2 + l2 - 2 ) == 0 ) l2 -= 2;
+			
+			len = l1 - l2;
+			
+			// резервируем запасной разряд
+			Memory.setI32( pos + len, 0 );
+			
+			var k:uint;
+			var t1:uint, t2:uint, t3:int;
+			var qGuess:int;				// догадка для частного и соответствующий остаток
+			var borrow:int, carry:int;	// переносы
+			
+			var c2:uint = Memory.getUI16( p2 + l2 - 2 );
+			var c4:uint = Memory.getUI16( p2 + l2 - 4 );
+			
+			// Главный цикл шагов деления. Каждая итерация дает очередную цифру частного.
+			var j:int = len;	// i – индекс текущей цифры v1
+			var i:int = l1;		// j - текущий сдвиг v2 относительно v1, используемый при вычитании,
+								//     по совместительству - индекс очередной цифры частного.
+			do {
+				t1 = Memory.getI32( p1 + i - 2 )
+				t2 = c2;
+				
+				qGuess = t1 / t2;
+				k = t1 % t2;
+				
+				// Пока не будут выполнены условия (2) уменьшать частное.
+				while ( k < 0x10000 ) {
+					t2 = c4 * qGuess;
+					t1 = ( k << 16 ) + Memory.getUI16( p1 + i - 4 );
+					if ( ( t2 > t1 ) || ( qGuess == 0x10000 ) ) {
+						// условия не выполнены, уменьшить qGuess
+						// и досчитать новый остаток
+						--qGuess;
+						k += c2;
+					} else {
+						break;
+					}
+				}
+				
+				if ( qGuess ) {
+					
+					carry = 0;
+					borrow = 0;
+					
+					// Теперь qGuess - правильное частное или на единицу больше q
+					// Вычесть делитель v2, умноженный на qGuess из делимого v1,
+					// начиная с позиции vJ+i
+					k = 0;
+					do {
+						// получить в t1 цифру произведения v2*qGuess
+						t1 = Memory.getUI16( p2 + k ) * qGuess + carry;
+						carry = t1 >>> 16;
+						t1 -= carry << 16;
+						// Сразу же вычесть из v1
+						t3 = Memory.getUI16( p1 + k + j ) - t1 + borrow;
+						if ( t3 < 0 ) {
+							Memory.setI16( p1 + k + j, t3 + 0x10000 )
+							borrow = -1;
+						} else {
+							Memory.setI16( p1 + k + j, t3 )
+							borrow = 0;
+						}
+						k += 2;
+					} while ( k < l2 );
+					
+					if ( carry || borrow ) {
+						// возможно, умноженое на qGuess число v2 удлинилось.
+						// Если это так, то после умножения остался
+						// неиспользованный перенос carry. Вычесть и его тоже.
+						t3 = Memory.getUI16( p1 + k + j ) - carry + borrow;
+						if ( t3 < 0 ) {
+							Memory.setI16( p1 + k + j, t3 + 0x10000 );
+							borrow = -1;
+						} else {
+							Memory.setI16( p1 + k + j, t3 );
+							borrow = 0;
+						}
+					}
+					
+					// Прошло ли вычитание нормально ?
+					if ( borrow ) { // Нет, последний перенос при вычитании borrow = -1,
+						// значит, qGuess на единицу больше истинного частного
+						Memory.setI16( pos + j, qGuess - 1 );
+						// добавить одно, вычтенное сверх необходимого v2 к v1
+						carry = 0;
+						k = 0;
+						do {
+							t1 = Memory.getUI16( p1 + k + j ) + Memory.getUI16( p2 + k ) + carry;
+							if ( t1 >= 0x10000 ) {
+								Memory.setI16( p1 + k + j, t1 - 0x10000 );
+								carry = 1;
+							} else {
+								Memory.setI16( p1 + k + j, t1 );
+								carry = 0;
+							}
+							k += 2;
+						} while ( k < l2 );
+						Memory.setI16( p1 + k + j, Memory.getUI16( p1 + k + j ) + carry - 0x10000 );
+					} else { // Да, частное угадано правильно
+						Memory.setI16( pos + j, qGuess );
+					}
+					
+				} else { // частное равно 0
+					Memory.setI16( pos + j, 0 );
+				}
+				
+				j -= 2;
+				i -= 2;
+				
+			} while ( j >= 0 );
+			
+			len += 2;
+			if ( len & 3 ) len += 2;
+			
+			CRYPTO::inline {
+				BigUint$.clean( pos, len );
+				return new BigUint( pos, len );
+			}
+			CRYPTO::debug {
+				return _clean( pos, len );
+			}
+
 		}
 
 		CRYPTO::debug
@@ -1762,7 +1928,180 @@ package by.blooddy.math.utils {
 		 * @private		v1 % v2
 		 */
 		private static function _mod(p1:uint, l1:uint, p2:uint, l2:uint, pos:uint):BigUint {
-			return _divAndMod( p1, l1, p2, l2, pos )[ 1 ];
+
+			var scale:uint = Memory.getUI16( p2 + l2 - 2 );
+			if ( !scale ) scale = Memory.getUI16( p2 + l2 - 4 );
+			scale = 0x10000 / ( scale + 1 ); // коэффициент нормализации
+			
+			var d:BigUint;
+			var len:uint;
+			if ( scale > 1 ) {
+				// Нормализация
+				CRYPTO::inline {
+					BigUint$.mult_s( p1, l1, scale, pos, len, t1 );
+					p1 = pos;
+					l1 = len;
+				}
+				CRYPTO::debug {
+					d = _mult_s( p1, l1, scale, pos );
+					p1 = d.pos;
+					l1 = d.len;
+				}
+				pos = p1 + l1;
+				Memory.setI16( pos, 0 );
+				pos += 2;
+				CRYPTO::inline {
+					BigUint$.mult_s( p2, l2, scale, pos, len, t1 );
+					p2 = pos;
+					l2 = len;
+				}
+				CRYPTO::debug {
+					d = _mult_s( p2, l2, scale, pos );
+					p2 = d.pos;
+					l2 = d.len;
+				}
+				pos = p2 + l2;
+			} else {
+				var mem:ByteArray = _domain.domainMemory;
+				mem.position = p1;
+				mem.readBytes( mem, pos, l1 );
+				p1 = pos;
+				pos += l1;
+				Memory.setI16( pos, 0 );
+				pos += 2;
+			}
+			
+			while ( Memory.getUI16( p1 + l1 - 2 ) == 0 ) l1 -= 2;
+			while ( Memory.getUI16( p2 + l2 - 2 ) == 0 ) l2 -= 2;
+			
+			len = l1 - l2;
+			
+			// резервируем запасной разряд
+			Memory.setI32( pos + len, 0 );
+			
+			var k:uint;
+			var t1:uint, t2:uint, t3:int;
+			var qGuess:int;				// догадка для частного и соответствующий остаток
+			var borrow:int, carry:int;	// переносы
+			
+			var c2:uint = Memory.getUI16( p2 + l2 - 2 );
+			var c4:uint = Memory.getUI16( p2 + l2 - 4 );
+			
+			// Главный цикл шагов деления. Каждая итерация дает очередную цифру частного.
+			var j:int = len;	// i – индекс текущей цифры v1
+			var i:int = l1;		// j - текущий сдвиг v2 относительно v1, используемый при вычитании,
+								//     по совместительству - индекс очередной цифры частного.
+			do {
+				t1 = Memory.getI32( p1 + i - 2 )
+				t2 = c2;
+				
+				qGuess = t1 / t2;
+				k = t1 % t2;
+				
+				// Пока не будут выполнены условия (2) уменьшать частное.
+				while ( k < 0x10000 ) {
+					t2 = c4 * qGuess;
+					t1 = ( k << 16 ) + Memory.getUI16( p1 + i - 4 );
+					if ( ( t2 > t1 ) || ( qGuess == 0x10000 ) ) {
+						// условия не выполнены, уменьшить qGuess
+						// и досчитать новый остаток
+						--qGuess;
+						k += c2;
+					} else {
+						break;
+					}
+				}
+				
+				if ( qGuess ) {
+					
+					carry = 0;
+					borrow = 0;
+					
+					// Теперь qGuess - правильное частное или на единицу больше q
+					// Вычесть делитель v2, умноженный на qGuess из делимого v1,
+					// начиная с позиции vJ+i
+					k = 0;
+					do {
+						// получить в t1 цифру произведения v2*qGuess
+						t1 = Memory.getUI16( p2 + k ) * qGuess + carry;
+						carry = t1 >>> 16;
+						t1 -= carry << 16;
+						// Сразу же вычесть из v1
+						t3 = Memory.getUI16( p1 + k + j ) - t1 + borrow;
+						if ( t3 < 0 ) {
+							Memory.setI16( p1 + k + j, t3 + 0x10000 )
+							borrow = -1;
+						} else {
+							Memory.setI16( p1 + k + j, t3 )
+							borrow = 0;
+						}
+						k += 2;
+					} while ( k < l2 );
+					
+					if ( carry || borrow ) {
+						// возможно, умноженое на qGuess число v2 удлинилось.
+						// Если это так, то после умножения остался
+						// неиспользованный перенос carry. Вычесть и его тоже.
+						t3 = Memory.getUI16( p1 + k + j ) - carry + borrow;
+						if ( t3 < 0 ) {
+							Memory.setI16( p1 + k + j, t3 + 0x10000 );
+							borrow = -1;
+						} else {
+							Memory.setI16( p1 + k + j, t3 );
+							borrow = 0;
+						}
+					}
+					
+					// Прошло ли вычитание нормально ?
+					if ( borrow ) { // Нет, последний перенос при вычитании borrow = -1,
+						// добавить одно, вычтенное сверх необходимого v2 к v1
+						carry = 0;
+						k = 0;
+						do {
+							t1 = Memory.getUI16( p1 + k + j ) + Memory.getUI16( p2 + k ) + carry;
+							if ( t1 >= 0x10000 ) {
+								Memory.setI16( p1 + k + j, t1 - 0x10000 );
+								carry = 1;
+							} else {
+								Memory.setI16( p1 + k + j, t1 );
+								carry = 0;
+							}
+							k += 2;
+						} while ( k < l2 );
+						Memory.setI16( p1 + k + j, Memory.getUI16( p1 + k + j ) + carry - 0x10000 );
+					}
+					
+				}
+				
+				j -= 2;
+				i -= 2;
+				
+			} while ( j >= 0 );
+			
+			if ( l1 & 3 ) l1 += 2;
+			
+			CRYPTO::inline {
+				BigUint$.clean( p1, l1 );
+			}
+			CRYPTO::debug {
+				d = _clean( p1, l1 );
+				p1 = d.pos;
+				l1 = d.len;
+			}
+			
+			pos += len;
+			if ( scale > 1 && l1 > 0 ) {
+				CRYPTO::inline {
+					BigUint$.div_s( p1, l1, scale, pos, len, carry, k );
+					p1 = pos;
+					l1 = len;
+				}
+				CRYPTO::debug {
+					return _div_s( p1, l1, scale, pos );
+				}
+			}
+			return new BigUint( p1, l1 );
+
 		}
 
 		/**

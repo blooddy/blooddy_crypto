@@ -522,88 +522,50 @@ package by.blooddy.math.utils {
 			BigUintStr.divAndMod( v1, v2 );
 		}
 
-//		//----------------------------------
-//		//  div
-//		//----------------------------------
-//
-//		[Test]
-//		public static var $div:Array = [
-//			[ '0', '123', '0' ],
-//			[ '0', '123456', '0' ],
-//			[ '123', '12', '10' ],
-//			[ '12', '123', '0' ],
-//			[ '123', '123', '1' ],
-//			[ '123456', '123', '1003' ],
-//			[ '123', '123456', '0' ],
-//			[ '654321', '123456', '5' ],
-//			[ '123456', '654321', '0' ],
-//			[ '123F77FFFFFF6', '654321', '2E21E49' ],
-//			[ '3DD803668', '51F11', 'C135' ]
-//		];
-//
-//		[Test( order="23", dataProvider="$div" )]
-//		public function div(v1:String, v2:String, result:String):void {
-//			var R:String = BigUintStr.div( v1, v2 );
-//			Assert.assertEquals(
-//				'0x' + v1.toLowerCase() + ' / 0x' + v2.toLowerCase(),
-//				R.toLowerCase(), result.toLowerCase()
-//			);
-//		}
-//
-//		//----------------------------------
-//		//  div_error
-//		//----------------------------------
-//
-//		public static var $div_error:Array = [
-//			[ '123456', '0' ]
-//		];
-//
-//		[Test( order="24", dataProvider="$div_error", expects="ArgumentError" )]
-//		public function div_error(v1:String, v2:String):void {
-//			BigUintStr.div( v1, v2 );
-//		}
-//
-//		//----------------------------------
-//		//  mod
-//		//----------------------------------
-//
-//		public static var $mod:Array = [
-//			[ '0', '123', '0' ],
-//			[ '0', '123456', '0' ],
-//			[ '123', '12', '3' ],
-//			[ '12', '123', '12' ],
-//			[ '123', '123', '0' ],
-//			[ '123456', '123', 'ED' ],
-//			[ '123', '123456', '123' ],
-//			[ '654321', '123456', 'A3D73' ],
-//			[ '123456', '654321', '123456' ],
-//			[ '123F77FFFFFF6', '654321', '1FFD8D' ],
-//			[ '123F77FFFFFF6', '1F11', 'EA2' ],
-//			[ '3DD803668', '51F11', '4F6E3' ]
-//		];
-//
-//		[Test( order="25", dataProvider="$mod" )]
-//		public function mod(v1:String, v2:String, result:String):void {
-//			var R:String = BigUintStr.mod( v1, v2 );
-//			Assert.assertEquals(
-//				'0x' + v1.toLowerCase() + ' % 0x' + v2.toLowerCase(),
-//				R.toLowerCase(), result.toLowerCase()
-//			);
-//		}
-//
-//		//----------------------------------
-//		//  mod_error
-//		//----------------------------------
-//
-//		public static var $mod_error:Array = [
-//			[ '123456', '0' ]
-//		];
-//
-//		[Test( order="26", dataProvider="$mod_error", expects="ArgumentError" )]
-//		public function mod_error(v1:String, v2:String):void {
-//			BigUintStr.mod( v1, v2 );
-//		}
-//
+		//----------------------------------
+		//  div
+		//----------------------------------
+
+		[Test( order="23", dataProvider="$divAndMod" )]
+		public function div(v1:String, v2:String, result:String, rest:String):void {
+			var R:String = BigUintStr.div( v1, v2 );
+			Assert.assertEquals(
+				'0x' + v1.toLowerCase() + ' / 0x' + v2.toLowerCase(),
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+
+		//----------------------------------
+		//  div_error
+		//----------------------------------
+
+		[Test( order="24", dataProvider="$divAndMod_error", expects="ArgumentError" )]
+		public function div_error(v1:String, v2:String):void {
+			BigUintStr.div( v1, v2 );
+		}
+
+		//----------------------------------
+		//  mod
+		//----------------------------------
+
+		[Test( order="25", dataProvider="$divAndMod" )]
+		public function mod(v1:String, v2:String, result:String, rest:String):void {
+			var R:String = BigUintStr.mod( v1, v2 );
+			Assert.assertEquals(
+				'0x' + v1.toLowerCase() + ' % 0x' + v2.toLowerCase(),
+				R.toLowerCase(), rest.toLowerCase()
+			);
+		}
+
+		//----------------------------------
+		//  mod_error
+		//----------------------------------
+
+		[Test( order="26", dataProvider="$divAndMod_error", expects="ArgumentError" )]
+		public function mod_error(v1:String, v2:String):void {
+			BigUintStr.mod( v1, v2 );
+		}
+
 		//----------------------------------
 		//  modPowInt
 		//----------------------------------
