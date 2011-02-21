@@ -107,7 +107,7 @@ package by.blooddy.math {
 			_PATTERNS[ i++ ] = new RadixPattern( 10, new RegExp( '^\\s*(-)?(\\d+)(?:\\.\\d+)?\\s*$' ) );
 			_PATTERNS[ i++ ] = new RadixPattern( 11, new RegExp( '^\\s*(-)?([\\da]+)\\s*$', 'i' ) );
 			for ( ; i <= 15; ++i ) {
-				_PATTERNS[ i ] =  new RadixPattern( i );
+				_PATTERNS[ i ] = new RadixPattern( i );
 			}
 			_PATTERNS[ i++ ] = new RadixPattern( 16, new RegExp( '^\\s*(-)?(?:0x)?([\\da-f]+)\\s*$', 'i' ) );
 			for ( ; i <= 36; ++i ) {
