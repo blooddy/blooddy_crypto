@@ -448,9 +448,9 @@ package by.blooddy.math {
 				while ( i-- > 0 ) {
 					result += list[ i ].toString( radix );
 				}
-				return result;
+				return ( this._value.negative ? '-' : '' ) + result;
 			} else {
-				return '0'
+				return '0';
 			}
 		}
 		

@@ -2,6 +2,7 @@
 <flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
   <includeClasses>
     <classEntry path="by.blooddy.math.BigInteger"/>
+    <classEntry path="by.blooddy.math.BigIntegerTest"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>
