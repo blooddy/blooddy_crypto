@@ -7,7 +7,7 @@
 package by.blooddy.math.utils {
 
 	import by.blooddy.system.Memory;
-	
+
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 
@@ -37,38 +37,6 @@ package by.blooddy.math.utils {
 		//
 		//--------------------------------------------------------------------------
 
-		public static function toString(v:BigUint):String {
-			if ( v.len == 0 ) return '0';
-			var p:uint = v.pos;
-			var s:String;
-			var i:uint = p + v.len - 4;
-			var result:String = uint( Memory.getI32( i ) ).toString( 16 );
-			while ( i > p ) {
-				i -= 4;
-				s = uint( Memory.getI32( i ) ).toString( 16 );
-				result += '0000000'.substr( 0, 8 - s.length ) + s;
-			}
-			return result;
-		}
-
-		public static function fromString(v:String, pos:uint):BigUint {
-			var p:uint = pos;
-			var i:int = v.length;
-			do {
-				Memory.setI32( p, parseInt( v.substring( Math.max( 0, i - 8 ), i ), 16 ) );
-				i -= 8;
-				p += 4;
-			} while ( i > 0 );
-			i = p - pos;
-			CRYPTO::inline {
-				BigUint$.clean( pos, i );
-				return new BigUint( pos, i );
-			}
-			CRYPTO::debug {
-				return _clean( pos, i );
-			}
-		}
-
 		/**
 		 * @return		v & ( 1 << n ) != 0
 		 */
@@ -79,7 +47,7 @@ package by.blooddy.math.utils {
 				return false;
 			} else {
 				var s:uint = n >>> 3;
-				if ( s >= l ) {
+				if ( s >= l ) { // бит находится за пределами числа
 					return false;
 				} else {
 					if ( s & 1 == 1 ) --s;
@@ -97,7 +65,7 @@ package by.blooddy.math.utils {
 			var s:uint = n >>> 3;
 			s -= s & 3;
 			var k:uint = 1 << ( n & 31 );
-			if ( s < l && ( Memory.getI32( p + s ) & k ) != 0 ) {
+			if ( s < l && ( Memory.getI32( p + s ) & k ) != 0 ) { // бит уже установлен
 				return v;
 			} else {
 				var mem:ByteArray = _domain.domainMemory;
@@ -109,7 +77,7 @@ package by.blooddy.math.utils {
 				}
 				p = pos + l;
 				s += pos;
-				if ( p < s ) {
+				if ( p < s ) { // результат длинее оригинала: надо заполнить нулями
 					BigUint$.fillZero( mem, p, s, l );
 					p = s;
 				}
@@ -128,16 +96,17 @@ package by.blooddy.math.utils {
 		 */
 		public static function clearBit(v:BigUint, n:uint, pos:uint):BigUint {
 			var l:uint = v.len;
-			if ( l == 0 ) {
+			if ( l == 0 ) { // нечего чистить
 				return v;
 			} else {
 				var s:uint = n >>> 3;
 				s -= s & 3;
 				var k:uint = 1 << ( n & 31 );
 				var p:uint = v.pos;
-				if ( s >= l || ( Memory.getI32( p + s ) & k ) == 0 ) {
+				if ( s >= l || ( Memory.getI32( p + s ) & k ) == 0 ) { // бит и так пустой
 					return v;
 				} else {
+					// копируем
 					if ( l > 4 ) {
 						var mem:ByteArray = _domain.domainMemory;
 						mem.position = p;
@@ -147,7 +116,7 @@ package by.blooddy.math.utils {
 					}
 					p = pos + s;
 					Memory.setI32( p, Memory.getI32( p ) ^ k );
-					if ( s == l - 4 ) {
+					if ( s == l - 4 ) { // подчистить надо только если исправляли последний разряд
 						CRYPTO::inline {
 							BigUint$.clean( pos, l );
 						}
@@ -166,6 +135,7 @@ package by.blooddy.math.utils {
 		public static function flipBit(v:BigUint, n:uint, pos:uint):BigUint {
 			var p:uint = v.pos;
 			var l:uint = v.len;
+			// копируем
 			var mem:ByteArray = _domain.domainMemory;
 			if ( l > 4 ) {
 				mem.position = p;
@@ -177,7 +147,7 @@ package by.blooddy.math.utils {
 			s += pos - ( s & 3 );
 			p = pos + l;
 			var k:uint;
-			if ( p < s ) {
+			if ( p < s ) { // результат длинее оригинала: надо заполнить нулями
 				BigUint$.fillZero( mem, p, s, k );
 			}
 			k = 1 << ( n & 31 );
@@ -186,7 +156,7 @@ package by.blooddy.math.utils {
 				return new BigUint( pos, p - pos + 4 );
 			} else {
 				Memory.setI32( s, Memory.getI32( s ) ^ k );
-				if ( s == pos + l - 4 ) {
+				if ( s == pos + l - 4 ) { // подчистить надо только если исправляли последний разряд
 					CRYPTO::inline {
 						BigUint$.clean( pos, l );
 					}
@@ -312,7 +282,7 @@ package by.blooddy.math.utils {
 				var p1:uint = v1.pos;
 				var p2:uint = v2.pos;
 				var len:uint;
-				if ( l2 > l1 ) { // switch
+				if ( l2 > l1 ) { // меняем местами
 					len = p1; p1 = p2; p2 = len;
 					len = l1; l1 = l2; l2 = len;
 				}
@@ -321,7 +291,7 @@ package by.blooddy.math.utils {
 					Memory.setI32( pos + len, Memory.getI32( p1 + len ) | Memory.getI32( p2 + len ) );
 					len += 4;
 				} while ( len < l2 );
-				if ( len < l1 ) {
+				if ( len < l1 ) { // записываем остаток первого
 					if ( l1 - len == 4 ) {
 						Memory.setI32( pos + len, Memory.getI32( p1 + len ) );
 					} else {
@@ -349,7 +319,7 @@ package by.blooddy.math.utils {
 				var p1:uint = v1.pos;
 				var p2:uint = v2.pos;
 				var len:uint;
-				if ( l2 > l1 ) { // switch
+				if ( l2 > l1 ) { // меняем местами
 					len = p1; p1 = p2; p2 = len;
 					len = l1; l1 = l2; l2 = len;
 				}
@@ -358,7 +328,7 @@ package by.blooddy.math.utils {
 					Memory.setI32( pos + len, Memory.getI32( p1 + len ) ^ Memory.getI32( p2 + len ) );
 					len += 4;
 				} while ( len < l2 );
-				if ( len < l1 ) {
+				if ( len < l1 ) { // копируем остаток первого числа
 					if ( l1 - len == 4 ) {
 						Memory.setI32( pos + len, Memory.getI32( p1 + len ) );
 					} else {
@@ -367,7 +337,7 @@ package by.blooddy.math.utils {
 						mem.readBytes( mem, pos + len, l1 - len );
 					}
 					len = l1;
-				} else {
+				} else { // если числа одинаковой длинны, то надо подчистить
 					CRYPTO::inline {
 						BigUint$.clean( pos, len );
 					}
@@ -393,11 +363,11 @@ package by.blooddy.math.utils {
 				} else {
 					var p:uint = v.pos;
 					var r1:uint = n & 31;
-					if ( r1 == 0 ) {
+					if ( r1 == 0 ) { // сдвиг кратен 32. можно просто откусить кусок исходного числа
 						return new BigUint( p + s, l - s );
 					} else {
 						var len:uint;
-						if ( !( r1 & 7 ) ) {
+						if ( !( r1 & 7 ) ) { // сдвиг кратен 8. копируем байты, а потом дописываем нолики
 							len = l - s;
 							if ( len <= 4 ) {
 								Memory.setI32( pos, Memory.getI32( p + s ) );
@@ -448,11 +418,11 @@ package by.blooddy.math.utils {
 				var k:uint = s & 3;
 				s += pos - k;
 				var mem:ByteArray = _domain.domainMemory;
-				if ( pos < s ) {
+				if ( pos < s ) { // заполначем начало ноликами
 					BigUint$.fillZero( mem, pos, s, len );
 					len = s - pos;
 				}
-				if ( !( n & 7 ) ) {
+				if ( !( n & 7 ) ) { // сдвиг кратен 8. копируем байты, а потом дописываем нолики
 					if ( k != 0 ) {
 						Memory.setI32( pos + len, 0 );
 						len += k;
@@ -583,7 +553,7 @@ package by.blooddy.math.utils {
 				var p2:uint = v2.pos;
 				var len:uint;
 				var temp:Number;
-				if ( l1 == 4 && l2 == 4 ) {
+				if ( l1 == 4 && l2 == 4 ) { // короткое суммирование
 					temp = Memory.getI32( p1 ) + Memory.getI32( p2 );
 					Memory.setI32( pos, temp );
 					if ( temp > 0xFFFFFFFF ) {
@@ -593,13 +563,13 @@ package by.blooddy.math.utils {
 						len = 4;
 					}
 				} else {
-					if ( l2 > l1 ) { // switch
+					if ( l2 > l1 ) { // меняем местами
 						len = p1; p1 = p2; p2 = len;
 						len = l1; l1 = l2; l2 = len;
 					}
 					temp = 0;
 					len = 0;
-					do { // прибавляем к первому по 2 байтика от второго
+					do { // прибавляем к первому по 4 байтика от второго
 						temp += uint( Memory.getI32( p1 + len ) ) + uint( Memory.getI32( p2 + len ) );
 						Memory.setI32( pos + len, temp );
 						temp = ( temp >= 0x100000000 ? 1 : 0 );
@@ -614,7 +584,7 @@ package by.blooddy.math.utils {
 					if ( temp > 0 ) { // если остался остаток, то первое число закончилось
 						Memory.setI32( pos + len, 1 );
 						len += 4;
-					} else if ( len < l1 ) { // запишим остатки первого числа
+					} else if ( len < l1 ) {  // копируем остаток первого числа
 						if ( l1 - len == 4 ) {
 							Memory.setI32( pos + len, Memory.getI32( p1 + len ) );
 						} else {
@@ -646,7 +616,7 @@ package by.blooddy.math.utils {
 					Memory.setI32( pos + len, c - 1 );
 					len += 4;
 				} while ( c == 0 && len < l );
-				if ( len < l ) {
+				if ( len < l ) {  // копируем остаток первого числа
 					if ( l - len == 4 ) {
 						Memory.setI32( pos + len, Memory.getI32( p + len ) );
 					} else {
@@ -674,7 +644,7 @@ package by.blooddy.math.utils {
 			} else {
 				var p1:uint = v1.pos;
 				var p2:uint = v2.pos;
-				if ( l1 == 4 && l2 == 4 ) {
+				if ( l1 == 4 && l2 == 4 ) { // числа короткие
 					var c1:uint = Memory.getI32( p1 );
 					var c2:uint = Memory.getI32( p2 );
 					if ( c1 == c2 ) {
@@ -711,11 +681,11 @@ package by.blooddy.math.utils {
 								}
 								Memory.setI32( pos + len, temp - 1 );
 								len += 4;
-							} else {
+							} else { // второе число оказалось больше первого
 								throw new ArgumentError();
 							}
 						}
-						if ( len < l1 ) { // запишим остатки первого числа
+						if ( len < l1 ) {  // копируем остаток первого числа
 							if ( l1 - len == 4 ) {
 								Memory.setI32( pos + len, Memory.getI32( p1 + len ) );
 							} else {
@@ -753,6 +723,7 @@ package by.blooddy.math.utils {
 				var p2:uint = v2.pos;
 				var e1:int, e2:int;
 				var c1:uint, c2:uint;
+				// смотрим является ли число степенью двойки
 				CRYPTO::inline {
 					// TODO: переиспользование e1/2 ?
 					BigUint$.getShift( p1, l1, e1, c1 );
@@ -763,12 +734,14 @@ package by.blooddy.math.utils {
 					e1 = _getShift( p1, l1 );
 					e2 = _getShift( p2, l2 );
 				}
-				if ( e1 >= 0 || e2 >= 0 ) {
-					if ( e1 == 0 ) {			//	v1 == 1
+				if ( e1 >= 0 || e2 >= 0 ) {	// одно из чисел степень двойки
+					if ( e1 == 0 ) {		//	v1 == 1
 						return v2;
-					} else if ( e2 == 0 ) {		//	v2 == 1
+					} else if ( e2 == 0 ) {	//	v2 == 1
 						return v1;
 					} else if ( e1 > 0 && e2 > 0 ) {
+						// оба числа степень двойки, значит можно просто сдвинуть
+						// еденицу на сумму степеней
 						CRYPTO::inline {
 							mem = _domain.domainMemory;
 							e1 += e2;
@@ -790,7 +763,7 @@ package by.blooddy.math.utils {
 					if ( l1 == 4 && Memory.getUI16( p1 + 2 ) == 0 ) l1 = 2;
 					if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) l2 = 2;
 					if ( l1 == 2 || l2 == 2 ) {
-						if ( l1 == 2 && l2 == 2 ) {
+						if ( l1 == 2 && l2 == 2 ) { // оба числа короткие
 							Memory.setI32( pos, Memory.getUI16( p2 ) * Memory.getUI16( p1 ) );
 							return new BigUint( pos, 4 );
 						} else {
@@ -848,6 +821,8 @@ package by.blooddy.math.utils {
 				if ( _e == 0 ) {	// v == 1
 					return v;
 				} else if ( _e > 0 ) {
+					// число является степенью двойки.
+					// просто делаем сдвиг еденицы
 					CRYPTO::inline {
 						mem = _domain.domainMemory;
 						_e *= e;
@@ -867,8 +842,8 @@ package by.blooddy.math.utils {
 						var d:BigUint;
 					}
 					var ei:uint = 1;
-					if ( l == 4 && c < 0x10000 ) {
-						var r:uint = 1;
+					var r:uint = 1;
+					if ( l == 4 && c < 0x10000 ) { // исходное число достаточно коротко
 						do {
 							if ( ei & e ) {
 								r *= c;
@@ -878,7 +853,7 @@ package by.blooddy.math.utils {
 								c *= c;
 							}
 						} while ( ei <= e && c < 0x10000 );
-						if ( ei <= e ) {
+						if ( ei <= e ) { // если результат не достигнут, то запишим временные значения
 							Memory.setI32( pos, c );
 							l = 4;
 							p = pos;
@@ -886,7 +861,7 @@ package by.blooddy.math.utils {
 								v = new BigUint( pos, l );
 							}
 							pos += l;
-							if ( r >= 0x10000 ) {
+							if ( r >= 0x10000 ) { // запишим результат только если он привысит допустимый лимит
 								Memory.setI32( pos, r );
 								CRYPTO::inline {
 									pr = pos;
@@ -898,9 +873,8 @@ package by.blooddy.math.utils {
 								pos += 4;
 							}
 						}
-					} else {
-						r = 1;
 					}
+					// если временный результат короткий, используем сокращённый алгоритм пока он не удлиннится
 					CRYPTO::inline {
 						mem = _domain.domainMemory;
 						var c1:uint, c2:uint, i:uint, j:uint, temp:uint;
@@ -955,6 +929,7 @@ package by.blooddy.math.utils {
 							pos += 4;
 						}
 					}
+					// и результат и промежуточное значение очень длинные
 					while ( ei <= e ) {
 						if ( ei & e ) {
 							CRYPTO::inline {
@@ -993,7 +968,7 @@ package by.blooddy.math.utils {
 				}
 			}
 		}
-		
+
 		/**
 		 * @param		v1
 		 * @return		[ v1 / v2, v1 % v2 ]
@@ -1004,18 +979,25 @@ package by.blooddy.math.utils {
 			var l2:uint = v2.len;
 			if ( l2 == 0 ) {
 				throw new ArgumentError();
+			} else if ( l1 == 0 ) {
+				return new <BigUint>[ v1, v1 ];
 			} else if ( l2 > l1 ) {
 				return new <BigUint>[ new BigUint(), v1 ];
 			} else {
-				var d:BigUint;
 				var p1:uint = v1.pos;
 				var p2:uint = v2.pos;
-				if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) {
-					var c1:uint;
-					var c2:uint = Memory.getUI16( p2 );
+				var c1:uint;
+				var c2:uint;
+				CRYPTO::inline {
+					var len:uint;
+					var posx:uint;
+					var lenx:uint;
+				}
+				if ( l1 == 4 ) { // оба числа короткие
+					c2 = Memory.getI32( p2 );
 					if ( c2 == 1 ) {
 						return new <BigUint>[ v1, new BigUint() ];
-					} else if ( l1 == 4 ) {
+					} else {
 						c1 = Memory.getI32( p1 );
 						if ( c1 == c2 ) {
 							Memory.setI32( pos, 1 );
@@ -1024,7 +1006,7 @@ package by.blooddy.math.utils {
 							return new <BigUint>[ new BigUint(), v1 ];
 						} else {
 							Memory.setI32( pos, c1 / c2 );
-							d = new BigUint( pos, 4 );
+							var d:BigUint = new BigUint( pos, 4 );
 							pos += 4;
 							c1 %= c2;
 							if ( c1 == 0 ) {
@@ -1034,39 +1016,30 @@ package by.blooddy.math.utils {
 								return new <BigUint>[ d, new BigUint( pos, 4 ) ];
 							}
 						}
+					}
+				} else if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) { // второе число короткое
+					c2 = Memory.getUI16( p2 );
+					if ( c2 == 1 ) {
+						return new <BigUint>[ v1, new BigUint() ];
 					} else {
-						// <!-- inline: _divAndMod_s
-						c1 = 0;
-						l2 = l1;
-						do {
-							l2 -= 2;
-							c1 = Memory.getUI16( p1 + l2 ) | ( c1 << 16 );
-							Memory.setI16( pos + l2, c1 / c2 );
-							c1 %= c2;
-						} while ( l2 > 0 ) ;
 						CRYPTO::inline {
-							BigUint$.clean( pos, l1 );
-							d = new BigUint( pos, l1 );
+							BigUint$.divAndMod_s( p1, l1, c2, pos, len, posx, lenx, c1, l2 );
+							return new <BigUint>[ new BigUint( pos, len ), new BigUint( posx, lenx ) ];
 						}
 						CRYPTO::debug {
-							d = _clean( pos, l1 );
+							return _divAndMod_s( p1, l1, c2, pos );
 						}
-						if ( c1 > 0 ) {
-							CRYPTO::inline {
-								pos += l1;
-							}
-							CRYPTO::debug {
-								pos += d.len;
-							}
-							Memory.setI32( pos, c1 );
-							return new <BigUint>[ d, new BigUint( pos, 4 ) ];
-						} else {
-							return new <BigUint>[ d, new BigUint() ];
-						}
-						// --!> inline: _divAndMod_s
 					}
 				} else {
-					return _divAndMod( p1, l1, p2, l2, pos );
+					CRYPTO::inline {
+						var mem:ByteArray = _domain.domainMemory;
+						var scale:uint, k:uint, t1:uint, t2:uint, t3:int, qGuess:int, borrow:int, carry:int, j:int, i:int;
+						BigUint$.divAndMod( mem, p1, l1, p2, l2, pos, len, posx, lenx, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
+						return new <BigUint>[ new BigUint( pos, len ), new BigUint( posx, lenx ) ];
+					}
+					CRYPTO::debug {
+						return _divAndMod( p1, l1, p2, l2, pos );
+					}
 				}
 			}
 		}
@@ -1085,18 +1058,20 @@ package by.blooddy.math.utils {
 			} else {
 				var p1:uint = v1.pos;
 				var p2:uint = v2.pos;
-				var len:uint;
-				var i:uint;
-				// TODO: >>> 2
-				if ( l2 == 2 ) {
-					var c2:uint = Memory.getUI16( p2 );
+				var c1:uint;
+				var c2:uint;
+				CRYPTO::inline {
+					var len:uint;
+				}
+				if ( l1 == 4 ) { // оба числа короткие
+					c2 = Memory.getI32( p2 );
 					if ( c2 == 1 ) {
 						return v1;
-					} else if ( l1 == 2 ) {
-						var c1:uint = Memory.getUI16( p1 );
+					} else {
+						c1 = Memory.getUI16( p1 );
 						if ( c1 == c2 ) {
-							Memory.setI16( pos, 1 );
-							return new BigUint( pos, 2 );
+							Memory.setI32( pos, 1 );
+							return new BigUint( pos, 4 );
 						} else if ( c2 > c1 ) {
 							return new BigUint();
 						} else {
@@ -1104,13 +1079,18 @@ package by.blooddy.math.utils {
 							if ( c1 == 0 ) {
 								return new BigUint();
 							} else {
-								Memory.setI16( pos, c1 );
-								return new BigUint( pos, 2 );
+								Memory.setI32( pos, c1 );
+								return new BigUint( pos, 4 );
 							}
 						}
+					}
+				} else if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) { // второе число короткое
+					c2 = Memory.getUI16( p2 );
+					if ( c2 == 1 ) {
+						return v1;
 					} else {
 						CRYPTO::inline {
-							BigUint$.div_s( p1, l1, c2, pos, len, c1, i );
+							BigUint$.div_s( p1, l1, c2, pos, len, c1, l2 );
 							return new BigUint( pos, len );
 						}
 						CRYPTO::debug {
@@ -1118,7 +1098,15 @@ package by.blooddy.math.utils {
 						}
 					}
 				} else {
-					return _div( p1, l1, p2, l2, pos );
+					CRYPTO::inline {
+						var mem:ByteArray = _domain.domainMemory;
+						var scale:uint, k:uint, t1:uint, t2:uint, t3:int, qGuess:int, borrow:int, carry:int, j:int, i:int;
+						BigUint$.div( mem, p1, l1, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
+						return new BigUint( pos, len );
+					}
+					CRYPTO::debug {
+						return _div( p1, l1, p2, l2, pos );
+					}
 				}
 			}
 		}
@@ -1137,13 +1125,14 @@ package by.blooddy.math.utils {
 			} else {
 				var p1:uint = v1.pos;
 				var p2:uint = v2.pos;
-				if ( l2 == 2 ) {
-					var c1:uint;
-					var c2:uint = Memory.getUI16( p2 );
+				var c1:uint;
+				var c2:uint;
+				if ( l1 == 4 ) { // оба числа короткие
+					c2 = Memory.getI32( p2 );
 					if ( c2 == 1 ) {
 						return new BigUint();
-					} else if ( l1 == 2 ) {
-						c1 = Memory.getUI16( p1 );
+					} else {
+						c1 = Memory.getI32( p1 );
 						if ( c1 == c2 ) {
 							return new BigUint();
 						} else if ( c2 > c1 ) {
@@ -1153,10 +1142,15 @@ package by.blooddy.math.utils {
 							if ( c1 == 0 ) {
 								return new BigUint();
 							} else {
-								Memory.setI16( pos, c1 );
-								return new BigUint( pos, 2 );
+								Memory.setI32( pos, c1 );
+								return new BigUint( pos, 4 );
 							}
 						}
+					}
+				} else if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) { // второе число короткое
+					c2 = Memory.getUI16( p2 );
+					if ( c2 == 1 ) {
+						return new BigUint();
 					} else {
 						CRYPTO::inline {
 							BigUint$.mod_s( p1, l1, c2, c1, l2 );
@@ -1167,12 +1161,21 @@ package by.blooddy.math.utils {
 						if ( c1 == 0 ) {
 							return new BigUint();
 						} else {
-							Memory.setI16( pos, c1 );
-							return new BigUint( pos, 2 );
+							Memory.setI32( pos, c1 );
+							return new BigUint( pos, 4 );
 						}
 					}
 				} else {
-					return _mod( p1, l1, p2, l2, pos );
+					CRYPTO::inline {
+						var mem:ByteArray = _domain.domainMemory;
+						var len:uint;
+						var scale:uint, k:uint, t1:uint, t2:uint, t3:int, qGuess:int, borrow:int, carry:int, j:int, i:int;
+						BigUint$.mod( mem, p1, l1, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
+						return new BigUint( pos, len );
+					}
+					CRYPTO::debug {
+						return _mod( p1, l1, p2, l2, pos );
+					}
 				}
 			}
 		}
@@ -1200,33 +1203,33 @@ package by.blooddy.math.utils {
 						return new BigUint( pos, 4 );
 					}
 				} else if ( e < 256 || !( Memory.getUI8( p2 ) & 1 ) ) {
-					
+
 				} else {
 
 				}
 			}
 			return null;
 		}
-		
+
 		public function modPow(v:BigUint, e:BigUint, m:BigUint, pos:uint):BigUint {
 			return null;
 		}
-		
+
 		public function gcd(v:BigUint, a:BigUint, pos:uint):BigUint {
 			return null;
 		}
-		
+
 		public function modInverse(v:BigUint, m:BigUint, pos:uint):BigUint {
 			return null;
 		}
-		
+
 		public function isProbablePrime(v:BigUint, t:int):Boolean {
 			return false;
 		}
-		
+
 		public function primify(v:BigUint, bits:int, t:int):void {
 		}
-		
+
 		//--------------------------------------------------------------------------
 		//
 		//  Private class methods
@@ -1251,7 +1254,7 @@ package by.blooddy.math.utils {
 				}
 			}
 		}
-		
+
 		CRYPTO::debug
 		/**
 		 * @private
@@ -1386,7 +1389,7 @@ package by.blooddy.math.utils {
 			Memory.setI32( s, 1 << ( n & 31 ) );
 			return new BigUint( pos, s - pos + 4 );
 		}
-		
+
 		CRYPTO::debug
 		/**
 		 * @private
@@ -1448,7 +1451,7 @@ package by.blooddy.math.utils {
 					temp = c1; c1 = c2; c2 = temp;
 					i = j;
 				}
-				_fillZero( pos, pos + l2 + i ); 
+				_fillZero( pos, pos + l2 + i );
 			}
 			var len:uint;
 			while ( i < l1 ) {
@@ -1528,9 +1531,9 @@ package by.blooddy.math.utils {
 		CRYPTO::debug
 		/**
 		 * @private
-		 * @reutrn		v1 / v2
+		 * @reutrn		[ v1 / v2, v1 % v2 ]
 		 */
-		private static function _div_s(p1:uint, l1:uint, v2:uint, pos:uint):BigUint {
+		private static function _divAndMod_s(p1:uint, l1:uint, v2:uint, pos:uint):Vector.<BigUint> {
 			var c:uint = 0;
 			var i:uint = l1;
 			do {
@@ -1538,25 +1541,18 @@ package by.blooddy.math.utils {
 				c = Memory.getUI16( p1 + i ) | ( c << 16 );
 				Memory.setI16( pos + i, c / v2 );
 				c %= v2;
-			} while ( i > 0 ) ;
-			return _clean( pos, l1 );
+			} while ( i > 0 );
+			var d:BigUint = _clean( pos, l1 );
+			if ( c > 0 ) {
+				pos += d.len;
+				Memory.setI32( pos, c );
+				return new <BigUint>[ d, new BigUint( pos, 4 ) ];
+			} else {
+				return new <BigUint>[ d, new BigUint() ];
+			}
 		}
 
 		CRYPTO::debug
-		/**
-		 * @private
-		 * @return		v1 % v2
-		 */
-		private static function _mod_s(p1:uint, l1:uint, v2:uint):uint {
-			var c:uint = 0;
-			var i:uint = l1;
-			do {
-				i -= 2;
-				c = ( Memory.getUI16( p1 + i ) | ( c << 16 ) ) % v2;
-			} while ( i > 0 );
-			return c;
-		}
-
 		/**
 		 * @private
 		 * @return		[ v1 / v2, v1 % v2 ]
@@ -1566,13 +1562,14 @@ package by.blooddy.math.utils {
 			var scale:uint = Memory.getUI16( p2 + l2 - 2 );
 			if ( !scale ) scale = Memory.getUI16( p2 + l2 - 4 );
 			scale = 0x10000 / ( scale + 1 ); // коэффициент нормализации
-			
+
 			var d:BigUint;
 			var len:uint;
+			var k:uint;
 			if ( scale > 1 ) {
 				// Нормализация
 				CRYPTO::inline {
-					BigUint$.mult_s( p1, l1, scale, pos, len, t1 );
+					BigUint$.mult_s( p1, l1, scale, pos, len, k );
 					p1 = pos;
 					l1 = len;
 				}
@@ -1585,7 +1582,7 @@ package by.blooddy.math.utils {
 				Memory.setI16( pos, 0 );
 				pos += 2;
 				CRYPTO::inline {
-					BigUint$.mult_s( p2, l2, scale, pos, len, t1 );
+					BigUint$.mult_s( p2, l2, scale, pos, len, k );
 					p2 = pos;
 					l2 = len;
 				}
@@ -1613,7 +1610,6 @@ package by.blooddy.math.utils {
 			// резервируем запасной разряд
 			Memory.setI32( pos + len, 0 );
 
-			var k:uint;
 			var t1:uint, t2:uint, t3:int;
 			var qGuess:int;				// догадка для частного и соответствующий остаток
 			var borrow:int, carry:int;	// переносы
@@ -1650,7 +1646,7 @@ package by.blooddy.math.utils {
 
 					carry = 0;
 					borrow = 0;
-					
+
 					// Теперь qGuess - правильное частное или на единицу больше q
 					// Вычесть делитель v2, умноженный на qGuess из делимого v1,
 					// начиная с позиции vJ+i
@@ -1671,7 +1667,7 @@ package by.blooddy.math.utils {
 						}
 						k += 2;
 					} while ( k < l2 );
-	
+
 					if ( carry || borrow ) {
 						// возможно, умноженое на qGuess число v2 удлинилось.
 						// Если это так, то после умножения остался
@@ -1709,10 +1705,10 @@ package by.blooddy.math.utils {
 						Memory.setI16( pos + j, qGuess );
 					}
 
-				} else { // частное равно 0 
+				} else { // частное равно 0
 					Memory.setI16( pos + j, 0 );
 				}
-				
+
 				j -= 2;
 				i -= 2;
 
@@ -1750,19 +1746,367 @@ package by.blooddy.math.utils {
 
 		}
 
+		CRYPTO::debug
+		/**
+		 * @private
+		 * @reutrn		v1 / v2
+		 */
+		private static function _div_s(p1:uint, l1:uint, v2:uint, pos:uint):BigUint {
+			var c:uint = 0;
+			var i:uint = l1;
+			do {
+				i -= 2;
+				c = Memory.getUI16( p1 + i ) | ( c << 16 );
+				Memory.setI16( pos + i, c / v2 );
+				c %= v2;
+			} while ( i > 0 );
+			return _clean( pos, l1 );
+		}
+
+		CRYPTO::debug
 		/**
 		 * @private
 		 * @return		v1 / v2
 		 */
 		private static function _div(p1:uint, l1:uint, p2:uint, l2:uint, pos:uint):BigUint {
-			return _divAndMod( p1, l1, p2, l2, pos )[ 0 ];
+
+			var scale:uint = Memory.getUI16( p2 + l2 - 2 );
+			if ( !scale ) scale = Memory.getUI16( p2 + l2 - 4 );
+			scale = 0x10000 / ( scale + 1 ); // коэффициент нормализации
+
+			var d:BigUint;
+			var len:uint;0
+			var k:uint;
+			if ( scale > 1 ) {
+				// Нормализация
+				d = _mult_s( p1, l1, scale, pos );
+				p1 = d.pos;
+				l1 = d.len;
+				pos = p1 + l1;
+				Memory.setI16( pos, 0 );
+				pos += 2;
+				d = _mult_s( p2, l2, scale, pos );
+				p2 = d.pos;
+				l2 = d.len;
+				pos = p2 + l2;
+			} else {
+				var mem:ByteArray = _domain.domainMemory;
+				mem.position = p1;
+				mem.readBytes( mem, pos, l1 );
+				p1 = pos;
+				pos += l1;
+				Memory.setI16( pos, 0 );
+				pos += 2;
+			}
+
+			while ( Memory.getUI16( p1 + l1 - 2 ) == 0 ) l1 -= 2;
+			while ( Memory.getUI16( p2 + l2 - 2 ) == 0 ) l2 -= 2;
+
+			len = l1 - l2;
+
+			// резервируем запасной разряд
+			Memory.setI32( pos + len, 0 );
+
+			var t1:uint, t2:uint, t3:int;
+			var qGuess:int;				// догадка для частного и соответствующий остаток
+			var borrow:int, carry:int;	// переносы
+
+			var c2:uint = Memory.getUI16( p2 + l2 - 2 );
+			var c4:uint = Memory.getUI16( p2 + l2 - 4 );
+
+			// Главный цикл шагов деления. Каждая итерация дает очередную цифру частного.
+			var j:int = len;	// i – индекс текущей цифры v1
+			var i:int = l1;		// j - текущий сдвиг v2 относительно v1, используемый при вычитании,
+								//     по совместительству - индекс очередной цифры частного.
+			do {
+				t1 = Memory.getI32( p1 + i - 2 )
+				t2 = c2;
+
+				qGuess = t1 / t2;
+				k = t1 % t2;
+
+				// Пока не будут выполнены условия (2) уменьшать частное.
+				while ( k < 0x10000 ) {
+					t2 = c4 * qGuess;
+					t1 = ( k << 16 ) + Memory.getUI16( p1 + i - 4 );
+					if ( ( t2 > t1 ) || ( qGuess == 0x10000 ) ) {
+						// условия не выполнены, уменьшить qGuess
+						// и досчитать новый остаток
+						--qGuess;
+						k += c2;
+					} else {
+						break;
+					}
+				}
+
+				if ( qGuess ) {
+
+					carry = 0;
+					borrow = 0;
+
+					// Теперь qGuess - правильное частное или на единицу больше q
+					// Вычесть делитель v2, умноженный на qGuess из делимого v1,
+					// начиная с позиции vJ+i
+					k = 0;
+					do {
+						// получить в t1 цифру произведения v2*qGuess
+						t1 = Memory.getUI16( p2 + k ) * qGuess + carry;
+						carry = t1 >>> 16;
+						t1 -= carry << 16;
+						// Сразу же вычесть из v1
+						t3 = Memory.getUI16( p1 + k + j ) - t1 + borrow;
+						if ( t3 < 0 ) {
+							Memory.setI16( p1 + k + j, t3 + 0x10000 )
+							borrow = -1;
+						} else {
+							Memory.setI16( p1 + k + j, t3 )
+							borrow = 0;
+						}
+						k += 2;
+					} while ( k < l2 );
+
+					if ( carry || borrow ) {
+						// возможно, умноженое на qGuess число v2 удлинилось.
+						// Если это так, то после умножения остался
+						// неиспользованный перенос carry. Вычесть и его тоже.
+						t3 = Memory.getUI16( p1 + k + j ) - carry + borrow;
+						if ( t3 < 0 ) {
+							Memory.setI16( p1 + k + j, t3 + 0x10000 );
+							borrow = -1;
+						} else {
+							Memory.setI16( p1 + k + j, t3 );
+							borrow = 0;
+						}
+					}
+
+					// Прошло ли вычитание нормально ?
+					if ( borrow ) { // Нет, последний перенос при вычитании borrow = -1,
+						// значит, qGuess на единицу больше истинного частного
+						Memory.setI16( pos + j, qGuess - 1 );
+						// добавить одно, вычтенное сверх необходимого v2 к v1
+						carry = 0;
+						k = 0;
+						do {
+							t1 = Memory.getUI16( p1 + k + j ) + Memory.getUI16( p2 + k ) + carry;
+							if ( t1 >= 0x10000 ) {
+								Memory.setI16( p1 + k + j, t1 - 0x10000 );
+								carry = 1;
+							} else {
+								Memory.setI16( p1 + k + j, t1 );
+								carry = 0;
+							}
+							k += 2;
+						} while ( k < l2 );
+						Memory.setI16( p1 + k + j, Memory.getUI16( p1 + k + j ) + carry - 0x10000 );
+					} else { // Да, частное угадано правильно
+						Memory.setI16( pos + j, qGuess );
+					}
+
+				} else { // частное равно 0
+					Memory.setI16( pos + j, 0 );
+				}
+
+				j -= 2;
+				i -= 2;
+
+			} while ( j >= 0 );
+
+			len += 2;
+			if ( len & 3 ) len += 2;
+
+			return _clean( pos, len );
+
 		}
 
+		CRYPTO::debug
+		/**
+		 * @private
+		 * @return		v1 % v2
+		 */
+		private static function _mod_s(p1:uint, l1:uint, v2:uint):uint {
+			var c:uint = 0;
+			var i:uint = l1;
+			do {
+				i -= 2;
+				c = ( Memory.getUI16( p1 + i ) | ( c << 16 ) ) % v2;
+			} while ( i > 0 );
+			return c;
+		}
+
+		CRYPTO::debug
 		/**
 		 * @private		v1 % v2
 		 */
 		private static function _mod(p1:uint, l1:uint, p2:uint, l2:uint, pos:uint):BigUint {
-			return _divAndMod( p1, l1, p2, l2, pos )[ 1 ];
+
+			var scale:uint = Memory.getUI16( p2 + l2 - 2 );
+			if ( !scale ) scale = Memory.getUI16( p2 + l2 - 4 );
+			scale = 0x10000 / ( scale + 1 ); // коэффициент нормализации
+
+			var d:BigUint;
+			var len:uint;
+			var k:uint;
+			if ( scale > 1 ) {
+				// Нормализация
+				CRYPTO::inline {
+					BigUint$.mult_s( p1, l1, scale, pos, len, k );
+					p1 = pos;
+					l1 = len;
+				}
+				CRYPTO::debug {
+					d = _mult_s( p1, l1, scale, pos );
+					p1 = d.pos;
+					l1 = d.len;
+				}
+				pos = p1 + l1;
+				Memory.setI16( pos, 0 );
+				pos += 2;
+				CRYPTO::inline {
+					BigUint$.mult_s( p2, l2, scale, pos, len, k );
+					p2 = pos;
+					l2 = len;
+				}
+				CRYPTO::debug {
+					d = _mult_s( p2, l2, scale, pos );
+					p2 = d.pos;
+					l2 = d.len;
+				}
+				pos = p2 + l2;
+			} else {
+				var mem:ByteArray = _domain.domainMemory;
+				mem.position = p1;
+				mem.readBytes( mem, pos, l1 );
+				p1 = pos;
+				pos += l1;
+				Memory.setI16( pos, 0 );
+				pos += 2;
+			}
+
+			while ( Memory.getUI16( p1 + l1 - 2 ) == 0 ) l1 -= 2;
+			while ( Memory.getUI16( p2 + l2 - 2 ) == 0 ) l2 -= 2;
+
+			var t1:uint, t2:uint, t3:int;
+			var qGuess:int;				// догадка для частного и соответствующий остаток
+			var borrow:int, carry:int;	// переносы
+
+			var c2:uint = Memory.getUI16( p2 + l2 - 2 );
+			var c4:uint = Memory.getUI16( p2 + l2 - 4 );
+
+			// Главный цикл шагов деления. Каждая итерация дает очередную цифру частного.
+			var j:int = l1 - l2;	// i – индекс текущей цифры v1
+			var i:int = l1;			// j - текущий сдвиг v2 относительно v1, используемый при вычитании,
+									//     по совместительству - индекс очередной цифры частного.
+			do {
+				t1 = Memory.getI32( p1 + i - 2 )
+				t2 = c2;
+
+				qGuess = t1 / t2;
+				k = t1 % t2;
+
+				// Пока не будут выполнены условия (2) уменьшать частное.
+				while ( k < 0x10000 ) {
+					t2 = c4 * qGuess;
+					t1 = ( k << 16 ) + Memory.getUI16( p1 + i - 4 );
+					if ( ( t2 > t1 ) || ( qGuess == 0x10000 ) ) {
+						// условия не выполнены, уменьшить qGuess
+						// и досчитать новый остаток
+						--qGuess;
+						k += c2;
+					} else {
+						break;
+					}
+				}
+
+				if ( qGuess ) {
+
+					carry = 0;
+					borrow = 0;
+
+					// Теперь qGuess - правильное частное или на единицу больше q
+					// Вычесть делитель v2, умноженный на qGuess из делимого v1,
+					// начиная с позиции vJ+i
+					k = 0;
+					do {
+						// получить в t1 цифру произведения v2*qGuess
+						t1 = Memory.getUI16( p2 + k ) * qGuess + carry;
+						carry = t1 >>> 16;
+						t1 -= carry << 16;
+						// Сразу же вычесть из v1
+						t3 = Memory.getUI16( p1 + k + j ) - t1 + borrow;
+						if ( t3 < 0 ) {
+							Memory.setI16( p1 + k + j, t3 + 0x10000 )
+							borrow = -1;
+						} else {
+							Memory.setI16( p1 + k + j, t3 )
+							borrow = 0;
+						}
+						k += 2;
+					} while ( k < l2 );
+
+					if ( carry || borrow ) {
+						// возможно, умноженое на qGuess число v2 удлинилось.
+						// Если это так, то после умножения остался
+						// неиспользованный перенос carry. Вычесть и его тоже.
+						t3 = Memory.getUI16( p1 + k + j ) - carry + borrow;
+						if ( t3 < 0 ) {
+							Memory.setI16( p1 + k + j, t3 + 0x10000 );
+							borrow = -1;
+						} else {
+							Memory.setI16( p1 + k + j, t3 );
+							borrow = 0;
+						}
+					}
+
+					// Прошло ли вычитание нормально ?
+					if ( borrow ) { // Нет, последний перенос при вычитании borrow = -1,
+						// добавить одно, вычтенное сверх необходимого v2 к v1
+						carry = 0;
+						k = 0;
+						do {
+							t1 = Memory.getUI16( p1 + k + j ) + Memory.getUI16( p2 + k ) + carry;
+							if ( t1 >= 0x10000 ) {
+								Memory.setI16( p1 + k + j, t1 - 0x10000 );
+								carry = 1;
+							} else {
+								Memory.setI16( p1 + k + j, t1 );
+								carry = 0;
+							}
+							k += 2;
+						} while ( k < l2 );
+						Memory.setI16( p1 + k + j, Memory.getUI16( p1 + k + j ) + carry - 0x10000 );
+					}
+
+				}
+
+				j -= 2;
+				i -= 2;
+
+			} while ( j >= 0 );
+
+			if ( l1 & 3 ) l1 += 2;
+
+			CRYPTO::inline {
+				BigUint$.clean( p1, l1 );
+			}
+			CRYPTO::debug {
+				d = _clean( p1, l1 );
+				p1 = d.pos;
+				l1 = d.len;
+			}
+
+			if ( scale > 1 && l1 > 0 ) {
+				pos = p1 + l1;
+				CRYPTO::inline {
+					BigUint$.div_s( p1, l1, scale, pos, len, carry, k );
+					p1 = pos;
+					l1 = len;
+				}
+				CRYPTO::debug {
+					return _div_s( p1, l1, scale, pos );
+				}
+			}
+			return new BigUint( p1, l1 );
+
 		}
 
 		/**
@@ -1787,7 +2131,7 @@ package by.blooddy.math.utils {
 			} while ( i > 1 );
 			return r;
 		}
-		
+
 		/**
 		 * @private
 		 * @return		pow( v1, e ) % v2;
@@ -1796,7 +2140,7 @@ package by.blooddy.math.utils {
 			var i:uint = _getHighestBit( e );
 			var v:BigUint;
 			if ( compare( new BigUint( p1, l1 ), new BigUint( p2, l2 ) ) ) {
-				v = _divAndMod( p1, l1, p2, l2, pos )[ 1 ];
+//				v = _divAndMod( p1, l1, p2, l2, pos )[ 1 ];
 				p1 = v.pos;
 				l1 = v.len;
 			}
@@ -1826,7 +2170,7 @@ package by.blooddy.math.utils {
 //			_lr = _lx;
 			return null;
 		}
-		
+
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -1872,4 +2216,3 @@ package by.blooddy.math.utils {
 	}
 
 }
-
