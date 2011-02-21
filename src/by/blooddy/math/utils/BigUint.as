@@ -383,12 +383,12 @@ package by.blooddy.math.utils {
 							var i:uint = len = l - s;
 							s += p;
 							var r2:uint = 32 - r1;
-							var t1:int;
-							var t2:int = 0;
+							var t1:uint;
+							var t2:uint = 0;
 							do {
 								i -= 4;
 								t1 = Memory.getI32( s + i );
-								Memory.setI32( pos + i, ( t1 >> r1 ) | t2 );
+								Memory.setI32( pos + i, ( t1 >>> r1 ) | t2 );
 								t2 = t1 << r2;
 							} while ( i > 0 );
 						}
@@ -1084,11 +1084,22 @@ package by.blooddy.math.utils {
 							}
 						}
 					}
-				} else if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) { // второе число короткое
-					c2 = Memory.getUI16( p2 );
-					if ( c2 == 1 ) {
+				} else {
+					var i:int;
+					CRYPTO::inline {
+						BigUint$.getShift( p2, l2, i, c1 );
+					}
+					CRYPTO::debug {
+						i = _getShift( p2, l2 );
+					}
+					if ( i == 0 ) {	// v2 == 1
 						return v1;
-					} else {
+					} else if ( i > 0 ) {
+						// число является степенью двойки.
+						// сдвигаем вправо
+						return shiftRight( v1, i, pos );
+					} else if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) { // второе число короткое
+						c2 = Memory.getUI16( p2 );
 						CRYPTO::inline {
 							BigUint$.div_s( p1, l1, c2, pos, len, c1, l2 );
 							return new BigUint( pos, len );
@@ -1096,16 +1107,16 @@ package by.blooddy.math.utils {
 						CRYPTO::debug {
 							return _div_s( p1, l1, c2, pos );
 						}
-					}
-				} else {
-					CRYPTO::inline {
-						var mem:ByteArray = _domain.domainMemory;
-						var scale:uint, k:uint, t1:uint, t2:uint, t3:int, qGuess:int, borrow:int, carry:int, j:int, i:int;
-						BigUint$.div( mem, p1, l1, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
-						return new BigUint( pos, len );
-					}
-					CRYPTO::debug {
-						return _div( p1, l1, p2, l2, pos );
+					} else {
+						CRYPTO::inline {
+							var mem:ByteArray = _domain.domainMemory;
+							var scale:uint, k:uint, t1:uint, t2:uint, t3:int, qGuess:int, borrow:int, carry:int, j:int;
+							BigUint$.div( mem, p1, l1, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
+							return new BigUint( pos, len );
+						}
+						CRYPTO::debug {
+							return _div( p1, l1, p2, l2, pos );
+						}
 					}
 				}
 			}
@@ -1948,29 +1959,15 @@ package by.blooddy.math.utils {
 			var k:uint;
 			if ( scale > 1 ) {
 				// Нормализация
-				CRYPTO::inline {
-					BigUint$.mult_s( p1, l1, scale, pos, len, k );
-					p1 = pos;
-					l1 = len;
-				}
-				CRYPTO::debug {
-					d = _mult_s( p1, l1, scale, pos );
-					p1 = d.pos;
-					l1 = d.len;
-				}
+				d = _mult_s( p1, l1, scale, pos );
+				p1 = d.pos;
+				l1 = d.len;
 				pos = p1 + l1;
 				Memory.setI16( pos, 0 );
 				pos += 2;
-				CRYPTO::inline {
-					BigUint$.mult_s( p2, l2, scale, pos, len, k );
-					p2 = pos;
-					l2 = len;
-				}
-				CRYPTO::debug {
-					d = _mult_s( p2, l2, scale, pos );
-					p2 = d.pos;
-					l2 = d.len;
-				}
+				d = _mult_s( p2, l2, scale, pos );
+				p2 = d.pos;
+				l2 = d.len;
 				pos = p2 + l2;
 			} else {
 				var mem:ByteArray = _domain.domainMemory;
@@ -2085,25 +2082,12 @@ package by.blooddy.math.utils {
 
 			if ( l1 & 3 ) l1 += 2;
 
-			CRYPTO::inline {
-				BigUint$.clean( p1, l1 );
-			}
-			CRYPTO::debug {
-				d = _clean( p1, l1 );
-				p1 = d.pos;
-				l1 = d.len;
-			}
+			d = _clean( p1, l1 );
+			p1 = d.pos;
+			l1 = d.len;
 
 			if ( scale > 1 && l1 > 0 ) {
-				pos = p1 + l1;
-				CRYPTO::inline {
-					BigUint$.div_s( p1, l1, scale, pos, len, carry, k );
-					p1 = pos;
-					l1 = len;
-				}
-				CRYPTO::debug {
-					return _div_s( p1, l1, scale, pos );
-				}
+				return _div_s( p1, l1, scale, p1 + l1 );
 			}
 			return new BigUint( p1, l1 );
 
