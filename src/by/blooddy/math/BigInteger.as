@@ -7,7 +7,7 @@
 package by.blooddy.math {
 
 	import by.blooddy.math.utils.BigUint;
-
+	
 	import flash.errors.IllegalOperationError;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
@@ -67,6 +67,11 @@ package by.blooddy.math {
 		 */
 		private static const _domain:ApplicationDomain = ApplicationDomain.currentDomain;
 
+		/**
+		 * @private
+		 */
+		private static const _JUNK:ByteArray = new ByteArray();
+		
 		/**
 		 * @private
 		 */
@@ -297,6 +302,16 @@ package by.blooddy.math {
 			return result;
 		}
 
+		/**
+		 * @private
+		 */
+		private static function getValueFromBigUint(value:BigUint, negative:Boolean):BigValue {
+			var result:BigValue = new BigValue();
+			_JUNK.position = value.pos;
+			_JUNK.readBytes( result, 0, value.len );
+			return result;
+		}
+
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -510,17 +525,53 @@ package by.blooddy.math {
 		}
 
 		/**
-		 * @return		v & ( 1 << n ) != 0
+		 * @return		this & ( 1 << n ) != 0
 		 */
 		public function testBit(n:uint):Boolean {
-			throw new IllegalOperationError( 'TODO' );
+			if ( this._value ) {
+				var s:uint = n >>> 3;
+				if ( s >= this._value.length ) { // бит находится за пределами числа
+					return false;
+				} else {
+					return ( this._value[ s ] & ( 1 << ( n & 7 ) ) ) != 0;
+				}
+			} else {
+				return false;
+			}
 		}
 
 		/**
 		 * @return		this | ( 1 << n )
 		 */
 		public function setBit(n:uint):BigInteger {
-			throw new IllegalOperationError( 'TODO' );
+			var s:uint = n >>> 3;
+			var k:uint = 1 << ( n & 7 );
+			var l:uint = ( this._value ? this._value.length : 0 );
+			if ( s < l && ( this._value[ s ] & k ) != 0  ) {
+				return this;
+			} else {
+				var tmp:ByteArray = _domain.domainMemory;
+
+				_JUNK.position = 0;
+				_JUNK.length = Math.max(
+					l + ( l > s ? l : s ),
+					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
+				);
+
+				if ( this._value )  _JUNK.writeBytes( this._value );
+
+				_domain.domainMemory = _JUNK;
+				
+				var result:BigInteger = new BigInteger();
+				result._value = getValueFromBigUint(
+					BigUint.setBit( new BigUint( 0, l ), n, l ),
+					this._value && this._value.negative
+				);
+
+				_domain.domainMemory = tmp;
+
+				return result;
+			}
 		}
 
 		/**

@@ -6,6 +6,8 @@
 
 package by.blooddy.math {
 	
+	import by.blooddy.math.utils.BigUintTest;
+	
 	import flexunit.framework.Assert;
 	
 	import org.flexunit.runners.Parameterized;
@@ -47,7 +49,7 @@ package by.blooddy.math {
 			[ '-97876671231231', 16 ]
 		];
 		
-		[Test( order="1", dataProvider="$fromString" )]
+		[Test( order="-3", dataProvider="$fromString" )]
 		public function fromString(v:String, radix:uint, result:String=null):void {
 			var bi:BigInteger = BigInteger.fromString( v, radix );
 			Assert.assertEquals(
@@ -69,7 +71,7 @@ package by.blooddy.math {
 			[ -6.10917779346288e+57 ]
 		];
 
-		[Test( order="2", dataProvider="$fromNumber" )]
+		[Test( order="-2", dataProvider="$fromNumber" )]
 		public function fromNumber(v:Number):void {
 			var bi:BigInteger = BigInteger.fromNumber( v );
 			Assert.assertEquals(
@@ -87,11 +89,41 @@ package by.blooddy.math {
 			[ new <uint>[0x07812356,0xFF0], true, 'FF007812356' ]
 		];
 		
-		[Test( order="3", dataProvider="$fromVector" )]
+		[Test( order="-1", dataProvider="$fromVector" )]
 		public function fromVector(v:Vector.<uint>, negative:Boolean, result:String):void {
 			var bi:BigInteger = BigInteger.fromVector( v, negative );
 			Assert.assertEquals(
 				bi.toString( 16 ).toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  testBit
+		//----------------------------------
+		
+		public static var $testBit:Array = BigUintTest.$testBit;
+		
+		[Test( order="1", dataProvider="$testBit" )]
+		public function testBit(v:String, n:uint, result:Boolean):void {
+			var R:Boolean = BigInteger.fromString( v, 16 ).testBit( n );
+			Assert.assertEquals(
+				'0x' + v.toLowerCase() + ' & ' + '( 1 << ' + n + ' ) != 0',
+				R, result
+			);
+		}
+		
+		//----------------------------------
+		//  setBit
+		//----------------------------------
+		
+		public static var $setBit:Array = BigUintTest.$setBit;
+		
+		[Test( order="2", dataProvider="$setBit" )]
+		public function setBit(v:String, n:uint, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v, 16 ).setBit( n );
+			Assert.assertEquals(
+				'0x' + v.toLowerCase() + ' & ' + '( 1 << ' + n + ' )',
+				R.toString( 16 ).toLowerCase(), result.toLowerCase()
 			);
 		}
 		
