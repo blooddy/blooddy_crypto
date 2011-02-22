@@ -50,7 +50,6 @@ package by.blooddy.math.utils {
 				if ( s >= l ) { // бит находится за пределами числа
 					return false;
 				} else {
-					if ( s & 1 == 1 ) --s;
 					return ( Memory.getUI8( p + s ) & ( 1 << ( n & 7 ) ) ) != 0;
 				}
 			}
