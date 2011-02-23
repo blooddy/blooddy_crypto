@@ -531,9 +531,20 @@ package by.blooddy.math {
 			if ( this._value ) {
 				var s:uint = n >>> 3;
 				if ( s >= this._value.length ) { // бит находится за пределами числа
-					return false;
+					return this._value.negative;
 				} else {
-					return ( this._value[ s ] & ( 1 << ( n & 7 ) ) ) != 0;
+					if ( this._value.negative ) {
+						var i:uint = 0;
+						while ( !this._value[ i ] ) ++i;
+						if ( i == s ) {
+							s = -this._value[ s ];
+						} else {
+							s = ~this._value[ s ];
+						}
+					} else {
+						s = this._value[ s ];
+					}
+					return ( s & ( 1 << ( n & 7 ) ) ) != 0;
 				}
 			} else {
 				return false;
