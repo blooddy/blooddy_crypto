@@ -35,23 +35,24 @@ package by.blooddy.math {
 
 			ONE._value = new BigValue();
 			ONE._value.writeInt( 0x01 );
-			TWO._value = new BigValue();
-			TWO._value.writeInt( 0x02 );
 			TEN._value = new BigValue();
 			TEN._value.writeInt( 0x0A );
+			NEGATIVE_ONE._value = new BigValue();
+			NEGATIVE_ONE._value.writeInt( 0x01 );
+			NEGATIVE_ONE._value.negative = true;
 
 			var i:uint = 2;
 			for ( ; i <= 9; ++i ) {
-				_PATTERNS[ i ] = new RadixPattern( i, new RegExp( '^\\s*(-)?([0-' + ( i - 1 ) + ']+)\\s*$' ) );
+				_PATTERNS[ i ] = new RegExp( '^\\s*(-)?([0-' + ( i - 1 ) + ']+)\\s*$' );
 			}
-			_PATTERNS[ i++ ] = new RadixPattern( 10, new RegExp( '^\\s*(-)?(\\d+)(?:\\.\\d+)?\\s*$' ) );
-			_PATTERNS[ i++ ] = new RadixPattern( 11, new RegExp( '^\\s*(-)?([\\da]+)\\s*$', 'i' ) );
+			_PATTERNS[ i++ ] = /^\s*(-)?(\d+)(?:\.\d+)?\s*$/;
+			_PATTERNS[ i++ ] = /^\s*(-)?([\da]+)\s*$/i;
 			for ( ; i <= 15; ++i ) {
-				_PATTERNS[ i ] = new RadixPattern( i );
+				_PATTERNS[ i ] = new RegExp( '^\\s*(-)?([\\da-' + ( i - 1 ).toString( i ) + ']+)\\s*$', 'i' );
 			}
-			_PATTERNS[ i++ ] = new RadixPattern( 16, new RegExp( '^\\s*(-)?(?:0x)?([\\da-f]+)\\s*$', 'i' ) );
+			_PATTERNS[ i++ ] = /^\s*(-)?(?:0x)?([\da-f]+)\s*$/i;
 			for ( ; i <= 36; ++i ) {
-				_PATTERNS[ i ] = new RadixPattern( i );
+				_PATTERNS[ i ] = new RegExp( '^\\s*(-)?([\\da-' + ( i - 1 ).toString( i ) + ']+)\\s*$', 'i' );
 			}
 
 		}
@@ -75,7 +76,7 @@ package by.blooddy.math {
 		/**
 		 * @private
 		 */
-		private static const _PATTERNS:Object = new Object();
+		private static const _PATTERNS:Vector.<RegExp> = new Vector.<RegExp>( 37, true );
 
 		//--------------------------------------------------------------------------
 		//
@@ -83,13 +84,13 @@ package by.blooddy.math {
 		//
 		//--------------------------------------------------------------------------
 
-		public static const ZERO:BigInteger =	new BigInteger(); // see $private::init()
+		public static const NEGATIVE_ONE:BigInteger =	new BigInteger(); // see $private::init()
+		
+		public static const ZERO:BigInteger =			new BigInteger(); // see $private::init()
 
-		public static const ONE:BigInteger =	new BigInteger(); // see $private::init()
+		public static const ONE:BigInteger =			new BigInteger(); // see $private::init()
 
-		public static const TWO:BigInteger =	new BigInteger(); // see $private::init()
-
-		public static const TEN:BigInteger =	new BigInteger(); // see $private::init()
+		public static const TEN:BigInteger =			new BigInteger(); // see $private::init()
 
 		//--------------------------------------------------------------------------
 		//
@@ -187,8 +188,8 @@ package by.blooddy.math {
 		 */
 		private static function getValueFromString(value:String, radix:uint):BigValue {
 			if ( !value ) return null;
-			var pattern:RadixPattern = _PATTERNS[ radix ];
-			var m:Array = value.match( pattern.pattern );
+			var pattern:RegExp = _PATTERNS[ radix ];
+			var m:Array = value.match( pattern );
 			if ( !m ) throw new ArgumentError();
 			var result:BigValue = new BigValue();
 			result.negative = Boolean( m[ 1 ] );
@@ -411,6 +412,10 @@ package by.blooddy.math {
 		//  Methods
 		//
 		//--------------------------------------------------------------------------
+
+		public function valueOf():Number {
+			return this.toNumber();
+		}
 
 		public function toNumber():Number {
 			if ( this._value ) {
@@ -647,10 +652,10 @@ package by.blooddy.math {
 		public function not():BigInteger {
 			if ( this._value ) {
 				var result:BigInteger = this.increment();
-				result._value.negative = !this._value.negative;
+				if ( result._value ) result._value.negative = !this._value.negative;
 				return result;
 			} else {
-				return ZERO;
+				return NEGATIVE_ONE;
 			}
 		}
 
@@ -857,26 +862,5 @@ internal final class BigValue extends ByteArray {
 	}
 
 	public var negative:Boolean;
-
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//  Helper class: RadixPattern
-//
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * @private
- */
-internal final class RadixPattern {
-
-	public function RadixPattern(radix:uint, pattern:RegExp=null) {
-		super();
-		var c:String = ( radix - 1 ).toString( radix );
-		this.pattern = pattern || new RegExp( '^\\s*(-)?([\\da-' + c + ']+)\\s*$', 'i' );
-	}
-
-	public var pattern:RegExp;
 
 }

@@ -211,7 +211,8 @@ package by.blooddy.math {
 		//----------------------------------
 		
 		public static var $not:Array = [
-			[ '0', '0' ],
+			[ '0', '-1' ],
+			[ '-1', '0' ],
 			[ 'FF00FF00FF00FF00', '-FF00FF00FF00FF01' ],
 			[ '-FF00FF00FF00FF01', 'FF00FF00FF00FF00' ],
 			[ 'FF00FF00FF00FF', '-FF00FF00FF0100' ],
