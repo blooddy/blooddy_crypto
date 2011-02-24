@@ -313,6 +313,38 @@ package by.blooddy.math {
 			return result;
 		}
 
+		/**
+		 * @private
+		 */
+		private static function _increment(value:BigValue):void {
+			var i:uint = 0;
+			while ( value[ i ] == 0xFF ) {
+				value[ i++ ] = 0;
+			}
+			if ( i >= value.length ) {
+				value.length += 4;
+			}
+			++value[ i ];
+		}
+
+		/**
+		 * @private
+		 */
+		private static function _decrement(value:BigValue):void {
+			var i:uint;
+			while ( value[ i ] == 0 ) {
+				value[ i++ ] = 0xFF;
+			}
+			--value[ i ];
+			if ( i >= value.length - 4 ) {
+				value.position = value.length - 4;
+				while ( value.length > 0 && value.readInt() == 0 ) {
+					value.length -= 4;
+					value.position -= 4;
+				}
+			}
+		}
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -726,7 +758,25 @@ package by.blooddy.math {
 		 * @return		this + 1
 		 */
 		public function increment():BigInteger {
-			throw new IllegalOperationError( 'TODO' );
+			if ( this._value ) {
+				var value:BigValue = new BigValue();
+				value.writeBytes( this._value );
+				if ( this._value.negative ) {
+					_decrement( value );
+					if ( value.length <= 0 ) {
+						return ZERO;
+					} else {
+						value.negative = true;
+					}
+				} else {
+					_increment( value );
+				}
+				var result:BigInteger = new BigInteger();
+				result._value = value;
+				return result;
+			} else {
+				return ONE;
+			}
 		}
 
 		/**
@@ -740,7 +790,24 @@ package by.blooddy.math {
 		 * @return		this - 1
 		 */
 		public function decrement():BigInteger {
-			throw new IllegalOperationError( 'TODO' );
+			if ( this._value ) {
+				var value:BigValue = new BigValue();
+				value.writeBytes( this._value );
+				if ( this._value.negative ) {
+					_increment( value );
+					value.negative = true;
+				} else {
+					_decrement( value );
+					if ( value.length <= 0  ) {
+						return ZERO;
+					}
+				}
+				var result:BigInteger = new BigInteger();
+				result._value = value;
+				return result;
+			} else {
+				return NEGATIVE_ONE;
+			}
 		}
 
 		/**
