@@ -12,6 +12,7 @@ package by.blooddy.math {
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
+	import by.blooddy.system.Memory;
 
 	/**
 	 * @author					BlooDHounD
@@ -150,8 +151,8 @@ package by.blooddy.math {
 				case 'string':		return getValueFromString( value, 16 );
 				case 'object':
 					switch ( true ) {
-						case value is ByteArray:		return getValueFromByteArray( value, false );
-						case value is Vector.<uint>:	return getValueFromVector( value, false );
+						case value is ByteArray:		return getValueFromByteArray( value );
+						case value is Vector.<uint>:	return getValueFromVector( value );
 						case value is BigInteger:		return ( value as BigInteger )._value;
 						case null:						return null;
 					}
@@ -242,7 +243,7 @@ package by.blooddy.math {
 		/**
 		 * @private
 		 */
-		private static function getValueFromVector(value:Vector.<uint>, negative:Boolean):BigValue {
+		private static function getValueFromVector(value:Vector.<uint>, negative:Boolean=false):BigValue {
 			if ( value.length == 0 ) return null;
 			var result:BigValue = new BigValue();
 			for each ( var v:uint in value ) {
@@ -261,7 +262,7 @@ package by.blooddy.math {
 		/**
 		 * @private
 		 */
-		private static function getValueFromByteArray(value:ByteArray, negative:Boolean):BigValue {
+		private static function getValueFromByteArray(value:ByteArray, negative:Boolean=false):BigValue {
 			if ( value.length == 0 ) return null;
 			var result:BigValue = new BigValue();
 			var i:uint;
@@ -306,11 +307,15 @@ package by.blooddy.math {
 		/**
 		 * @private
 		 */
-		private static function getValueFromBigUint(value:BigUint, negative:Boolean):BigValue {
-			var result:BigValue = new BigValue();
-			_mem.position = value.pos;
-			_mem.readBytes( result, 0, value.len );
-			return result;
+		private static function getValueFromBigUint(value:BigUint, negative:Boolean=false):BigValue {
+			if ( value.len ) {
+				var result:BigValue = new BigValue();
+				_mem.position = value.pos;
+				_mem.readBytes( result, 0, value.len );
+				return result;
+			} else {
+				return null;
+			}
 		}
 
 		/**
@@ -344,7 +349,32 @@ package by.blooddy.math {
 				}
 			}
 		}
+
+		/**
+		 * @private
+		 */
+		private static function _getFirstNonzeroDigit(v:BigUint):uint {
+			var i:uint = 0;
+			while ( Memory.getI32( i ) == 0 ) {
+				++i;
+			}
+			return i;
+		}
 		
+		/**
+		 * @private
+		 */
+		private static function _add_negative(v1:BigUint, v2:BigUint, pos:uint):BigUint {
+			var i1:uint = _getFirstNonzeroDigit( v1 );
+			var i2:uint = _getFirstNonzeroDigit( v2 );
+			var l1:uint = v1.len;
+			var l2:uint = v2.len;
+			
+			var i:uint = ( i1 > i2 ? i1 : i2 );
+			
+			throw new IllegalOperationError( 'TODO' );
+		}
+
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -695,6 +725,37 @@ package by.blooddy.math {
 		 * @return		this & v
 		 */
 		public function and(v:BigInteger):BigInteger {
+			if ( !this._value || !v._value ) return ZERO;
+			else {
+				
+				if ( !this._value.negative && !this._value.negative ) {
+
+					var tmp:ByteArray = _domain.domainMemory;
+					
+					_mem.position = 0;
+					_mem.writeBytes( this._value );
+					_mem.writeBytes(    v._value );
+					_mem.length = Math.max(
+						_mem.position + Math.max( this._value.length, v._value.length ),
+						ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
+					);
+					_domain.domainMemory = _mem;
+
+					var result:BigInteger = new BigInteger();
+					result._value = getValueFromBigUint(
+						BigUint.and(
+							new BigUint( 0, this._value.length ),
+							new BigUint( this._value.length, v._value.length ),
+							this._value.length + v._value.length
+						)
+					);
+					
+					_domain.domainMemory = tmp;
+					return result;
+
+				}
+				
+			}
 			throw new IllegalOperationError( 'TODO' );
 		}
 
