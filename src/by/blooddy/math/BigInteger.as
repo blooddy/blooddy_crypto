@@ -686,14 +686,14 @@ package by.blooddy.math {
 		 * @return		( this > v ? v : this )
 		 */
 		public function min(v:BigInteger):BigInteger {
-			throw new IllegalOperationError( 'TODO' );
+			return ( this.compare( v ) < 0 ? this : v );
 		}
 
 		/**
 		 * @return		( this < v ? v : this )
 		 */
 		public function max(v:BigInteger):BigInteger {
-			throw new IllegalOperationError( 'TODO' );
+			return ( this.compare( v ) > 0 ? this : v );
 		}
 
 		/**
