@@ -167,38 +167,38 @@ package by.blooddy.math.utils {
 			}
 		}
 
-		/**
-		 * @return		~v1
-		 */
-		public static function not(v:BigUint, pos:uint):BigUint {
-			var p:uint = v.pos;
-			var l:uint = v.len;
-			if ( l == 0 ) {
-				return v;
-			} else {
-				var len:uint = 0;
-				l -= 4;
-				while ( len < l ) {
-					Memory.setI32( pos + len, ~Memory.getI32( p + len ) );
-					len += 4;
-				}
-				var k:int = Memory.getI32( p + len );
-				var i:uint = 0x80000000;
-				while ( ( k & i ) == 0 ) {
-					i >>>= 1;
-				}
-				--i;
-				Memory.setI32( pos + len, ( ~k ) & i );
-				len += 4;
-				CRYPTO::inline {
-					BigUint$.clean( pos, len );
-					return new BigUint( pos, len );
-				}
-				CRYPTO::debug {
-					return _clean( pos, len );
-				}
-			}
-		}
+//		/**
+//		 * @return		~v1
+//		 */
+//		public static function not(v:BigUint, pos:uint):BigUint {
+//			var p:uint = v.pos;
+//			var l:uint = v.len;
+//			if ( l == 0 ) {
+//				return v;
+//			} else {
+//				var len:uint = 0;
+//				l -= 4;
+//				while ( len < l ) {
+//					Memory.setI32( pos + len, ~Memory.getI32( p + len ) );
+//					len += 4;
+//				}
+//				var k:int = Memory.getI32( p + len );
+//				var i:uint = 0x80000000;
+//				while ( ( k & i ) == 0 ) {
+//					i >>>= 1;
+//				}
+//				--i;
+//				Memory.setI32( pos + len, ( ~k ) & i );
+//				len += 4;
+//				CRYPTO::inline {
+//					BigUint$.clean( pos, len );
+//					return new BigUint( pos, len );
+//				}
+//				CRYPTO::debug {
+//					return _clean( pos, len );
+//				}
+//			}
+//		}
 
 		/**
 		 * @return		v1 & v2

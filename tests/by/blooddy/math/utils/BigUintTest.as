@@ -145,23 +145,23 @@ package by.blooddy.math.utils {
 			);
 		}
 
-		//----------------------------------
-		//  not
-		//----------------------------------
-
-		public static var $not:Array = [
-			[ '0', '0' ],
-			[ 'FF00FF00FF00FF00', 'FF00FF00FF00FF' ]
-		];
-
-		[Test( order="5", dataProvider="$not" )]
-		public function not(v:String, result:String):void {
-			var R:String = BigUintStr.not( v );
-			Assert.assertEquals(
-				'~0x' + v.toLowerCase(),
-				R.toLowerCase(), result.toLowerCase()
-			);
-		}
+//		//----------------------------------
+//		//  not
+//		//----------------------------------
+//
+//		public static var $not:Array = [
+//			[ '0', '0' ],
+//			[ 'FF00FF00FF00FF00', 'FF00FF00FF00FF' ]
+//		];
+//
+//		[Test( order="5", dataProvider="$not" )]
+//		public function not(v:String, result:String):void {
+//			var R:String = BigUintStr.not( v );
+//			Assert.assertEquals(
+//				'~0x' + v.toLowerCase(),
+//				R.toLowerCase(), result.toLowerCase()
+//			);
+//		}
 
 		//----------------------------------
 		//  and

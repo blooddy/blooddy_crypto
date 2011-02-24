@@ -43,11 +43,11 @@ package by.blooddy.math.utils {
 			return toString( _r );
 		}
 
-		public static function not(v1:String):String {
-			var _v1:BigUint = fromString( v1, 5 );
-			var _r:BigUint = BigUint.not( _v1, _v1.pos + _v1.len );
-			return toString( _r );
-		}
+//		public static function not(v1:String):String {
+//			var _v1:BigUint = fromString( v1, 5 );
+//			var _r:BigUint = BigUint.not( _v1, _v1.pos + _v1.len );
+//			return toString( _r );
+//		}
 
 		public static function and(v1:String, v2:String):String {
 			var _v1:BigUint = fromString( v1, 5 );
