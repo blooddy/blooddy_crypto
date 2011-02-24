@@ -11,6 +11,7 @@ package by.blooddy.math.utils {
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 
+	[ExcludeClass]
 	/**
 	 * @author					BlooDHounD
 	 * @version					1.0
@@ -473,15 +474,13 @@ package by.blooddy.math.utils {
 				var p1:uint = v1.pos;
 				var p2:uint = v2.pos;
 				var i:uint = l1;
-				var c1:uint;
-				var c2:uint;
 				do {
 					i -= 4;
-					c1 = Memory.getI32( p1 + i );
-					c2 = Memory.getI32( p2 + i );
-					if ( c1 > c2 ) {
+					l1 = Memory.getI32( p1 + i );
+					l2 = Memory.getI32( p2 + i );
+					if ( l1 > l2 ) {
 						return 1;
-					} else if ( c2 > c1 ) {
+					} else if ( l2 > l1 ) {
 						return -1;
 					}
 				} while ( i > 0 );
