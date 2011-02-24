@@ -218,13 +218,46 @@ package by.blooddy.math {
 			[ 'FF00FF00FF00FF', '-FF00FF00FF0100' ],
 			[ '-FF00FF00FF0100', 'FF00FF00FF00FF' ]
 		];
-		
+
 		[Test( order="5", dataProvider="$not" )]
 		public function not(v:String, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v, 16 ).not();
 			Assert.assertEquals(
 				'~0x' + v.toLowerCase(),
 				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  compare
+		//----------------------------------
+		
+		public static var $compare:Array = [
+			[ '-123', '-123', 0 ],
+			[ '-123', '0', -1 ],
+			[ '-123', '123', -1 ],
+			[ '0', '-123', 1 ],
+			[ '0', '0', 0 ],
+			[ '0', '123', -1 ],
+			[ '123', '-123', 1 ],
+			[ '123', '0', 1 ],
+			[ '123', '123', 0 ],
+			[ '987654321', '123456789', 1 ],
+			[ '123456789', '987654321', -1 ],
+			[ '987654321', '987654321', 0 ]
+		];
+		
+		[Test( order="12", dataProvider="$compare" )]
+		public function compare(v1:String, v2:String, result:int):void {
+			var F:Function = function(R:int):String {
+				if ( R == 1 ) return '>';
+				else if ( R == -1 ) return '<';
+				else return '==';
+			}
+			var R:int = BigInteger.fromString( v1, 16 ).compare( BigInteger.fromString( v2, 16 ) );
+			Assert.assertEquals(
+				'0x' + v1.toLowerCase() + ' ' + F( R ) + ' 0x' + v2.toLowerCase(),
+				R, result
 			);
 		}
 		

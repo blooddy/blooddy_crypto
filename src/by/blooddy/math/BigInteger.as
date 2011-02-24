@@ -71,7 +71,7 @@ package by.blooddy.math {
 		/**
 		 * @private
 		 */
-		private static const _JUNK:ByteArray = new ByteArray();
+		private static const _mem:ByteArray = new ByteArray();
 		
 		/**
 		 * @private
@@ -308,8 +308,8 @@ package by.blooddy.math {
 		 */
 		private static function getValueFromBigUint(value:BigUint, negative:Boolean):BigValue {
 			var result:BigValue = new BigValue();
-			_JUNK.position = value.pos;
-			_JUNK.readBytes( result, 0, value.len );
+			_mem.position = value.pos;
+			_mem.readBytes( result, 0, value.len );
 			return result;
 		}
 
@@ -737,7 +737,32 @@ package by.blooddy.math {
 		 * @return		( this > v ? 1 : ( v > this ? -1 : 0 )
 		 */
 		public function compare(v:BigInteger):int {
-			throw new IllegalOperationError( 'TODO' );
+
+			var c1:int = ( this._value ? ( this._value.negative ? -1 : 1 ) : 0 );
+			var c2:int = (    v._value ? (    v._value.negative ? -1 : 1 ) : 0 );
+
+			if ( c1 > c2 ) return 1;
+			else if ( c1 < c2 ) return -1;
+			else if ( c1 == 0 ) return 0;
+			else if ( this._value.length > v._value.length ) return 1;
+			else if ( this._value.length < v._value.length ) return -1;
+			else {
+
+				var tmp:ByteArray = _domain.domainMemory;
+
+				_mem.position = 0;
+				_mem.writeBytes( this._value );
+				_mem.writeBytes(    v._value );
+				_mem.length = Math.max( _mem.position, ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH );
+				_domain.domainMemory = _mem;
+	
+				var result:int = BigUint.compare( new BigUint( 0, this._value.length ), new BigUint( this._value.length, v._value.length ) );
+	
+				_domain.domainMemory = tmp;
+				return c1 * result;
+
+			}
+
 		}
 
 		/**
