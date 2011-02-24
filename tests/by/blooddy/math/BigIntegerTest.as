@@ -261,6 +261,56 @@ package by.blooddy.math {
 			);
 		}
 		
+		//----------------------------------
+		//  increment
+		//----------------------------------
+		
+		public static var $increment:Array = [
+			[ '-1234567800000010', '-123456780000000F' ],
+			[ '-100000000', '-FFFFFFFF' ],
+			[ '-123', '-122' ],
+			[ '-1', '0' ],
+			[ '0', '1' ],
+			[ '123', '124' ],
+			[ 'FFFFFFFF', '100000000' ],
+			[ '123456780000000F', '1234567800000010' ]
+		];
+		
+		[Test( order="13", dataProvider="$increment" )]
+		public function increment(v:String, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v, 16 ).increment();
+			Assert.assertEquals(
+				'0x' + v.toLowerCase() + '++',
+				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		
+		//----------------------------------
+		//  decrement
+		//----------------------------------
+		
+		public static var $decrement:Array = [
+			[ '-FFFFFFFF122FFFFFFFF', '-FFFFFFFF12300000000' ],
+			[ '-122FFFFFFFF', '-12300000000' ],
+			[ '-122', '-123' ],
+			[ '0', '-1' ],
+			[ '1', '0' ],
+			[ '123', '122' ],
+			[ '12300000000', '122FFFFFFFF' ],
+			[ 'FFFFFFFF12300000000', 'FFFFFFFF122FFFFFFFF' ],
+			[ '100000000', 'FFFFFFFF' ]
+		];
+		
+		[Test( order="15", dataProvider="$decrement" )]
+		public function decrement(v:String, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v, 16 ).decrement();
+			Assert.assertEquals(
+				'0x' + v.toLowerCase() + '--',
+				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+			);
+		}
+		
 	}
 	
 }
