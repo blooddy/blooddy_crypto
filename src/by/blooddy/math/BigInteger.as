@@ -525,6 +525,21 @@ package by.blooddy.math {
 		}
 
 		/**
+		 * @return		-this;
+		 */
+		public function negate():BigInteger {
+			if ( this._value ) {
+				var result:BigInteger = new BigInteger();
+				result._value = new BigValue();
+				result._value.negative = !this._value.negative;
+				result._value.writeBytes( this._value );
+				return result;
+			} else {
+				return ZERO;
+			}
+		}
+
+		/**
 		 * @return		this & ( 1 << n ) != 0
 		 */
 		public function testBit(n:uint):Boolean {
@@ -630,7 +645,13 @@ package by.blooddy.math {
 		 * @return		~this
 		 */
 		public function not():BigInteger {
-			throw new IllegalOperationError( 'TODO' );
+			if ( this._value ) {
+				var result:BigInteger = this.increment();
+				result._value.negative = !this._value.negative;
+				return result;
+			} else {
+				return ZERO;
+			}
 		}
 
 		/**

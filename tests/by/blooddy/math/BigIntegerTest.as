@@ -98,6 +98,25 @@ package by.blooddy.math {
 		}
 		
 		//----------------------------------
+		//  negate
+		//----------------------------------
+		
+		public static var $negate:Array = [
+			[ '0', '0' ],
+			[ 'FF00FF00FF00FF', '-FF00FF00FF00FF' ],
+			[ '-FF00FF00FF00FF', 'FF00FF00FF00FF' ]
+		];
+		
+		[Test( order="0", dataProvider="$negate" )]
+		public function negate(v:String, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v, 16 ).negate();
+			Assert.assertEquals(
+				'-0x' + v.toLowerCase(),
+				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
 		//  testBit
 		//----------------------------------
 		
@@ -183,6 +202,27 @@ package by.blooddy.math {
 			var R:BigInteger = BigInteger.fromString( v, 16 ).flipBit( n );
 			Assert.assertEquals(
 				'0x' + v.toLowerCase() + ' ^ ( 1 << ' + n + ' )',
+				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  not
+		//----------------------------------
+		
+		public static var $not:Array = [
+			[ '0', '0' ],
+			[ 'FF00FF00FF00FF00', '-FF00FF00FF00FF01' ],
+			[ '-FF00FF00FF00FF01', 'FF00FF00FF00FF00' ],
+			[ 'FF00FF00FF00FF', '-FF00FF00FF0100' ],
+			[ '-FF00FF00FF0100', 'FF00FF00FF00FF' ]
+		];
+		
+		[Test( order="5", dataProvider="$not" )]
+		public function not(v:String, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v, 16 ).not();
+			Assert.assertEquals(
+				'~0x' + v.toLowerCase(),
 				R.toString( 16 ).toLowerCase(), result.toLowerCase()
 			);
 		}
