@@ -555,33 +555,10 @@ package by.blooddy.math {
 		 * @return		this | ( 1 << n )
 		 */
 		public function setBit(n:uint):BigInteger {
-			var s:uint = n >>> 3;
-			var k:uint = 1 << ( n & 7 );
-			var l:uint = ( this._value ? this._value.length : 0 );
-			if ( s < l && ( this._value[ s ] & k ) != 0  ) {
+			if ( this.testBit( n ) ) {
 				return this;
 			} else {
-				var tmp:ByteArray = _domain.domainMemory;
-
-				_JUNK.position = 0;
-				_JUNK.length = Math.max(
-					l + ( l > s ? l : s ),
-					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
-				);
-
-				if ( this._value )  _JUNK.writeBytes( this._value );
-
-				_domain.domainMemory = _JUNK;
-				
-				var result:BigInteger = new BigInteger();
-				result._value = getValueFromBigUint(
-					BigUint.setBit( new BigUint( 0, l ), n, l ),
-					this._value && this._value.negative
-				);
-
-				_domain.domainMemory = tmp;
-
-				return result;
+				return this.flipBit( n );
 			}
 		}
 
@@ -589,14 +566,64 @@ package by.blooddy.math {
 		 * @return		this & ~( 1 << n )
 		 */
 		public function clearBit(n:uint):BigInteger {
-			throw new IllegalOperationError( 'TODO' );
+			if ( this.testBit( n ) ) {
+				return this.flipBit( n );
+			} else {
+				return this;
+			}
 		}
 
 		/**
 		 * @return		this ^ ( 1 << n )
 		 */
 		public function flipBit(n:uint):BigInteger {
-			throw new IllegalOperationError( 'TODO' );
+			var value:BigValue = new BigValue();
+			var s:uint = n >>> 3;
+			var k:uint = 1 << ( n & 7 );
+			if ( this._value ) {
+				if ( this._value.length < s ) {
+					value.length = s + 4 - ( s & 3 ); // заполняем ноликами
+				}
+				value.writeBytes( this._value );
+				if ( this._value.negative ) {
+					value.negative = this._value.negative;
+					var i:uint = 0;
+					while ( !this._value[ i ] ) ++i;
+					if ( s > i ) {
+						value[ s ] ^= k;
+					} else if ( s < i ) {
+						value[ s ] = -k;
+						while ( ++s < i ) {
+							value[ s ] = -1;
+						}
+						--value[ s ];
+					} else {
+						value[ s ] = -( ( -value[ s ] ) ^ k );
+						if ( value[ s ] == 0 ) {
+							while ( value[ ++s ] == 0xFF ) {
+								value[ s ] = 0;
+							}
+							++value[ s ];
+						}
+					}
+				} else {
+					value[ s ] ^= k;
+				}
+				value.position -= 4;
+				while ( value.length > 0 && value.readInt() == 0 ) {
+					value.length -= 4;
+					value.position -= 4;
+				}
+				if ( value.length == 0 ) {
+					value = null;
+				}
+			} else {
+				value.length = s + 4 - ( s & 3 );
+				value[ s ] = k;
+			}
+			var result:BigInteger = new BigInteger();
+			result._value = value;
+			return result;
 		}
 
 		/**

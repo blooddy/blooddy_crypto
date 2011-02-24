@@ -117,7 +117,7 @@ package by.blooddy.math {
 		public function testBit(v:String, n:uint, result:Boolean):void {
 			var R:Boolean = BigInteger.fromString( v, 16 ).testBit( n );
 			Assert.assertEquals(
-				'0x' + v.toLowerCase() + ' & ' + '( 1 << ' + n + ' ) != 0',
+				'0x' + v.toLowerCase() + ' & ( 1 << ' + n + ' ) != 0',
 				R, result
 			);
 		}
@@ -126,13 +126,63 @@ package by.blooddy.math {
 		//  setBit
 		//----------------------------------
 		
-		public static var $setBit:Array = BigUintTest.$setBit;
+		public static var $setBit:Array = [
+			[ '987654321', 9, '987654321' ],
+			[ 'FFFFFFFF111111', 256, '100000000000000000000000000000000000000000000000000FFFFFFFF111111' ],
+			[ '12345678', 2, '1234567C' ],
+			[ '-123', 90, '-123' ],
+			[ '-FFFF', 16, ( (-0xFFFF) | ( 1 << 16 ) ).toString( 16 ) ]
+		];
 		
 		[Test( order="2", dataProvider="$setBit" )]
 		public function setBit(v:String, n:uint, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v, 16 ).setBit( n );
 			Assert.assertEquals(
-				'0x' + v.toLowerCase() + ' & ' + '( 1 << ' + n + ' )',
+				'0x' + v.toLowerCase() + ' | ' + '( 1 << ' + n + ' )',
+				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  clearBit
+		//----------------------------------
+		
+		public static var $clearBit:Array = [
+			[ '0', 12, '0' ],
+			[ '123', 90, '123' ],
+			[ '123', 8, '23' ],
+			[ '-123', 90, '-40000000000000000000123' ],
+			[ '-FFFF', 16, ( (-0xFFFF) & ~( 1 << 16 ) ).toString( 16 ) ]
+		];
+		
+		[Test( order="3", dataProvider="$clearBit" )]
+		public function clearBit(v:String, n:uint, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v, 16 ).clearBit( n );
+			Assert.assertEquals(
+				'0x' + v.toLowerCase() + ' & ~( 1 << ' + n + ' )',
+				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  flipBit
+		//----------------------------------
+
+		public static var $flipBit:Array = [
+			[ '00000000', 8, ( 0x00000000 ^ ( 1 << 8 ) ).toString( 16 ) ],
+			[ '00000100', 8, ( 0x00000100 ^ ( 1 << 8 ) ).toString( 16 ) ],
+			[ '00800000', 11, ( 0x00800000 ^ ( 1 << 11 ) ).toString( 16 ) ],
+			[ '00000800', 27, ( 0x00000800 ^ ( 1 << 27 ) ).toString( 16 ) ],
+			[ '-00000100', 8, ( (-0x00000100) ^ ( 1 << 8 ) ).toString( 16 ) ],
+			[ '-00800000', 11, ( (-0x00800000) ^ ( 1 << 11 ) ).toString( 16 ) ],
+			[ '-00000800', 27, ( (-0x00000800) ^ ( 1 << 27 ) ).toString( 16 ) ]
+		];
+		
+		[Test( order="4", dataProvider="$flipBit" )]
+		public function flipBit(v:String, n:uint, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v, 16 ).flipBit( n );
+			Assert.assertEquals(
+				'0x' + v.toLowerCase() + ' ^ ( 1 << ' + n + ' )',
 				R.toString( 16 ).toLowerCase(), result.toLowerCase()
 			);
 		}
