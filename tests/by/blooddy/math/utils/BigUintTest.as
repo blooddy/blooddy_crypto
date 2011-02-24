@@ -100,7 +100,7 @@ package by.blooddy.math.utils {
 		public function setBit(v:String, n:uint, result:String):void {
 			var R:String = BigUintStr.setBit( v, n );
 			Assert.assertEquals(
-				'0x' + v.toLowerCase() + ' & ' + '( 1 << ' + n + ' )',
+				'0x' + v.toLowerCase() + ' | ' + '( 1 << ' + n + ' )',
 				R.toLowerCase(), result.toLowerCase()
 			);
 		}

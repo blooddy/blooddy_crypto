@@ -1195,29 +1195,29 @@ package by.blooddy.math.utils {
 		 * @throws		ArgumentError	v2 == 0
 		 */
 		public static function modPowInt(v1:BigUint, e:int, v2:BigUint, pos:uint):BigUint {
-			var l1:uint = v1.len;
-			var l2:uint = v2.len;
-			if ( l2 == 0 ) {
-				throw new ArgumentError();
-			} else if ( l1 == 0 ) {
-				return v1;
-			} else {
-				var p1:uint = v1.pos;
-				var p2:uint = v2.pos;
-				if ( l2 == 4 ) {
-					var c:uint;// = _modPowInt_simple( p1, l1, e, uint( Memory.getI32( p2 ) ), pos );
-					if ( c == 0 ) {
-						return new BigUint();
-					} else {
-						Memory.setI32( pos, c );
-						return new BigUint( pos, 4 );
-					}
-				} else if ( e < 256 || !( Memory.getUI8( p2 ) & 1 ) ) {
-
-				} else {
-
-				}
-			}
+//			var l1:uint = v1.len;
+//			var l2:uint = v2.len;
+//			if ( l2 == 0 ) {
+//				throw new ArgumentError();
+//			} else if ( l1 == 0 ) {
+//				return v1;
+//			} else {
+//				var p1:uint = v1.pos;
+//				var p2:uint = v2.pos;
+//				if ( l2 == 4 ) {
+//					var c:uint;// = _modPowInt_simple( p1, l1, e, uint( Memory.getI32( p2 ) ), pos );
+//					if ( c == 0 ) {
+//						return new BigUint();
+//					} else {
+//						Memory.setI32( pos, c );
+//						return new BigUint( pos, 4 );
+//					}
+//				} else if ( e < 256 || !( Memory.getUI8( p2 ) & 1 ) ) {
+//
+//				} else {
+//
+//				}
+//			}
 			return null;
 		}
 
@@ -2092,67 +2092,67 @@ package by.blooddy.math.utils {
 
 		}
 
-		/**
-		 * @private
-		 * @return		pow( v1, e ) % v2;
-		 */
-		private static function _modPowInt_simple(p1:uint, l1:uint, e:uint, v2:uint, pos:uint):uint {
-			var i:uint = _getHighestBit( e );
-			var r:uint;
-			if ( l1 == 4 ) {
-				r = uint( Memory.getI32( p1 ) ) % v2;
-			} else {
-				r;// = _mod_s( p1, l1, v2 );
-			}
-			var g:uint = r;
-			do {
-				r = ( r * r ) % v2;
-				i >>>= 1;
-				if ( i & e ) {
-					r = ( r * g ) % v2;
-				}
-			} while ( i > 1 );
-			return r;
-		}
-
-		/**
-		 * @private
-		 * @return		pow( v1, e ) % v2;
-		 */
-		private static function _modPowInt_classic(p1:uint, l1:uint, e:uint, p2:uint, l2:uint, pos:uint):BigUint {
-			var i:uint = _getHighestBit( e );
-			var v:BigUint;
-			if ( compare( new BigUint( p1, l1 ), new BigUint( p2, l2 ) ) ) {
-//				v = _divAndMod( p1, l1, p2, l2, pos )[ 1 ];
-				p1 = v.pos;
-				l1 = v.len;
-			}
-			var p0:uint = pos;
-			var p3:uint = p1;
-			var l3:uint = l1;
-			do {
-//				v = _sqr( p1, l1, pos );
-//				pos += _lx; // TODO: length check and optimize
-//				_sqr( p1, l1, _pr, _lr ); // _r *= _r;
-//				p1 = _pr;
-//				l1 = _lr;
-//				_div( p1, l1, p2, l2, _pr, _lr, _lx, 2 ); // _r %= v;
-//				p1 = _pr;
-//				l1 = _lx;
+//		/**
+//		 * @private
+//		 * @return		pow( v1, e ) % v2;
+//		 */
+//		private static function _modPowInt_simple(p1:uint, l1:uint, e:uint, v2:uint, pos:uint):uint {
+//			var i:uint = _getHighestBit( e );
+//			var r:uint;
+//			if ( l1 == 4 ) {
+//				r = uint( Memory.getI32( p1 ) ) % v2;
+//			} else {
+//				r;// = _mod_s( p1, l1, v2 );
+//			}
+//			var g:uint = r;
+//			do {
+//				r = ( r * r ) % v2;
 //				i >>>= 1;
-//				if ( i & e != 0 ) {
-//					_pr += _lx;
-//					_mult( p1, l1, p3, l3, _pr, _lr ); // _r *= g;
-//					p1 = _pr;
-//					l1 = _lr;
-//					_div( p1, l1, p2, l2, _pr, _lr, _lx, 2 ); // _r %= v;
-//					p1 = _pr;
-//					l1 = _lx;
+//				if ( i & e ) {
+//					r = ( r * g ) % v2;
 //				}
-			} while ( i > 1 );
-//			_lr = _lx;
-			return null;
-		}
+//			} while ( i > 1 );
+//			return r;
+//		}
+//
+//		/**
+//		 * @private
+//		 * @return		pow( v1, e ) % v2;
+//		 */
+//		private static function _modPowInt_classic(p1:uint, l1:uint, e:uint, p2:uint, l2:uint, pos:uint):BigUint {
+//			var i:uint = _getHighestBit( e );
+//			var v:BigUint;
+//			if ( compare( new BigUint( p1, l1 ), new BigUint( p2, l2 ) ) ) {
+////				v = _divAndMod( p1, l1, p2, l2, pos )[ 1 ];
+//				p1 = v.pos;
+//				l1 = v.len;
+//			}
+//			var p0:uint = pos;
+//			var p3:uint = p1;
+//			var l3:uint = l1;
+//			do {
+////				v = _sqr( p1, l1, pos );
+////				pos += _lx; // TODO: length check and optimize
+////				_sqr( p1, l1, _pr, _lr ); // _r *= _r;
+////				p1 = _pr;
+////				l1 = _lr;
+////				_div( p1, l1, p2, l2, _pr, _lr, _lx, 2 ); // _r %= v;
+////				p1 = _pr;
+////				l1 = _lx;
+////				i >>>= 1;
+////				if ( i & e != 0 ) {
+////					_pr += _lx;
+////					_mult( p1, l1, p3, l3, _pr, _lr ); // _r *= g;
+////					p1 = _pr;
+////					l1 = _lr;
+////					_div( p1, l1, p2, l2, _pr, _lr, _lx, 2 ); // _r %= v;
+////					p1 = _pr;
+////					l1 = _lx;
+////				}
+//			} while ( i > 1 );
+////			_lr = _lx;
+//			return null;
+//		}
 
 		//--------------------------------------------------------------------------
 		//
