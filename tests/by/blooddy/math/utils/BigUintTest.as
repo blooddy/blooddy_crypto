@@ -504,10 +504,10 @@ package by.blooddy.math.utils {
 		];
 
 		[Test( order="21", dataProvider="$divAndMod" )]
-		public function divAndMod(v1:String, v2:String, result:String, rest:String):void {
-			var R:Array = BigUintStr.divAndMod( v1, v2 );
+		public function divAndMod(v:String, m:String, result:String, rest:String):void {
+			var R:Array = BigUintStr.divAndMod( v, m );
 			Assert.assertEquals(
-				'0x' + v1.toLowerCase() + ' / 0x' + v2.toLowerCase(),
+				'0x' + v.toLowerCase() + ' / 0x' + m.toLowerCase(),
 				R.join( ',' ).toString().toLowerCase(), [ result, rest ].join( ',' ).toLowerCase()
 			);
 		}
@@ -521,8 +521,8 @@ package by.blooddy.math.utils {
 		];
 
 		[Test( order="22", dataProvider="$divAndMod_error", expects="ArgumentError" )]
-		public function divAndMod_error(v1:String, v2:String):void {
-			BigUintStr.divAndMod( v1, v2 );
+		public function divAndMod_error(v:String, m:String):void {
+			BigUintStr.divAndMod( v, m );
 		}
 
 		//----------------------------------
@@ -530,10 +530,10 @@ package by.blooddy.math.utils {
 		//----------------------------------
 
 		[Test( order="23", dataProvider="$divAndMod" )]
-		public function div(v1:String, v2:String, result:String, rest:String):void {
-			var R:String = BigUintStr.div( v1, v2 );
+		public function div(v:String, m:String, result:String, rest:String):void {
+			var R:String = BigUintStr.div( v, m );
 			Assert.assertEquals(
-				'0x' + v1.toLowerCase() + ' / 0x' + v2.toLowerCase(),
+				'0x' + v.toLowerCase() + ' / 0x' + m.toLowerCase(),
 				R.toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -543,8 +543,8 @@ package by.blooddy.math.utils {
 		//----------------------------------
 
 		[Test( order="24", dataProvider="$divAndMod_error", expects="ArgumentError" )]
-		public function div_error(v1:String, v2:String):void {
-			BigUintStr.div( v1, v2 );
+		public function div_error(v:String, m:String):void {
+			BigUintStr.div( v, m );
 		}
 
 		//----------------------------------
@@ -552,10 +552,10 @@ package by.blooddy.math.utils {
 		//----------------------------------
 
 		[Test( order="25", dataProvider="$divAndMod" )]
-		public function mod(v1:String, v2:String, result:String, rest:String):void {
-			var R:String = BigUintStr.mod( v1, v2 );
+		public function mod(v:String, m:String, result:String, rest:String):void {
+			var R:String = BigUintStr.mod( v, m );
 			Assert.assertEquals(
-				'0x' + v1.toLowerCase() + ' % 0x' + v2.toLowerCase(),
+				'0x' + v.toLowerCase() + ' % 0x' + m.toLowerCase(),
 				R.toLowerCase(), rest.toLowerCase()
 			);
 		}
@@ -565,26 +565,34 @@ package by.blooddy.math.utils {
 		//----------------------------------
 
 		[Test( order="26", dataProvider="$divAndMod_error", expects="ArgumentError" )]
-		public function mod_error(v1:String, v2:String):void {
-			BigUintStr.mod( v1, v2 );
+		public function mod_error(v:String, m:String):void {
+			BigUintStr.mod( v, m );
 		}
 
 		//----------------------------------
 		//  modPowInt
 		//----------------------------------
 
-//		public function modPowInt(v1:String, e:uint, v2:String, result:String):void {
-//			reset();
-//			var R:String = BigUintStr.modPowInt( v1, e, v2 );
-//			trace(
-//				'pow( 0x' + v1.toLowerCase() + ', ' +
-//				e + ' ) % ' +
-//				'0x' + v2.toLowerCase() + ' = ' +
-//				'0x' + R.toLowerCase() +
-//				( R.toLowerCase() != result.toLowerCase() ? ' ==========> ( ' + result.toLowerCase() + ' )' : '' )
-//			);
-//		}
+		public static var $modPowInt:Array = [
+			[ '1234', 67, '1873618' ],
+			[ '1234', 67, '9832982309712532378643' ]
+		];
 
+		[Test( order="27", dataProvider="$modPowInt" )]
+		public function modPowInt(v:String, e:uint, m:String):void {
+			var R1:String = BigUintStr.modPowInt( v, e, m );
+			var R2:String = BigUintStr.mod( BigUintStr.powInt( v, e ), m );
+			Assert.assertEquals(
+				'pow( 0x' + v.toLowerCase() + ', ' + e + ' ) % ' + '0x' + m.toLowerCase(),
+				R1.toLowerCase(), R2.toLowerCase()
+			);
+		}
+
+		[Test( order="28", dataProvider="$divAndMod_error", expects="ArgumentError" )]
+		public function modPowInt_error(v:String, e:uint, m:String):void {
+			BigUintStr.modPowInt( v, e, m );
+		}
+		
 	}
 
 }

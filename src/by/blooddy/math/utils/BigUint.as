@@ -10,6 +10,7 @@ package by.blooddy.math.utils {
 
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
+	import flash.errors.IllegalOperationError;
 
 	[ExcludeClass]
 	/**
@@ -466,26 +467,7 @@ package by.blooddy.math.utils {
 		 * @return		( v1 > v2 ? 1 : ( v2 > v1 ? -1 : 0 )
 		 */
 		public static function compare(v1:BigUint, v2:BigUint):int {
-			var l1:uint = v1.len;
-			var l2:uint = v2.len;
-			if ( l1 > l2 ) return 1;
-			else if ( l2 > l1 ) return -1;
-			else {
-				var p1:uint = v1.pos;
-				var p2:uint = v2.pos;
-				var i:uint = l1;
-				do {
-					i -= 4;
-					l1 = Memory.getI32( p1 + i );
-					l2 = Memory.getI32( p2 + i );
-					if ( l1 > l2 ) {
-						return 1;
-					} else if ( l2 > l1 ) {
-						return -1;
-					}
-				} while ( i > 0 );
-			}
-			return 0;
+			return _compare( v1.pos, v1.len, v2.pos, v2.len );
 		}
 
 		/**
@@ -972,18 +954,18 @@ package by.blooddy.math.utils {
 		 * @return		[ v1 / v2, v1 % v2 ]
 		 * @throws		ArgumentError	v2 == 0
 		 */
-		public static function divAndMod(v1:BigUint, v2:BigUint, pos:uint):Vector.<BigUint> {
-			var l1:uint = v1.len;
-			var l2:uint = v2.len;
+		public static function divAndMod(v:BigUint, m:BigUint, pos:uint):Vector.<BigUint> {
+			var l1:uint = v.len;
+			var l2:uint = m.len;
 			if ( l2 == 0 ) {
 				throw new ArgumentError();
 			} else if ( l1 == 0 ) {
-				return new <BigUint>[ v1, v1 ];
+				return new <BigUint>[ v, v ];
 			} else if ( l2 > l1 ) {
-				return new <BigUint>[ new BigUint(), v1 ];
+				return new <BigUint>[ new BigUint(), v ];
 			} else {
-				var p1:uint = v1.pos;
-				var p2:uint = v2.pos;
+				var p1:uint = v.pos;
+				var p2:uint = m.pos;
 				var c1:uint;
 				var c2:uint;
 				CRYPTO::inline {
@@ -994,14 +976,14 @@ package by.blooddy.math.utils {
 				if ( l1 == 4 ) { // оба числа короткие
 					c2 = Memory.getI32( p2 );
 					if ( c2 == 1 ) {
-						return new <BigUint>[ v1, new BigUint() ];
+						return new <BigUint>[ v, new BigUint() ];
 					} else {
 						c1 = Memory.getI32( p1 );
 						if ( c1 == c2 ) {
 							Memory.setI32( pos, 1 );
 							return new <BigUint>[ new BigUint( pos, 4 ), new BigUint() ];
 						} else if ( c2 > c1 ) {
-							return new <BigUint>[ new BigUint(), v1 ];
+							return new <BigUint>[ new BigUint(), v ];
 						} else {
 							Memory.setI32( pos, c1 / c2 );
 							var d:BigUint = new BigUint( pos, 4 );
@@ -1018,7 +1000,7 @@ package by.blooddy.math.utils {
 				} else if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) { // второе число короткое
 					c2 = Memory.getUI16( p2 );
 					if ( c2 == 1 ) {
-						return new <BigUint>[ v1, new BigUint() ];
+						return new <BigUint>[ v, new BigUint() ];
 					} else {
 						CRYPTO::inline {
 							BigUint$.divAndMod_s( p1, l1, c2, pos, len, posx, lenx, c1, l2 );
@@ -1046,16 +1028,16 @@ package by.blooddy.math.utils {
 		 * @return		v1 / v2
 		 * @throws		ArgumentError	v2 == 0
 		 */
-		public static function div(v1:BigUint, v2:BigUint, pos:uint):BigUint {
-			var l1:uint = v1.len;
-			var l2:uint = v2.len;
+		public static function div(v:BigUint, m:BigUint, pos:uint):BigUint {
+			var l1:uint = v.len;
+			var l2:uint = m.len;
 			if ( l2 == 0 ) {
 				throw new ArgumentError();
 			} else if ( l2 > l1 ) {
 				return new BigUint();
 			} else {
-				var p1:uint = v1.pos;
-				var p2:uint = v2.pos;
+				var p1:uint = v.pos;
+				var p2:uint = m.pos;
 				var c1:uint;
 				var c2:uint;
 				CRYPTO::inline {
@@ -1064,7 +1046,7 @@ package by.blooddy.math.utils {
 				if ( l1 == 4 ) { // оба числа короткие
 					c2 = Memory.getI32( p2 );
 					if ( c2 == 1 ) {
-						return v1;
+						return v;
 					} else {
 						c1 = Memory.getUI16( p1 );
 						if ( c1 == c2 ) {
@@ -1091,11 +1073,11 @@ package by.blooddy.math.utils {
 						i = _getShift( p2, l2 );
 					}
 					if ( i == 0 ) {	// v2 == 1
-						return v1;
+						return v;
 					} else if ( i > 0 ) {
 						// число является степенью двойки.
 						// сдвигаем вправо
-						return shiftRight( v1, i, pos );
+						return shiftRight( v, i, pos );
 					} else if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) { // второе число короткое
 						c2 = Memory.getUI16( p2 );
 						CRYPTO::inline {
@@ -1124,16 +1106,16 @@ package by.blooddy.math.utils {
 		 * @return		v1 % v2;
 		 * @throws		ArgumentError	v2 == 0
 		 */
-		public static function mod(v1:BigUint, v2:BigUint, pos:uint):BigUint {
-			var l1:uint = v1.len;
-			var l2:uint = v2.len;
+		public static function mod(v:BigUint, m:BigUint, pos:uint):BigUint {
+			var l1:uint = v.len;
+			var l2:uint = m.len;
 			if ( l2 == 0 ) {
 				throw new ArgumentError();
 			} else if ( l2 > l1 ) {
-				return v1;
+				return v;
 			} else {
-				var p1:uint = v1.pos;
-				var p2:uint = v2.pos;
+				var p1:uint = v.pos;
+				var p2:uint = m.pos;
 				var c1:uint;
 				var c2:uint;
 				if ( l1 == 4 ) { // оба числа короткие
@@ -1145,7 +1127,7 @@ package by.blooddy.math.utils {
 						if ( c1 == c2 ) {
 							return new BigUint();
 						} else if ( c2 > c1 ) {
-							return v1;
+							return v;
 						} else {
 							c1 = c1 % c2;
 							if ( c1 == 0 ) {
@@ -1193,50 +1175,52 @@ package by.blooddy.math.utils {
 		 * @return		pow( v1, e ) % v2
 		 * @throws		ArgumentError	v2 == 0
 		 */
-		public static function modPowInt(v1:BigUint, e:int, v2:BigUint, pos:uint):BigUint {
-//			var l1:uint = v1.len;
-//			var l2:uint = v2.len;
-//			if ( l2 == 0 ) {
-//				throw new ArgumentError();
-//			} else if ( l1 == 0 ) {
-//				return v1;
-//			} else {
-//				var p1:uint = v1.pos;
-//				var p2:uint = v2.pos;
-//				if ( l2 == 4 ) {
-//					var c:uint;// = _modPowInt_simple( p1, l1, e, uint( Memory.getI32( p2 ) ), pos );
-//					if ( c == 0 ) {
-//						return new BigUint();
-//					} else {
-//						Memory.setI32( pos, c );
-//						return new BigUint( pos, 4 );
-//					}
-//				} else if ( e < 256 || !( Memory.getUI8( p2 ) & 1 ) ) {
-//
-//				} else {
-//
-//				}
-//			}
-			return null;
+		public static function modPowInt(v:BigUint, e:int, m:BigUint, pos:uint):BigUint {
+			var l1:uint = v.len;
+			var l2:uint = m.len;
+			if ( l2 == 0 ) {
+				throw new ArgumentError();
+			} else if ( l1 == 0 ) {
+				return v;
+			} else {
+				var p1:uint = v.pos;
+				var p2:uint = m.pos;
+				if ( l2 == 4 ) {
+					return _modPowInt_simple( p1, l1, e, uint( Memory.getI32( p2 ) ), pos );
+				} else /*if ( e < 256 || !( Memory.getUI8( p2 ) & 1 ) )*/ {
+					return _modPowInt_classic( p1, l1, e, p2, l2, pos );
+				}
+			}
+			throw new IllegalOperationError( 'TODO' );
 		}
 
-		public function modPow(v:BigUint, e:BigUint, m:BigUint, pos:uint):BigUint {
-			return null;
+		public static function modPow(v:BigUint, e:BigUint, m:BigUint, pos:uint):BigUint {
+			var l1:uint = v.len;
+			var le:uint = e.len;
+			var l2:uint = m.len;
+			if ( l2 == 0 ) {
+				throw new ArgumentError();
+			} else if ( l1 == 0 ) {
+				return v;
+			} else {
+			}
+			throw new IllegalOperationError( 'TODO' );
 		}
 
-		public function gcd(v:BigUint, a:BigUint, pos:uint):BigUint {
-			return null;
+		public static function gcd(v:BigUint, a:BigUint, pos:uint):BigUint {
+			throw new IllegalOperationError( 'TODO' );
 		}
 
-		public function modInverse(v:BigUint, m:BigUint, pos:uint):BigUint {
-			return null;
+		public static function modInverse(v:BigUint, m:BigUint, pos:uint):BigUint {
+			throw new IllegalOperationError( 'TODO' );
 		}
 
-		public function isProbablePrime(v:BigUint, t:int):Boolean {
-			return false;
+		public static function isProbablePrime(v:BigUint, t:int):Boolean {
+			throw new IllegalOperationError( 'TODO' );
 		}
 
-		public function primify(v:BigUint, bits:int, t:int):void {
+		public static function primify(v:BigUint, bits:int, t:int):void {
+			throw new IllegalOperationError( 'TODO' );
 		}
 
 		//--------------------------------------------------------------------------
@@ -1399,6 +1383,31 @@ package by.blooddy.math.utils {
 			return new BigUint( pos, s - pos + 4 );
 		}
 
+		/**
+		 * @private
+		 * @return		( v1 < v2 ? v2 : v1 )
+		 */
+		private static function _compare(p1:uint, l1:uint, p2:uint, l2:uint):int {
+			if ( l1 > l2 ) return 1;
+			else if ( l2 > l1 ) return -1;
+			else {
+				var i:uint = l1;
+				var c1:uint;
+				var c2:uint;
+				do {
+					i -= 4;
+					c1 = Memory.getI32( p1 + i );
+					c2 = Memory.getI32( p2 + i );
+					if ( c1 > c2 ) {
+						return 1;
+					} else if ( c2 > c1 ) {
+						return -1;
+					}
+				} while ( i > 0 );
+			}
+			return 0;
+		}
+		
 		CRYPTO::debug
 		/**
 		 * @private
@@ -2091,67 +2100,74 @@ package by.blooddy.math.utils {
 
 		}
 
-//		/**
-//		 * @private
-//		 * @return		pow( v1, e ) % v2;
-//		 */
-//		private static function _modPowInt_simple(p1:uint, l1:uint, e:uint, v2:uint, pos:uint):uint {
-//			var i:uint = _getHighestBit( e );
-//			var r:uint;
-//			if ( l1 == 4 ) {
-//				r = uint( Memory.getI32( p1 ) ) % v2;
-//			} else {
-//				r;// = _mod_s( p1, l1, v2 );
-//			}
-//			var g:uint = r;
-//			do {
-//				r = ( r * r ) % v2;
-//				i >>>= 1;
-//				if ( i & e ) {
-//					r = ( r * g ) % v2;
-//				}
-//			} while ( i > 1 );
-//			return r;
-//		}
-//
-//		/**
-//		 * @private
-//		 * @return		pow( v1, e ) % v2;
-//		 */
-//		private static function _modPowInt_classic(p1:uint, l1:uint, e:uint, p2:uint, l2:uint, pos:uint):BigUint {
-//			var i:uint = _getHighestBit( e );
-//			var v:BigUint;
-//			if ( compare( new BigUint( p1, l1 ), new BigUint( p2, l2 ) ) ) {
-////				v = _divAndMod( p1, l1, p2, l2, pos )[ 1 ];
-//				p1 = v.pos;
-//				l1 = v.len;
-//			}
-//			var p0:uint = pos;
-//			var p3:uint = p1;
-//			var l3:uint = l1;
-//			do {
-////				v = _sqr( p1, l1, pos );
-////				pos += _lx; // TODO: length check and optimize
-////				_sqr( p1, l1, _pr, _lr ); // _r *= _r;
-////				p1 = _pr;
-////				l1 = _lr;
-////				_div( p1, l1, p2, l2, _pr, _lr, _lx, 2 ); // _r %= v;
-////				p1 = _pr;
-////				l1 = _lx;
-////				i >>>= 1;
-////				if ( i & e != 0 ) {
-////					_pr += _lx;
-////					_mult( p1, l1, p3, l3, _pr, _lr ); // _r *= g;
-////					p1 = _pr;
-////					l1 = _lr;
-////					_div( p1, l1, p2, l2, _pr, _lr, _lx, 2 ); // _r %= v;
-////					p1 = _pr;
-////					l1 = _lx;
-////				}
-//			} while ( i > 1 );
-////			_lr = _lx;
-//			return null;
-//		}
+		/**
+		 * @private
+		 * @return		pow( v1, e ) % v2;
+		 */
+		private static function _modPowInt_simple(p1:uint, l1:uint, e:uint, v2:uint, pos:uint):BigUint {
+			var i:uint = _getHighestBit( e );
+			var r:uint;
+			if ( l1 == 4 ) {
+				r = uint( Memory.getI32( p1 ) ) % v2;
+			} else {
+				r = _mod_s( p1, l1, v2 );
+			}
+			if ( r > 0 ) {
+				var g:uint = r;
+				do {
+					r = ( r * r ) % v2;
+					i >>>= 1;
+					if ( i & e ) {
+						r = ( r * g ) % v2;
+					}
+				} while ( i > 1 && r > 0 );
+			}
+			if ( r == 0 ) {
+				return new BigUint();
+			} else {
+				Memory.setI32( pos, r );
+				return new BigUint( pos, 4 );
+			}
+			return r;
+		}
+
+		/**
+		 * @private
+		 * @return		pow( v1, e ) % v2;
+		 */
+		private static function _modPowInt_classic(p1:uint, l1:uint, e:uint, p2:uint, l2:uint, pos:uint):BigUint {
+			var i:uint = _getHighestBit( e );
+			var d:BigUint;
+			if ( _compare( p1, l1, p2, l2 ) >= 0 ) {
+				d = _mod( p1, l1, p2, l2, pos );
+				p1 = d.pos;
+				l1 = d.len;
+			}
+			var p3:uint = p1;
+			var l3:uint = l1;
+			do {
+				d = _sqr( p1, l1, pos ); // _r *= _r;
+				p1 = d.pos;
+				l1 = d.len;
+				pos = p1 + l1;
+				d = _mod( p1, l1, p2, l2, pos ); // _r %= v;
+				p1 = d.pos;
+				l1 = d.len;
+				pos = p1 + l1;
+				i >>>= 1;
+				if ( ( i & e ) != 0 ) {
+					d = _mult( p1, l1, p3, l3, pos ); // _r *= g;
+					p1 = d.pos;
+					l1 = d.len;
+					pos = p1 + l1;
+					d = _mod( p1, l1, p2, l2, pos ); // _r %= v;
+					p1 = d.pos;
+					l1 = d.len;
+					pos = p1 + l1;
+				}
+			} while ( i > 1 && l1 > 0 );
+			return d;
+		}
 
 		//--------------------------------------------------------------------------
 		//
