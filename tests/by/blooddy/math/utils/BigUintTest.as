@@ -473,10 +473,10 @@ package by.blooddy.math.utils {
 		];
 		
 		[Test( order="20", dataProvider="$powInt" )]
-		public function powInt(v1:String, e:uint, result:String):void {
-			var R:String = BigUintStr.powInt( v1, e );
+		public function powInt(v:String, e:uint, result:String):void {
+			var R:String = BigUintStr.powInt( v, e );
 			Assert.assertEquals(
-				'pow( 0x' + v1.toLowerCase() + ', ' + e + ' )',
+				'pow( 0x' + v.toLowerCase() + ', ' + e + ' )',
 				R.toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -574,17 +574,21 @@ package by.blooddy.math.utils {
 		//----------------------------------
 
 		public static var $modPowInt:Array = [
-			[ '1234', 67, '1873618' ],
-			[ '1234', 67, '9832982309712532378643' ]
+			[ '1234', 67, '1873618', '7ed7d8' ],
+			[ '1234', 67, '9832982309712532378643', '126ecd88d701d98ea61f4d' ],
+			[ '1989746288117', 12345, '9832982309712532378643', '48a7483ca7ab708cdb412f' ],
+			[ '12345678901abcdef12345678901abcdef12345678901abcdef', 0x100E, '9832982309712532378643', '65076beaec746d529526e2' ],
+			[ 'A4490A31763DEA84E0D24086FBD81A296C7AB7D5ABBB9FAB', 0x100E, '31277332FA4A8C2D', '1728dfa593045a85' ],
+			['a4490a31763dea84e0d24086fbd81a296c7ab7d5abbb9fab', 1024, '31277332fa4a8c2d', '14222a18073275b4'],
+			['12345678901abcdef12345678901abcdef12345678901abcdef', 1024, '9832982309712532378643', '139d30ff985d42243a7432']
 		];
 
 		[Test( order="27", dataProvider="$modPowInt" )]
-		public function modPowInt(v:String, e:uint, m:String):void {
-			var R1:String = BigUintStr.modPowInt( v, e, m );
-			var R2:String = BigUintStr.mod( BigUintStr.powInt( v, e ), m );
+		public function modPowInt(v:String, e:uint, m:String, resut:String):void {
+			var R:String = BigUintStr.modPowInt( v, e, m );
 			Assert.assertEquals(
 				'pow( 0x' + v.toLowerCase() + ', ' + e + ' ) % ' + '0x' + m.toLowerCase(),
-				R1.toLowerCase(), R2.toLowerCase()
+				R.toLowerCase(), resut.toLowerCase()
 			);
 		}
 

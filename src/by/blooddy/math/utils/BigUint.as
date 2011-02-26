@@ -7,10 +7,10 @@
 package by.blooddy.math.utils {
 
 	import by.blooddy.system.Memory;
-
+	
+	import flash.errors.IllegalOperationError;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
-	import flash.errors.IllegalOperationError;
 
 	[ExcludeClass]
 	/**
@@ -950,9 +950,8 @@ package by.blooddy.math.utils {
 		}
 
 		/**
-		 * @param		v1
-		 * @return		[ v1 / v2, v1 % v2 ]
-		 * @throws		ArgumentError	v2 == 0
+		 * @return		[ v / m, v % m ]
+		 * @throws		ArgumentError	m == 0
 		 */
 		public static function divAndMod(v:BigUint, m:BigUint, pos:uint):Vector.<BigUint> {
 			var l1:uint = v.len;
@@ -1025,8 +1024,8 @@ package by.blooddy.math.utils {
 		}
 
 		/**
-		 * @return		v1 / v2
-		 * @throws		ArgumentError	v2 == 0
+		 * @return		v / m
+		 * @throws		ArgumentError	m == 0
 		 */
 		public static function div(v:BigUint, m:BigUint, pos:uint):BigUint {
 			var l1:uint = v.len;
@@ -1072,7 +1071,7 @@ package by.blooddy.math.utils {
 					CRYPTO::debug {
 						i = _getShift( p2, l2 );
 					}
-					if ( i == 0 ) {	// v2 == 1
+					if ( i == 0 ) {	// m == 1
 						return v;
 					} else if ( i > 0 ) {
 						// число является степенью двойки.
@@ -1103,8 +1102,8 @@ package by.blooddy.math.utils {
 		}
 
 		/**
-		 * @return		v1 % v2;
-		 * @throws		ArgumentError	v2 == 0
+		 * @return		v % m;
+		 * @throws		ArgumentError	m == 0
 		 */
 		public static function mod(v:BigUint, m:BigUint, pos:uint):BigUint {
 			var l1:uint = v.len;
@@ -1172,8 +1171,8 @@ package by.blooddy.math.utils {
 		}
 
 		/**
-		 * @return		pow( v1, e ) % v2
-		 * @throws		ArgumentError	v2 == 0
+		 * @return		pow( v, e ) % m
+		 * @throws		ArgumentError	m == 0
 		 */
 		public static function modPowInt(v:BigUint, e:int, m:BigUint, pos:uint):BigUint {
 			var l1:uint = v.len;
