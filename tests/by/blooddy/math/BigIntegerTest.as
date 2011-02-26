@@ -75,7 +75,7 @@ package by.blooddy.math {
 		public function fromNumber(v:Number):void {
 			var bi:BigInteger = BigInteger.fromNumber( v );
 			Assert.assertEquals(
-				bi.toString( 16 ), v.toString( 16 )
+				bi.toString(), v.toString( 16 )
 			);
 		}
 
@@ -93,7 +93,7 @@ package by.blooddy.math {
 		public function fromVector(v:Vector.<uint>, negative:Boolean, result:String):void {
 			var bi:BigInteger = BigInteger.fromVector( v, negative );
 			Assert.assertEquals(
-				bi.toString( 16 ).toLowerCase(), result.toLowerCase()
+				bi.toString().toLowerCase(), result.toLowerCase()
 			);
 		}
 		
@@ -109,10 +109,10 @@ package by.blooddy.math {
 		
 		[Test( order="0", dataProvider="$negate" )]
 		public function negate(v:String, result:String):void {
-			var R:BigInteger = BigInteger.fromString( v, 16 ).negate();
+			var R:BigInteger = BigInteger.fromString( v ).negate();
 			Assert.assertEquals(
 				'-0x' + v.toLowerCase(),
-				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+				R.toString().toLowerCase(), result.toLowerCase()
 			);
 		}
 		
@@ -134,7 +134,7 @@ package by.blooddy.math {
 		
 		[Test( order="1", dataProvider="$testBit" )]
 		public function testBit(v:String, n:uint, result:Boolean):void {
-			var R:Boolean = BigInteger.fromString( v, 16 ).testBit( n );
+			var R:Boolean = BigInteger.fromString( v ).testBit( n );
 			Assert.assertEquals(
 				'0x' + v.toLowerCase() + ' & ( 1 << ' + n + ' ) != 0',
 				R, result
@@ -155,10 +155,10 @@ package by.blooddy.math {
 		
 		[Test( order="2", dataProvider="$setBit" )]
 		public function setBit(v:String, n:uint, result:String):void {
-			var R:BigInteger = BigInteger.fromString( v, 16 ).setBit( n );
+			var R:BigInteger = BigInteger.fromString( v ).setBit( n );
 			Assert.assertEquals(
 				'0x' + v.toLowerCase() + ' | ' + '( 1 << ' + n + ' )',
-				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+				R.toString().toLowerCase(), result.toLowerCase()
 			);
 		}
 		
@@ -176,10 +176,10 @@ package by.blooddy.math {
 		
 		[Test( order="3", dataProvider="$clearBit" )]
 		public function clearBit(v:String, n:uint, result:String):void {
-			var R:BigInteger = BigInteger.fromString( v, 16 ).clearBit( n );
+			var R:BigInteger = BigInteger.fromString( v ).clearBit( n );
 			Assert.assertEquals(
 				'0x' + v.toLowerCase() + ' & ~( 1 << ' + n + ' )',
-				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+				R.toString().toLowerCase(), result.toLowerCase()
 			);
 		}
 		
@@ -199,10 +199,10 @@ package by.blooddy.math {
 		
 		[Test( order="4", dataProvider="$flipBit" )]
 		public function flipBit(v:String, n:uint, result:String):void {
-			var R:BigInteger = BigInteger.fromString( v, 16 ).flipBit( n );
+			var R:BigInteger = BigInteger.fromString( v ).flipBit( n );
 			Assert.assertEquals(
 				'0x' + v.toLowerCase() + ' ^ ( 1 << ' + n + ' )',
-				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+				R.toString().toLowerCase(), result.toLowerCase()
 			);
 		}
 		
@@ -221,10 +221,182 @@ package by.blooddy.math {
 
 		[Test( order="5", dataProvider="$not" )]
 		public function not(v:String, result:String):void {
-			var R:BigInteger = BigInteger.fromString( v, 16 ).not();
+			var R:BigInteger = BigInteger.fromString( v ).not();
 			Assert.assertEquals(
 				'~0x' + v.toLowerCase(),
-				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+				R.toString().toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  and
+		//----------------------------------
+		
+		public static var $and:Array = [
+			['0', '123', '0'],
+			['0', '-123', '0'],
+			['123', '0', '0'],
+			['-123', '0', '0'],
+			['-123', '-123', '-123'],
+			['9012345678', 'ffffff0000000912345678', '12345678'],
+			['9012345678', '-ffffff0000000912345678', '9000000008'],
+			['-9012345678', 'ffffff0000000912345678', 'ffffff0000000900000008'],
+			['-9012345678', '-ffffff0000000912345678', '-ffffff0000009912345678'],
+			['ffffff0000000912345678', '9012345678', '12345678'],
+			['ffffff0000000912345678', '-9012345678', 'ffffff0000000900000008'],
+			['-ffffff0000000912345678', '9012345678', '9000000008'],
+			['-ffffff0000000912345678', '-9012345678', '-ffffff0000009912345678']
+		];
+		
+		[Test( order="6", dataProvider="$and" )]
+		public function and(v1:String, v2:String, result:String):void {
+			var R:String = BigInteger.fromString( v1 ).and( BigInteger.fromString( v2 ) ).toString();
+			Assert.assertEquals(
+				'0x' + v1.toLowerCase() + ' & 0x' + v2.toLowerCase(),
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  andNot
+		//----------------------------------
+		
+		public static var $andNot:Array = [
+			['0', '123', '0'],
+			['0', '-123', '0'],
+			['123', '0', '123'],
+			['-123', '0', '-123'],
+			['-123', '-123', '0'],
+			['9012345678', 'ffffff0000000912345678', '9000000000'],
+			['9012345678', '-ffffff0000000912345678', '12345670'],
+			['-9012345678', 'ffffff0000000912345678', '-ffffff0000009912345680'],
+			['-9012345678', '-ffffff0000000912345678', 'ffffff0000000900000000'],
+			['ffffff0000000912345678', '9012345678', 'ffffff0000000900000000'],
+			['ffffff0000000912345678', '-9012345678', '12345670'],
+			['-ffffff0000000912345678', '9012345678', '-ffffff0000009912345680'],
+			['-ffffff0000000912345678', '-9012345678', '9000000000']
+		];
+		
+		[Test( order="7", dataProvider="$andNot" )]
+		public function andNot(v1:String, v2:String, result:String):void {
+			var R:String = BigInteger.fromString( v1 ).andNot( BigInteger.fromString( v2 ) ).toString();
+			Assert.assertEquals(
+				'0x' + v1.toLowerCase() + ' & ~0x' + v2.toLowerCase(),
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  or
+		//----------------------------------
+		
+		public static var $or:Array = [
+			['0', '123', '123'],
+			['0', '-123', '-123'],
+			['123', '0', '123'],
+			['-123', '0', '-123'],
+			['-123', '-123', '-123'],
+			['9012345678', 'ffffff0000000912345678', 'ffffff0000009912345678'],
+			['9012345678', '-ffffff0000000912345678', '-ffffff0000000900000008'],
+			['-9012345678', 'ffffff0000000912345678', '-9000000008'],
+			['-9012345678', '-ffffff0000000912345678', '-12345678'],
+			['ffffff0000000912345678', '9012345678', 'ffffff0000009912345678'],
+			['ffffff0000000912345678', '-9012345678', '-9000000008'],
+			['-ffffff0000000912345678', '9012345678', '-ffffff0000000900000008'],
+			['-ffffff0000000912345678', '-9012345678', '-12345678']
+		];
+		
+		[Test( order="8", dataProvider="$or" )]
+		public function or(v1:String, v2:String, result:String):void {
+			var R:String = BigInteger.fromString( v1 ).or( BigInteger.fromString( v2 ) ).toString();
+			Assert.assertEquals(
+				'0x' + v1.toLowerCase() + ' | 0x' + v2.toLowerCase(),
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  xor
+		//----------------------------------
+		
+		public static var $xor:Array = [
+			['0', '123', '123'],
+			['0', '-123', '-123'],
+			['123', '0', '123'],
+			['-123', '0', '-123'],
+			['-123', '-123', '0'],
+			['9012345678', 'ffffff0000000912345678', 'ffffff0000009900000000'],
+			['9012345678', '-ffffff0000000912345678', '-ffffff0000009900000010'],
+			['-9012345678', 'ffffff0000000912345678', '-ffffff0000009900000010'],
+			['-9012345678', '-ffffff0000000912345678', 'ffffff0000009900000000'],
+			['ffffff0000000912345678', '9012345678', 'ffffff0000009900000000'],
+			['ffffff0000000912345678', '-9012345678', '-ffffff0000009900000010'],
+			['-ffffff0000000912345678', '9012345678', '-ffffff0000009900000010'],
+			['-ffffff0000000912345678', '-9012345678', 'ffffff0000009900000000']
+		];
+		
+		[Test( order="9", dataProvider="$xor" )]
+		public function xor(v1:String, v2:String, result:String):void {
+			var R:String = BigInteger.fromString( v1 ).xor( BigInteger.fromString( v2 ) ).toString();
+			Assert.assertEquals(
+				'0x' + v1.toLowerCase() + ' ^ 0x' + v2.toLowerCase(),
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  shiftRight
+		//----------------------------------
+		
+		public static var $shiftRight:Array = [
+			['0', 123, '0'],
+			['123', 0, '123'],
+			['ffffffff', 32, '0'],
+			['123ffffffff', 32, '123'],
+			['12345678ffffffff', 8, '12345678ffffff'],
+			['12345678ffffffff', 33, '91a2b3c'],
+			['f926cad0655a246e5fa1f9918acfa7e3a5c066275d342e9f', 55, '1f24d95a0cab448dcbf43f323159f4fc74b'],
+			['-123', 0, '-123'],
+			['-ffffffff', 32, '-1'],
+			['-123ffffffff', 32, '-124'],
+			['-12345678ffffffff', 8, '-12345679000000'],
+			['-12345678ffffffff', 33, '-91a2b3d'],
+			['-f926cad0655a246e5fa1f9918acfa7e3a5c066275d342e9f', 55, '-1f24d95a0cab448dcbf43f323159f4fc74c']
+		];
+		
+		[Test( order="10", dataProvider="$shiftRight" )]
+		public function shiftRight(v:String, n:uint, result:String):void {
+			var R:String = BigInteger.fromString( v ).shiftRight( n ).toString();
+			Assert.assertEquals(
+				'0x' + v.toLowerCase() + ' >> ' + n,
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  shiftLeft
+		//----------------------------------
+		
+		public static var $shiftLeft:Array = [
+			['0', 123, '0'],
+			['123', 0, '123'],
+			['12', 123, '90000000000000000000000000000000'],
+			['123456', 24, '123456000000'],
+			['1234567890', 17, '2468acf1200000'],
+			['1234567890', 26, '48d159e240000000'],
+			['-123', 0, '-123'],
+			['-12', 123, '-90000000000000000000000000000000'],
+			['-123456', 24, '-123456000000'],
+			['-1234567890', 17, '-2468acf1200000'],
+			['-1234567890', 26, '-48d159e240000000']
+		];
+		
+		[Test( order="11", dataProvider="$shiftLeft" )]
+		public function shiftLeft(v:String, n:uint, result:String):void {
+			var R:String = BigInteger.fromString( v ).shiftLeft( n ).toString();
+			Assert.assertEquals(
+				'0x' + v.toLowerCase() + ' << ' + n,
+				R.toLowerCase(), result.toLowerCase()
 			);
 		}
 		
@@ -254,7 +426,7 @@ package by.blooddy.math {
 				else if ( R == -1 ) return '<';
 				else return '==';
 			}
-			var R:int = BigInteger.fromString( v1, 16 ).compare( BigInteger.fromString( v2, 16 ) );
+			var R:int = BigInteger.fromString( v1 ).compare( BigInteger.fromString( v2 ) );
 			Assert.assertEquals(
 				'0x' + v1.toLowerCase() + ' ' + F( R ) + ' 0x' + v2.toLowerCase(),
 				R, result
@@ -278,13 +450,44 @@ package by.blooddy.math {
 		
 		[Test( order="13", dataProvider="$increment" )]
 		public function increment(v:String, result:String):void {
-			var R:BigInteger = BigInteger.fromString( v, 16 ).increment();
+			var R:BigInteger = BigInteger.fromString( v ).increment();
 			Assert.assertEquals(
 				'0x' + v.toLowerCase() + '++',
-				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+				R.toString().toLowerCase(), result.toLowerCase()
 			);
 		}
 		
+		//----------------------------------
+		//  add
+		//----------------------------------
+		
+		public static var $add:Array = [
+			['0', '123', '123'],
+			['123', '0', '123'],
+			['123456', '123', '123579'],
+			['654321', '11111234567812345678ffffffffffffffff', '111112345678123456790000000000654320'],
+			['654321', 'ffffffffffffffff', '10000000000654320'],
+			['0', '-123', '-123'],
+			['-123', '0', '-123'],
+			['-123456', '-123', '-123579'],
+			['-654321', '-11111234567812345678ffffffffffffffff', '-111112345678123456790000000000654320'],
+			['-654321', '-ffffffffffffffff', '-10000000000654320'],
+			['123456', '-123', '123333'],
+			['654321', '-11111234567812345678ffffffffffffffff', '-11111234567812345678ffffffffff9abcde'],
+			['654321', '-ffffffffffffffff', '-ffffffffff9abcde'],
+			['-123456', '123', '-123333'],
+			['-654321', '11111234567812345678ffffffffffffffff', '11111234567812345678ffffffffff9abcde'],
+			['-654321', 'ffffffffffffffff', 'ffffffffff9abcde']
+		];
+		
+		[Test( order="14", dataProvider="$add" )]
+		public function add(v1:String, v2:String, result:String):void {
+			var R:String = BigInteger.fromString( v1 ).add( BigInteger.fromString( v2 ) ).toString();
+			Assert.assertEquals(
+				'0x' + v1.toLowerCase() + ' + 0x' + v2.toLowerCase(),
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
 		
 		//----------------------------------
 		//  decrement
@@ -304,10 +507,218 @@ package by.blooddy.math {
 		
 		[Test( order="15", dataProvider="$decrement" )]
 		public function decrement(v:String, result:String):void {
-			var R:BigInteger = BigInteger.fromString( v, 16 ).decrement();
+			var R:BigInteger = BigInteger.fromString( v ).decrement();
 			Assert.assertEquals(
 				'0x' + v.toLowerCase() + '--',
-				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+				R.toString().toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  sub
+		//----------------------------------
+		
+		public static var $sub:Array = [
+			['123', '0', '123'],
+			['123', '123', '0'],
+			['123', '12', '111'],
+			['ff0000000000000123', 'ffff', 'feffffffffffff0124'],
+			['ff0000000000000123', '122', 'ff0000000000000001'],
+			['ff00000123', '122', 'ff00000001'],
+			['-123', '0', '-123'],
+			['-123', '-123', '0'],
+			['-123', '-12', '-111'],
+			['-ff0000000000000123', '-ffff', '-feffffffffffff0124'],
+			['-ff0000000000000123', '-122', '-ff0000000000000001'],
+			['-ff00000123', '-122', '-ff00000001'],
+			['ff0000000000000123', '-ffff', 'ff0000000000010122'],
+			['ff0000000000000123', '-122', 'ff0000000000000245'],
+			['ff00000123', '-122', 'ff00000245'],
+			['-ff0000000000000123', 'ffff', '-ff0000000000010122'],
+			['-ff0000000000000123', '122', '-ff0000000000000245'],
+			['-ff00000123', '122', '-ff00000245']
+		];
+		
+		[Test( order="17", dataProvider="$sub" )]
+		public function sub(v1:String, v2:String, result:String):void {
+			var R:String = BigInteger.fromString( v1 ).sub( BigInteger.fromString( v2 ) ).toString();
+			Assert.assertEquals(
+				'0x' + v1.toLowerCase() + ' - 0x' + v2.toLowerCase(),
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  mult
+		//----------------------------------
+		
+		public static var $mult:Array = [
+			['0', '123', '0'],
+			['123', '0', '0'],
+			['1', '123456', '123456'],
+			['123456', '1', '123456'],
+			['400000000', '100', '40000000000'],
+			['400000000', '3', 'c00000000'],
+			['3', '400000000', 'c00000000'],
+			['1f24d95a0cab448dcbf43f323159f4fc74b', '80000000000000', 'f926cad0655a246e5fa1f9918acfa7e3a580000000000000'],
+			['123', '12', '1476'],
+			['123f77ffffff6', '13', '15ab5e7fffff42'],
+			['13', '123f77ffffff6', '15ab5e7fffff42'],
+			['ffff0000', '11110000', '1110eeef00000000'],
+			['ffff1111', '11110000', '1110f01243210000'],
+			['6ffffff77f321', '123f77ffffff6', '7fbc47f64d5901167855080b6'],
+			['ffffffffffffffffffffffffffffffff', 'ffffffffffffffffffffffffffffffff', 'fffffffffffffffffffffffffffffffe00000000000000000000000000000001'],
+			['0', '-123', '0'],
+			['-123', '0', '0'],
+			['-1', '-123456', '123456'],
+			['-123456', '-1', '123456'],
+			['-400000000', '-100', '40000000000'],
+			['-400000000', '-3', 'c00000000'],
+			['-3', '-400000000', 'c00000000'],
+			['-1f24d95a0cab448dcbf43f323159f4fc74b', '-80000000000000', 'f926cad0655a246e5fa1f9918acfa7e3a580000000000000'],
+			['-123', '-12', '1476'],
+			['-123f77ffffff6', '-13', '15ab5e7fffff42'],
+			['-13', '-123f77ffffff6', '15ab5e7fffff42'],
+			['-ffff0000', '-11110000', '1110eeef00000000'],
+			['-ffff1111', '-11110000', '1110f01243210000'],
+			['-6ffffff77f321', '-123f77ffffff6', '7fbc47f64d5901167855080b6'],
+			['-ffffffffffffffffffffffffffffffff', '-ffffffffffffffffffffffffffffffff', 'fffffffffffffffffffffffffffffffe00000000000000000000000000000001'],
+			['1', '-123456', '-123456'],
+			['123456', '-1', '-123456'],
+			['400000000', '-100', '-40000000000'],
+			['400000000', '-3', '-c00000000'],
+			['3', '-400000000', '-c00000000'],
+			['1f24d95a0cab448dcbf43f323159f4fc74b', '-80000000000000', '-f926cad0655a246e5fa1f9918acfa7e3a580000000000000'],
+			['123', '-12', '-1476'],
+			['123f77ffffff6', '-13', '-15ab5e7fffff42'],
+			['13', '-123f77ffffff6', '-15ab5e7fffff42'],
+			['ffff0000', '-11110000', '-1110eeef00000000'],
+			['ffff1111', '-11110000', '-1110f01243210000'],
+			['6ffffff77f321', '-123f77ffffff6', '-7fbc47f64d5901167855080b6'],
+			['ffffffffffffffffffffffffffffffff', '-ffffffffffffffffffffffffffffffff', '-fffffffffffffffffffffffffffffffe00000000000000000000000000000001'],
+			['-1', '123456', '-123456'],
+			['-123456', '1', '-123456'],
+			['-400000000', '100', '-40000000000'],
+			['-400000000', '3', '-c00000000'],
+			['-3', '400000000', '-c00000000'],
+			['-1f24d95a0cab448dcbf43f323159f4fc74b', '80000000000000', '-f926cad0655a246e5fa1f9918acfa7e3a580000000000000'],
+			['-123', '12', '-1476'],
+			['-123f77ffffff6', '13', '-15ab5e7fffff42'],
+			['-13', '123f77ffffff6', '-15ab5e7fffff42'],
+			['-ffff0000', '11110000', '-1110eeef00000000'],
+			['-ffff1111', '11110000', '-1110f01243210000'],
+			['-6ffffff77f321', '123f77ffffff6', '-7fbc47f64d5901167855080b6'],
+			['-ffffffffffffffffffffffffffffffff', 'ffffffffffffffffffffffffffffffff', '-fffffffffffffffffffffffffffffffe00000000000000000000000000000001']
+		];
+		
+		[Test( order="19", dataProvider="$mult" )]
+		public function mult(v1:String, v2:String, result:String):void {
+			var R:String = BigInteger.fromString( v1 ).mult( BigInteger.fromString( v2 ) ).toString();
+			Assert.assertEquals(
+				'0x' + v1.toLowerCase() + ' * 0x' + v2.toLowerCase(),
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  powInt
+		//----------------------------------
+		
+		public static var $powInt:Array = [
+			['123', 0x0, '1'],
+			['0', 0x5, '0'],
+			['123', 0x1, '123'],
+			['123', 0x41, '10304172a4351fa752179292cd2b73911b68e75b3b0016f3c17cd6bc645b8938c2e8c3d82c4ecab4f0da6a3f5707948149db3ddd98090dea8dccbebf441af13a76a023'],
+			['fffff', 0x6, 'ffffa0000efffec0000effffa00001'],
+			['3', 0xff, '11f1b08e87ec42c5d83c3218fc83c41dcfd9f4428f4f92af1aaa80aa46162b1f71e981273601f4ad1dd4709b5aca650265a6ab'],
+			['f00', 0x4d, '1c744e6621724dba25aea0207a6c11c8a22b3801df5b01f8658653f5f67a653a1c09c70576cf0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'],
+			['-123', 0x1, '-123'],
+			['-123', 0x41, '-10304172a4351fa752179292cd2b73911b68e75b3b0016f3c17cd6bc645b8938c2e8c3d82c4ecab4f0da6a3f5707948149db3ddd98090dea8dccbebf441af13a76a023'],
+			['-fffff', 0x6, 'ffffa0000efffec0000effffa00001'],
+			['-3', 0xff, '-11f1b08e87ec42c5d83c3218fc83c41dcfd9f4428f4f92af1aaa80aa46162b1f71e981273601f4ad1dd4709b5aca650265a6ab'],
+			['-f00', 0x4d, '-1c744e6621724dba25aea0207a6c11c8a22b3801df5b01f8658653f5f67a653a1c09c70576cf0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000']
+		];
+		
+		[Test( order="20", dataProvider="$powInt" )]
+		public function powInt(v:String, e:uint, result:String):void {
+			var R:String = BigInteger.fromString( v ).powInt( e ).toString();
+			Assert.assertEquals(
+				'pow( 0x' + v.toLowerCase() + ', ' + e + ' )',
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+
+		//----------------------------------
+		//  divAndMod
+		//----------------------------------
+		
+		public static var $divAndMod:Array = [
+			['0', '123', '0', '0'],
+			['1234', '123456789', '0', '1234'],
+			['123', '1', '123', '0'],
+			['123', '123', '1', '0'],
+			['12', '123', '0', '12'],
+			['6f9', '7', 'ff', '0'],
+			['14eb', '8', '29d', '3'],
+			['123456789', '1', '123456789', '0'],
+			['f926cad0655a246e5fa1f9918acfa7e3a5c066275d342e9f', '80000000000000', '1f24d95a0cab448dcbf43f323159f4fc74b', '4066275d342e9f'],
+			['123456789', '3', '61172283', '0'],
+			['123456789', '7', '299c335c', '5'],
+			['1234567890ffffffff', 'ffffffffffff', '123456', '789100123455'],
+			['1234567890ffffffff', '9876543210', '1e9131ab', '859d1d7f4f'],
+			['1234567890ffffffff', '1234567890', '100000000', 'ffffffff'],
+			['f926cad0655a246e5fa1f9918acfa7e3a5c066275d342e9f', '320a7bd3df175319', '4fa9ca4ad127067c933000454773cd53c', '23f44e9492bce7c3'],
+			['0', '-123', '0', '0'],
+			['-1234', '-123456789', '0', '-1234'],
+			['-123', '-1', '123', '0'],
+			['-123', '-123', '1', '0'],
+			['-12', '-123', '0', '-12'],
+			['-6f9', '-7', 'ff', '0'],
+			['-14eb', '-8', '29d', '-3'],
+			['-123456789', '-1', '123456789', '0'],
+			['-f926cad0655a246e5fa1f9918acfa7e3a5c066275d342e9f', '-80000000000000', '1f24d95a0cab448dcbf43f323159f4fc74b', '-4066275d342e9f'],
+			['-123456789', '-3', '61172283', '0'],
+			['-123456789', '-7', '299c335c', '-5'],
+			['-1234567890ffffffff', '-ffffffffffff', '123456', '-789100123455'],
+			['-1234567890ffffffff', '-9876543210', '1e9131ab', '-859d1d7f4f'],
+			['-1234567890ffffffff', '-1234567890', '100000000', '-ffffffff'],
+			['-f926cad0655a246e5fa1f9918acfa7e3a5c066275d342e9f', '-320a7bd3df175319', '4fa9ca4ad127067c933000454773cd53c', '-23f44e9492bce7c3'],
+			['1234', '-123456789', '0', '1234'],
+			['123', '-1', '-123', '0'],
+			['123', '-123', '-1', '0'],
+			['12', '-123', '0', '12'],
+			['6f9', '-7', '-ff', '0'],
+			['14eb', '-8', '-29d', '3'],
+			['123456789', '-1', '-123456789', '0'],
+			['f926cad0655a246e5fa1f9918acfa7e3a5c066275d342e9f', '-80000000000000', '-1f24d95a0cab448dcbf43f323159f4fc74b', '4066275d342e9f'],
+			['123456789', '-3', '-61172283', '0'],
+			['123456789', '-7', '-299c335c', '5'],
+			['1234567890ffffffff', '-ffffffffffff', '-123456', '789100123455'],
+			['1234567890ffffffff', '-9876543210', '-1e9131ab', '859d1d7f4f'],
+			['1234567890ffffffff', '-1234567890', '-100000000', 'ffffffff'],
+			['f926cad0655a246e5fa1f9918acfa7e3a5c066275d342e9f', '-320a7bd3df175319', '-4fa9ca4ad127067c933000454773cd53c', '23f44e9492bce7c3'],
+			['-1234', '123456789', '0', '-1234'],
+			['-123', '1', '-123', '0'],
+			['-123', '123', '-1', '0'],
+			['-12', '123', '0', '-12'],
+			['-6f9', '7', '-ff', '0'],
+			['-14eb', '8', '-29d', '-3'],
+			['-123456789', '1', '-123456789', '0'],
+			['-f926cad0655a246e5fa1f9918acfa7e3a5c066275d342e9f', '80000000000000', '-1f24d95a0cab448dcbf43f323159f4fc74b', '-4066275d342e9f'],
+			['-123456789', '3', '-61172283', '0'],
+			['-123456789', '7', '-299c335c', '-5'],
+			['-1234567890ffffffff', 'ffffffffffff', '-123456', '-789100123455'],
+			['-1234567890ffffffff', '9876543210', '-1e9131ab', '-859d1d7f4f'],
+			['-1234567890ffffffff', '1234567890', '-100000000', '-ffffffff'],
+			['-f926cad0655a246e5fa1f9918acfa7e3a5c066275d342e9f', '320a7bd3df175319', '-4fa9ca4ad127067c933000454773cd53c', '-23f44e9492bce7c3']
+		];
+		
+		[Test( order="21", dataProvider="$divAndMod" )]
+		public function divAndMod(v:String, m:String, result:String, rest:String):void {
+			var R:Vector.<BigInteger> = BigInteger.fromString( v ).divAndMod( BigInteger.fromString( m ) );
+			Assert.assertEquals(
+				'0x' + v.toLowerCase() + ' / 0x' + m.toLowerCase(),
+				R.join( ',' ).toString().toLowerCase(), [ result, rest ].join( ',' ).toLowerCase()
 			);
 		}
 		
