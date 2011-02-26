@@ -7,12 +7,12 @@
 package by.blooddy.math {
 
 	import by.blooddy.math.utils.BigUint;
+	import by.blooddy.system.Memory;
 	
 	import flash.errors.IllegalOperationError;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
-	import by.blooddy.system.Memory;
 
 	/**
 	 * @author					BlooDHounD
@@ -918,58 +918,62 @@ package by.blooddy.math {
 		}
 
 		/**
-		 * @return		[ this / v, this % v ]
-		 * @throws		ArgumentError	v == 0
+		 * @return		[ this / m, this % m ]
+		 * @throws		ArgumentError	m == 0
 		 */
-		public function divAndMod(v:BigInteger):Vector.<BigInteger> {
+		public function divAndMod(m:BigInteger):Vector.<BigInteger> {
 			throw new IllegalOperationError( 'TODO' );
 		}
 
 		/**
-		 * @return		this / v
-		 * @throws		ArgumentError	v == 0
+		 * @return		this / m
+		 * @throws		ArgumentError	m == 0
 		 */
-		public function div(v:BigInteger):BigInteger {
+		public function div(m:BigInteger):BigInteger {
 			throw new IllegalOperationError( 'TODO' );
 		}
 
 		/**
-		 * @return		this % v;
-		 * @throws		ArgumentError	v == 0
+		 * @return		this % m;
+		 * @throws		ArgumentError	m == 0
 		 */
-		public function mod(v:BigInteger):BigInteger {
+		public function mod(m:BigInteger):BigInteger {
 			throw new IllegalOperationError( 'TODO' );
 		}
 
 		/**
-		 * @return		pow( this, e ) % v
-		 * @throws		ArgumentError	v == 0
+		 * @return		pow( this, e ) % m
+		 * @throws		ArgumentError	m == 0
 		 */
-		public function modPowInt(e:int, v:BigInteger):BigInteger {
+		public function modPowInt(e:int, m:BigInteger):BigInteger {
 			throw new IllegalOperationError( 'TODO' );
 		}
 
 		/**
-		 * @return		pow( this, e ) % v
-		 * @throws		ArgumentError	v == 0
+		 * @return		pow( this, e ) % m
+		 * @throws		ArgumentError	m == 0
 		 */
-		public function modPow(e:BigInteger, v:BigInteger):BigInteger {
+		public function modPow(e:BigInteger, m:BigInteger):BigInteger {
 			throw new IllegalOperationError( 'TODO' );
 		}
 
-		public function gcd(v:BigInteger, a:BigInteger):BigInteger {
+		/**
+		 * @reutrn		gcd( this, v )
+		 */
+		public function gcd(v:BigInteger):BigInteger {
 			throw new IllegalOperationError( 'TODO' );
 		}
 
-		public function modInverse(v:BigInteger, m:BigInteger):BigInteger {
+		/**
+		 * @return		1 / this % m
+		 * @throws		ArgumentError	this == 0 || m == 0
+		 */
+		public function modInverse(m:BigInteger):BigInteger {
 			throw new IllegalOperationError( 'TODO' );
 		}
 
-		public function isProbablePrime(v:BigInteger, t:int):Boolean {
-			throw new IllegalOperationError( 'TODO' );
-		}
-
-		public function primify(v:BigInteger, bits:int, t:int):void {
+		
+		public function isProbablePrime(certainty:int):Boolean {
 			throw new IllegalOperationError( 'TODO' );
 		}
 
