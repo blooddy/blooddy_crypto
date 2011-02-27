@@ -128,39 +128,48 @@ package by.blooddy.math.utils {
 			return toString( _r );
 		}
 
-		public static function powInt(v1:String, e:uint):String {
-			var _v1:BigUint = fromString( v1, 5 );
-			var _r:BigUint = BigUint.powInt( _v1, e, _v1.pos + _v1.len );
+		public static function powInt(v:String, e:uint):String {
+			var _v:BigUint = fromString( v, 5 );
+			var _r:BigUint = BigUint.powInt( _v, e, _v.pos + _v.len );
 			return toString( _r );
 		}
 		
-		public static function divAndMod(v1:String, v2:String):Array {
-			var _v1:BigUint = fromString( v1, 5 );
-			var _v2:BigUint = fromString( v2, _v1.pos + _v1.len );
-			var _r:Vector.<BigUint> = BigUint.divAndMod( _v1, _v2, _v2.pos + _v2.len );
+		public static function divAndMod(v:String, m:String):Array {
+			var _v:BigUint = fromString( v, 5 );
+			var _m:BigUint = fromString( m, _v.pos + _v.len );
+			var _r:Vector.<BigUint> = BigUint.divAndMod( _v, _m, _m.pos + _m.len );
 			return [ toString( _r[ 0 ] ), toString( _r[ 1 ] ) ];
 		}
 
-		public static function div(v1:String, v2:String):String {
-			var _v1:BigUint = fromString( v1, 5 );
-			var _v2:BigUint = fromString( v2, _v1.pos + _v1.len );
-			var _r:BigUint = BigUint.div( _v1, _v2, _v2.pos + _v2.len );
+		public static function div(v:String, m:String):String {
+			var _v:BigUint = fromString( v, 5 );
+			var _m:BigUint = fromString( m, _v.pos + _v.len );
+			var _r:BigUint = BigUint.div( _v, _m, _m.pos + _m.len );
 			return toString( _r );
 		}
 
-		public static function mod(v1:String, v2:String):String {
-			var _v1:BigUint = fromString( v1, 5 );
-			var _v2:BigUint = fromString( v2, _v1.pos + _v1.len );
-			var _r:BigUint = BigUint.mod( _v1, _v2, _v2.pos + _v2.len );
+		public static function mod(v:String, m:String):String {
+			var _v:BigUint = fromString( v, 5 );
+			var _m:BigUint = fromString( m, _v.pos + _v.len );
+			var _r:BigUint = BigUint.mod( _v, _m, _m.pos + _m.len );
 			return toString( _r );
 		}
 
-//		public static function modPowInt(v1:String, e:uint, v2:String):String {
-//			var _v1:BigUint = fromString( v1, 5 );
-//			var _v2:BigUint = fromString( v2, _v1.pos + _v1.len );
-//			return BigUint.modPowInt( _p1, _l1, e, _p2, _l2, _pr, _lr );
-//		}
+		public static function modPowInt(v:String, e:uint, m:String):String {
+			var _v:BigUint = fromString( v, 5 );
+			var _m:BigUint = fromString( m, _v.pos + _v.len );
+			var _r:BigUint = BigUint.modPowInt( _v, e, _m, _m.pos + _m.len );
+			return toString( _r );
+		}
 
+		public static function modPow(v:String, e:String, m:String):String {
+			var _v:BigUint = fromString( v, 5 );
+			var _e:BigUint = fromString( e, _v.pos + _v.len );
+			var _m:BigUint = fromString( m, _e.pos + _e.len );
+			var _r:BigUint = BigUint.modPow( _v, _e, _m, _m.pos + _m.len );
+			return toString( _r );
+		}
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Private class methods
