@@ -821,19 +821,16 @@ package by.blooddy.math.utils {
 					CRYPTO::debug {
 						var d:BigUint;
 					}
-					var ei:uint = 1;
 					var r:uint = 1;
 					if ( l == 4 && c < 0x10000 ) { // исходное число достаточно коротко
 						do {
-							if ( ei & e ) {
+							if ( e & 1 ) {
 								r *= c;
 							}
-							ei <<= 1;
-							if ( ei <= e ) {
-								c *= c;
-							}
-						} while ( ei <= e && c < 0x10000 );
-						if ( ei <= e ) { // если результат не достигнут, то запишим временные значения
+							e >>>= 1;
+							c *= c;
+						} while ( e > 0 && c < 0x10000 );
+						if ( e > 0 ) { // если результат не достигнут, то запишим временные значения
 							Memory.setI32( pos, c );
 							l = 4;
 							p = pos;
@@ -858,8 +855,8 @@ package by.blooddy.math.utils {
 					CRYPTO::inline {
 						mem = _domain.domainMemory;
 						var c1:uint, c2:uint, i:uint, j:uint, temp:uint;
-						while ( !lr && ei <= e ) {
-							if ( ei & e ) {
+						while ( !lr && e > 0 ) {
+							if ( e & 1 ) {
 								if ( r == 1 ) {
 									pr = p;
 									lr = l;
@@ -870,8 +867,8 @@ package by.blooddy.math.utils {
 									pos += len;
 								}
 							}
-							ei <<= 1;
-							if ( ei <= e ) {
+							e >>>= 1;
+							if ( e > 0 ) {
 								BigUint$.sqr( mem, p, l, pos, len, c1, c2, i, j, temp );
 								p = pos;
 								l = len;
@@ -886,8 +883,8 @@ package by.blooddy.math.utils {
 						}
 					}
 					CRYPTO::debug {
-						while ( !d && ei <= e ) {
-							if ( ei & e ) {
+						while ( !d && e > 0 ) {
+							if ( e & 1 ) {
 								if ( r == 1 ) {
 									d = v;
 								} else {
@@ -895,8 +892,8 @@ package by.blooddy.math.utils {
 									pos += d.len;
 								}
 							}
-							ei <<= 1;
-							if ( ei <= e ) {
+							e >>>= 1;
+							if ( e > 0 ) {
 								v = _sqr( p, l, pos );
 								p = v.pos;
 								l = v.len;
@@ -910,8 +907,8 @@ package by.blooddy.math.utils {
 						}
 					}
 					// и результат и промежуточное значение очень длинные
-					while ( ei <= e ) {
-						if ( ei & e ) {
+					while ( e > 0 ) {
+						if ( e & 1 ) {
 							CRYPTO::inline {
 								BigUint$.mult( mem, p, l, pr, lr, pos, len, c1, c2, i, j, temp );
 								pr = pos;
@@ -923,8 +920,8 @@ package by.blooddy.math.utils {
 								pos = d.pos + d.len;
 							}
 						}
-						ei <<= 1;
-						if ( ei <= e ) {
+						e >>>= 1;
+						if ( e > 0 ) {
 							CRYPTO::inline {
 								BigUint$.sqr( mem, p, l, pos, len, c1, c2, i, j, temp );
 								p = pos;
@@ -1181,28 +1178,27 @@ package by.blooddy.math.utils {
 				throw new ArgumentError();
 			} else if ( l1 == 0 ) {
 				return v;
+			} else if ( e == 1 ) {
+				return mod( v, m, pos );
 			} else {
 				var p1:uint = v.pos;
 				var p2:uint = m.pos;
-				if ( l2 == 4 ) {
+				if ( l2 == 4 && Memory.getI32( p2 ) == 1 ) {
+					return new BigUint();
+				} else if ( l1 == 4 && Memory.getI32( p1 ) == 1 ) {
+					return v;
+				} else if ( e == 0 ) {
+					Memory.setI32( pos, 1 );
+					return new BigUint( pos, 4 );
+				} else if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) {
 					return _modPowInt_simple( p1, l1, e, uint( Memory.getI32( p2 ) ), pos );
 				} else /*if ( e < 256 || !( Memory.getUI8( p2 ) & 1 ) )*/ {
 					return _modPowInt_classic( p1, l1, e, p2, l2, pos );
 				}
 			}
-			throw new IllegalOperationError( 'TODO' );
 		}
 
 		public static function modPow(v:BigUint, e:BigUint, m:BigUint, pos:uint):BigUint {
-			var l1:uint = v.len;
-			var le:uint = e.len;
-			var l2:uint = m.len;
-			if ( l2 == 0 ) {
-				throw new ArgumentError();
-			} else if ( l1 == 0 ) {
-				return v;
-			} else {
-			}
 			throw new IllegalOperationError( 'TODO' );
 		}
 
@@ -2104,27 +2100,29 @@ package by.blooddy.math.utils {
 		 * @return		pow( v1, e ) % v2;
 		 */
 		private static function _modPowInt_simple(p1:uint, l1:uint, e:uint, v2:uint, pos:uint):BigUint {
-			var i:uint = _getHighestBit( e );
 			var r:uint;
 			if ( l1 == 4 ) {
 				r = uint( Memory.getI32( p1 ) ) % v2;
 			} else {
 				r = _mod_s( p1, l1, v2 );
 			}
+			var g:uint;
 			if ( r > 0 ) {
-				var g:uint = r;
+				g = 1;
 				do {
-					r = ( r * r ) % v2;
-					i >>>= 1;
-					if ( i & e ) {
-						r = ( r * g ) % v2;
+					if ( e & 1 ) {
+						g = g * r % v2;
 					}
-				} while ( i > 1 && r > 0 );
+					e >>>= 1;
+					r = r * r % v2;
+				} while ( e > 0 && g > 0 );
+			} else {
+				g = 0;
 			}
-			if ( r == 0 ) {
+			if ( g == 0 ) {
 				return new BigUint();
 			} else {
-				Memory.setI32( pos, r );
+				Memory.setI32( pos, g );
 				return new BigUint( pos, 4 );
 			}
 			return r;
@@ -2135,37 +2133,38 @@ package by.blooddy.math.utils {
 		 * @return		pow( v1, e ) % v2;
 		 */
 		private static function _modPowInt_classic(p1:uint, l1:uint, e:uint, p2:uint, l2:uint, pos:uint):BigUint {
-			var i:uint = _getHighestBit( e );
-			var d:BigUint;
+			var r:BigUint;
 			if ( _compare( p1, l1, p2, l2 ) >= 0 ) {
-				d = _mod( p1, l1, p2, l2, pos );
-				p1 = d.pos;
-				l1 = d.len;
+				r = _mod( p1, l1, p2, l2, pos );
+				pos += r.pos + r.len;
+			} else {
+				r = new BigUint( p1, l1 );
 			}
-			var p3:uint = p1;
-			var l3:uint = l1;
-			do {
-				d = _sqr( p1, l1, pos ); // _r *= _r;
-				p1 = d.pos;
-				l1 = d.len;
-				pos = p1 + l1;
-				d = _mod( p1, l1, p2, l2, pos ); // _r %= v;
-				p1 = d.pos;
-				l1 = d.len;
-				pos = p1 + l1;
-				i >>>= 1;
-				if ( ( i & e ) != 0 ) {
-					d = _mult( p1, l1, p3, l3, pos ); // _r *= g;
-					p1 = d.pos;
-					l1 = d.len;
-					pos = p1 + l1;
-					d = _mod( p1, l1, p2, l2, pos ); // _r %= v;
-					p1 = d.pos;
-					l1 = d.len;
-					pos = p1 + l1;
-				}
-			} while ( i > 1 && l1 > 0 );
-			return d;
+			var g:BigUint;
+			if ( r.len > 0 ) {
+				do {
+					if ( e & 1 ) {
+						if ( g ) {
+							g = _mult( g.pos, g.len, r.pos, r.len, pos );
+							pos = g.pos + g.len;
+							g = _mod( g.pos, g.len, p2, l2, pos );
+							pos = g.pos + g.len;
+						} else {
+							g = r;
+						}
+					}
+					e >>>= 1;
+					if ( e > 0 ) {
+						r = _sqr( r.pos, r.len, pos );
+						pos = r.pos + r.len;
+						r = _mod( r.pos, r.len, p2, l2, pos );
+						pos = r.pos + r.len;
+					}
+				} while ( e > 0 && ( !g || g.len > 0 ) );
+			} else {
+				g = r;
+			}
+			return g;
 		}
 
 		//--------------------------------------------------------------------------
