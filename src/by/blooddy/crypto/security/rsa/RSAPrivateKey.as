@@ -6,7 +6,7 @@
 
 package by.blooddy.crypto.security.rsa {
 
-	import by.blooddy.crypto.security.Pad;
+	import by.blooddy.crypto.security.pad.IPad;
 	import by.blooddy.math.utils.BigUint;
 	
 	import flash.system.ApplicationDomain;
@@ -84,7 +84,7 @@ package by.blooddy.crypto.security.rsa {
 		//
 		//--------------------------------------------------------------------------
 
-		public function decrypt(bytes:ByteArray, pad:Pad=null):ByteArray {
+		public function decrypt(bytes:ByteArray, pad:IPad=null):ByteArray {
 			return null;
 		}
 
