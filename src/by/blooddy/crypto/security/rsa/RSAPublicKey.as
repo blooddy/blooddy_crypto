@@ -93,29 +93,38 @@ package by.blooddy.crypto.security.rsa {
 		public function toString():String {
 			var result:String;
 			if ( this.bytes ) {
-				var app:ApplicationDomain = ApplicationDomain.currentDomain;
-				var tmp:ByteArray = app.domainMemory;
-				var mem:ByteArray;
-				if ( this.bytes.length >= ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) {
-					mem = this.bytes;
-				} else {
-					mem = new ByteArray();
-					mem.writeBytes( this.bytes );
-					mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
-				}
-				app.domainMemory = mem;
-				result =
-					'[RSAPublicKey' +
-						' n="' + /*BigUint.toString( this.n ) +*/ '"' +
-						' e="' + this.e.toString( 16 ) + '"' +
-					']';
-				app.domainMemory = tmp;
+				result =	'[RSAPublicKey' +
+								' n="' + bigUintToString( this.n ) + '"' +
+								' e="' + this.e.toString( 16 ) + '"' +
+							']';
 			} else {
-				result = '[RSAPublicKey empty]';
+				result =	'[RSAPublicKey empty]';
 			}
 			return result;
 		}
 
+		//--------------------------------------------------------------------------
+		//
+		//  Internal methods
+		//
+		//--------------------------------------------------------------------------
+
+		$internal function bigUintToString(v:BigUint):String {
+			if ( v.len == 0 ) return '0';
+			var p:uint = v.pos;
+			var i:uint = p + v.len - 1;
+			while ( this.bytes[ i ] == 0 ) {
+				--i;
+			}
+			var result:String = this.bytes[ i ].toString( 16 );
+			var c:uint;
+			while ( i > p ) {
+				--i;
+				c = this.bytes[ i ];
+				result += ( c <= 0xF ? '0' : '' ) + c.toString( 16 );
+			}
+			return result;
+		}
 	}
 
 }

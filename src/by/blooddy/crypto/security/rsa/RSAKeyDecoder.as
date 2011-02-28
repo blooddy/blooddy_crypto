@@ -352,7 +352,7 @@ package by.blooddy.crypto.security.rsa {
 		 */
 		private static function decodeXMLInteger(x:XML, pos:uint):BigUint {
 			var mem:ByteArray = _CURRENT_DOMAIN.domainMemory;
-			var b:ByteArray = Base64.decode( x.*.toString().replace( /\s+/g, '' ) ); // TODO: remove pattern
+			var b:ByteArray = Base64.decode( x.*.toString() );
 			var p:uint = pos + b.length + 4;
 			var l:uint = b.length;
 			b.readBytes( mem, p, l );

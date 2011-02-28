@@ -100,28 +100,16 @@ package by.blooddy.crypto.security.rsa {
 		public override function toString():String {
 			var result:String;
 			if ( this.bytes ) {
-				var app:ApplicationDomain = ApplicationDomain.currentDomain;
-				var tmp:ByteArray = app.domainMemory;
-				var mem:ByteArray;
-				if ( this.bytes.length >= ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) {
-					mem = this.bytes;
-				} else {
-					mem = new ByteArray();
-					mem.writeBytes( this.bytes );
-					mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
-				}
-				app.domainMemory = mem;
 				result =	'[RSAPrivateKey' +
-								' n="' +/* BigUint.toString( this.n ) +*/ '"' +
-								' e="' + /*this.e.toString( 16 ) +*/ '"' +
-								' d="' + /*BigUint.toString( this.d ) +*/ '"' +
-								' P="' + /*BigUint.toString( this.p ) +*/ '"' +
-								' Q="' + /*BigUint.toString( this.q ) +*/ '"' +
-								' dP="' + /*BigUint.toString( this.dp ) +*/ '"' +
-								' dQ="' + /*BigUint.toString( this.dq ) +*/ '"' +
-								' iQ="' + /*BigUint.toString( this.invq ) +*/ '"' +
+								' n="' + bigUintToString( this.n ) + '"' +
+								' e="' + this.e.toString( 16 ) + '"' +
+								' d="' + bigUintToString( this.d ) + '"' +
+								' P="' + bigUintToString( this.p ) + '"' +
+								' Q="' + bigUintToString( this.q ) + '"' +
+								' dP="' + bigUintToString( this.dp ) + '"' +
+								' dQ="' + bigUintToString( this.dq ) + '"' +
+								' iQ="' + bigUintToString( this.invq ) + '"' +
 							']';
-				app.domainMemory = tmp;
 			} else {
 				result =	'[RSAPrivateKey empty]';
 			}
