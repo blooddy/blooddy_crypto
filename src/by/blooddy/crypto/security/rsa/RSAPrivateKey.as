@@ -27,7 +27,7 @@ package by.blooddy.crypto.security.rsa {
 		//
 		//--------------------------------------------------------------------------
 
-		use namespace internal_rsa;
+		use namespace $internal;
 
 		//--------------------------------------------------------------------------
 		//
@@ -51,32 +51,32 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @private
 		 */
-		internal_rsa var d:BigUint;
+		$internal var d:BigUint;
 
 		/**
 		 * @private
 		 */
-		internal_rsa var p:BigUint;
+		$internal var p:BigUint;
 
 		/**
 		 * @private
 		 */
-		internal_rsa var q:BigUint;
+		$internal var q:BigUint;
 
 		/**
 		 * @private
 		 */
-		internal_rsa var dp:BigUint;
+		$internal var dp:BigUint;
 
 		/**
 		 * @private
 		 */
-		internal_rsa var dq:BigUint;
+		$internal var dq:BigUint;
 
 		/**
 		 * @private
 		 */
-		internal_rsa var invq:BigUint;
+		$internal var invq:BigUint;
 
 		//--------------------------------------------------------------------------
 		//

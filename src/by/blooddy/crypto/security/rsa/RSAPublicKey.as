@@ -28,7 +28,7 @@ package by.blooddy.crypto.security.rsa {
 		//
 		//--------------------------------------------------------------------------
 
-		use namespace internal_rsa;
+		use namespace $internal;
 
 		//--------------------------------------------------------------------------
 		//
@@ -39,7 +39,7 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @private
 		 */
-		internal_rsa static var internalCall:Boolean = false;
+		$internal static var internalCall:Boolean = false;
 
 		//--------------------------------------------------------------------------
 		//
@@ -65,17 +65,17 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @private
 		 */
-		internal_rsa var bytes:ByteArray;
+		$internal var bytes:ByteArray;
 
 		/**
 		 * @private
 		 */
-		internal_rsa var n:BigUint;
+		$internal var n:BigUint;
 
 		/**
 		 * @private
 		 */
-		internal_rsa var e:uint;
+		$internal var e:uint;
 
 		//--------------------------------------------------------------------------
 		//
