@@ -105,7 +105,7 @@ package by.blooddy.crypto.security.rsa {
 				app.domainMemory = mem;
 				result =
 					'[RSAPublicKey' +
-						' n="' + BigUint.toString( this.n ) + '"' +
+						' n="' + /*BigUint.toString( this.n ) +*/ '"' +
 						' e="' + this.e.toString( 16 ) + '"' +
 					']';
 				app.domainMemory = tmp;
