@@ -6,8 +6,9 @@
 
 package by.blooddy.crypto.security.rsa {
 
+	import by.blooddy.crypto.security.Pad;
 	import by.blooddy.math.utils.BigUint;
-
+	
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
@@ -85,7 +86,7 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @inhertDoc
 		 */
-		public function encrypt(bytes:ByteArray):ByteArray {
+		public function encrypt(bytes:ByteArray, pad:Pad=null):ByteArray {
 			return null;
 		}
 
