@@ -1,7 +1,7 @@
 package by.blooddy.crypto.security.rsa {
 
 	import by.blooddy.crypto.security.IPublicKey;
-	import by.blooddy.crypto.security.Pad;
+	import by.blooddy.crypto.security.pad.IPad;
 	
 	import flash.utils.ByteArray;
 
@@ -14,7 +14,7 @@ package by.blooddy.crypto.security.rsa {
 	 */
 	public interface IRSAPublicKey extends IPublicKey {
 
-		function encrypt(bytes:ByteArray, pad:Pad=null):ByteArray;
+		function encrypt(bytes:ByteArray, pad:IPad=null):ByteArray;
 
 	}
 
