@@ -271,13 +271,15 @@ package by.blooddy.crypto {
 				}
 			}
 
-			var bytes:ByteArray = new ByteArray();
+			_domain.domainMemory = tmp;
+			
+			var result:ByteArray = new ByteArray();
 			if ( j > 255 ) {
 				mem.position = 256;
-				mem.readBytes( bytes, 0, j - 255 );
+				mem.readBytes( result, 0, j - 255 );
 			}
 
-			return bytes;
+			return result;
 		}
 		
 		//--------------------------------------------------------------------------
