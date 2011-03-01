@@ -13,6 +13,19 @@ package by.blooddy.crypto.security.pad {
 
 		//--------------------------------------------------------------------------
 		//
+		//  Properties
+		//
+		//--------------------------------------------------------------------------
+		
+		function get blockSize():uint;
+
+		/**
+		 * @private
+		 */
+		function set blockSize(value:uint):void;
+		
+		//--------------------------------------------------------------------------
+		//
 		//  Methods
 		//
 		//--------------------------------------------------------------------------
@@ -20,12 +33,12 @@ package by.blooddy.crypto.security.pad {
 		/**
 		 * Add padding to the array
 		 */
-		function pad(bytes:ByteArray, blockSize:uint):void;
+		function pad(bytes:ByteArray):ByteArray;
 
 		/**
 		 * Remove padding from the array.
 		 */
-		function unpad(bytes:ByteArray, blockSize:uint):void;
+		function unpad(bytes:ByteArray):ByteArray;
 
 	}
 
