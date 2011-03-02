@@ -66,7 +66,7 @@ internal final class $PKCS1_V1_5 implements IPad {
 	 * @private
 	 */
 	public function set blockSize(value:uint):void {
-		this._blockSize = blockSize;
+		this._blockSize = value;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -79,6 +79,7 @@ internal final class $PKCS1_V1_5 implements IPad {
 	 * @inheritDoc
 	 */
 	public function pad(bytes:ByteArray):ByteArray {
+		if ( bytes.length + 3 > this._blockSize ) throw new ArgumentError();
 		var result:ByteArray = new ByteArray();
 		var psSize:uint = this._blockSize - 3 - bytes.length;
 		var k:uint = 0;
@@ -134,7 +135,7 @@ internal final class $PKCS1_V1_5 implements IPad {
 		}
 		
 		var result:ByteArray = new ByteArray();
-		bytes.position = i;
+		bytes.position = i + 1;
 		bytes.readBytes( result );
 		return result;
 	}
