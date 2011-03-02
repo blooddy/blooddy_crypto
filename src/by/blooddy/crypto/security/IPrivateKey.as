@@ -17,7 +17,7 @@ package by.blooddy.crypto.security {
 	 */
 	public interface IPrivateKey extends IKey {
 
-//		function sign(bytes:ByteArray):Boolean;
+		function sign():ByteArray;
 
 	}
 

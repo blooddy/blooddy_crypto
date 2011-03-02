@@ -86,6 +86,13 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @inhertDoc
 		 */
+		public function verify(bytes:ByteArray):Boolean {
+			return false;
+		}
+		
+		/**
+		 * @inhertDoc
+		 */
 		public function encrypt(bytes:ByteArray, pad:IPad=null):ByteArray {
 			return null;
 		}
