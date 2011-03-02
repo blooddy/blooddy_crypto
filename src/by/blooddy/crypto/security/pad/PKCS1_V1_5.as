@@ -80,18 +80,16 @@ internal final class $PKCS1_V1_5 implements IPad {
 	 */
 	public function pad(bytes:ByteArray):ByteArray {
 		var result:ByteArray = new ByteArray();
-		result.position = this._blockSize - bytes.length;
-		result.writeBytes( bytes );
 		var psSize:uint = this._blockSize - 3 - bytes.length;
 		var k:uint = 0;
 		result[ k++ ] = 0;
-		result[ k++ ] = 0x2; // type
-//		if ( type == 0x1 ) {
+		result[ k++ ] = 0x02; // type
+//		if ( type == 0x01 ) {
 //			// blocktype 1: all padding bytes are 0xff
 //			while ( psSize-- > 0 ) {
 //				result[k++] = 0xFF;
 //			}
-//		} else {
+//		} else if ( type == 0x02 ) {
 			// blocktype 2: padding bytes are random non-zero bytes
 			// generate non-zero padding bytes
 			var i:int = -1;
@@ -102,7 +100,12 @@ internal final class $PKCS1_V1_5 implements IPad {
 				} while ( b == 0 );
 				result[ k++ ] = b;
 			}
+//		} else {
+//			throw new ArgumentError();
 //		}
+		result[ k++ ] = 0;
+		result.position = k;
+		result.writeBytes( bytes );
 		return result;
 	}
 	
@@ -110,7 +113,30 @@ internal final class $PKCS1_V1_5 implements IPad {
 	 * @inheritDoc
 	 */
 	public function unpad(bytes:ByteArray):ByteArray {
-		throw new IllegalOperationError( '', 1001 );
+		if ( bytes.length != this._blockSize ) throw new ArgumentError();
+		if ( bytes[ 0 ] != 0 ) throw new ArgumentError();
+		var type:uint = bytes[ 1 ];
+		var i:uint = 2;
+		switch ( type ) {
+			case 0x01:
+				while ( bytes[ i ] == 0xFF && i < this._blockSize  ) {
+					++i;
+				}
+				if ( bytes[ i ] != 0 ) throw new ArgumentError();
+				break;
+			case 0x02:
+				while ( bytes[ i ] != 0 && i < this._blockSize ) {
+					++i;
+				}
+				break;
+			default:
+				throw new ArgumentError();
+		}
+		
+		var result:ByteArray = new ByteArray();
+		bytes.position = i;
+		bytes.readBytes( result );
+		return result;
 	}
 
 	public function toString():String {
