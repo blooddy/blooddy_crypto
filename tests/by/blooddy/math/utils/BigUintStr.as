@@ -20,6 +20,11 @@ package by.blooddy.math.utils {
 		//
 		//--------------------------------------------------------------------------
 
+		public static function getBitLength(v:String):uint {
+			var _v:BigUint = fromString( v, 5 );
+			return BigUint.getBitLength( _v );
+		}
+		
 		public static function testBit(v1:String, n:uint):Boolean {
 			var _v1:BigUint = fromString( v1, 5 );
 			return BigUint.testBit( _v1, n );
