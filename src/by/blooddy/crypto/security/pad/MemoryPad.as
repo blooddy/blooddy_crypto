@@ -31,7 +31,7 @@ package by.blooddy.crypto.security.pad {
 		/**
 		 * @private
 		 */
-		private static const _CURRENT_DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
+		protected static const _CURRENT_DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
 
 		//--------------------------------------------------------------------------
 		//
@@ -80,7 +80,7 @@ package by.blooddy.crypto.security.pad {
 		/**
 		 * @inheritDoc
 		 */
-		public function pad(bytes:ByteArray):ByteArray {
+		public final function pad(bytes:ByteArray):ByteArray {
 
 			if ( bytes.length <= 0 || bytes.length > this._blockSize ) throw new ArgumentError();
 			
@@ -88,7 +88,7 @@ package by.blooddy.crypto.security.pad {
 
 			var mem:ByteArray = new ByteArray();
 			mem.writeBytes( bytes );
-			mem.length += this._blockSize;
+			mem.length += this._blockSize + 1024; // запас на всякие расходные расчёты
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 			_CURRENT_DOMAIN.domainMemory = mem;
 
@@ -111,7 +111,7 @@ package by.blooddy.crypto.security.pad {
 		/**
 		 * @inheritDoc
 		 */
-		public function unpad(bytes:ByteArray):ByteArray {
+		public final function unpad(bytes:ByteArray):ByteArray {
 
 			if ( bytes.length <= 0 || bytes.length != this._blockSize ) throw new ArgumentError();
 			
@@ -119,7 +119,7 @@ package by.blooddy.crypto.security.pad {
 			
 			var mem:ByteArray = new ByteArray();
 			mem.writeBytes( bytes );
-			mem.length += this._blockSize;
+			mem.length += this._blockSize + 1024; // запас на всякие расходные расчёты
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 			_CURRENT_DOMAIN.domainMemory = mem;
 			
