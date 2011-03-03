@@ -49,7 +49,7 @@ package by.blooddy.math {
 			[ '-97876671231231', 16 ]
 		];
 		
-		[Test( order="-3", dataProvider="$fromString" )]
+		[Test( order="-4", dataProvider="$fromString" )]
 		public function fromString(v:String, radix:uint, result:String=null):void {
 			var bi:BigInteger = BigInteger.fromString( v, radix );
 			Assert.assertEquals(
@@ -71,7 +71,7 @@ package by.blooddy.math {
 			[ -6.10917779346288e+57 ]
 		];
 
-		[Test( order="-2", dataProvider="$fromNumber" )]
+		[Test( order="-3", dataProvider="$fromNumber" )]
 		public function fromNumber(v:Number):void {
 			var bi:BigInteger = BigInteger.fromNumber( v );
 			Assert.assertEquals(
@@ -89,7 +89,7 @@ package by.blooddy.math {
 			[ new <uint>[0x07812356,0xFF0], true, 'FF007812356' ]
 		];
 		
-		[Test( order="-1", dataProvider="$fromVector" )]
+		[Test( order="-2", dataProvider="$fromVector" )]
 		public function fromVector(v:Vector.<uint>, negative:Boolean, result:String):void {
 			var bi:BigInteger = BigInteger.fromVector( v, negative );
 			Assert.assertEquals(
@@ -107,12 +107,33 @@ package by.blooddy.math {
 			[ '-FF00FF00FF00FF', 'FF00FF00FF00FF' ]
 		];
 		
-		[Test( order="0", dataProvider="$negate" )]
+		[Test( order="-1", dataProvider="$negate" )]
 		public function negate(v:String, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v ).negate();
 			Assert.assertEquals(
 				'-0x' + v.toLowerCase(),
 				R.toString().toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  getBitLength
+		//----------------------------------
+		
+		public static var $getBitLength:Array = [
+			[ '0', 0 ],
+			[ 'FF', 8 ],
+			[ '123', 9 ],
+			[ 'FF00123', 28 ],
+			[ '123F77F1F3F5F', 49 ],
+			[ 'FF00000000', 40 ]
+		];
+		
+		[Test( order="0", dataProvider="$getBitLength" )]
+		public function getBitLength(v:String, result:uint):void {
+			var R:uint = BigInteger.fromString( v ).getBitLength();
+			Assert.assertEquals(
+				R, result
 			);
 		}
 		

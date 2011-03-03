@@ -606,6 +606,10 @@ package by.blooddy.math {
 			}
 		}
 
+		public function getBitLength():uint {
+			throw new IllegalOperationError( 'TODO' );
+		}
+		
 		/**
 		 * @return		this & ( 1 << n ) != 0
 		 */
