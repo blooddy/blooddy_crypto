@@ -23,8 +23,10 @@ package by.blooddy.crypto.security.pad {
 //
 //==============================================================================
 
-import by.blooddy.crypto.security.pad.IPad;
+import by.blooddy.crypto.security.pad.MemoryPad;
+import by.blooddy.crypto.security.pad.MemoryPadBlock;
 import by.blooddy.crypto.security.pad.PKCS1_V1_5;
+import by.blooddy.system.Memory;
 
 import flash.errors.IllegalOperationError;
 import flash.utils.ByteArray;
@@ -34,7 +36,7 @@ import flash.utils.getQualifiedClassName;
 /**
  * @private
  */
-internal final class $PKCS1_V1_5 implements IPad {
+internal final class $PKCS1_V1_5 extends MemoryPad {
 
 	//--------------------------------------------------------------------------
 	//
@@ -49,98 +51,81 @@ internal final class $PKCS1_V1_5 implements IPad {
 	
 	//--------------------------------------------------------------------------
 	//
-	//  Properties
-	//
-	//--------------------------------------------------------------------------
-	
-	/**
-	 * @private
-	 */
-	private var _blockSize:uint;
-	
-	/**
-	 * @inheritDoc
-	 */
-	public function get blockSize():uint {
-		return this._blockSize;
-	}
-	
-	/**
-	 * @private
-	 */
-	public function set blockSize(value:uint):void {
-		this._blockSize = value;
-	}
-	
-	//--------------------------------------------------------------------------
-	//
 	//  Methods
 	//
 	//--------------------------------------------------------------------------
 	
 	/**
-	 * @inheritDoc
+	 * @private
 	 */
-	public function pad(bytes:ByteArray):ByteArray {
-		if ( bytes.length + 3 > this._blockSize ) throw new ArgumentError();
-		var result:ByteArray = new ByteArray();
-		var psSize:uint = this._blockSize - 3 - bytes.length;
-		var k:uint = 0;
-		result[ k++ ] = 0;
-		result[ k++ ] = 0x02; // type
+	public override function padMemory(block:MemoryPadBlock, pos:uint):MemoryPadBlock {
+
+		var blockSize:uint = super.blockSize;
+
+		if ( block.len + 3 > blockSize ) throw new ArgumentError();
+
+		Memory.setI16( pos, 0x0200 );
+
+		var k:uint = pos + 2;
+		var ks:uint = k + blockSize - 3 - block.len;
+
 //		if ( type == 0x01 ) {
-//			// blocktype 1: all padding bytes are 0xff
-//			while ( psSize-- > 0 ) {
-//				result[k++] = 0xFF;
-//			}
+//			// blocktype 1: all padding bytes are 0xFF
+//			do {
+//				Memory.setI8( k, 0xFF );
+//			} while ( ++k < ks );
 //		} else if ( type == 0x02 ) {
 			// blocktype 2: padding bytes are random non-zero bytes
 			// generate non-zero padding bytes
-			var i:int = -1;
 			var b:uint;
-			while ( psSize-- > 0 ) {
+			do {
 				do {
 					b = ARC4Random.nextByte();
 				} while ( b == 0 );
-				result[ k++ ] = b;
-			}
+				Memory.setI8( k, b );
+			} while ( ++k < ks )
 //		} else {
 //			throw new ArgumentError();
 //		}
-		result[ k++ ] = 0;
-		result.position = k;
-		result.writeBytes( bytes );
-		return result;
+
+		Memory.setI8( k, 0 );
+
+		var mem:ByteArray = _CURRENT_DOMAIN.domainMemory;
+		mem.position = block.pos;
+		mem.readBytes( mem, k + 1, block.len );
+	
+		return new MemoryPadBlock( pos, blockSize );
+
 	}
 	
 	/**
-	 * @inheritDoc
+	 * @private
 	 */
-	public function unpad(bytes:ByteArray):ByteArray {
-		if ( bytes.length != this._blockSize ) throw new ArgumentError();
-		if ( bytes[ 0 ] != 0 ) throw new ArgumentError();
-		var type:uint = bytes[ 1 ];
-		var i:uint = 2;
-		switch ( type ) {
+	public override function unpadMemory(block:MemoryPadBlock, pos:uint):MemoryPadBlock {
+
+		var blockSize:uint = super.blockSize;
+
+		if ( block.len != blockSize ) throw new ArgumentError();
+
+		var k:uint = block.pos;
+		var ks:uint = k + blockSize;
+		
+		if ( Memory.getUI8( k++ ) != 0 ) throw new ArgumentError();
+
+		switch ( Memory.getUI8( k++ ) ) { // type
 			case 0x01:
-				while ( bytes[ i ] == 0xFF && i < this._blockSize  ) {
-					++i;
-				}
-				if ( bytes[ i ] != 0 ) throw new ArgumentError();
+				while ( k < ks && Memory.getUI8( k++ ) == 0xFF  ) {}
+				if ( Memory.getUI8( k ) != 0 ) throw new ArgumentError();
 				break;
 			case 0x02:
-				while ( bytes[ i ] != 0 && i < this._blockSize ) {
-					++i;
-				}
+				while ( k < ks && Memory.getUI8( k++ ) != 0 ) {}
 				break;
 			default:
 				throw new ArgumentError();
 		}
-		
-		var result:ByteArray = new ByteArray();
-		bytes.position = i + 1;
-		bytes.readBytes( result );
-		return result;
+
+		return new MemoryPadBlock( k, ks - k );
+
 	}
 
 	public function toString():String {
