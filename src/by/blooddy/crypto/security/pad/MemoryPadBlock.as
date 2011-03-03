@@ -5,47 +5,58 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package by.blooddy.crypto.security.pad {
-
-	import flash.utils.ByteArray;
 	
+	[ExcludeClass]
 	/**
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 10
 	 * @langversion				3.0
-	 * @created					28.02.2011 19:59:31
+	 * @created					03.03.2011 13:24:51
 	 */
-	public interface IPad {
-
+	public class MemoryPadBlock {
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Constructor
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * Constructor
+		 */
+		public function MemoryPadBlock(pos:uint, len:uint) {
+			super();
+			this.pos = pos;
+			this.len = len;
+		}
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Properties
 		//
 		//--------------------------------------------------------------------------
 		
-		function get blockSize():uint;
-
 		/**
-		 * @private
+		 * cursor position
 		 */
-		function set blockSize(value:uint):void;
+		public var pos:uint;
+		
+		/**
+		 * длинна блока в памяти.
+		 */
+		public var len:uint;
 		
 		//--------------------------------------------------------------------------
 		//
 		//  Methods
 		//
 		//--------------------------------------------------------------------------
-
-		/**
-		 * Add padding to the array
-		 */
-		function pad(bytes:ByteArray):ByteArray;
-
-		/**
-		 * Remove padding from the array.
-		 */
-		function unpad(bytes:ByteArray):ByteArray;
-
+		
+		public function toString():String {
+			return '[' + pos + ',' + len + ']';
+		}
+		
 	}
-
+	
 }
