@@ -39,6 +39,16 @@ package by.blooddy.math.utils {
 		//
 		//--------------------------------------------------------------------------
 
+		public static function getBitLength(v:BigUint):uint {
+			var l:uint = v.len;
+			if ( l == 0 ) {
+				return 0;
+			} else {
+				l -= 4;
+				return ( l << 3 ) + _getBitLengthInt( Memory.getI32( v.pos + l ) );
+			}
+		}
+
 		/**
 		 * @return		v & ( 1 << n ) != 0
 		 */
