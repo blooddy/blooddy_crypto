@@ -312,6 +312,7 @@ package by.blooddy.math {
 				var result:BigValue = new BigValue();
 				_mem.position = value.pos;
 				_mem.readBytes( result, 0, value.len );
+				result.negative = negative;
 				return result;
 			} else {
 				return null;
@@ -873,7 +874,69 @@ package by.blooddy.math {
 		 * @return		this + v
 		 */
 		public function add(v:BigInteger):BigInteger {
-			throw new IllegalOperationError( 'TODO' );
+			if ( !this._value ) return v;
+			else if ( !v._value ) return this;
+			else {
+
+				var l1:uint = this._value.length;
+				var l2:uint = v._value.length;
+				
+				var tmp:ByteArray = _domain.domainMemory;
+
+				_mem.position = 0;
+				_mem.writeBytes( this._value );
+				_mem.writeBytes(    v._value );
+				_mem.length = Math.max(
+					Math.max( l1, l2 ) + 4,
+					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
+				);
+				_domain.domainMemory = _mem;
+
+				var v1:BigUint = new BigUint( 0, l1 );
+				var v2:BigUint = new BigUint( v1.len, l2 );
+
+				var result:BigInteger;
+				
+				if ( this._value.negative == v._value.negative ) {
+
+					result = new BigInteger();
+					result._value = getValueFromBigUint(
+						BigUint.add( v1, v2, v2.pos + l2 ),
+						this._value.negative
+					);
+
+				} else {
+					
+					var c:int = BigUint.compare( v1, v2 );
+					if ( c > 0 ) {
+
+						result = new BigInteger();
+						result._value = getValueFromBigUint(
+							BigUint.sub( v1, v2, v2.pos + l2 ),
+							this._value.negative
+						);
+
+					} else if ( c < 0 ) {
+
+						result = new BigInteger();
+						result._value = getValueFromBigUint(
+							BigUint.sub( v2, v1, v2.pos + l2 ),
+							v._value.negative
+						);
+
+					} else {
+
+						result = ZERO;
+
+					}
+					
+				}
+				
+				_domain.domainMemory = tmp;
+
+				return result;
+
+			}
 		}
 
 		/**
@@ -904,7 +967,69 @@ package by.blooddy.math {
 		 * @return		this - v
 		 */
 		public function sub(v:BigInteger):BigInteger {
-			throw new IllegalOperationError( 'TODO' );
+			if ( !this._value ) return v;
+			else if ( !v._value ) return this;
+			else {
+				
+				var l1:uint = this._value.length;
+				var l2:uint = v._value.length;
+				
+				var tmp:ByteArray = _domain.domainMemory;
+				
+				_mem.position = 0;
+				_mem.writeBytes( this._value );
+				_mem.writeBytes(    v._value );
+				_mem.length = Math.max(
+					Math.max( l1, l2 ) + 4,
+					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
+				);
+				_domain.domainMemory = _mem;
+				
+				var v1:BigUint = new BigUint( 0, l1 );
+				var v2:BigUint = new BigUint( v1.len, l2 );
+				
+				var result:BigInteger;
+				
+				if ( this._value.negative != v._value.negative ) {
+					
+					result = new BigInteger();
+					result._value = getValueFromBigUint(
+						BigUint.add( v1, v2, v2.pos + l2 ),
+						this._value.negative
+					);
+					
+				} else {
+					
+					var c:int = BigUint.compare( v1, v2 );
+					if ( c > 0 ) {
+						
+						result = new BigInteger();
+						result._value = getValueFromBigUint(
+							BigUint.sub( v1, v2, v2.pos + l2 ),
+							this._value.negative
+						);
+						
+					} else if ( c < 0 ) {
+						
+						result = new BigInteger();
+						result._value = getValueFromBigUint(
+							BigUint.sub( v2, v1, v2.pos + l2 ),
+							!this._value.negative
+						);
+						
+					} else {
+						
+						result = ZERO;
+						
+					}
+					
+				}
+				
+				_domain.domainMemory = tmp;
+				
+				return result;
+				
+			}
 		}
 
 		/**
