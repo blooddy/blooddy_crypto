@@ -1036,7 +1036,38 @@ package by.blooddy.math {
 		 * @return		this * v
 		 */
 		public function mult(v:BigInteger):BigInteger {
-			throw new IllegalOperationError( 'TODO' );
+			if ( !this._value ) return v;
+			else if ( !v._value ) return this;
+			else {
+				
+				var l1:uint = this._value.length;
+				var l2:uint = v._value.length;
+				
+				var tmp:ByteArray = _domain.domainMemory;
+				
+				_mem.position = 0;
+				_mem.writeBytes( this._value );
+				_mem.writeBytes(    v._value );
+				_mem.length = Math.max(
+					l1 + l2 + 4,
+					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
+				);
+				_domain.domainMemory = _mem;
+				
+				var v1:BigUint = new BigUint( 0, l1 );
+				var v2:BigUint = new BigUint( v1.len, l2 );
+				
+				var result:BigInteger = new BigInteger();
+				result._value = getValueFromBigUint(
+					BigUint.mult( v1, v2, v2.pos + l2 ),
+					this._value.negative != v._value.negative
+				);
+				
+				_domain.domainMemory = tmp;
+				
+				return result;
+				
+			}
 		}
 
 		/**
