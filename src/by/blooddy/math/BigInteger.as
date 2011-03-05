@@ -1036,8 +1036,7 @@ package by.blooddy.math {
 		 * @return		this * v
 		 */
 		public function mult(v:BigInteger):BigInteger {
-			if ( !this._value ) return v;
-			else if ( !v._value ) return this;
+			if ( !this._value || !v._value ) return ZERO;
 			else {
 				
 				var l1:uint = this._value.length;
@@ -1074,7 +1073,36 @@ package by.blooddy.math {
 		 * @return		pow( this, e )
 		 */
 		public function powInt(e:uint):BigInteger {
-			throw new IllegalOperationError( 'TODO' );
+			if ( !this._value ) return ZERO;
+			else if ( e == 0 ) return ONE;
+			else if ( e == 1 ) return this;
+			else {
+				
+				var l1:uint = this._value.length;
+				
+				var tmp:ByteArray = _domain.domainMemory;
+				
+				_mem.position = 0;
+				_mem.writeBytes( this._value );
+				_mem.length = Math.max(
+					Math.pow( l1, e ) << 1,
+					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
+				);
+				_domain.domainMemory = _mem;
+				
+				var v1:BigUint = new BigUint( 0, l1 );
+
+				var result:BigInteger = new BigInteger();
+				result._value = getValueFromBigUint(
+					BigUint.powInt( v1, e, v1.pos + l1 ),
+					this._value.negative && ( e & 1 )
+				);
+
+				_domain.domainMemory = tmp;
+				
+				return result;
+				
+			}
 		}
 
 		/**
