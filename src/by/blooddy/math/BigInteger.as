@@ -814,15 +814,24 @@ package by.blooddy.math {
 			else if ( this._value.length < v._value.length ) return -1;
 			else {
 
+				var l1:uint = this._value.length;
+				var l2:uint = v._value.length;
+				
 				var tmp:ByteArray = _domain.domainMemory;
-
+				
 				_mem.position = 0;
 				_mem.writeBytes( this._value );
 				_mem.writeBytes(    v._value );
-				_mem.length = Math.max( _mem.position, ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH );
+				_mem.length = Math.max(
+					l1 + l2,
+					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
+				);
 				_domain.domainMemory = _mem;
-	
-				var result:int = BigUint.compare( new BigUint( 0, this._value.length ), new BigUint( this._value.length, v._value.length ) );
+				
+				var v1:BigUint = new BigUint( 0, l1 );
+				var v2:BigUint = new BigUint( l1, l2 );
+				
+				var result:int = BigUint.compare( v1, v2 );
 	
 				_domain.domainMemory = tmp;
 				return c1 * result;
@@ -887,13 +896,13 @@ package by.blooddy.math {
 				_mem.writeBytes( this._value );
 				_mem.writeBytes(    v._value );
 				_mem.length = Math.max(
-					Math.max( l1, l2 ) + 4,
+					l1 + l2 + Math.max( l1, l2 ) + 4,
 					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
 				);
 				_domain.domainMemory = _mem;
 
 				var v1:BigUint = new BigUint( 0, l1 );
-				var v2:BigUint = new BigUint( v1.len, l2 );
+				var v2:BigUint = new BigUint( l1, l2 );
 
 				var result:BigInteger;
 				
@@ -980,13 +989,13 @@ package by.blooddy.math {
 				_mem.writeBytes( this._value );
 				_mem.writeBytes(    v._value );
 				_mem.length = Math.max(
-					Math.max( l1, l2 ) + 4,
+					l1 + l2 + Math.max( l1, l2 ),
 					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
 				);
 				_domain.domainMemory = _mem;
 				
 				var v1:BigUint = new BigUint( 0, l1 );
-				var v2:BigUint = new BigUint( v1.len, l2 );
+				var v2:BigUint = new BigUint( l1, l2 );
 				
 				var result:BigInteger;
 				
@@ -1048,13 +1057,13 @@ package by.blooddy.math {
 				_mem.writeBytes( this._value );
 				_mem.writeBytes(    v._value );
 				_mem.length = Math.max(
-					l1 + l2 + 4,
+					( ( l1 + l2 ) << 1 ) + 4,
 					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
 				);
 				_domain.domainMemory = _mem;
 				
 				var v1:BigUint = new BigUint( 0, l1 );
-				var v2:BigUint = new BigUint( v1.len, l2 );
+				var v2:BigUint = new BigUint( l1, l2 );
 				
 				var result:BigInteger = new BigInteger();
 				result._value = getValueFromBigUint(
@@ -1085,7 +1094,7 @@ package by.blooddy.math {
 				_mem.position = 0;
 				_mem.writeBytes( this._value );
 				_mem.length = Math.max(
-					Math.pow( l1, e ) << 1,
+					l1 + ( Math.pow( l1, e ) << 1 ),
 					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
 				);
 				_domain.domainMemory = _mem;
@@ -1123,13 +1132,13 @@ package by.blooddy.math {
 				_mem.writeBytes( this._value );
 				_mem.writeBytes(    m._value );
 				_mem.length = Math.max(
-					( l1 + l2 ) << 1,
+					( l1 << 2 ) + l2 + 8,
 					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
 				);
 				_domain.domainMemory = _mem;
 
 				var v1:BigUint = new BigUint( 0, l1 );
-				var v2:BigUint = new BigUint( v1.len, l2 );
+				var v2:BigUint = new BigUint( l1, l2 );
 
 				var vv:Vector.<BigUint> = BigUint.divAndMod( v1, v2, v2.pos + l2 );
 
@@ -1170,13 +1179,13 @@ package by.blooddy.math {
 				_mem.writeBytes( this._value );
 				_mem.writeBytes(    m._value );
 				_mem.length = Math.max(
-					( l1 + l2 ) << 1,
+					l1 * 3 + l2 + 8,
 					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
 				);
 				_domain.domainMemory = _mem;
 				
 				var v1:BigUint = new BigUint( 0, l1 );
-				var v2:BigUint = new BigUint( v1.len, l2 );
+				var v2:BigUint = new BigUint( l1, l2 );
 				
 				var result:BigInteger = new BigInteger();
 				result._value = getValueFromBigUint(
@@ -1209,13 +1218,13 @@ package by.blooddy.math {
 				_mem.writeBytes( this._value );
 				_mem.writeBytes(    m._value );
 				_mem.length = Math.max(
-					( l1 + l2 ) << 1,
+					l1 * 3 + ( l2 << 1 ) + 8,
 					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
 				);
 				_domain.domainMemory = _mem;
 				
 				var v1:BigUint = new BigUint( 0, l1 );
-				var v2:BigUint = new BigUint( v1.len, l2 );
+				var v2:BigUint = new BigUint( l1, l2 );
 				
 				var result:BigInteger = new BigInteger();
 				result._value = getValueFromBigUint(
