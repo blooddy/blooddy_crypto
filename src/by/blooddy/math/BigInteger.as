@@ -1157,7 +1157,38 @@ package by.blooddy.math {
 		 * @throws		ArgumentError	m == 0
 		 */
 		public function div(m:BigInteger):BigInteger {
-			throw new IllegalOperationError( 'TODO' );
+			if ( !m._value ) throw new ArgumentError();
+			else if ( !this._value ) return ZERO;
+			else {
+				
+				var l1:uint = this._value.length;
+				var l2:uint = m._value.length;
+				
+				var tmp:ByteArray = _domain.domainMemory;
+				
+				_mem.position = 0;
+				_mem.writeBytes( this._value );
+				_mem.writeBytes(    m._value );
+				_mem.length = Math.max(
+					( l1 + l2 ) << 1,
+					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
+				);
+				_domain.domainMemory = _mem;
+				
+				var v1:BigUint = new BigUint( 0, l1 );
+				var v2:BigUint = new BigUint( v1.len, l2 );
+				
+				var result:BigInteger = new BigInteger();
+				result._value = getValueFromBigUint(
+					BigUint.div( v1, v2, v2.pos + l2 ),
+					this._value.negative != m._value.negative
+				);
+				
+				_domain.domainMemory = tmp;
+				
+				return result;
+				
+			}
 		}
 
 		/**
@@ -1165,7 +1196,38 @@ package by.blooddy.math {
 		 * @throws		ArgumentError	m == 0
 		 */
 		public function mod(m:BigInteger):BigInteger {
-			throw new IllegalOperationError( 'TODO' );
+			if ( !m._value ) throw new ArgumentError();
+			else if ( !this._value ) return ZERO;
+			else {
+				
+				var l1:uint = this._value.length;
+				var l2:uint = m._value.length;
+				
+				var tmp:ByteArray = _domain.domainMemory;
+				
+				_mem.position = 0;
+				_mem.writeBytes( this._value );
+				_mem.writeBytes(    m._value );
+				_mem.length = Math.max(
+					( l1 + l2 ) << 1,
+					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
+				);
+				_domain.domainMemory = _mem;
+				
+				var v1:BigUint = new BigUint( 0, l1 );
+				var v2:BigUint = new BigUint( v1.len, l2 );
+				
+				var result:BigInteger = new BigInteger();
+				result._value = getValueFromBigUint(
+					BigUint.mod( v1, v2, v2.pos + l2 ),
+					this._value.negative
+				);
+				
+				_domain.domainMemory = tmp;
+				
+				return result;
+				
+			}
 		}
 
 		/**

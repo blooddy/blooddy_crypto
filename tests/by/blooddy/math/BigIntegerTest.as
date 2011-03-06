@@ -111,7 +111,7 @@ package by.blooddy.math {
 		public function negate(v:String, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v ).negate();
 			Assert.assertEquals(
-				'-0x' + v.toLowerCase(),
+				'-' + v.toLowerCase(),
 				R.toString().toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -157,7 +157,7 @@ package by.blooddy.math {
 		public function testBit(v:String, n:uint, result:Boolean):void {
 			var R:Boolean = BigInteger.fromString( v ).testBit( n );
 			Assert.assertEquals(
-				'0x' + v.toLowerCase() + ' & ( 1 << ' + n + ' ) != 0',
+				v.toLowerCase() + ' & ( 1 << ' + n + ' ) != 0',
 				R, result
 			);
 		}
@@ -178,7 +178,7 @@ package by.blooddy.math {
 		public function setBit(v:String, n:uint, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v ).setBit( n );
 			Assert.assertEquals(
-				'0x' + v.toLowerCase() + ' | ' + '( 1 << ' + n + ' )',
+				v.toLowerCase() + ' | ' + '( 1 << ' + n + ' )',
 				R.toString().toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -199,7 +199,7 @@ package by.blooddy.math {
 		public function clearBit(v:String, n:uint, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v ).clearBit( n );
 			Assert.assertEquals(
-				'0x' + v.toLowerCase() + ' & ~( 1 << ' + n + ' )',
+				v.toLowerCase() + ' & ~( 1 << ' + n + ' )',
 				R.toString().toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -222,7 +222,7 @@ package by.blooddy.math {
 		public function flipBit(v:String, n:uint, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v ).flipBit( n );
 			Assert.assertEquals(
-				'0x' + v.toLowerCase() + ' ^ ( 1 << ' + n + ' )',
+				v.toLowerCase() + ' ^ ( 1 << ' + n + ' )',
 				R.toString().toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -244,7 +244,7 @@ package by.blooddy.math {
 		public function not(v:String, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v ).not();
 			Assert.assertEquals(
-				'~0x' + v.toLowerCase(),
+				'~' + v.toLowerCase(),
 				R.toString().toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -273,7 +273,7 @@ package by.blooddy.math {
 		public function and(v1:String, v2:String, result:String):void {
 			var R:String = BigInteger.fromString( v1 ).and( BigInteger.fromString( v2 ) ).toString();
 			Assert.assertEquals(
-				'0x' + v1.toLowerCase() + ' & 0x' + v2.toLowerCase(),
+				v1.toLowerCase() + ' & ' + v2.toLowerCase(),
 				R.toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -302,7 +302,7 @@ package by.blooddy.math {
 		public function andNot(v1:String, v2:String, result:String):void {
 			var R:String = BigInteger.fromString( v1 ).andNot( BigInteger.fromString( v2 ) ).toString();
 			Assert.assertEquals(
-				'0x' + v1.toLowerCase() + ' & ~0x' + v2.toLowerCase(),
+				v1.toLowerCase() + ' & ~' + v2.toLowerCase(),
 				R.toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -331,7 +331,7 @@ package by.blooddy.math {
 		public function or(v1:String, v2:String, result:String):void {
 			var R:String = BigInteger.fromString( v1 ).or( BigInteger.fromString( v2 ) ).toString();
 			Assert.assertEquals(
-				'0x' + v1.toLowerCase() + ' | 0x' + v2.toLowerCase(),
+				v1.toLowerCase() + ' | ' + v2.toLowerCase(),
 				R.toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -360,7 +360,7 @@ package by.blooddy.math {
 		public function xor(v1:String, v2:String, result:String):void {
 			var R:String = BigInteger.fromString( v1 ).xor( BigInteger.fromString( v2 ) ).toString();
 			Assert.assertEquals(
-				'0x' + v1.toLowerCase() + ' ^ 0x' + v2.toLowerCase(),
+				v1.toLowerCase() + ' ^ ' + v2.toLowerCase(),
 				R.toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -389,7 +389,7 @@ package by.blooddy.math {
 		public function shiftRight(v:String, n:uint, result:String):void {
 			var R:String = BigInteger.fromString( v ).shiftRight( n ).toString();
 			Assert.assertEquals(
-				'0x' + v.toLowerCase() + ' >> ' + n,
+				v.toLowerCase() + ' >> ' + n,
 				R.toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -416,7 +416,7 @@ package by.blooddy.math {
 		public function shiftLeft(v:String, n:uint, result:String):void {
 			var R:String = BigInteger.fromString( v ).shiftLeft( n ).toString();
 			Assert.assertEquals(
-				'0x' + v.toLowerCase() + ' << ' + n,
+				v.toLowerCase() + ' << ' + n,
 				R.toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -449,7 +449,7 @@ package by.blooddy.math {
 			}
 			var R:int = BigInteger.fromString( v1 ).compare( BigInteger.fromString( v2 ) );
 			Assert.assertEquals(
-				'0x' + v1.toLowerCase() + ' ' + F( R ) + ' 0x' + v2.toLowerCase(),
+				v1.toLowerCase() + ' ' + F( R ) + ' ' + v2.toLowerCase(),
 				R, result
 			);
 		}
@@ -473,7 +473,7 @@ package by.blooddy.math {
 		public function increment(v:String, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v ).increment();
 			Assert.assertEquals(
-				'0x' + v.toLowerCase() + '++',
+				v.toLowerCase() + '++',
 				R.toString().toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -505,7 +505,7 @@ package by.blooddy.math {
 		public function add(v1:String, v2:String, result:String):void {
 			var R:String = BigInteger.fromString( v1 ).add( BigInteger.fromString( v2 ) ).toString();
 			Assert.assertEquals(
-				'0x' + v1.toLowerCase() + ' + 0x' + v2.toLowerCase(),
+				v1.toLowerCase() + ' + ' + v2.toLowerCase(),
 				R.toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -530,7 +530,7 @@ package by.blooddy.math {
 		public function decrement(v:String, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v ).decrement();
 			Assert.assertEquals(
-				'0x' + v.toLowerCase() + '--',
+				v.toLowerCase() + '--',
 				R.toString().toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -564,7 +564,7 @@ package by.blooddy.math {
 		public function sub(v1:String, v2:String, result:String):void {
 			var R:String = BigInteger.fromString( v1 ).sub( BigInteger.fromString( v2 ) ).toString();
 			Assert.assertEquals(
-				'0x' + v1.toLowerCase() + ' - 0x' + v2.toLowerCase(),
+				v1.toLowerCase() + ' - ' + v2.toLowerCase(),
 				R.toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -636,7 +636,7 @@ package by.blooddy.math {
 		public function mult(v1:String, v2:String, result:String):void {
 			var R:String = BigInteger.fromString( v1 ).mult( BigInteger.fromString( v2 ) ).toString();
 			Assert.assertEquals(
-				'0x' + v1.toLowerCase() + ' * 0x' + v2.toLowerCase(),
+				v1.toLowerCase() + ' * ' + v2.toLowerCase(),
 				R.toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -664,7 +664,7 @@ package by.blooddy.math {
 		public function powInt(v:String, e:uint, result:String):void {
 			var R:String = BigInteger.fromString( v ).powInt( e ).toString();
 			Assert.assertEquals(
-				'pow( 0x' + v.toLowerCase() + ', ' + e + ' )',
+				'pow( ' + v.toLowerCase() + ', ' + e + ' )',
 				R.toLowerCase(), result.toLowerCase()
 			);
 		}
@@ -738,9 +738,66 @@ package by.blooddy.math {
 		public function divAndMod(v:String, m:String, result:String, rest:String):void {
 			var R:Vector.<BigInteger> = BigInteger.fromString( v ).divAndMod( BigInteger.fromString( m ) );
 			Assert.assertEquals(
-				'0x' + v.toLowerCase() + ' / 0x' + m.toLowerCase(),
+				v.toLowerCase() + ' / ' + m.toLowerCase(),
 				R.join( ',' ).toString().toLowerCase(), [ result, rest ].join( ',' ).toLowerCase()
 			);
+		}
+		
+		//----------------------------------
+		//  divAndMod_error
+		//----------------------------------
+		
+		public static var $divAndMod_error:Array = [
+			[ '123456', '0' ]
+		];
+		
+		[Test( order="22", dataProvider="$divAndMod_error", expects="ArgumentError" )]
+		public function divAndMod_error(v:String, m:String):void {
+			BigInteger.fromString( v ).divAndMod( BigInteger.fromString( m ) )
+		}
+		
+		//----------------------------------
+		//  div
+		//----------------------------------
+		
+		[Test( order="23", dataProvider="$divAndMod" )]
+		public function div(v:String, m:String, result:String, rest:String):void {
+			var R:String = BigInteger.fromString( v ).div( BigInteger.fromString( m ) ).toString();
+			Assert.assertEquals(
+				v.toLowerCase() + ' / ' + m.toLowerCase(),
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  div_error
+		//----------------------------------
+		
+		[Test( order="24", dataProvider="$divAndMod_error", expects="ArgumentError" )]
+		public function div_error(v:String, m:String):void {
+			BigInteger.fromString( v ).div( BigInteger.fromString( m ) )
+		}
+		
+		//----------------------------------
+		//  mod
+		//----------------------------------
+		
+		[Test( order="25", dataProvider="$divAndMod" )]
+		public function mod(v:String, m:String, result:String, rest:String):void {
+			var R:String = BigInteger.fromString( v ).mod( BigInteger.fromString( m ) ).toString();
+			Assert.assertEquals(
+				v.toLowerCase() + ' % ' + m.toLowerCase(),
+				R.toLowerCase(), rest.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  mod_error
+		//----------------------------------
+		
+		[Test( order="26", dataProvider="$divAndMod_error", expects="ArgumentError" )]
+		public function mod_error(v:String, m:String):void {
+			BigInteger.fromString( v ).mod( BigInteger.fromString( m ) )
 		}
 		
 	}
