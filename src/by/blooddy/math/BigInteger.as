@@ -1077,11 +1077,11 @@ package by.blooddy.math {
 			else if ( e == 0 ) return ONE;
 			else if ( e == 1 ) return this;
 			else {
-				
+
 				var l1:uint = this._value.length;
-				
+
 				var tmp:ByteArray = _domain.domainMemory;
-				
+
 				_mem.position = 0;
 				_mem.writeBytes( this._value );
 				_mem.length = Math.max(
@@ -1089,7 +1089,7 @@ package by.blooddy.math {
 					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
 				);
 				_domain.domainMemory = _mem;
-				
+
 				var v1:BigUint = new BigUint( 0, l1 );
 
 				var result:BigInteger = new BigInteger();
@@ -1099,9 +1099,9 @@ package by.blooddy.math {
 				);
 
 				_domain.domainMemory = tmp;
-				
+
 				return result;
-				
+
 			}
 		}
 
@@ -1110,7 +1110,46 @@ package by.blooddy.math {
 		 * @throws		ArgumentError	m == 0
 		 */
 		public function divAndMod(m:BigInteger):Vector.<BigInteger> {
-			throw new IllegalOperationError( 'TODO' );
+			if ( !m._value ) throw new ArgumentError();
+			else if ( !this._value ) return new <BigInteger>[ ZERO, ZERO ];
+			else {
+				
+				var l1:uint = this._value.length;
+				var l2:uint = m._value.length;
+				
+				var tmp:ByteArray = _domain.domainMemory;
+				
+				_mem.position = 0;
+				_mem.writeBytes( this._value );
+				_mem.writeBytes(    m._value );
+				_mem.length = Math.max(
+					( l1 + l2 ) << 1,
+					ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
+				);
+				_domain.domainMemory = _mem;
+
+				var v1:BigUint = new BigUint( 0, l1 );
+				var v2:BigUint = new BigUint( v1.len, l2 );
+
+				var vv:Vector.<BigUint> = BigUint.divAndMod( v1, v2, v2.pos + l2 );
+
+				var result:Vector.<BigInteger> = new Vector.<BigInteger>( 2, true );
+				result[ 0 ] = new BigInteger();
+				result[ 0 ]._value = getValueFromBigUint(
+					vv[ 0 ],
+					this._value.negative != m._value.negative
+				);
+				result[ 1 ] = new BigInteger();
+				result[ 1 ]._value = getValueFromBigUint(
+					vv[ 1 ],
+					this._value.negative
+				);
+
+				_domain.domainMemory = tmp;
+				
+				return result;
+				
+			}
 		}
 
 		/**
