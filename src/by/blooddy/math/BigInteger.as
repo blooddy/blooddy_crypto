@@ -917,26 +917,21 @@ package by.blooddy.math {
 				} else {
 					
 					var c:int = BigUint.compare( v1, v2 );
-					if ( c > 0 ) {
-
-						result = new BigInteger();
-						result._value = getValueFromBigUint(
-							BigUint.sub( v1, v2, v2.pos + l2 ),
-							this._value.negative
-						);
-
-					} else if ( c < 0 ) {
-
-						result = new BigInteger();
-						result._value = getValueFromBigUint(
-							BigUint.sub( v2, v1, v2.pos + l2 ),
-							v._value.negative
-						);
-
-					} else {
-
+					if ( c == 0 ) {
 						result = ZERO;
-
+					} else {
+						result = new BigInteger();
+						if ( c > 0 ) {
+							result._value = getValueFromBigUint(
+								BigUint.sub( v1, v2, v2.pos + l2 ),
+								this._value.negative
+							);
+						} else {
+							result._value = getValueFromBigUint(
+								BigUint.sub( v2, v1, v2.pos + l2 ),
+								v._value.negative
+							);
+						}
 					}
 					
 				}
@@ -1010,26 +1005,21 @@ package by.blooddy.math {
 				} else {
 					
 					var c:int = BigUint.compare( v1, v2 );
-					if ( c > 0 ) {
-						
-						result = new BigInteger();
-						result._value = getValueFromBigUint(
-							BigUint.sub( v1, v2, v2.pos + l2 ),
-							this._value.negative
-						);
-						
-					} else if ( c < 0 ) {
-						
-						result = new BigInteger();
-						result._value = getValueFromBigUint(
-							BigUint.sub( v2, v1, v2.pos + l2 ),
-							!this._value.negative
-						);
-						
-					} else {
-						
+					if ( c == 0 ) {
 						result = ZERO;
-						
+					} else {
+						result = new BigInteger();
+						if ( c > 0 ) {
+							result._value = getValueFromBigUint(
+								BigUint.sub( v1, v2, v2.pos + l2 ),
+								this._value.negative
+							);
+						} else {
+							result._value = getValueFromBigUint(
+								BigUint.sub( v2, v1, v2.pos + l2 ),
+								!this._value.negative
+							);
+						}
 					}
 					
 				}
