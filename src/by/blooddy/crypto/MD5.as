@@ -52,27 +52,66 @@ package by.blooddy.crypto {
 
 			// бинарники могут быть очень большими, и его копирование может быть
 			// слишким дорогим. поэтому копируем только паизменяемую часть
-			var tmpPos:uint = Math.max( 0, bytes.length - 64 );
-			var tmpLength:uint = bytes.length + 64 - tmpPos;
-			var tmp:ByteArray = new ByteArray();
-			bytes.position = tmpPos;
+			var padPos:uint = Math.max( 0, bytes.length - 64 );
+			var pad:ByteArray = new ByteArray();
+			bytes.position = padPos;
 			bytes.length += 64;
-			bytes.readBytes( tmp, 0, tmpLength );
+			bytes.readBytes( pad, 0, bytes.length - padPos );
 			bytes.length -= 64;
 
 			var result:String = _hashBytes( bytes );
 
-			bytes.position = tmpPos;
-			bytes.writeBytes( tmp );
+			bytes.position = padPos;
+			bytes.writeBytes( pad );
 
 			bytes.length = len;
 			bytes.position = pos;
 
 			return result;
+
 		}
 
 		public static function digest(bytes:ByteArray):ByteArray {
-			return null;
+
+			var pos:uint = bytes.position;
+			var len:uint = bytes.length;
+			
+			// бинарники могут быть очень большими, и его копирование может быть
+			// слишким дорогим. поэтому копируем только паизменяемую часть
+			var padPos:uint = Math.max( 0, bytes.length - 64 );
+			var pad:ByteArray = new ByteArray();
+			bytes.position = padPos;
+			bytes.length += 64;
+			bytes.readBytes( pad, 0, bytes.length - padPos );
+			bytes.length -= 64;
+			
+			var tmp:ByteArray = _domain.domainMemory;
+			
+			var k:uint = len & 63;
+			
+			bytes.length = Math.max(
+				len + ( k ? 128 - k : 64 ),
+				ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
+			);
+			
+			_domain.domainMemory = bytes;
+			
+			_digest( len );
+			
+			_domain.domainMemory = tmp;
+			
+			var result:ByteArray = new ByteArray();
+			bytes.position = len;
+			bytes.readBytes( result, 16 );
+
+			bytes.position = padPos;
+			bytes.writeBytes( pad );
+
+			bytes.length = len;
+			bytes.position = pos;
+
+			return result;
+
 		}
 
 		//--------------------------------------------------------------------------
