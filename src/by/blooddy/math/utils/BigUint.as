@@ -455,12 +455,12 @@ package by.blooddy.math.utils {
 					var i:uint = 0;
 					var r1:uint = n & 31;
 					var r2:uint = 32 - r1;
-					var t1:int;
-					var t2:int = 0;
+					var t1:uint;
+					var t2:uint = 0;
 					do {
 						t1 = Memory.getI32( p + i );
 						Memory.setI32( s + i, ( t1 << r1 ) | t2 );
-						t2 = t1 >> r2;
+						t2 = t1 >>> r2;
 						i += 4;
 					} while ( i < l );
 					if ( t2 != 0 ) {
@@ -662,7 +662,7 @@ package by.blooddy.math.utils {
 						throw new ArgumentError();
 					} else {
 						var len:uint = 0;
-						var temp:int = 0;
+						var temp:Number = 0;
 						do {
 							temp += uint( Memory.getI32( p1 + len ) ) - uint( Memory.getI32( p2 + len ) );
 							if ( temp < 0 ) {
