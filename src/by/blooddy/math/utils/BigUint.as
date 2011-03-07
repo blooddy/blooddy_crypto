@@ -477,7 +477,18 @@ package by.blooddy.math.utils {
 		 * @return		( v1 > v2 ? 1 : ( v2 > v1 ? -1 : 0 )
 		 */
 		public static function compare(v1:BigUint, v2:BigUint):int {
-			return _compare( v1.pos, v1.len, v2.pos, v2.len );
+			CRYPTO::inline {
+				var p1:uint = v1.pos;
+				var l1:uint = v1.len;
+				var p2:uint = v2.pos;
+				var l2:uint = v2.len;
+				var c:int, i:uint, c1:uint, c2:uint;
+				BigUint$.compare( p1, l1, p2, l2, c, i, c1, c2 );
+				return c;
+			}
+			CRYPTO::debug {
+				return _compare( v1.pos, v1.len, v2.pos, v2.len );
+			}
 		}
 
 		/**
@@ -716,13 +727,13 @@ package by.blooddy.math.utils {
 				// смотрим является ли число степенью двойки
 				CRYPTO::inline {
 					// TODO: переиспользование e1/2 ?
-					BigUint$.getShift( p1, l1, e1, c1 );
-					BigUint$.getShift( p2, l2, e2, c2 );
+					BigUint$.get2Pow( p1, l1, e1, c1 );
+					BigUint$.get2Pow( p2, l2, e2, c2 );
 					var mem:ByteArray;
 				}
 				CRYPTO::debug {
-					e1 = _getShift( p1, l1 );
-					e2 = _getShift( p2, l2 );
+					e1 = _get2Pow( p1, l1 );
+					e2 = _get2Pow( p2, l2 );
 				}
 				if ( e1 >= 0 || e2 >= 0 ) {	// одно из чисел степень двойки
 					if ( e1 == 0 ) {		//	v1 == 1
@@ -802,11 +813,11 @@ package by.blooddy.math.utils {
 			} else {
 				var _e:int;
 				CRYPTO::inline {
-					BigUint$.getShift( p, l, _e, c );
+					BigUint$.get2Pow( p, l, _e, c );
 					var mem:ByteArray;
 				}
 				CRYPTO::debug {
-					_e = _getShift( p, l );
+					_e = _get2Pow( p, l );
 				}
 				if ( _e == 0 ) {	// v == 1
 					return v;
@@ -1073,10 +1084,10 @@ package by.blooddy.math.utils {
 				} else {
 					var i:int;
 					CRYPTO::inline {
-						BigUint$.getShift( p2, l2, i, c1 );
+						BigUint$.get2Pow( p2, l2, i, c1 );
 					}
 					CRYPTO::debug {
-						i = _getShift( p2, l2 );
+						i = _get2Pow( p2, l2 );
 					}
 					if ( i == 0 ) {	// m == 1
 						return v;
@@ -1268,7 +1279,7 @@ package by.blooddy.math.utils {
 		/**
 		 * @private
 		 */
-		private static function _getShift(pos:uint, len:uint):int {
+		private static function _get2Pow(pos:uint, len:uint):int {
 			var c:uint = pos + len - 4;
 			var e:int = Memory.getI32( c );
 			if ( ( e & ( e - 1 ) ) == 0 ) {
@@ -1388,6 +1399,7 @@ package by.blooddy.math.utils {
 			return new BigUint( pos, s - pos + 4 );
 		}
 
+		CRYPTO::debug
 		/**
 		 * @private
 		 * @return		( v1 < v2 ? v2 : v1 )
@@ -2111,12 +2123,17 @@ package by.blooddy.math.utils {
 		 */
 		private static function _modPowInt_simple(p1:uint, l1:uint, e:uint, v2:uint, pos:uint):BigUint {
 			var r:uint;
+			var g:uint;
 			if ( l1 == 4 ) {
 				r = uint( Memory.getI32( p1 ) ) % v2;
 			} else {
-				r = _mod_s( p1, l1, v2 );
+				CRYPTO::inline {
+					BigUint$.mod_s( p1, l1, v2, r, g );
+				}
+				CRYPTO::debug {
+					r = _mod_s( p1, l1, v2 );
+				}
 			}
-			var g:uint;
 			if ( r > 0 ) {
 				g = 1;
 				do {
@@ -2143,38 +2160,105 @@ package by.blooddy.math.utils {
 		 * @return		pow( v1, e ) % v2;
 		 */
 		private static function _modPowInt_classic(p1:uint, l1:uint, e:uint, p2:uint, l2:uint, pos:uint):BigUint {
-			var r:BigUint;
-			if ( _compare( p1, l1, p2, l2 ) >= 0 ) {
-				r = _mod( p1, l1, p2, l2, pos );
-				pos += r.pos + r.len;
-			} else {
-				r = new BigUint( p1, l1 );
-			}
-			var g:BigUint;
-			if ( r.len > 0 ) {
-				do {
-					if ( e & 1 ) {
-						if ( g ) {
-							g = _mult( g.pos, g.len, r.pos, r.len, pos );
-							pos = g.pos + g.len;
-							g = _mod( g.pos, g.len, p2, l2, pos );
-							pos = g.pos + g.len;
-						} else {
-							g = r;
+			CRYPTO::inline {
+				var _p2:uint = p2;
+				var _l2:uint = l2;
+				var len:uint;
+				var c1:uint, c2:uint;
+				var mem:ByteArray = _domain.domainMemory;
+				var scale:uint, k:uint, t1:uint, t2:uint, t3:int, qGuess:int, borrow:int, carry:int, j:int, i:int;
+				BigUint$.compare( p1, l1, p2, l2, i, k, c1, c2 );
+				if ( i > 0 ) {
+					BigUint$.mod( mem, p1, l1, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
+					p1 = pos;
+					l1 = len;
+					pos += len;
+				} else if ( i == 0 ) {
+					l1 = 0;
+				}
+				var p3:uint;
+				var l3:uint;
+				if ( l1 > 0 ) {
+					do {
+						if ( e & 1 ) {
+							if ( l3 ) {
+								BigUint$.mult( mem, p1, l1, p3, l3, pos, len, c1, c2, t1, t2, k );
+								p3 = pos;
+								l3 = len;
+								pos += len;
+								if ( l3 >= l2 ) {
+									p2 = _p2;
+									l2 = _l2;
+									BigUint$.mod( mem, p3, l3, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
+									p3 = pos;
+									l3 = len;
+									pos += len;
+								}
+							} else {
+								p3 = p1;
+								l3 = l1;
+							}
 						}
-					}
-					e >>>= 1;
-					if ( e > 0 ) {
-						r = _sqr( r.pos, r.len, pos );
-						pos = r.pos + r.len;
-						r = _mod( r.pos, r.len, p2, l2, pos );
-						pos = r.pos + r.len;
-					}
-				} while ( e > 0 && ( !g || g.len > 0 ) );
-			} else {
-				g = r;
+						e >>>= 1;
+						if ( e ) {
+							BigUint$.sqr( mem, p1, l1, pos, len, c1, c2, t1, t2, k );
+							p1 = pos;
+							l1 = len;
+							pos += len;
+							if ( l1 >= l2 ) {
+								p2 = _p2;
+								l2 = _l2;
+								BigUint$.mod( mem, p1, l1, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
+								p1 = pos;
+								l1 = len;
+								pos += len;
+							}
+						}
+					} while ( e ); // TODO: заоптимизировать проверку длинны результата
+				} else {
+					p3 = p1;
+					l3 = l1;
+				}
+				return new BigUint( p3, l3 );
 			}
-			return g;
+			CRYPTO::debug {
+				var r:BigUint;
+				if ( _compare( p1, l1, p2, l2 ) >= 0 ) {
+					r = _mod( p1, l1, p2, l2, pos );
+					pos += r.pos + r.len;
+				} else {
+					r = new BigUint( p1, l1 );
+				}
+				var g:BigUint;
+				if ( r.len > 0 ) {
+					do {
+						if ( e & 1 ) {
+							if ( g ) {
+								g = _mult( g.pos, g.len, r.pos, r.len, pos );
+								pos = g.pos + g.len;
+								if ( g.len >= l2 ) {
+									g = _mod( g.pos, g.len, p2, l2, pos );
+									pos = g.pos + g.len;
+								}
+							} else {
+								g = r;
+							}
+						}
+						e >>>= 1;
+						if ( e > 0 ) {
+							r = _sqr( r.pos, r.len, pos );
+							pos = r.pos + r.len;
+							if ( r.len >= l2 ) {
+								r = _mod( r.pos, r.len, p2, l2, pos );
+								pos = r.pos + r.len;
+							}
+						}
+					} while ( e > 0 && ( !g || g.len > 0 ) );
+				} else {
+					g = r;
+				}
+				return g;
+			}
 		}
 
 		//--------------------------------------------------------------------------
