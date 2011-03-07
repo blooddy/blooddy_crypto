@@ -289,6 +289,7 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 		
 		/**
+		 * @private
 		 * Constructor
 		 */
 		public function Base64() {

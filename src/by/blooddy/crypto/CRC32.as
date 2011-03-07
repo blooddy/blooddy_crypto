@@ -124,6 +124,7 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 
 		/**
+		 * @private
 		 * Constructor
 		 */
 		public function CRC32() {
