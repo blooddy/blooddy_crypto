@@ -51,7 +51,7 @@ package by.blooddy.math.utils {
 		}
 
 		[Inline( "direct_copy" )]
-		public static function getShift(pos:uint, len:uint, e:int, c:uint):void {
+		public static function get2Pow(pos:uint, len:uint, e:int, c:uint):void {
 			c = pos + len - 4;
 			e = Memory.getI32( c );
 			if ( ( e & ( e - 1 ) ) == 0 ) {
@@ -90,6 +90,33 @@ package by.blooddy.math.utils {
 			len = s - pos + 4;
 		}
 
+		[Inline( "direct_copy" )]
+		/**
+		 * result = ( v1 < v2 ? v2 : v1 )
+		 */
+		public static function compare(p1:uint, l1:uint, p2:uint, l2:uint, c:int, i:uint, c1:uint, c2:uint):void {
+			if ( l1 > l2 ) {
+				c = 1;
+			} else if ( l2 > l1 ) {
+				c = -1;
+			} else {
+				c = 0;
+				i = l1;
+				do {
+					i -= 4;
+					c1 = Memory.getI32( p1 + i );
+					c2 = Memory.getI32( p2 + i );
+					if ( c1 > c2 ) {
+						c = 1;
+						break;
+					} else if ( c2 > c1 ) {
+						c = -1;
+						break;
+					}
+				} while ( i > 0 );
+			}
+		}
+		
 		[Inline( "direct_copy" )]
 		/**
 		 * result = v1 * v2
@@ -272,7 +299,7 @@ package by.blooddy.math.utils {
 			scale = Memory.getUI16( p2 + l2 - 2 );
 			if ( !scale ) scale = Memory.getUI16( p2 + l2 - 4 );
 			scale = 0x10000 / ( scale + 1 ); // коэффициент нормализации
-			
+
 			if ( scale > 1 ) {
 				// Нормализация
 				BigUint$.mult_s( p1, l1, scale, pos, len, k );
@@ -315,10 +342,9 @@ package by.blooddy.math.utils {
 			i = l1;
 			do {
 				t1 = Memory.getI32( p1 + i - 2 )
-				t2 = c2;
 				
-				qGuess = t1 / t2;
-				k = t1 % t2;
+				qGuess = t1 / c2;
+				k = t1 % c2;
 				
 				// Пока не будут выполнены условия (2) уменьшать частное.
 				while ( k < 0x10000 ) {
@@ -499,10 +525,9 @@ package by.blooddy.math.utils {
 			i = l1;
 			do {
 				t1 = Memory.getI32( p1 + i - 2 )
-				t2 = c2;
 				
-				qGuess = t1 / t2;
-				k = t1 % t2;
+				qGuess = t1 / c2;
+				k = t1 % c2;
 				
 				// Пока не будут выполнены условия (2) уменьшать частное.
 				while ( k < 0x10000 ) {
@@ -647,14 +672,13 @@ package by.blooddy.math.utils {
 				Memory.setI16( pos, 0 );
 				pos += 2;
 			}
-			
+
 			while ( Memory.getUI16( p1 + l1 - 2 ) == 0 ) l1 -= 2;
 			while ( Memory.getUI16( p2 + l2 - 2 ) == 0 ) l2 -= 2;
-			
+
 			c2 = Memory.getUI16( p2 + l2 - 2 );
 			c4 = Memory.getUI16( p2 + l2 - 4 );
-			
-			
+
 			// Главный цикл шагов деления. Каждая итерация дает очередную цифру частного.
 			// qGuess - догадка для частного и соответствующий остаток
 			// borrow, carry - переносы
@@ -665,10 +689,9 @@ package by.blooddy.math.utils {
 			i = l1;
 			do {
 				t1 = Memory.getI32( p1 + i - 2 )
-				t2 = c2;
 				
-				qGuess = t1 / t2;
-				k = t1 % t2;
+				qGuess = t1 / c2;
+				k = t1 % c2;
 				
 				// Пока не будут выполнены условия (2) уменьшать частное.
 				while ( k < 0x10000 ) {
