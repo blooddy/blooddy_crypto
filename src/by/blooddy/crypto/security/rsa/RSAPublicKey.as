@@ -161,29 +161,25 @@ package by.blooddy.crypto.security.rsa {
 				while ( j > 0 && Memory.getI32( pos + ob + j - 4 ) == 0 ) {
 					j -= 4;
 				}
-				
+
 				bu = BigUint.modPowInt( new BigUint( pos + ob, j ), this.e, this.n, pos + ob + j );
 
-				mem.position = bu.pos;
-				mem.readBytes( mem, pos, bu.len );
+				// reverse
+				// TODO: create method
+				j = 0;
+				do {
+					Memory.setI8( pos + j, Memory.getUI8( bu.pos + bu.len - j - 1 ) );
+				} while ( ++j < bu.len );
 
 				i += ib;
 				pos += ob;
 
 			}
 
-			// reverse
-			// TODO: create method
-			i = pos - p;
-			do {
-				--i;
-				Memory.setI8( pos + i, Memory.getUI8( pos - i - 1 ) );
-			} while ( i > 0 );
-			
 			_domain.domainMemory = tmp;
 
 			var result:ByteArray = new ByteArray();
-			mem.position = pos;
+			mem.position = p;
 			mem.readBytes( result, 0, pos - p );
 			return result;
 		}
