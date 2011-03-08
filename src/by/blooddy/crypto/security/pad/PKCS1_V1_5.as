@@ -125,16 +125,16 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 		var tj:uint;
 		
 		do {
-			
+
 			do {
 				if ( ++i > 0xFF ) i &= 0xFF;
 				ti = Memory.getUI8( p + i );
 				j += ti;
 				if ( j > 0xFF ) j &= 0xFF;
-				tj = Memory.getUI8( j );
+				tj = Memory.getUI8( p + j );
 				Memory.setI8( p + i, tj );
 				Memory.setI8( p + j, ti );
-				t = Memory.getUI8( ti + tj );
+				t = Memory.getUI8( p + ( ( ti + tj ) & 0xFF ) );
 			} while ( t == 0 );
 			Memory.setI8( pos, t );
 			++pos;
