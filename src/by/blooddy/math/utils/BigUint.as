@@ -1192,13 +1192,11 @@ package by.blooddy.math.utils {
 		 * @return		pow( v, e ) % m
 		 * @throws		ArgumentError	m == 0
 		 */
-		public static function modPowInt(v:BigUint, e:int, m:BigUint, pos:uint):BigUint {
+		public static function modPowInt(v:BigUint, e:uint, m:BigUint, pos:uint):BigUint {
 			var l1:uint = v.len;
 			var l2:uint = m.len;
 			if ( l2 == 0 ) {
 				throw new ArgumentError();
-			} else if ( l1 == 0 ) {
-				return v;
 			} else if ( e == 1 ) {
 				return mod( v, m, pos );
 			} else {
@@ -1211,6 +1209,8 @@ package by.blooddy.math.utils {
 				} else if ( e == 0 ) {
 					Memory.setI32( pos, 1 );
 					return new BigUint( pos, 4 );
+				} else if ( l1 == 0 ) {
+					return v;
 				} else if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) {
 					return _modPowInt_simple( p1, l1, e, uint( Memory.getI32( p2 ) ), pos );
 				} else /*if ( e < 256 || !( Memory.getUI8( p2 ) & 1 ) )*/ {
@@ -1220,6 +1220,16 @@ package by.blooddy.math.utils {
 		}
 
 		public static function modPow(v:BigUint, e:BigUint, m:BigUint, pos:uint):BigUint {
+			var l1:uint = v.len;
+			var l2:uint = m.len;
+			var le:uint = e.len;
+			if ( l2 == 0 ) {
+				throw new ArgumentError();
+			} else if ( le <= 4 ) {
+				return modPowInt( v, ( le ? Memory.getI32( e.pos ) : 0 ), m, pos );
+			} else {
+				
+			}
 			throw new IllegalOperationError( 'TODO' );
 		}
 
