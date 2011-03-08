@@ -7,8 +7,11 @@
 package by.blooddy.crypto.security.rsa {
 
 	import by.blooddy.crypto.security.pad.IPad;
+	import by.blooddy.crypto.security.pad.MemoryPad;
 	import by.blooddy.crypto.security.pad.PKCS1_V1_5;
+	import by.blooddy.crypto.security.utils.MemoryBlock;
 	import by.blooddy.math.utils.BigUint;
+	import by.blooddy.system.Memory;
 	
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
@@ -116,9 +119,12 @@ package by.blooddy.crypto.security.rsa {
 
 			pad.blockSize = ob;
 
+			var mpad:MemoryPad = pad as MemoryPad;
+			
 			var s:uint = this.bytes.length;
 			var e:uint = s + bytes.length;
 			var i:uint = s;
+			var j:uint;
 
 			var p:uint = e;
 			var pos:uint = p;
@@ -130,14 +136,33 @@ package by.blooddy.crypto.security.rsa {
 
 				if ( i + ib >= e ) ib = e - i;
 
-				// optimize to memory
-				block = new ByteArray();
-				block.writeBytes( mem, i, ib );
-				block = pad.pad( block );
-				block.position = 0;
-				block.readBytes( mem, pos );
+				// pad block
+				if ( mpad ) {
+					mpad.padMemory( new MemoryBlock( i, ib ), pos );
+				} else {
+					if ( block ) block.length = 0;
+					else block = new ByteArray();
+					block.writeBytes( mem, i, ib );
+					block = pad.pad( block );
+					block.position = 0;
+					block.readBytes( mem, pos );
+				}
 
-				bu = BigUint.modPowInt( new BigUint( pos, ob ), this.e, this.n, pos + ob );
+				// create BigUint
+				// TODO: create method
+				j = 0;
+				do {
+					Memory.setI8( pos + ob + j, Memory.getUI8( pos + ob - j - 1 ) );
+				} while ( ++j < ob );
+				while ( j & 3 ) {
+					Memory.setI8( pos + ob + j, 0 );
+					++j;
+				}
+				while ( j > 0 && Memory.getI32( pos + ob + j - 4 ) == 0 ) {
+					j -= 4;
+				}
+				
+				bu = BigUint.modPowInt( new BigUint( pos + ob, j ), this.e, this.n, pos + ob + j );
 
 				mem.position = bu.pos;
 				mem.readBytes( mem, pos, bu.len );
@@ -147,10 +172,18 @@ package by.blooddy.crypto.security.rsa {
 
 			}
 
+			// reverse
+			// TODO: create method
+			i = pos - p;
+			do {
+				--i;
+				Memory.setI8( pos + i, Memory.getUI8( pos - i - 1 ) );
+			} while ( i > 0 );
+			
 			_domain.domainMemory = tmp;
 
 			var result:ByteArray = new ByteArray();
-			mem.position = p;
+			mem.position = pos;
 			mem.readBytes( result, 0, pos - p );
 			return result;
 		}
