@@ -66,7 +66,7 @@ package by.blooddy.crypto.security.utils {
 						default:	throw null;
 					}
 					t = t.seq[ 1 ];
-					t = DER.readMemory( t.pos, t.pos + t.len );
+					t = DER.readMemory( t.block.pos, t.block.pos + t.block.len );
 
 				} else if ( type ) {
 					throw null;
@@ -81,7 +81,7 @@ package by.blooddy.crypto.security.utils {
 						default:	throw null;
 					}
 					t = t.seq[ 2 ];
-					t = DER.readMemory( t.pos, t.pos + t.len );
+					t = DER.readMemory( t.block.pos, t.block.pos + t.block.len );
 
 				} else if ( type ) {
 					throw null;

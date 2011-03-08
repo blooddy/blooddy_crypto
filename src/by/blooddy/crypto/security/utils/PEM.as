@@ -81,6 +81,10 @@ package by.blooddy.crypto.security.utils {
 		//
 		//--------------------------------------------------------------------------
 
+		/**
+		 * @private
+		 * Constructor
+		 */
 		public function PEM() {
 			super();
 			if ( !_privateCall ) Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );

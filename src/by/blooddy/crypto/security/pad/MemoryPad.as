@@ -6,7 +6,7 @@
 
 package by.blooddy.crypto.security.pad {
 	
-	import apparat.memory.MemoryBlock;
+	import by.blooddy.crypto.security.utils.MemoryBlock;
 	
 	import flash.errors.IllegalOperationError;
 	import flash.system.ApplicationDomain;
@@ -31,7 +31,7 @@ package by.blooddy.crypto.security.pad {
 		/**
 		 * @private
 		 */
-		protected static const _CURRENT_DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
+		protected static const _domain:ApplicationDomain = ApplicationDomain.currentDomain;
 
 		//--------------------------------------------------------------------------
 		//
@@ -84,21 +84,21 @@ package by.blooddy.crypto.security.pad {
 
 			if ( bytes.length <= 0 || bytes.length > this._blockSize ) throw new ArgumentError();
 			
-			var tmp:ByteArray = _CURRENT_DOMAIN.domainMemory;
+			var tmp:ByteArray = _domain.domainMemory;
 
 			var mem:ByteArray = new ByteArray();
 			mem.writeBytes( bytes );
 			mem.length += this._blockSize + 1024; // запас на всякие расходные расчёты
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
-			_CURRENT_DOMAIN.domainMemory = mem;
+			_domain.domainMemory = mem;
 
-			var block:MemoryPadBlock;
+			var block:MemoryBlock;
 			try {
 
-				block = this.padMemory( new MemoryPadBlock( 0, bytes.length ), bytes.length );
+				block = this.padMemory( new MemoryBlock( 0, bytes.length ), bytes.length );
 
 			} finally {
-				_CURRENT_DOMAIN.domainMemory = tmp;
+				_domain.domainMemory = tmp;
 			}
 
 			var result:ByteArray = new ByteArray();
@@ -115,21 +115,21 @@ package by.blooddy.crypto.security.pad {
 
 			if ( bytes.length <= 0 || bytes.length != this._blockSize ) throw new ArgumentError();
 			
-			var tmp:ByteArray = _CURRENT_DOMAIN.domainMemory;
+			var tmp:ByteArray = _domain.domainMemory;
 			
 			var mem:ByteArray = new ByteArray();
 			mem.writeBytes( bytes );
 			mem.length += this._blockSize + 1024; // запас на всякие расходные расчёты
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
-			_CURRENT_DOMAIN.domainMemory = mem;
+			_domain.domainMemory = mem;
 			
-			var block:MemoryPadBlock;
+			var block:MemoryBlock;
 			try {
 				
-				block = this.unpadMemory( new MemoryPadBlock( 0, bytes.length ), bytes.length );
+				block = this.unpadMemory( new MemoryBlock( 0, bytes.length ), bytes.length );
 				
 			} finally {
-				_CURRENT_DOMAIN.domainMemory = tmp;
+				_domain.domainMemory = tmp;
 			}
 			
 			var result:ByteArray = new ByteArray();
@@ -139,11 +139,11 @@ package by.blooddy.crypto.security.pad {
 
 		}
 
-		public function padMemory(block:MemoryPadBlock, pos:uint):MemoryPadBlock {
+		public function padMemory(block:MemoryBlock, pos:uint):MemoryBlock {
 			throw new IllegalOperationError( '', 1001 );
 		}
 
-		public function unpadMemory(block:MemoryPadBlock, pos:uint):MemoryPadBlock {
+		public function unpadMemory(block:MemoryBlock, pos:uint):MemoryBlock {
 			throw new IllegalOperationError( '', 1001 );
 		}
 		

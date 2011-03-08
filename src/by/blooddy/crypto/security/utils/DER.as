@@ -158,8 +158,7 @@ package by.blooddy.crypto.security.utils {
 				_privateCall = true;
 				result = new DER();
 				result.type = type;
-				result.pos = position;
-				result.len = len;
+				result.block = new MemoryBlock( position, len );
 
 				var t:DER;
 
@@ -195,8 +194,8 @@ package by.blooddy.crypto.security.utils {
 							++position;
 							--len;
 						}
-						result.pos = position;
-						result.len = len;
+						result.block.pos = position;
+						result.block.len = len;
 					}
 					position = end;
 				}
@@ -231,9 +230,7 @@ package by.blooddy.crypto.security.utils {
 
 		public var type:uint;
 
-		public var pos:uint;
-
-		public var len:uint;
+		public var block:MemoryBlock;
 
 	}
 

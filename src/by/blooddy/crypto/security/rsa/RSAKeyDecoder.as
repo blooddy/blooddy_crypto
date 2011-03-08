@@ -45,7 +45,7 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @private
 		 */
-		private static const _CURRENT_DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
+		private static const _domain:ApplicationDomain = ApplicationDomain.currentDomain;
 
 		//--------------------------------------------------------------------------
 		//
@@ -76,10 +76,10 @@ package by.blooddy.crypto.security.rsa {
 		 */
 		public static function decodeXML(xml:XML):RSAKeyPair {
 			var keyPair:RSAKeyPair;
-			var mem:ByteArray = _CURRENT_DOMAIN.domainMemory;
+			var mem:ByteArray = _domain.domainMemory;
 			var tmp:ByteArray = new ByteArray();
 			tmp.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
-			_CURRENT_DOMAIN.domainMemory = tmp;
+			_domain.domainMemory = tmp;
 			try {
 
 				var i:uint;
@@ -115,7 +115,7 @@ package by.blooddy.crypto.security.rsa {
 
 						if ( k.type == PEM.RSA_PUBLIC_KEY ) {
 
-							_CURRENT_DOMAIN.domainMemory = null; // надо длинну менять, и надо память сбрасывать
+							_domain.domainMemory = null; // надо длинну менять, и надо память сбрасывать
 							tmp.length = p;
 
 							// создаём ключ
@@ -136,7 +136,7 @@ package by.blooddy.crypto.security.rsa {
 								p += bi.len;
 							}
 
-							_CURRENT_DOMAIN.domainMemory = null; // надо длинну менять, и надо память сбрасывать
+							_domain.domainMemory = null; // надо длинну менять, и надо память сбрасывать
 							tmp.length = p;
 
 							// создаём ключ
@@ -174,7 +174,7 @@ package by.blooddy.crypto.security.rsa {
 			} catch ( e:* ) {
 				Error.throwError( SyntaxError, 0 );
 			} finally {
-				_CURRENT_DOMAIN.domainMemory = mem;
+				_domain.domainMemory = mem;
 			}
 
 			return keyPair;
@@ -228,12 +228,12 @@ package by.blooddy.crypto.security.rsa {
 		private static function _decodeDER(mem:ByteArray, type:String):RSAKeyPair {
 			var keyPair:RSAKeyPair;
 
-			var tmp:ByteArray = _CURRENT_DOMAIN.domainMemory;
+			var tmp:ByteArray = _domain.domainMemory;
 
 			var len:uint = mem.length;
 			mem.length <<= 1;
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
-			_CURRENT_DOMAIN.domainMemory = mem;
+			_domain.domainMemory = mem;
 
 			try {
 
@@ -307,7 +307,7 @@ package by.blooddy.crypto.security.rsa {
 			} catch ( e:* ) {
 				Error.throwError( SyntaxError, 0 );
 			} finally {
-				_CURRENT_DOMAIN.domainMemory = tmp;
+				_domain.domainMemory = tmp;
 			}
 
 			return keyPair;
@@ -317,8 +317,8 @@ package by.blooddy.crypto.security.rsa {
 		 * @private
 		 */
 		private static function decodeDERInteger2(t:DER):uint {
-			var p:uint = t.pos;
-			var l:uint = p + t.len;
+			var p:uint = t.block.pos;
+			var l:uint = p + t.block.len;
 			var result:uint = 0;
 			while ( p < l ) {
 				result = ( result << 8 ) | Memory.getUI8( p );
@@ -331,7 +331,7 @@ package by.blooddy.crypto.security.rsa {
 		 * @private
 		 */
 		private static function decodeDERInteger(t:DER, pos:uint):BigUint {
-			return decodeBigInteger( t.pos, t.len, pos );
+			return decodeBigInteger( t.block.pos, t.block.len, pos );
 		}
 
 		/**
@@ -351,7 +351,7 @@ package by.blooddy.crypto.security.rsa {
 		 * @private
 		 */
 		private static function decodeXMLInteger(x:XML, pos:uint):BigUint {
-			var mem:ByteArray = _CURRENT_DOMAIN.domainMemory;
+			var mem:ByteArray = _domain.domainMemory;
 			var b:ByteArray = Base64.decode( x.*.toString() );
 			var p:uint = pos + b.length + 4;
 			var l:uint = b.length;
