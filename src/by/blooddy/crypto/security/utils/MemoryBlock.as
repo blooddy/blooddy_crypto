@@ -4,7 +4,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package by.blooddy.crypto.security.pad {
+package by.blooddy.crypto.security.utils {
 	
 	[ExcludeClass]
 	/**
@@ -14,7 +14,7 @@ package by.blooddy.crypto.security.pad {
 	 * @langversion				3.0
 	 * @created					03.03.2011 13:24:51
 	 */
-	public class MemoryPadBlock {
+	public final class MemoryBlock {
 		
 		//--------------------------------------------------------------------------
 		//
@@ -25,7 +25,7 @@ package by.blooddy.crypto.security.pad {
 		/**
 		 * Constructor
 		 */
-		public function MemoryPadBlock(pos:uint, len:uint) {
+		public function MemoryBlock(pos:uint, len:uint) {
 			super();
 			this.pos = pos;
 			this.len = len;
@@ -36,7 +36,7 @@ package by.blooddy.crypto.security.pad {
 		//  Properties
 		//
 		//--------------------------------------------------------------------------
-		
+
 		/**
 		 * cursor position
 		 */

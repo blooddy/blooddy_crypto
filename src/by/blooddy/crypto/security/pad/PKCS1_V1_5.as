@@ -24,8 +24,8 @@ package by.blooddy.crypto.security.pad {
 //==============================================================================
 
 import by.blooddy.crypto.security.pad.MemoryPad;
-import by.blooddy.crypto.security.pad.MemoryPadBlock;
 import by.blooddy.crypto.security.pad.PKCS1_V1_5;
+import by.blooddy.crypto.security.utils.MemoryBlock;
 import by.blooddy.system.Memory;
 
 import flash.utils.ByteArray;
@@ -68,7 +68,7 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 	 */
 	private static function readPool(pos:uint, len:uint):void {
 
-		var mem:ByteArray = _CURRENT_DOMAIN.domainMemory;
+		var mem:ByteArray = _domain.domainMemory;
 
 		var i:uint;
 		var j:uint;
@@ -171,7 +171,7 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 	/**
 	 * @private
 	 */
-	public override function padMemory(block:MemoryPadBlock, pos:uint):MemoryPadBlock {
+	public override function padMemory(block:MemoryBlock, pos:uint):MemoryBlock {
 
 		var blockSize:uint = super.blockSize;
 
@@ -201,18 +201,18 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 
 		Memory.setI8( ks, 0 );
 
-		var mem:ByteArray = _CURRENT_DOMAIN.domainMemory;
+		var mem:ByteArray = _domain.domainMemory;
 		mem.position = block.pos;
 		mem.readBytes( mem, ks + 1, block.len );
 	
-		return new MemoryPadBlock( pos, blockSize );
+		return new MemoryBlock( pos, blockSize );
 
 	}
 	
 	/**
 	 * @private
 	 */
-	public override function unpadMemory(block:MemoryPadBlock, pos:uint):MemoryPadBlock {
+	public override function unpadMemory(block:MemoryBlock, pos:uint):MemoryBlock {
 
 		var blockSize:uint = super.blockSize;
 
@@ -235,7 +235,7 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 				throw new ArgumentError();
 		}
 
-		return new MemoryPadBlock( k, ks - k );
+		return new MemoryBlock( k, ks - k );
 
 	}
 

@@ -35,7 +35,7 @@ package by.blooddy.crypto.security {
 		/**
 		 * @private
 		 */
-		private static const _CURRENT_DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
+		private static const _domain:ApplicationDomain = ApplicationDomain.currentDomain;
 		
 		//--------------------------------------------------------------------------
 		//
@@ -125,12 +125,12 @@ package by.blooddy.crypto.security {
 		private static function _decodeDER(mem:ByteArray, type:String):KeyPair {
 			var keyPair:KeyPair;
 
-			var tmp:ByteArray = _CURRENT_DOMAIN.domainMemory;
+			var tmp:ByteArray = _domain.domainMemory;
 
 			var len:uint = mem.length;
 			mem.length <<= 1;
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
-			_CURRENT_DOMAIN.domainMemory = mem;
+			_domain.domainMemory = mem;
 
 			try {
 				
@@ -158,7 +158,7 @@ package by.blooddy.crypto.security {
 			} catch ( e:* ) {
 				Error.throwError( SyntaxError, 0 );
 			} finally {
-				_CURRENT_DOMAIN.domainMemory = tmp;
+				_domain.domainMemory = tmp;
 			}
 
 			return keyPair;
