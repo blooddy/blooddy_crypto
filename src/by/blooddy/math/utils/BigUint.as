@@ -1228,7 +1228,20 @@ package by.blooddy.math.utils {
 			} else if ( le <= 4 ) {
 				return modPowInt( v, ( le ? Memory.getI32( e.pos ) : 0 ), m, pos );
 			} else {
-				
+				var p1:uint = v.pos;
+				var p2:uint = m.pos;
+				var pe:uint = e.pos;
+				if ( l2 == 4 && Memory.getI32( p2 ) == 1 ) {
+					return new BigUint();
+				} else if ( l1 == 4 && Memory.getI32( p1 ) == 1 ) {
+					return v;
+				} else if ( l1 == 0 ) {
+					return v;
+				} /*else if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) {
+					return _modPow_simple( p1, l1, pe, le, uint( Memory.getI32( p2 ) ), pos );
+				} */else /*if ( e < 256 || !( Memory.getUI8( p2 ) & 1 ) )*/ {
+					return _modPow_classic( p1, l1, pe, le, p2, l2, pos );
+				}
 			}
 			throw new IllegalOperationError( 'TODO' );
 		}
@@ -2271,6 +2284,51 @@ package by.blooddy.math.utils {
 			}
 		}
 
+		/**
+		 * @private
+		 * @return		pow( v1, e ) % v2;
+		 */
+		private static function _modPow_classic(p1:uint, l1:uint, ep:uint, el:uint, p2:uint, l2:uint, pos:uint):BigUint {
+			var r:BigUint;
+			if ( _compare( p1, l1, p2, l2 ) >= 0 ) {
+				r = _mod( p1, l1, p2, l2, pos );
+				pos += r.pos + r.len;
+			} else {
+				r = new BigUint( p1, l1 );
+			}
+			var g:BigUint;
+			var e:BigUint = new BigUint( ep, el );
+			if ( r.len > 0 ) {
+				do {
+					if ( testBit( e, 0 ) ) {
+						if ( g ) {
+							g = _mult( g.pos, g.len, r.pos, r.len, pos );
+							pos = g.pos + g.len;
+							if ( g.len >= l2 ) {
+								g = _mod( g.pos, g.len, p2, l2, pos );
+								pos = g.pos + g.len;
+							}
+						} else {
+							g = r;
+						}
+					}
+					e = shiftRight( e, 1, pos );
+					pos += e.len;
+					if ( e.len > 0 ) {
+						r = _sqr( r.pos, r.len, pos );
+						pos = r.pos + r.len;
+						if ( r.len >= l2 ) {
+							r = _mod( r.pos, r.len, p2, l2, pos );
+							pos = r.pos + r.len;
+						}
+					}
+				} while ( e.len > 0 && ( !g || g.len > 0 ) );
+			} else {
+				g = r;
+			}
+			return g;
+		}
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
