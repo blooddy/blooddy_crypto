@@ -160,13 +160,6 @@ package by.blooddy.math.utils {
 			return toString( _r );
 		}
 
-		public static function modPowInt(v:String, e:uint, m:String):String {
-			var _v:BigUint = fromString( v, 5 );
-			var _m:BigUint = fromString( m, _v.pos + _v.len );
-			var _r:BigUint = BigUint.modPowInt( _v, e, _m, _m.pos + _m.len );
-			return toString( _r );
-		}
-
 		public static function modPow(v:String, e:String, m:String):String {
 			var _v:BigUint = fromString( v, 5 );
 			var _e:BigUint = fromString( e, _v.pos + _v.len );

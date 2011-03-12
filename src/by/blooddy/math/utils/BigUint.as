@@ -1192,55 +1192,36 @@ package by.blooddy.math.utils {
 		 * @return		pow( v, e ) % m
 		 * @throws		ArgumentError	m == 0
 		 */
-		public static function modPowInt(v:BigUint, e:uint, m:BigUint, pos:uint):BigUint {
-			var l1:uint = v.len;
-			var l2:uint = m.len;
-			if ( l2 == 0 ) {
-				throw new ArgumentError();
-			} else if ( e == 1 ) {
-				return mod( v, m, pos );
-			} else {
-				var p1:uint = v.pos;
-				var p2:uint = m.pos;
-				if ( l2 == 4 && Memory.getI32( p2 ) == 1 ) {
-					return new BigUint();
-				} else if ( l1 == 4 && Memory.getI32( p1 ) == 1 ) {
-					return v;
-				} else if ( e == 0 ) {
-					Memory.setI32( pos, 1 );
-					return new BigUint( pos, 4 );
-				} else if ( l1 == 0 ) {
-					return v;
-				} else if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) {
-					return _modPowInt_simple( p1, l1, e, uint( Memory.getI32( p2 ) ), pos );
-				} else /*if ( e < 256 || !( Memory.getUI8( p2 ) & 1 ) )*/ {
-					return _modPowInt_classic( p1, l1, e, p2, l2, pos );
-				}
-			}
-		}
-
 		public static function modPow(v:BigUint, e:BigUint, m:BigUint, pos:uint):BigUint {
 			var l1:uint = v.len;
 			var l2:uint = m.len;
 			var le:uint = e.len;
 			if ( l2 == 0 ) {
 				throw new ArgumentError();
-			} else if ( le <= 4 ) {
-				return modPowInt( v, ( le ? Memory.getI32( e.pos ) : 0 ), m, pos );
 			} else {
-				var p1:uint = v.pos;
-				var p2:uint = m.pos;
 				var pe:uint = e.pos;
-				if ( l2 == 4 && Memory.getI32( p2 ) == 1 ) {
-					return new BigUint();
-				} else if ( l1 == 4 && Memory.getI32( p1 ) == 1 ) {
-					return v;
-				} else if ( l1 == 0 ) {
-					return v;
-				} /*else if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) {
-					return _modPow_simple( p1, l1, pe, le, uint( Memory.getI32( p2 ) ), pos );
-				} */else /*if ( e < 256 || !( Memory.getUI8( p2 ) & 1 ) )*/ {
-					return _modPow_classic( p1, l1, pe, le, p2, l2, pos );
+				var ei:uint = ( le ? Memory.getI32( pe ) : 0 );
+				if ( ei == 1 ) {
+					return mod( v, m, pos );
+				} else {
+					var p1:uint = v.pos;
+					var p2:uint = m.pos;
+					if ( l2 == 4 && Memory.getI32( p2 ) == 1 ) {
+						return new BigUint();
+					} else if ( l1 == 4 && Memory.getI32( p1 ) == 1 ) {
+						return v;
+					} else if ( le == 0 ) {
+						Memory.setI32( pos, 1 );
+						return new BigUint( pos, 4 );
+					} else if ( l1 == 0 ) {
+						return v;
+					} else if ( le <= 4 ) {
+						if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) {
+							return _modPowInt_simple( p1, l1, ei, uint( Memory.getI32( p2 ) ), pos );
+						} else {
+							return _modPowInt_classic( p1, l1, ei, p2, l2, pos );
+						}
+					}
 				}
 			}
 			throw new IllegalOperationError( 'TODO' );
@@ -2175,7 +2156,6 @@ package by.blooddy.math.utils {
 				Memory.setI32( pos, g );
 				return new BigUint( pos, 4 );
 			}
-			return r;
 		}
 
 		/**
@@ -2199,88 +2179,101 @@ package by.blooddy.math.utils {
 				} else if ( i == 0 ) {
 					l1 = 0;
 				}
-				var p3:uint;
-				var l3:uint;
-				if ( l1 > 0 ) {
-					do {
-						if ( e & 1 ) {
-							if ( l3 ) {
-								BigUint$.mult( mem, p1, l1, p3, l3, pos, len, c1, c2, t1, t2, k );
-								p3 = pos;
-								l3 = len;
-								pos += len;
-								if ( l3 >= l2 ) {
-									p2 = _p2;
-									l2 = _l2;
-									BigUint$.mod( mem, p3, l3, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
-									p3 = pos;
-									l3 = len;
-									pos += len;
-								}
-							} else {
-								p3 = p1;
-								l3 = l1;
-							}
-						}
-						e >>>= 1;
-						if ( e ) {
-							BigUint$.sqr( mem, p1, l1, pos, len, c1, c2, t1, t2, k );
-							p1 = pos;
-							l1 = len;
-							pos += len;
-							if ( l1 >= l2 ) {
-								p2 = _p2;
-								l2 = _l2;
-								BigUint$.mod( mem, p1, l1, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
-								p1 = pos;
-								l1 = len;
-								pos += len;
-							}
-						}
-					} while ( e ); // TODO: заоптимизировать проверку длинны результата
-				} else {
-					p3 = p1;
-					l3 = l1;
-				}
-				return new BigUint( p3, l3 );
 			}
 			CRYPTO::debug {
 				var r:BigUint;
 				if ( _compare( p1, l1, p2, l2 ) >= 0 ) {
 					r = _mod( p1, l1, p2, l2, pos );
 					pos += r.pos + r.len;
-				} else {
-					r = new BigUint( p1, l1 );
+					p1 = r.pos;
+					l1 = r.len;
 				}
+			}
+			if ( l1 ) {
+				return _modPow_classic_round( p1, l1, e, p2, l2, pos )[ 0 ];
+			} else {
+				return new BigUint();
+			}
+		}
+
+		/**
+		 * @private
+		 */
+		private static function _modPow_classic_round(p1:uint, l1:uint, e:uint, p2:uint, l2:uint, pos:uint):Vector.<BigUint> {
+			CRYPTO::inline {
+				var _p2:uint = p2;
+				var _l2:uint = l2;
+				var len:uint;
+				var c1:uint, c2:uint;
+				var mem:ByteArray = _domain.domainMemory;
+				var scale:uint, k:uint, t1:uint, t2:uint, t3:int, qGuess:int, borrow:int, carry:int, j:int, i:int;
+				var p3:uint;
+				var l3:uint;
+				do {
+					if ( e & 1 ) {
+						if ( l3 ) {
+							BigUint$.mult( mem, p1, l1, p3, l3, pos, len, c1, c2, t1, t2, k );
+							p3 = pos;
+							l3 = len;
+							pos += len;
+							if ( l3 >= l2 ) {
+								p2 = _p2;
+								l2 = _l2;
+								BigUint$.mod( mem, p3, l3, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
+								p3 = pos;
+								l3 = len;
+								pos += len;
+							}
+						} else {
+							p3 = p1;
+							l3 = l1;
+						}
+					}
+					e >>>= 1;
+					if ( e ) {
+						BigUint$.sqr( mem, p1, l1, pos, len, c1, c2, t1, t2, k );
+						p1 = pos;
+						l1 = len;
+						pos += len;
+						if ( l1 >= l2 ) {
+							p2 = _p2;
+							l2 = _l2;
+							BigUint$.mod( mem, p1, l1, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
+							p1 = pos;
+							l1 = len;
+							pos += len;
+						}
+					}
+				} while ( e ); // TODO: заоптимизировать проверку длинны результата
+				return new <BigUint>[ new BigUint( p3, l3 ), new BigUint( p1, l1 ) ];
+			}
+			CRYPTO::debug {
+				var r:BigUint = new BigUint( p1, l1 );
 				var g:BigUint;
-				if ( r.len > 0 ) {
-					do {
-						if ( e & 1 ) {
-							if ( g ) {
-								g = _mult( g.pos, g.len, r.pos, r.len, pos );
+				do {
+					if ( e & 1 ) {
+						if ( g ) {
+							g = _mult( g.pos, g.len, r.pos, r.len, pos );
+							pos = g.pos + g.len;
+							if ( g.len >= l2 ) {
+								g = _mod( g.pos, g.len, p2, l2, pos );
 								pos = g.pos + g.len;
-								if ( g.len >= l2 ) {
-									g = _mod( g.pos, g.len, p2, l2, pos );
-									pos = g.pos + g.len;
-								}
-							} else {
-								g = r;
 							}
+						} else {
+							g = r;
 						}
-						e >>>= 1;
-						if ( e > 0 ) {
-							r = _sqr( r.pos, r.len, pos );
+					}
+					e >>>= 1;
+					if ( e > 0 ) {
+						r = _sqr( r.pos, r.len, pos );
+						pos = r.pos + r.len;
+						if ( r.len >= l2 ) {
+							r = _mod( r.pos, r.len, p2, l2, pos );
 							pos = r.pos + r.len;
-							if ( r.len >= l2 ) {
-								r = _mod( r.pos, r.len, p2, l2, pos );
-								pos = r.pos + r.len;
-							}
 						}
-					} while ( e > 0 && ( !g || g.len > 0 ) );
-				} else {
-					g = r;
-				}
-				return g;
+					}
+				} while ( e > 0 && ( !g || g.len > 0 ) );
+				return new <BigUint>[ g, r ];
 			}
 		}
 

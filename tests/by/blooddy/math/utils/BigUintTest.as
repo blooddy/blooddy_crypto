@@ -599,35 +599,35 @@ package by.blooddy.math.utils {
 		//  modPowInt
 		//----------------------------------
 
-		public static var $modPowInt:Array = [
-			[ '0', 123, '123', '0' ],
-			[ '12345678901abcdef12345678901abcdef12345678901abcdef', 1, '1873618', '561397' ],
-			[ '123', 123, '1', '0' ],
-			[ '1', 123, '123', '1' ],
-			[ '123', 0, '123', '1' ],
-			[ '12345678901abcdef12345678901abcdef12345678901abcdef', 1024, '1267', 'b83' ],
-			[ '12345678901abcdef12345678901abcdef12345678901abcdef', 1024, '1873618', '9679' ],
-			[ '1234', 67, '1873618', '7ed7d8' ],
-			[ '1234', 67, '9832982309712532378643', '126ecd88d701d98ea61f4d' ],
-			[ '1989746288117', 12345, '9832982309712532378643', '48a7483ca7ab708cdb412f' ],
-			[ '12345678901abcdef12345678901abcdef12345678901abcdef', 0x100E, '9832982309712532378643', '65076beaec746d529526e2' ],
-			[ 'A4490A31763DEA84E0D24086FBD81A296C7AB7D5ABBB9FAB', 0x100E, '31277332FA4A8C2D', '1728dfa593045a85' ],
-			[ 'a4490a31763dea84e0d24086fbd81a296c7ab7d5abbb9fab', 1024, '31277332fa4a8c2d', '14222a18073275b4' ],
-			[ '12345678901abcdef12345678901abcdef12345678901abcdef', 1024, '9832982309712532378643', '139d30ff985d42243a7432' ]
+		public static var $modPow:Array = [
+			[ '0', '7B', '123', '0' ],
+			[ '12345678901abcdef12345678901abcdef12345678901abcdef', '1', '1873618', '561397' ],
+			[ '123', '7B', '1', '0' ],
+			[ '1', '7B', '123', '1' ],
+			[ '123', '0', '123', '1' ],
+			[ '12345678901abcdef12345678901abcdef12345678901abcdef', '400', '1267', 'b83' ],
+			[ '12345678901abcdef12345678901abcdef12345678901abcdef', '400', '1873618', '9679' ],
+			[ '1234', '43', '1873618', '7ed7d8' ],
+			[ '1234', '43', '9832982309712532378643', '126ecd88d701d98ea61f4d' ],
+			[ '1989746288117', '3039', '9832982309712532378643', '48a7483ca7ab708cdb412f' ],
+			[ '12345678901abcdef12345678901abcdef12345678901abcdef', '100E', '9832982309712532378643', '65076beaec746d529526e2' ],
+			[ 'A4490A31763DEA84E0D24086FBD81A296C7AB7D5ABBB9FAB', '100E', '31277332FA4A8C2D', '1728dfa593045a85' ],
+			[ 'a4490a31763dea84e0d24086fbd81a296c7ab7d5abbb9fab', '400', '31277332fa4a8c2d', '14222a18073275b4' ],
+			[ '12345678901abcdef12345678901abcdef12345678901abcdef', '400', '9832982309712532378643', '139d30ff985d42243a7432' ]
 		];
 
-		[Test( order="27", dataProvider="$modPowInt" )]
-		public function modPowInt(v:String, e:uint, m:String, resut:String):void {
-			var R:String = BigUintStr.modPowInt( v, e, m );
+		[Test( order="27", dataProvider="$modPow" )]
+		public function modPow(v:String, e:String, m:String, resut:String):void {
+			var R:String = BigUintStr.modPow( v, e, m );
 			Assert.assertEquals(
-				'pow( 0x' + v.toLowerCase() + ', ' + e + ' ) % ' + '0x' + m.toLowerCase(),
+				'pow( 0x' + v.toLowerCase() + ', 0x' + e + ' ) % ' + '0x' + m.toLowerCase(),
 				R.toLowerCase(), resut.toLowerCase()
 			);
 		}
 
 		[Test( order="28", dataProvider="$divAndMod_error", expects="ArgumentError" )]
-		public function modPowInt_error(v:String, e:uint, m:String):void {
-			BigUintStr.modPowInt( v, e, m );
+		public function modPow_error(v:String, e:String, m:String):void {
+			BigUintStr.modPow( v, e, m );
 		}
 		
 	}
