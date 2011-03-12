@@ -342,7 +342,7 @@ package by.blooddy.math.utils {
 		//  increment
 		//----------------------------------
 
-		public static var $increment:Array = [
+		public static var $inc:Array = [
 			[ '0', '1' ],
 			[ '123', '124' ],
 			[ 'FFFFFFFF', '100000000' ],
@@ -350,9 +350,9 @@ package by.blooddy.math.utils {
 			[ 'FF123456780000000F', 'FF1234567800000010' ]
 		];
 
-		[Test( order="13", dataProvider="$increment" )]
-		public function increment(v:String, result:String):void {
-			var R:String = BigUintStr.increment( v );
+		[Test( order="13", dataProvider="$inc" )]
+		public function inc(v:String, result:String):void {
+			var R:String = BigUintStr.inc( v );
 			Assert.assertEquals(
 				'0x' + v.toLowerCase() + '++',
 				R.toLowerCase(), result.toLowerCase()
@@ -384,15 +384,15 @@ package by.blooddy.math.utils {
 		//  decrement
 		//----------------------------------
 
-		public static var $decrement:Array = [
+		public static var $dec:Array = [
 			[ '123', '122' ],
 			[ '12300000000', '122FFFFFFFF' ],
 			[ 'FFFFFFFF12300000000', 'FFFFFFFF122FFFFFFFF' ]
 		];
 
-		[Test( order="15", dataProvider="$decrement" )]
-		public function decrement(v1:String, result:String):void {
-			var R:String = BigUintStr.decrement( v1 );
+		[Test( order="15", dataProvider="$dec" )]
+		public function dec(v1:String, result:String):void {
+			var R:String = BigUintStr.dec( v1 );
 			Assert.assertEquals(
 				'0x' + v1.toLowerCase() + '--',
 				R.toLowerCase(), result.toLowerCase()
@@ -403,13 +403,13 @@ package by.blooddy.math.utils {
 		//  decrement_error
 		//----------------------------------
 
-		public static var $decrement_error:Array = [
+		public static var $dec_error:Array = [
 			[ '0' ]
 		];
 
-		[Test( order="16", dataProvider="$decrement_error", expects="ArgumentError" )]
-		public function decrement_error(v1:String):void {
-			BigUintStr.decrement( v1 );
+		[Test( order="16", dataProvider="$dec_error", expects="ArgumentError" )]
+		public function dec_error(v1:String):void {
+			BigUintStr.dec( v1 );
 		}
 
 		//----------------------------------
@@ -452,10 +452,10 @@ package by.blooddy.math.utils {
 		}
 
 		//----------------------------------
-		//  mult
+		//  mul
 		//----------------------------------
 
-		public static var $mult:Array = [
+		public static var $mul:Array = [
 			[ '0', '123', '0' ],
 			[ '123', '0', '0' ],
 			[ '1', '123456', '123456' ],
@@ -473,9 +473,9 @@ package by.blooddy.math.utils {
 			[ 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE00000000000000000000000000000001' ],
 		];
 
-		[Test( order="19", dataProvider="$mult" )]
-		public function mult(v1:String, v2:String, result:String):void {
-			var R:String = BigUintStr.mult( v1, v2 );
+		[Test( order="19", dataProvider="$mul" )]
+		public function mul(v1:String, v2:String, result:String):void {
+			var R:String = BigUintStr.mul( v1, v2 );
 			Assert.assertEquals(
 				'0x' + v1.toLowerCase() + ' * 0x' + v2.toLowerCase(),
 				R.toLowerCase(), result.toLowerCase()
