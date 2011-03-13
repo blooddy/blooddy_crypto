@@ -87,7 +87,7 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @inheritDoc
 		 */
-		public function sign():ByteArray {
+		public function sign(message:ByteArray, pad:IPad=null):ByteArray {
 			return null;
 		}
 	

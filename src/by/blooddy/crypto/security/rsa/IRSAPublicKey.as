@@ -14,7 +14,7 @@ package by.blooddy.crypto.security.rsa {
 	 */
 	public interface IRSAPublicKey extends IPublicKey {
 
-		function encrypt(bytes:ByteArray, pad:IPad=null):ByteArray;
+		function encrypt(message:ByteArray, pad:IPad=null):ByteArray;
 
 	}
 

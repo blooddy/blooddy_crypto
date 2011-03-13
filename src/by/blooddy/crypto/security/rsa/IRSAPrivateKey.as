@@ -14,7 +14,7 @@ package by.blooddy.crypto.security.rsa {
 	 */
 	public interface IRSAPrivateKey extends IRSAPublicKey, IPrivateKey {
 
-		function decrypt(bytes:ByteArray, pad:IPad=null):ByteArray;
+		function decrypt(message:ByteArray, pad:IPad=null):ByteArray;
 
 	}
 
