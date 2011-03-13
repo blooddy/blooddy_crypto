@@ -94,7 +94,8 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 
 		if ( block.len > this._maxDataSize ) throw new ArgumentError();
 
-		Memory.setI16( pos, 0x0200 );
+		Memory.setI8( pos, 0x00 );
+		Memory.setI8( pos + 1, this.type );
 
 		var k:uint = pos + 2;
 		var ks:uint = pos + blockSize - block.len - 1;
@@ -143,7 +144,7 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 		switch ( this.type ) { // type
 			case 0x01:
 				while ( k < ks && Memory.getUI8( k++ ) == 0xFF  ) {}
-				if ( Memory.getUI8( k ) != 0 ) throw new ArgumentError();
+				if ( Memory.getUI8( k - 1 ) != 0 ) throw new ArgumentError();
 				break;
 			case 0x02:
 				while ( k < ks && Memory.getUI8( k++ ) != 0 ) {}
