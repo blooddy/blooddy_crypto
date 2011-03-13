@@ -123,7 +123,84 @@ package by.blooddy.crypto.security.rsa {
 		 * @inhertDoc
 		 */
 		public function verify(message:ByteArray, pad:IPad=null):ByteArray {
-			return null;
+			
+			if ( !pad ) pad = PKCS1_V1_5;
+			
+			var _blockSize:uint = pad.blockSize;
+			var _type:uint;
+			if ( pad === PKCS1_V1_5 ) {
+				_type = pad[ 'type' ];
+				pad[ 'type' ] = 0x01;
+			}
+			
+			var tmp:ByteArray = _domain.domainMemory;
+			var mem:ByteArray = new ByteArray();
+			mem.writeBytes( this.bytes );
+			mem.writeBytes( message );
+			mem.length += 65e4;
+			// TODO: buffer for result
+			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+			_domain.domainMemory = mem;
+			
+			try {
+				
+				var bs:uint = ( BigUint.getBitLength( this.n ) + 7 ) / 8;
+				pad.blockSize = bs;
+				var ds:uint = pad.maxDataSize;
+				
+				var mpad:MemoryPad = pad as MemoryPad;
+				
+				var i:uint = this.bytes.length;
+				var p:uint = i + message.length;
+				
+				var pos:uint = p;
+				
+				var mb:MemoryBlock;
+				var bu:BigUint;
+				var block:ByteArray;
+				
+				while ( i < p ) {
+					
+					bu = RSA.toBigUint( i, bs, pos );
+					bu = RSA.EP( this, bu, pos + bu.len );
+					RSA.fromBigUint( bu, pos );
+					
+					// pad block
+					if ( mpad ) {
+						mb = mpad.unpadMemory( new MemoryBlock( pos, bu.len ), pos + bu.len );
+					} else {
+						if ( block ) block.length = 0;
+						else block = new ByteArray();
+						block.writeBytes( mem, pos, bu.len );
+						block = pad.unpad( block );
+						block.position = 0;
+						block.readBytes( mem, pos + bu.len );
+						mb = new MemoryBlock( pos, block.length );
+					}
+					
+					mem.position = mb.pos;
+					mem.readBytes( mem, pos, mb.len );
+					
+					pos += mb.len;
+					i += bs;
+					
+				}
+				
+			} finally {
+				
+				_domain.domainMemory = tmp;
+				if ( pad === PKCS1_V1_5 ) {
+					pad[ 'type' ] = _type;
+				}
+				pad.blockSize = _blockSize;
+				
+			}
+			
+			var result:ByteArray = new ByteArray();
+			mem.position = p;
+			mem.readBytes( result, 0, pos - p );
+			return result;
+			
 		}
 
 		/**
