@@ -130,7 +130,15 @@ package by.blooddy.crypto.security.rsa {
 		 * @inhertDoc
 		 */
 		public function encrypt(bytes:ByteArray, pad:IPad=null):ByteArray {
+
 			if ( !pad ) pad = PKCS1_V1_5;
+
+			var _blockSize:uint = pad.blockSize;
+			var _type:uint;
+			if ( pad === PKCS1_V1_5 ) {
+				_type = pad[ 'type' ];
+				pad[ 'type' ] = 0x02;
+			}
 
 			var tmp:ByteArray = _domain.domainMemory;
 			var mem:ByteArray = new ByteArray();
@@ -141,52 +149,63 @@ package by.blooddy.crypto.security.rsa {
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 			_domain.domainMemory = mem;
 
-			var ob:uint = ( BigUint.getBitLength( this.n ) + 7 ) / 8;
-			var ib:uint = ob - 11;
-
-			pad.blockSize = ob;
-
-			var mpad:MemoryPad = pad as MemoryPad;
+			try {
+				
+				var ob:uint = ( BigUint.getBitLength( this.n ) + 7 ) / 8;
+				var ib:uint = ob - 11;
+	
+				pad.blockSize = ob;
+				
+				var mpad:MemoryPad = pad as MemoryPad;
+				
+				var i:uint = this.bytes.length;
+				var p:uint = i + bytes.length;
+				
+				var pos:uint = p;
+				
+				var bu:BigUint;
+				var block:ByteArray;
 			
-			var i:uint = this.bytes.length;
-			var p:uint = i + bytes.length;
-
-			var pos:uint = p;
-
-			var bu:BigUint;
-			var block:ByteArray;
-
-			while ( i < p ) {
-
-				if ( i + ib >= p ) ib = p - i;
-
-				// pad block
-				if ( mpad ) {
-					mpad.padMemory( new MemoryBlock( i, ib ), pos );
-				} else {
-					if ( block ) block.length = 0;
-					else block = new ByteArray();
-					block.writeBytes( mem, i, ib );
-					block = pad.pad( block );
-					block.position = 0;
-					block.readBytes( mem, pos );
+				while ( i < p ) {
+	
+					if ( i + ib >= p ) ib = p - i;
+	
+					// pad block
+					if ( mpad ) {
+						mpad.padMemory( new MemoryBlock( i, ib ), pos );
+					} else {
+						if ( block ) block.length = 0;
+						else block = new ByteArray();
+						block.writeBytes( mem, i, ib );
+						block = pad.pad( block );
+						block.position = 0;
+						block.readBytes( mem, pos );
+					}
+	
+					bu = RSA.toBigUint( pos, ob, pos + ob );
+					bu = RSA.EP( this, bu, pos + ob + bu.len );
+					RSA.fromBigUint( bu, pos );
+	
+					i += ib;
+					pos += ob;
+	
 				}
+			
+			} finally {
 
-				bu = RSA.toBigUint( pos, ob, pos + ob );
-				bu = RSA.EP( this, bu, pos + ob + bu.len );
-				RSA.fromBigUint( bu, pos );
-
-				i += ib;
-				pos += ob;
+				_domain.domainMemory = tmp;
+				if ( pad === PKCS1_V1_5 ) {
+					pad[ 'type' ] = _type;
+				}
+				pad.blockSize = _blockSize;
 
 			}
-
-			_domain.domainMemory = tmp;
 
 			var result:ByteArray = new ByteArray();
 			mem.position = p;
 			mem.readBytes( result, 0, pos - p );
 			return result;
+
 		}
 
 		public function toString():String {
