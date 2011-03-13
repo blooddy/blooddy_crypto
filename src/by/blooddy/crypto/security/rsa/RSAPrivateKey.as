@@ -11,7 +11,6 @@ package by.blooddy.crypto.security.rsa {
 	import by.blooddy.crypto.security.pad.PKCS1_V1_5;
 	import by.blooddy.crypto.security.utils.MemoryBlock;
 	import by.blooddy.math.utils.BigUint;
-	import by.blooddy.system.Memory;
 	
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
@@ -120,53 +119,31 @@ package by.blooddy.crypto.security.rsa {
 			
 			var mpad:MemoryPad = pad as MemoryPad;
 			
-			var s:uint = this.bytes.length;
-			var e:uint = s + bytes.length;
-			var i:uint = s;
-			var j:uint;
-			
-			var p:uint = e;
+			var i:uint = this.bytes.length;
+			var p:uint = i + bytes.length;
+
 			var pos:uint = p;
 			
 			var mb:MemoryBlock;
 			var bu:BigUint;
 			var block:ByteArray;
 			
-			while ( i < e ) {
+			while ( i < p ) {
 
-				// create BigUint
-				// TODO: create method
-				j = 0;
-				do {
-					Memory.setI8( pos + j, Memory.getUI8( i + ob - j - 1 ) );
-				} while ( ++j < ob );
-				while ( j & 3 ) {
-					Memory.setI8( pos + j, 0 );
-					++j;
-				}
-				while ( j > 0 && Memory.getI32( pos + j - 4 ) == 0 ) {
-					j -= 4;
-				}
+				bu = RSA.toBigUint( i, ob, pos );
+				bu = RSA.DP( this, bu, pos + bu.len );
+				RSA.fromBigUint( bu, pos );
 
-				bu = RSA.DP( this, new BigUint( pos, j ), pos + j );
-
-				// reverse
-				// TODO: create method
-				j = 0;
-				do {
-					Memory.setI8( pos + j, Memory.getUI8( bu.pos + bu.len - j - 1 ) );
-				} while ( ++j < bu.len );
-				
 				// pad block
 				if ( mpad ) {
-					mb = mpad.unpadMemory( new MemoryBlock( pos, j ), pos + j );
+					mb = mpad.unpadMemory( new MemoryBlock( pos, bu.len ), pos + bu.len );
 				} else {
 					if ( block ) block.length = 0;
 					else block = new ByteArray();
-					block.writeBytes( mem, pos, i );
-					block = pad.pad( block );
+					block.writeBytes( mem, pos, bu.len );
+					block = pad.unpad( block );
 					block.position = 0;
-					block.readBytes( mem, pos + j );
+					block.readBytes( mem, pos + bu.len );
 					mb = new MemoryBlock( pos, block.length );
 				}
 

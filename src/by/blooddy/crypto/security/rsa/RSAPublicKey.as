@@ -148,20 +148,17 @@ package by.blooddy.crypto.security.rsa {
 
 			var mpad:MemoryPad = pad as MemoryPad;
 			
-			var s:uint = this.bytes.length;
-			var e:uint = s + bytes.length;
-			var i:uint = s;
-			var j:uint;
+			var i:uint = this.bytes.length;
+			var p:uint = i + bytes.length;
 
-			var p:uint = e;
 			var pos:uint = p;
 
 			var bu:BigUint;
 			var block:ByteArray;
 
-			while ( i < e ) {
+			while ( i < p ) {
 
-				if ( i + ib >= e ) ib = e - i;
+				if ( i + ib >= p ) ib = p - i;
 
 				// pad block
 				if ( mpad ) {
@@ -175,28 +172,9 @@ package by.blooddy.crypto.security.rsa {
 					block.readBytes( mem, pos );
 				}
 
-				// create BigUint
-				// TODO: create method
-				j = 0;
-				do {
-					Memory.setI8( pos + ob + j, Memory.getUI8( pos + ob - j - 1 ) );
-				} while ( ++j < ob );
-				while ( j & 3 ) {
-					Memory.setI8( pos + ob + j, 0 );
-					++j;
-				}
-				while ( j > 0 && Memory.getI32( pos + ob + j - 4 ) == 0 ) {
-					j -= 4;
-				}
-
-				bu = RSA.EP( this, new BigUint( pos + ob, j ), pos + ob + j );
-
-				// reverse
-				// TODO: create method
-				j = 0;
-				do {
-					Memory.setI8( pos + j, Memory.getUI8( bu.pos + bu.len - j - 1 ) );
-				} while ( ++j < bu.len );
+				bu = RSA.toBigUint( pos, ob, pos + ob );
+				bu = RSA.EP( this, bu, pos + ob + bu.len );
+				RSA.fromBigUint( bu, pos );
 
 				i += ib;
 				pos += ob;

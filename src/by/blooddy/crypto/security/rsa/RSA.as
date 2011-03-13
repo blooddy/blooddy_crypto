@@ -7,9 +7,9 @@
 package by.blooddy.crypto.security.rsa {
 
 	import by.blooddy.math.utils.BigUint;
+	import by.blooddy.system.Memory;
 	
 	import flash.utils.getQualifiedClassName;
-	import by.blooddy.math.utils.BigUintStr;
 
 	[ExcludeClass]
 	/**
@@ -71,6 +71,38 @@ package by.blooddy.crypto.security.rsa {
 			}
 		}
 
+		public static function toBigUint(p:uint, l:uint, pos:uint):BigUint {
+			reverse( p, l, pos );
+			while ( l & 3 ) {
+				Memory.setI8( pos + l, 0 );
+				++l;
+			}
+			while ( l > 0 && Memory.getI32( pos + l - 4 ) == 0 ) {
+				l -= 4;
+			}
+			return new BigUint( pos, l );
+		}
+
+		public static function fromBigUint(v:BigUint, pos:uint):void {
+			reverse( v.pos, v.len, pos );
+		}
+
+		//--------------------------------------------------------------------------
+		//
+		//  Private class methods
+		//
+		//--------------------------------------------------------------------------
+
+		/**
+		 * @private
+		 */
+		private static function reverse(p:uint, l:uint, pos:uint):void {
+			var j:uint = 0;
+			do {
+				Memory.setI8( pos + j, Memory.getUI8( p + l - j - 1 ) );
+			} while ( ++j < l );
+		}
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
