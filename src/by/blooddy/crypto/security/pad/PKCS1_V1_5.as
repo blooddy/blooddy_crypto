@@ -75,9 +75,8 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 	}
 
 	public override function set blockSize(value:uint):void {
-		if ( value <= 11 ) throw new ArgumentError();
 		super.blockSize = value;
-		this._maxDataSize = value - 11;
+		this._maxDataSize = ( value > 11 ? value - 11 : 0 );
 	}
 
 	//--------------------------------------------------------------------------
