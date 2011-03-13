@@ -112,7 +112,7 @@ package by.blooddy.crypto.security.rsa {
 			if ( this.bytes ) {
 				result =	'[RSAPrivateKey' +
 								' n="' + bigUintToString( this.n ) + '"' +
-								' e="' + this.e.toString( 16 ) + '"' +
+								' e="' + bigUintToString( this.e ) + '"' +
 								' d="' + bigUintToString( this.d ) + '"' +
 								' P="' + bigUintToString( this.p ) + '"' +
 								' Q="' + bigUintToString( this.q ) + '"' +

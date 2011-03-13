@@ -105,7 +105,7 @@ package by.blooddy.crypto.security.rsa {
 
 			var result:XML = <RSAKeyValue xmlns="http://www.w3.org/2000/09/xmldsig#" />;
 			result.Modulus =	encodeBigUintBase64( key.n );
-			result.Exponent =	encodeUintBase64( key.e );
+			result.Exponent =	encodeBigUintBase64( key.e );
 
 			app.domainMemory = tmp;
 			return result;
@@ -129,7 +129,7 @@ package by.blooddy.crypto.security.rsa {
 
 			var result:XML = <RSAKeyPair xmlns="http://www.w3.org/2002/03/xkms#" />;
 			result.Modulus =	encodeBigUintBase64( key.n );
-			result.Exponent =	encodeUintBase64( key.e );
+			result.Exponent =	encodeBigUintBase64( key.e );
 			result.P =			encodeBigUintBase64( key.p );
 			result.Q =			encodeBigUintBase64( key.q );
 			result.DP =			encodeBigUintBase64( key.dp );
@@ -146,16 +146,6 @@ package by.blooddy.crypto.security.rsa {
 		//  Private class methods
 		//
 		//--------------------------------------------------------------------------
-
-		/**
-		 * @private
-		 */
-		private static function encodeUintBase64(i:uint):String {
-			var bytes:ByteArray = new ByteArray();
-			bytes.endian = Endian.BIG_ENDIAN;
-			bytes.writeUnsignedInt( i );
-			return Base64.encode( bytes );
-		}
 
 		/**
 		 * @private

@@ -35,7 +35,7 @@ package by.blooddy.crypto.security.rsa {
 
 		public static function RSAEP(key:RSAPublicKey, value:BigUint, pos:uint):BigUint {
 			if ( BigUint.compare( value, key.n ) >= 0 ) throw new ArgumentError();
-			return BigUint.modPowInt( value, key.e, key.n, pos );
+			return BigUint.modPow( value, key.e, key.n, pos );
 		}
 
 		//--------------------------------------------------------------------------

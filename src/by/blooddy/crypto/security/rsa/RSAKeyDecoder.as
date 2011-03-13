@@ -111,7 +111,9 @@ package by.blooddy.crypto.security.rsa {
 						args.push( bi ); // m
 						p += bi.len;
 
-						args.push( decodeXMLInteger2( list[ 1 ] ) ); // e
+						bi = decodeXMLInteger( list[ 1 ], p );
+						args.push( bi ); // e
+						p += bi.len;
 
 						if ( k.type == PEM.RSA_PUBLIC_KEY ) {
 
@@ -189,7 +191,7 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @private
 		 */
-		private static function createPublicKey(bytes:ByteArray, n:BigUint, e:uint):RSAPublicKey {
+		private static function createPublicKey(bytes:ByteArray, n:BigUint, e:BigUint):RSAPublicKey {
 			RSAPublicKey.internalCall = true;
 			var result:RSAPublicKey = new RSAPublicKey();
 			result.bytes = bytes;
@@ -201,7 +203,7 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @private
 		 */
-		private static function createPrivateKey(bytes:ByteArray, n:BigUint, e:uint, d:BigUint, p:BigUint, q:BigUint, dp:BigUint, dq:BigUint, invq:BigUint):RSAPublicKey {
+		private static function createPrivateKey(bytes:ByteArray, n:BigUint, e:BigUint, d:BigUint, p:BigUint, q:BigUint, dp:BigUint, dq:BigUint, invq:BigUint):RSAPublicKey {
 			RSAPublicKey.internalCall = true;
 			var result:RSAPrivateKey = new RSAPrivateKey();
 			result.bytes = bytes;
@@ -257,8 +259,11 @@ package by.blooddy.crypto.security.rsa {
 					args.push( bi ); // m
 					p += bi.len;
 
-					args.push( decodeDERInteger2( t.seq[ 1 ] ) ); // e
-
+					bi = decodeDERInteger( t.seq[ 1 ], p );
+					bi.pos -= len;
+					args.push( bi ); // e
+					p += bi.len;
+					
 					// данные big int по ключу
 					bytes = new ByteArray();
 					mem.position = len;
@@ -280,8 +285,11 @@ package by.blooddy.crypto.security.rsa {
 					args.push( bi ); // m
 					p += bi.len;
 
-					args.push( decodeDERInteger2( t.seq[ 2 ] ) ); // e
-
+					bi = decodeDERInteger( t.seq[ 2 ], p );
+					bi.pos -= len;
+					args.push( bi ); // e
+					p += bi.len;
+					
 					for ( var i:uint = 3; i<9; ++i ) {
 						bi = decodeDERInteger( t.seq[ i ], p );
 						bi.pos -= len;
@@ -316,35 +324,8 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @private
 		 */
-		private static function decodeDERInteger2(t:DER):uint {
-			var p:uint = t.block.pos;
-			var l:uint = p + t.block.len;
-			var result:uint = 0;
-			while ( p < l ) {
-				result = ( result << 8 ) | Memory.getUI8( p );
-				p++;
-			}
-			return result;
-		}
-
-		/**
-		 * @private
-		 */
 		private static function decodeDERInteger(t:DER, pos:uint):BigUint {
 			return decodeBigInteger( t.block.pos, t.block.len, pos );
-		}
-
-		/**
-		 * @private
-		 */
-		private static function decodeXMLInteger2(x:XML):uint {
-			var b:ByteArray = Base64.decode( x.*.toString() );
-			b.endian = Endian.BIG_ENDIAN;
-			var result:uint = 0;
-			while ( b.bytesAvailable ) {
-				result = ( result << 8 ) | b.readUnsignedByte();
-			}
-			return result;
 		}
 
 		/**

@@ -84,7 +84,7 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @private
 		 */
-		$internal var e:uint;
+		$internal var e:BigUint;
 
 		//--------------------------------------------------------------------------
 		//
@@ -162,7 +162,7 @@ package by.blooddy.crypto.security.rsa {
 					j -= 4;
 				}
 
-				bu = BigUint.modPowInt( new BigUint( pos + ob, j ), this.e, this.n, pos + ob + j );
+				bu = BigUint.modPow( new BigUint( pos + ob, j ), this.e, this.n, pos + ob + j );
 
 				// reverse
 				// TODO: create method
@@ -189,7 +189,7 @@ package by.blooddy.crypto.security.rsa {
 			if ( this.bytes ) {
 				result =	'[RSAPublicKey' +
 								' n="' + bigUintToString( this.n ) + '"' +
-								' e="' + this.e.toString( 16 ) + '"' +
+								' e="' + bigUintToString( this.e ) + '"' +
 							']';
 			} else {
 				result =	'[RSAPublicKey empty]';
