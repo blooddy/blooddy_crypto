@@ -48,7 +48,7 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @private
 		 */
-		private static const _domain:ApplicationDomain = ApplicationDomain.currentDomain;
+		$internal static const _domain:ApplicationDomain = ApplicationDomain.currentDomain;
 
 		//--------------------------------------------------------------------------
 		//
@@ -114,7 +114,7 @@ package by.blooddy.crypto.security.rsa {
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 			_domain.domainMemory = mem;
 
-			var ob:uint = this.getBlockLength();
+			var ob:uint = ( BigUint.getBitLength( this.n ) + 7 ) / 8;
 			var ib:uint = ob - 11;
 
 			pad.blockSize = ob;
@@ -162,7 +162,7 @@ package by.blooddy.crypto.security.rsa {
 					j -= 4;
 				}
 
-				bu = BigUint.modPow( new BigUint( pos + ob, j ), this.e, this.n, pos + ob + j );
+				bu = RSA.EP( this, new BigUint( pos + ob, j ), pos + ob + j );
 
 				// reverse
 				// TODO: create method
@@ -218,19 +218,6 @@ package by.blooddy.crypto.security.rsa {
 				result += ( c <= 0xF ? '0' : '' ) + c.toString( 16 );
 			}
 			return result;
-		}
-
-		//--------------------------------------------------------------------------
-		//
-		//  Private methods
-		//
-		//--------------------------------------------------------------------------
-
-		/**
-		 * @private
-		 */
-		private function getBlockLength():uint {
-			return ( BigUint.getBitLength( this.n ) + 7 ) / 8;
 		}
 
 	}
