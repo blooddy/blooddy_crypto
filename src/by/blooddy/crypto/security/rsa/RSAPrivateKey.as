@@ -119,14 +119,11 @@ package by.blooddy.crypto.security.rsa {
 			_domain.domainMemory = mem;
 			
 			try {
-				
-				var ob:uint = ( BigUint.getBitLength( this.n ) + 7 ) / 8;
-				var ib:uint = ob - 11;
-	
-				if ( message.length % ob ) throw new ArgumentError();
-	
-				pad.blockSize = ob;
-				
+
+				var bs:uint = ( BigUint.getBitLength( this.n ) + 7 ) / 8;
+				pad.blockSize = bs;
+				var ds:uint = pad.maxDataSize;
+
 				var mpad:MemoryPad = pad as MemoryPad;
 				
 				var i:uint = this.bytes.length;
@@ -140,7 +137,7 @@ package by.blooddy.crypto.security.rsa {
 
 				while ( i < p ) {
 
-					bu = RSA.toBigUint( i, ob, pos );
+					bu = RSA.toBigUint( i, bs, pos );
 					bu = RSA.DP( this, bu, pos + bu.len );
 					RSA.fromBigUint( bu, pos );
 	
@@ -161,7 +158,7 @@ package by.blooddy.crypto.security.rsa {
 					mem.readBytes( mem, pos, mb.len );
 	
 					pos += mb.len;
-					i += ob;
+					i += bs;
 	
 				}
 			

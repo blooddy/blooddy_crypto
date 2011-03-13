@@ -84,6 +84,9 @@ package by.blooddy.crypto.security.rsa {
 		}
 
 		public static function fromBigUint(v:BigUint, pos:uint):void {
+			while ( v.len > 0 && Memory.getUI8( v.pos + v.len - 1 ) == 0 ) {
+				--v.len;
+			}
 			reverse( v.pos, v.len, pos );
 		}
 

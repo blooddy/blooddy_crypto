@@ -150,11 +150,10 @@ package by.blooddy.crypto.security.rsa {
 			_domain.domainMemory = mem;
 
 			try {
-				
-				var ob:uint = ( BigUint.getBitLength( this.n ) + 7 ) / 8;
-				var ib:uint = ob - 11;
-	
-				pad.blockSize = ob;
+
+				var bs:uint = ( BigUint.getBitLength( this.n ) + 7 ) / 8;
+				pad.blockSize = bs;
+				var ds:uint = pad.maxDataSize;
 				
 				var mpad:MemoryPad = pad as MemoryPad;
 				
@@ -163,31 +162,33 @@ package by.blooddy.crypto.security.rsa {
 				
 				var pos:uint = p;
 				
+				var mb:MemoryBlock;
 				var bu:BigUint;
 				var block:ByteArray;
 			
 				while ( i < p ) {
 	
-					if ( i + ib >= p ) ib = p - i;
+					if ( i + ds >= p ) ds = p - i;
 	
 					// pad block
 					if ( mpad ) {
-						mpad.padMemory( new MemoryBlock( i, ib ), pos );
+						mb = mpad.padMemory( new MemoryBlock( i, ds ), pos );
 					} else {
 						if ( block ) block.length = 0;
 						else block = new ByteArray();
-						block.writeBytes( mem, i, ib );
+						block.writeBytes( mem, i, ds );
 						block = pad.pad( block );
 						block.position = 0;
 						block.readBytes( mem, pos );
+						mb = new MemoryBlock( pos, block.length );
 					}
 	
-					bu = RSA.toBigUint( pos, ob, pos + ob );
-					bu = RSA.EP( this, bu, pos + ob + bu.len );
+					bu = RSA.toBigUint( mb.pos, mb.len, pos + bs );
+					bu = RSA.EP( this, bu, pos + bs + bu.len );
 					RSA.fromBigUint( bu, pos );
 	
-					i += ib;
-					pos += ob;
+					i += ds;
+					pos += bs;
 	
 				}
 			
