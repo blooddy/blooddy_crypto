@@ -58,7 +58,7 @@ package by.blooddy.crypto.security.rsa {
 		//--------------------------------------------------------------------------
 		
 		//----------------------------------
-		//  decodeDER
+		//  encrypt_decrypt
 		//----------------------------------
 		
 		public static var $encrypt_decrypt:Array = [
@@ -76,6 +76,26 @@ package by.blooddy.crypto.security.rsa {
 				pad
 			);
 
+			Assert.assertEquals(
+				bytes.readUTFBytes( bytes.length ),
+				message
+			);
+		}
+		
+		//----------------------------------
+		//  sign_verify
+		//----------------------------------
+		
+		[Test( order="2", dataProvider="$encrypt_decrypt" )]
+		public function sign_verify(message:String, pad:IPad):void {
+			var bytes:ByteArray = new ByteArray();
+			bytes.writeUTFBytes( message );
+			
+			bytes = KEY_PAIR.publicKey.verify(
+				KEY_PAIR.privateKey.sign( bytes, pad ),
+				pad
+			);
+			
 			Assert.assertEquals(
 				bytes.readUTFBytes( bytes.length ),
 				message
