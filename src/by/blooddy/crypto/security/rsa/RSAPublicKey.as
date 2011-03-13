@@ -48,7 +48,33 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @private
 		 */
-		$internal static const _domain:ApplicationDomain = ApplicationDomain.currentDomain;
+		protected static const _domain:ApplicationDomain = ApplicationDomain.currentDomain;
+
+		//--------------------------------------------------------------------------
+		//
+		//  Private class variables
+		//
+		//--------------------------------------------------------------------------
+
+		/**
+		 * @private
+		 */
+		protected static function bigUintToString(v:BigUint):String {
+			if ( v.len == 0 ) return '0';
+			var p:uint = v.pos;
+			var i:uint = p + v.len - 1;
+			while ( Memory.getUI8( i ) == 0 ) {
+				--i;
+			}
+			var result:String = Memory.getUI8( i ).toString( 16 );
+			var c:uint;
+			while ( i > p ) {
+				--i;
+				c = Memory.getUI8( i );
+				result += ( c <= 0xF ? '0' : '' ) + c.toString( 16 );
+			}
+			return result;
+		}
 
 		//--------------------------------------------------------------------------
 		//
@@ -57,6 +83,7 @@ package by.blooddy.crypto.security.rsa {
 		//--------------------------------------------------------------------------
 
 		/**
+		 * @private
 		 * Constructor
 		 */
 		public function RSAPublicKey() {
@@ -187,35 +214,29 @@ package by.blooddy.crypto.security.rsa {
 		public function toString():String {
 			var result:String;
 			if ( this.bytes ) {
+
+				var tmp:ByteArray = _domain.domainMemory;
+				var mem:ByteArray;
+				if ( this.bytes.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) {
+					mem = new ByteArray();
+					mem.writeBytes( this.bytes );
+					mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+				} else {
+					mem = this.bytes;
+				}
+				_domain.domainMemory = mem;
+
 				result =	'[RSAPublicKey' +
 								' n="' + bigUintToString( this.n ) + '"' +
 								' e="' + bigUintToString( this.e ) + '"' +
 							']';
+
+				_domain.domainMemory = tmp;
+
 			} else {
+
 				result =	'[RSAPublicKey empty]';
-			}
-			return result;
-		}
 
-		//--------------------------------------------------------------------------
-		//
-		//  Internal methods
-		//
-		//--------------------------------------------------------------------------
-
-		$internal function bigUintToString(v:BigUint):String {
-			if ( v.len == 0 ) return '0';
-			var p:uint = v.pos;
-			var i:uint = p + v.len - 1;
-			while ( this.bytes[ i ] == 0 ) {
-				--i;
-			}
-			var result:String = this.bytes[ i ].toString( 16 );
-			var c:uint;
-			while ( i > p ) {
-				--i;
-				c = this.bytes[ i ];
-				result += ( c <= 0xF ? '0' : '' ) + c.toString( 16 );
 			}
 			return result;
 		}

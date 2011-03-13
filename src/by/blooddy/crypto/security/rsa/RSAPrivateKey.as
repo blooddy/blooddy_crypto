@@ -40,6 +40,7 @@ package by.blooddy.crypto.security.rsa {
 		//--------------------------------------------------------------------------
 
 		/**
+		 * @private
 		 * Constructor
 		 */
 		public function RSAPrivateKey() {
@@ -197,6 +198,18 @@ package by.blooddy.crypto.security.rsa {
 		public override function toString():String {
 			var result:String;
 			if ( this.bytes ) {
+
+				var tmp:ByteArray = _domain.domainMemory;
+				var mem:ByteArray;
+				if ( this.bytes.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) {
+					mem = new ByteArray();
+					mem.writeBytes( this.bytes );
+					mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+				} else {
+					mem = this.bytes;
+				}
+				_domain.domainMemory = mem;
+				
 				result =	'[RSAPrivateKey' +
 								' n="' + bigUintToString( this.n ) + '"' +
 								' e="' + bigUintToString( this.e ) + '"' +
@@ -207,8 +220,13 @@ package by.blooddy.crypto.security.rsa {
 								' dQ="' + bigUintToString( this.dq ) + '"' +
 								' iQ="' + bigUintToString( this.invq ) + '"' +
 							']';
+				
+				_domain.domainMemory = tmp;
+				
 			} else {
+
 				result =	'[RSAPrivateKey empty]';
+
 			}
 			return result;
 		}
