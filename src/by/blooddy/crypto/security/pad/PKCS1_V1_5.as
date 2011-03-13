@@ -164,6 +164,14 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 
 	//--------------------------------------------------------------------------
 	//
+	//  Properties
+	//
+	//--------------------------------------------------------------------------
+
+	public var type:uint = 0x02;
+
+	//--------------------------------------------------------------------------
+	//
 	//  Methods
 	//
 	//--------------------------------------------------------------------------
@@ -182,8 +190,7 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 		var k:uint = pos + 2;
 		var ks:uint = pos + blockSize - block.len - 1;
 
-		var type:uint = 0x02;
-		switch ( type ) {
+		switch ( this.type ) {
 			case 0x01:
 				// blocktype 1: all padding bytes are 0xFF
 				do {
@@ -222,8 +229,9 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 		var ks:uint = k + blockSize;
 		
 		if ( Memory.getUI8( k++ ) != 0 ) throw new ArgumentError();
+		if ( Memory.getUI8( k++ ) != this.type ) throw new ArgumentError();
 
-		switch ( Memory.getUI8( k++ ) ) { // type
+		switch ( this.type ) { // type
 			case 0x01:
 				while ( k < ks && Memory.getUI8( k++ ) == 0xFF  ) {}
 				if ( Memory.getUI8( k ) != 0 ) throw new ArgumentError();
@@ -231,8 +239,6 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 			case 0x02:
 				while ( k < ks && Memory.getUI8( k++ ) != 0 ) {}
 				break;
-			default:
-				throw new ArgumentError();
 		}
 
 		return new MemoryBlock( k, ks - k );
