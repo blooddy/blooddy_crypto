@@ -60,15 +60,19 @@ package by.blooddy.crypto.security.pad {
 		/**
 		 * @inheritDoc
 		 */
-		public final function get blockSize():uint {
+		public function get blockSize():uint {
 			return this._blockSize;
 		}
 
 		/**
 		 * @private
 		 */
-		public final function set blockSize(value:uint):void {
+		public function set blockSize(value:uint):void {
 			this._blockSize = value;
+		}
+
+		public function get maxDataSize():uint {
+			return this._blockSize;
 		}
 
 		//--------------------------------------------------------------------------
@@ -80,9 +84,9 @@ package by.blooddy.crypto.security.pad {
 		/**
 		 * @inheritDoc
 		 */
-		public final function pad(bytes:ByteArray):ByteArray {
+		public function pad(bytes:ByteArray):ByteArray {
 
-			if ( bytes.length <= 0 || bytes.length > this._blockSize ) throw new ArgumentError();
+			if ( bytes.length <= 0 || bytes.length > this.maxDataSize ) throw new ArgumentError();
 			
 			var tmp:ByteArray = _domain.domainMemory;
 
@@ -111,7 +115,7 @@ package by.blooddy.crypto.security.pad {
 		/**
 		 * @inheritDoc
 		 */
-		public final function unpad(bytes:ByteArray):ByteArray {
+		public function unpad(bytes:ByteArray):ByteArray {
 
 			if ( bytes.length <= 0 || bytes.length != this._blockSize ) throw new ArgumentError();
 			
@@ -131,7 +135,7 @@ package by.blooddy.crypto.security.pad {
 			} finally {
 				_domain.domainMemory = tmp;
 			}
-			
+
 			var result:ByteArray = new ByteArray();
 			mem.position = block.pos;
 			mem.readBytes( result, 0, block.len );

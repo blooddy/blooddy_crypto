@@ -30,6 +30,8 @@ package by.blooddy.crypto.security.pad {
 		 */
 		function set blockSize(value:uint):void;
 		
+		function get maxDataSize():uint;
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Methods

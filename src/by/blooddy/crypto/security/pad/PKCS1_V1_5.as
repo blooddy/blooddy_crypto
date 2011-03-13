@@ -43,6 +43,9 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 	//
 	//--------------------------------------------------------------------------
 	
+	/**
+	 * @private
+	 */
 	public function $PKCS1_V1_5() {
 		super();
 		if ( PKCS1_V1_5 ) Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
@@ -54,7 +57,28 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 	//
 	//--------------------------------------------------------------------------
 
+	/**
+	 * @private
+	 */
 	public var type:uint = 0x02;
+
+	/**
+	 * @private
+	 */
+	private var _maxDataSize:uint;
+
+	/**
+	 * @private
+	 */
+	public override function get maxDataSize():uint {
+		return this._maxDataSize;
+	}
+
+	public override function set blockSize(value:uint):void {
+		if ( value <= 11 ) throw new ArgumentError();
+		super.blockSize = value;
+		this._maxDataSize = value - 11;
+	}
 
 	//--------------------------------------------------------------------------
 	//
@@ -69,7 +93,7 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 
 		var blockSize:uint = super.blockSize;
 
-		if ( block.len + 3 > blockSize ) throw new ArgumentError();
+		if ( block.len > this._maxDataSize ) throw new ArgumentError();
 
 		Memory.setI16( pos, 0x0200 );
 
