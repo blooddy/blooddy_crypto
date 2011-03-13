@@ -508,7 +508,7 @@ package by.blooddy.math.utils {
 		/**
 		 * @return		v1 + 1
 		 */
-		public static function increment(v:BigUint, pos:uint):BigUint {
+		public static function inc(v:BigUint, pos:uint):BigUint {
 			var l:uint = v.len;
 			if ( l == 0 ) {
 				Memory.setI32( pos, 1 );
@@ -604,7 +604,7 @@ package by.blooddy.math.utils {
 		 * @return		v1 - 1
 		 * @throws		ArgumentError	v1 == 0
 		 */
-		public static function decrement(v:BigUint, pos:uint):BigUint {
+		public static function dec(v:BigUint, pos:uint):BigUint {
 			var l:uint = v.len;
 			if ( l == 0 ) {
 				throw new ArgumentError();
@@ -712,7 +712,7 @@ package by.blooddy.math.utils {
 		/**
 		 * @return		v1 * v2
 		 */
-		public static function mult(v1:BigUint, v2:BigUint, pos:uint):BigUint {
+		public static function mul(v1:BigUint, v2:BigUint, pos:uint):BigUint {
 			var l1:uint = v1.len;
 			var l2:uint = v2.len;
 			if ( l1 == 0 ) {
@@ -776,22 +776,22 @@ package by.blooddy.math.utils {
 								c1 = Memory.getUI16( p2 );
 							}
 							CRYPTO::inline {
-								BigUint$.mult_s( p1, l1, c1, pos, len, temp );
+								BigUint$.mul_s( p1, l1, c1, pos, len, temp );
 								return new BigUint( pos, len );
 							}
 							CRYPTO::debug {
-								return _mult_s( p1, l1, c1, pos );
+								return _mul_s( p1, l1, c1, pos );
 							}
 						}
 					} else {
 						CRYPTO::inline {
 							mem = _domain.domainMemory;
 							var i:uint, j:uint;
-							BigUint$.mult( mem, p1, l1, p2, l2, pos, len, c1, c2, i, j, temp );
+							BigUint$.mul( mem, p1, l1, p2, l2, pos, len, c1, c2, i, j, temp );
 							return new BigUint( pos, len );
 						}
 						CRYPTO::debug {
-							return _mult( p1, l1, p2, l2, pos );
+							return _mul( p1, l1, p2, l2, pos );
 						}
 					}
 				}
@@ -882,7 +882,7 @@ package by.blooddy.math.utils {
 									pr = p;
 									lr = l;
 								} else {
-									BigUint$.mult_s( p, l, r, pos, len, temp );
+									BigUint$.mul_s( p, l, r, pos, len, temp );
 									pr = pos;
 									lr = len;
 									pos += len;
@@ -909,7 +909,7 @@ package by.blooddy.math.utils {
 								if ( r == 1 ) {
 									d = v;
 								} else {
-									d = _mult_s( p, l, r, pos );
+									d = _mul_s( p, l, r, pos );
 									pos += d.len;
 								}
 							}
@@ -931,13 +931,13 @@ package by.blooddy.math.utils {
 					while ( e > 0 ) {
 						if ( e & 1 ) {
 							CRYPTO::inline {
-								BigUint$.mult( mem, p, l, pr, lr, pos, len, c1, c2, i, j, temp );
+								BigUint$.mul( mem, p, l, pr, lr, pos, len, c1, c2, i, j, temp );
 								pr = pos;
 								lr = len;
 								pos += len;
 							}
 							CRYPTO::debug {
-								d = _mult( p, l, d.pos, d.len, pos );
+								d = _mul( p, l, d.pos, d.len, pos );
 								pos = d.pos + d.len;
 							}
 						}
@@ -1192,55 +1192,38 @@ package by.blooddy.math.utils {
 		 * @return		pow( v, e ) % m
 		 * @throws		ArgumentError	m == 0
 		 */
-		public static function modPowInt(v:BigUint, e:uint, m:BigUint, pos:uint):BigUint {
-			var l1:uint = v.len;
-			var l2:uint = m.len;
-			if ( l2 == 0 ) {
-				throw new ArgumentError();
-			} else if ( e == 1 ) {
-				return mod( v, m, pos );
-			} else {
-				var p1:uint = v.pos;
-				var p2:uint = m.pos;
-				if ( l2 == 4 && Memory.getI32( p2 ) == 1 ) {
-					return new BigUint();
-				} else if ( l1 == 4 && Memory.getI32( p1 ) == 1 ) {
-					return v;
-				} else if ( e == 0 ) {
-					Memory.setI32( pos, 1 );
-					return new BigUint( pos, 4 );
-				} else if ( l1 == 0 ) {
-					return v;
-				} else if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) {
-					return _modPowInt_simple( p1, l1, e, uint( Memory.getI32( p2 ) ), pos );
-				} else /*if ( e < 256 || !( Memory.getUI8( p2 ) & 1 ) )*/ {
-					return _modPowInt_classic( p1, l1, e, p2, l2, pos );
-				}
-			}
-		}
-
 		public static function modPow(v:BigUint, e:BigUint, m:BigUint, pos:uint):BigUint {
 			var l1:uint = v.len;
 			var l2:uint = m.len;
 			var le:uint = e.len;
 			if ( l2 == 0 ) {
 				throw new ArgumentError();
-			} else if ( le <= 4 ) {
-				return modPowInt( v, ( le ? Memory.getI32( e.pos ) : 0 ), m, pos );
 			} else {
-				var p1:uint = v.pos;
-				var p2:uint = m.pos;
 				var pe:uint = e.pos;
-				if ( l2 == 4 && Memory.getI32( p2 ) == 1 ) {
-					return new BigUint();
-				} else if ( l1 == 4 && Memory.getI32( p1 ) == 1 ) {
-					return v;
-				} else if ( l1 == 0 ) {
-					return v;
-				} /*else if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) {
-					return _modPow_simple( p1, l1, pe, le, uint( Memory.getI32( p2 ) ), pos );
-				} */else /*if ( e < 256 || !( Memory.getUI8( p2 ) & 1 ) )*/ {
-					return _modPow_classic( p1, l1, pe, le, p2, l2, pos );
+				var ee:uint = ( le ? Memory.getI32( pe ) : 0 );
+				if ( ee == 1 ) {
+					return mod( v, m, pos );
+				} else {
+					var p1:uint = v.pos;
+					var p2:uint = m.pos;
+					if ( l2 == 4 && Memory.getI32( p2 ) == 1 ) {
+						return new BigUint();
+					} else if ( l1 == 4 && Memory.getI32( p1 ) == 1 ) {
+						return v;
+					} else if ( le == 0 ) {
+						Memory.setI32( pos, 1 );
+						return new BigUint( pos, 4 );
+					} else if ( l1 == 0 ) {
+						return v;
+					} else if ( le <= 4 ) {
+						if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) {
+							return _modPowInt_simple( p1, l1, ee, uint( Memory.getI32( p2 ) ), pos );
+						} else {
+							return _modPowInt_classic( p1, l1, ee, p2, l2, pos );
+						}
+					} else {
+						return _modPow_classic( p1, l1, pe, le, p2, l2, pos );
+					}
 				}
 			}
 			throw new IllegalOperationError( 'TODO' );
@@ -1453,7 +1436,7 @@ package by.blooddy.math.utils {
 		 * @private
 		 * @return		v1 * v2
 		 */
-		private static function _mult_s(p1:uint, l1:uint, v2:uint, pos:uint):BigUint {
+		private static function _mul_s(p1:uint, l1:uint, v2:uint, pos:uint):BigUint {
 			var len:uint = 0;
 			var temp:uint = 0;
 			do {
@@ -1474,7 +1457,7 @@ package by.blooddy.math.utils {
 		 * @private
 		 * @return		v1 * v2
 		 */
-		private static function _mult(p1:uint, l1:uint, p2:uint, l2:uint, pos:uint):BigUint {
+		private static function _mul(p1:uint, l1:uint, p2:uint, l2:uint, pos:uint):BigUint {
 			var temp:uint = 0;
 			var c1:uint = Memory.getUI16( p1 );
 			var c2:uint = Memory.getUI16( p2 );
@@ -1627,12 +1610,12 @@ package by.blooddy.math.utils {
 			if ( scale > 1 ) {
 				// Нормализация
 				CRYPTO::inline {
-					BigUint$.mult_s( p1, l1, scale, pos, len, k );
+					BigUint$.mul_s( p1, l1, scale, pos, len, k );
 					p1 = pos;
 					l1 = len;
 				}
 				CRYPTO::debug {
-					d = _mult_s( p1, l1, scale, pos );
+					d = _mul_s( p1, l1, scale, pos );
 					p1 = d.pos;
 					l1 = d.len;
 				}
@@ -1640,12 +1623,12 @@ package by.blooddy.math.utils {
 				Memory.setI16( pos, 0 );
 				pos += 2;
 				CRYPTO::inline {
-					BigUint$.mult_s( p2, l2, scale, pos, len, k );
+					BigUint$.mul_s( p2, l2, scale, pos, len, k );
 					p2 = pos;
 					l2 = len;
 				}
 				CRYPTO::debug {
-					d = _mult_s( p2, l2, scale, pos );
+					d = _mul_s( p2, l2, scale, pos );
 					p2 = d.pos;
 					l2 = d.len;
 				}
@@ -1837,13 +1820,13 @@ package by.blooddy.math.utils {
 			var k:uint;
 			if ( scale > 1 ) {
 				// Нормализация
-				d = _mult_s( p1, l1, scale, pos );
+				d = _mul_s( p1, l1, scale, pos );
 				p1 = d.pos;
 				l1 = d.len;
 				pos = p1 + l1;
 				Memory.setI16( pos, 0 );
 				pos += 2;
-				d = _mult_s( p2, l2, scale, pos );
+				d = _mul_s( p2, l2, scale, pos );
 				p2 = d.pos;
 				l2 = d.len;
 				pos = p2 + l2;
@@ -2006,13 +1989,13 @@ package by.blooddy.math.utils {
 			var k:uint;
 			if ( scale > 1 ) {
 				// Нормализация
-				d = _mult_s( p1, l1, scale, pos );
+				d = _mul_s( p1, l1, scale, pos );
 				p1 = d.pos;
 				l1 = d.len;
 				pos = p1 + l1;
 				Memory.setI16( pos, 0 );
 				pos += 2;
-				d = _mult_s( p2, l2, scale, pos );
+				d = _mul_s( p2, l2, scale, pos );
 				p2 = d.pos;
 				l2 = d.len;
 				pos = p2 + l2;
@@ -2175,7 +2158,6 @@ package by.blooddy.math.utils {
 				Memory.setI32( pos, g );
 				return new BigUint( pos, 4 );
 			}
-			return r;
 		}
 
 		/**
@@ -2199,88 +2181,101 @@ package by.blooddy.math.utils {
 				} else if ( i == 0 ) {
 					l1 = 0;
 				}
-				var p3:uint;
-				var l3:uint;
-				if ( l1 > 0 ) {
-					do {
-						if ( e & 1 ) {
-							if ( l3 ) {
-								BigUint$.mult( mem, p1, l1, p3, l3, pos, len, c1, c2, t1, t2, k );
-								p3 = pos;
-								l3 = len;
-								pos += len;
-								if ( l3 >= l2 ) {
-									p2 = _p2;
-									l2 = _l2;
-									BigUint$.mod( mem, p3, l3, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
-									p3 = pos;
-									l3 = len;
-									pos += len;
-								}
-							} else {
-								p3 = p1;
-								l3 = l1;
-							}
-						}
-						e >>>= 1;
-						if ( e ) {
-							BigUint$.sqr( mem, p1, l1, pos, len, c1, c2, t1, t2, k );
-							p1 = pos;
-							l1 = len;
-							pos += len;
-							if ( l1 >= l2 ) {
-								p2 = _p2;
-								l2 = _l2;
-								BigUint$.mod( mem, p1, l1, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
-								p1 = pos;
-								l1 = len;
-								pos += len;
-							}
-						}
-					} while ( e ); // TODO: заоптимизировать проверку длинны результата
-				} else {
-					p3 = p1;
-					l3 = l1;
-				}
-				return new BigUint( p3, l3 );
 			}
 			CRYPTO::debug {
 				var r:BigUint;
 				if ( _compare( p1, l1, p2, l2 ) >= 0 ) {
 					r = _mod( p1, l1, p2, l2, pos );
 					pos += r.pos + r.len;
-				} else {
-					r = new BigUint( p1, l1 );
+					p1 = r.pos;
+					l1 = r.len;
 				}
+			}
+			if ( l1 ) {
+				return _modPow_classic_round( p1, l1, e, p2, l2, pos )[ 0 ];
+			} else {
+				return new BigUint();
+			}
+		}
+
+		/**
+		 * @private
+		 */
+		private static function _modPow_classic_round(p1:uint, l1:uint, e:uint, p2:uint, l2:uint, pos:uint):Vector.<BigUint> {
+			CRYPTO::inline {
+				var _p2:uint = p2;
+				var _l2:uint = l2;
+				var len:uint;
+				var c1:uint, c2:uint;
+				var mem:ByteArray = _domain.domainMemory;
+				var scale:uint, k:uint, t1:uint, t2:uint, t3:int, qGuess:int, borrow:int, carry:int, j:int, i:int;
+				var p3:uint;
+				var l3:uint;
+				do {
+					if ( e & 1 ) {
+						if ( l3 ) {
+							BigUint$.mul( mem, p1, l1, p3, l3, pos, len, c1, c2, t1, t2, k );
+							p3 = pos;
+							l3 = len;
+							pos += len;
+							if ( l3 >= l2 ) {
+								p2 = _p2;
+								l2 = _l2;
+								BigUint$.mod( mem, p3, l3, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
+								p3 = pos;
+								l3 = len;
+								pos += len;
+							}
+						} else {
+							p3 = p1;
+							l3 = l1;
+						}
+					}
+					e >>>= 1;
+					if ( e ) {
+						BigUint$.sqr( mem, p1, l1, pos, len, c1, c2, t1, t2, k );
+						p1 = pos;
+						l1 = len;
+						pos += len;
+						if ( l1 >= l2 ) {
+							p2 = _p2;
+							l2 = _l2;
+							BigUint$.mod( mem, p1, l1, p2, l2, pos, len, scale, k, t1, t2, t3, qGuess, borrow, carry, c2, c1, j, i );
+							p1 = pos;
+							l1 = len;
+							pos += len;
+						}
+					}
+				} while ( e ); // TODO: заоптимизировать проверку длинны результата
+				return new <BigUint>[ new BigUint( p3, l3 ), new BigUint( p1, l1 ) ];
+			}
+			CRYPTO::debug {
+				var r:BigUint = new BigUint( p1, l1 );
 				var g:BigUint;
-				if ( r.len > 0 ) {
-					do {
-						if ( e & 1 ) {
-							if ( g ) {
-								g = _mult( g.pos, g.len, r.pos, r.len, pos );
+				do {
+					if ( e & 1 ) {
+						if ( g ) {
+							g = _mul( g.pos, g.len, r.pos, r.len, pos );
+							pos = g.pos + g.len;
+							if ( g.len >= l2 ) {
+								g = _mod( g.pos, g.len, p2, l2, pos );
 								pos = g.pos + g.len;
-								if ( g.len >= l2 ) {
-									g = _mod( g.pos, g.len, p2, l2, pos );
-									pos = g.pos + g.len;
-								}
-							} else {
-								g = r;
 							}
+						} else {
+							g = r;
 						}
-						e >>>= 1;
-						if ( e > 0 ) {
-							r = _sqr( r.pos, r.len, pos );
+					}
+					e >>>= 1;
+					if ( e > 0 ) {
+						r = _sqr( r.pos, r.len, pos );
+						pos = r.pos + r.len;
+						if ( r.len >= l2 ) {
+							r = _mod( r.pos, r.len, p2, l2, pos );
 							pos = r.pos + r.len;
-							if ( r.len >= l2 ) {
-								r = _mod( r.pos, r.len, p2, l2, pos );
-								pos = r.pos + r.len;
-							}
 						}
-					} while ( e > 0 && ( !g || g.len > 0 ) );
-				} else {
-					g = r;
-				}
-				return g;
+					}
+				} while ( e > 0 && ( !g || g.len > 0 ) );
+				return new <BigUint>[ g, r ];
 			}
 		}
 
@@ -2288,7 +2283,7 @@ package by.blooddy.math.utils {
 		 * @private
 		 * @return		pow( v1, e ) % v2;
 		 */
-		private static function _modPow_classic(p1:uint, l1:uint, ep:uint, el:uint, p2:uint, l2:uint, pos:uint):BigUint {
+		private static function _modPow_classic(p1:uint, l1:uint, pe:uint, le:uint, p2:uint, l2:uint, pos:uint):BigUint {
 			var r:BigUint;
 			if ( _compare( p1, l1, p2, l2 ) >= 0 ) {
 				r = _mod( p1, l1, p2, l2, pos );
@@ -2297,12 +2292,12 @@ package by.blooddy.math.utils {
 				r = new BigUint( p1, l1 );
 			}
 			var g:BigUint;
-			var e:BigUint = new BigUint( ep, el );
+			var e:BigUint = new BigUint( pe, le );
 			if ( r.len > 0 ) {
 				do {
 					if ( testBit( e, 0 ) ) {
 						if ( g ) {
-							g = _mult( g.pos, g.len, r.pos, r.len, pos );
+							g = _mul( g.pos, g.len, r.pos, r.len, pos );
 							pos = g.pos + g.len;
 							if ( g.len >= l2 ) {
 								g = _mod( g.pos, g.len, p2, l2, pos );

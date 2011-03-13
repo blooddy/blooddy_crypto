@@ -1057,7 +1057,7 @@ package by.blooddy.math {
 				
 				var result:BigInteger = new BigInteger();
 				result._value = getValueFromBigUint(
-					BigUint.mult( v1, v2, v2.pos + l2 ),
+					BigUint.mul( v1, v2, v2.pos + l2 ),
 					this._value.negative != v._value.negative
 				);
 				

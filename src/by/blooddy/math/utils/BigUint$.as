@@ -121,7 +121,7 @@ package by.blooddy.math.utils {
 		/**
 		 * result = v1 * v2
 		 */
-		public static function mult_s(
+		public static function mul_s(
 			p1:uint, l1:uint, v2:uint, pos:uint, len:uint,
 			temp:uint
 		):void {
@@ -143,7 +143,7 @@ package by.blooddy.math.utils {
 		/**
 		 * result = v1 * v2
 		 */
-		public static function mult(
+		public static function mul(
 			mem:ByteArray,
 			p1:uint, l1:uint, p2:uint, l2:uint, pos:uint, len:uint,
 			c1:uint, c2:uint, i:uint, j:uint, temp:uint
@@ -302,13 +302,13 @@ package by.blooddy.math.utils {
 
 			if ( scale > 1 ) {
 				// Нормализация
-				BigUint$.mult_s( p1, l1, scale, pos, len, k );
+				BigUint$.mul_s( p1, l1, scale, pos, len, k );
 				p1 = pos;
 				l1 = len;
 				pos += len;
 				Memory.setI16( pos, 0 ); // буфер
 				pos += 2;
-				BigUint$.mult_s( p2, l2, scale, pos, len, k );
+				BigUint$.mul_s( p2, l2, scale, pos, len, k );
 				p2 = pos;
 				l2 = len;
 				pos += len;
@@ -485,13 +485,13 @@ package by.blooddy.math.utils {
 			
 			if ( scale > 1 ) {
 				// Нормализация
-				BigUint$.mult_s( p1, l1, scale, pos, len, k );
+				BigUint$.mul_s( p1, l1, scale, pos, len, k );
 				p1 = pos;
 				l1 = len;
 				pos += len;
 				Memory.setI16( pos, 0 );
 				pos += 2;
-				BigUint$.mult_s( p2, l2, scale, pos, len, k );
+				BigUint$.mul_s( p2, l2, scale, pos, len, k );
 				p2 = pos;
 				l2 = len;
 				pos += len;
@@ -654,13 +654,13 @@ package by.blooddy.math.utils {
 			
 			if ( scale > 1 ) {
 				// Нормализация
-				BigUint$.mult_s( p1, l1, scale, pos, len, k );
+				BigUint$.mul_s( p1, l1, scale, pos, len, k );
 				p1 = pos;
 				l1 = len;
 				pos += len;
 				Memory.setI16( pos, 0 );
 				pos += 2;
-				BigUint$.mult_s( p2, l2, scale, pos, len, k );
+				BigUint$.mul_s( p2, l2, scale, pos, len, k );
 				p2 = pos;
 				l2 = len;
 				pos += len;

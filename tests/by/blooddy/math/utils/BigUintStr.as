@@ -100,9 +100,9 @@ package by.blooddy.math.utils {
 			return BigUint.compare( _v1, _v2 );
 		}
 
-		public static function increment(v1:String):String {
+		public static function inc(v1:String):String {
 			var _v1:BigUint = fromString( v1, 5 );
-			var _r:BigUint = BigUint.increment( _v1, _v1.pos + _v1.len );
+			var _r:BigUint = BigUint.inc( _v1, _v1.pos + _v1.len );
 			return toString( _r );
 		}
 
@@ -113,9 +113,9 @@ package by.blooddy.math.utils {
 			return toString( _r );
 		}
 
-		public static function decrement(v1:String):String {
+		public static function dec(v1:String):String {
 			var _v1:BigUint = fromString( v1, 5 );
-			var _r:BigUint = BigUint.decrement( _v1, _v1.pos + _v1.len );
+			var _r:BigUint = BigUint.dec( _v1, _v1.pos + _v1.len );
 			return toString( _r );
 		}
 
@@ -126,10 +126,10 @@ package by.blooddy.math.utils {
 			return toString( _r );
 		}
 
-		public static function mult(v1:String, v2:String):String {
+		public static function mul(v1:String, v2:String):String {
 			var _v1:BigUint = fromString( v1, 5 );
 			var _v2:BigUint = fromString( v2, _v1.pos + _v1.len );
-			var _r:BigUint = BigUint.mult( _v1, _v2, _v2.pos + _v2.len );
+			var _r:BigUint = BigUint.mul( _v1, _v2, _v2.pos + _v2.len );
 			return toString( _r );
 		}
 
@@ -157,13 +157,6 @@ package by.blooddy.math.utils {
 			var _v:BigUint = fromString( v, 5 );
 			var _m:BigUint = fromString( m, _v.pos + _v.len );
 			var _r:BigUint = BigUint.mod( _v, _m, _m.pos + _m.len );
-			return toString( _r );
-		}
-
-		public static function modPowInt(v:String, e:uint, m:String):String {
-			var _v:BigUint = fromString( v, 5 );
-			var _m:BigUint = fromString( m, _v.pos + _v.len );
-			var _r:BigUint = BigUint.modPowInt( _v, e, _m, _m.pos + _m.len );
 			return toString( _r );
 		}
 
