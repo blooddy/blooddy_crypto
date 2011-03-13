@@ -458,7 +458,7 @@ package by.blooddy.math {
 		//  increment
 		//----------------------------------
 		
-		public static var $increment:Array = [
+		public static var $inc:Array = [
 			[ '-1234567800000010', '-123456780000000F' ],
 			[ '-100000000', '-FFFFFFFF' ],
 			[ '-123', '-122' ],
@@ -469,9 +469,9 @@ package by.blooddy.math {
 			[ '123456780000000F', '1234567800000010' ]
 		];
 		
-		[Test( order="13", dataProvider="$increment" )]
-		public function increment(v:String, result:String):void {
-			var R:BigInteger = BigInteger.fromString( v ).increment();
+		[Test( order="13", dataProvider="$inc" )]
+		public function inc(v:String, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v ).inc();
 			Assert.assertEquals(
 				v.toLowerCase() + '++',
 				R.toString().toLowerCase(), result.toLowerCase()
@@ -514,7 +514,7 @@ package by.blooddy.math {
 		//  decrement
 		//----------------------------------
 		
-		public static var $decrement:Array = [
+		public static var $dec:Array = [
 			[ '-FFFFFFFF122FFFFFFFF', '-FFFFFFFF12300000000' ],
 			[ '-122FFFFFFFF', '-12300000000' ],
 			[ '-122', '-123' ],
@@ -526,9 +526,9 @@ package by.blooddy.math {
 			[ '100000000', 'FFFFFFFF' ]
 		];
 		
-		[Test( order="15", dataProvider="$decrement" )]
-		public function decrement(v:String, result:String):void {
-			var R:BigInteger = BigInteger.fromString( v ).decrement();
+		[Test( order="15", dataProvider="$dec" )]
+		public function dec(v:String, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v ).dec();
 			Assert.assertEquals(
 				v.toLowerCase() + '--',
 				R.toString().toLowerCase(), result.toLowerCase()
@@ -573,7 +573,7 @@ package by.blooddy.math {
 		//  mult
 		//----------------------------------
 		
-		public static var $mult:Array = [
+		public static var $mul:Array = [
 			[ '0', '123', '0' ],
 			[ '123', '0', '0' ],
 			[ '1', '123456', '123456' ],
@@ -632,9 +632,9 @@ package by.blooddy.math {
 			[ '-ffffffffffffffffffffffffffffffff', 'ffffffffffffffffffffffffffffffff', '-fffffffffffffffffffffffffffffffe00000000000000000000000000000001' ]
 		];
 		
-		[Test( order="19", dataProvider="$mult" )]
-		public function mult(v1:String, v2:String, result:String):void {
-			var R:String = BigInteger.fromString( v1 ).mult( BigInteger.fromString( v2 ) ).toString();
+		[Test( order="19", dataProvider="$mul" )]
+		public function mul(v1:String, v2:String, result:String):void {
+			var R:String = BigInteger.fromString( v1 ).mul( BigInteger.fromString( v2 ) ).toString();
 			Assert.assertEquals(
 				v1.toLowerCase() + ' * ' + v2.toLowerCase(),
 				R.toLowerCase(), result.toLowerCase()

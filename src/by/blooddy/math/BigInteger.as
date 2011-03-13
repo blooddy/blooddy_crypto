@@ -322,7 +322,7 @@ package by.blooddy.math {
 		/**
 		 * @private
 		 */
-		private static function _increment(value:BigValue):void {
+		private static function _inc(value:BigValue):void {
 			var i:uint = 0;
 			while ( value[ i ] == 0xFF ) {
 				value[ i++ ] = 0;
@@ -336,7 +336,7 @@ package by.blooddy.math {
 		/**
 		 * @private
 		 */
-		private static function _decrement(value:BigValue):void {
+		private static function _dec(value:BigValue):void {
 			var i:uint;
 			while ( value[ i ] == 0 ) {
 				value[ i++ ] = 0xFF;
@@ -718,7 +718,7 @@ package by.blooddy.math {
 		 */
 		public function not():BigInteger {
 			if ( this._value ) {
-				var result:BigInteger = this.increment();
+				var result:BigInteger = this.inc();
 				if ( result._value ) result._value.negative = !this._value.negative;
 				return result;
 			} else {
@@ -857,19 +857,19 @@ package by.blooddy.math {
 		/**
 		 * @return		this + 1
 		 */
-		public function increment():BigInteger {
+		public function inc():BigInteger {
 			if ( this._value ) {
 				var value:BigValue = new BigValue();
 				value.writeBytes( this._value );
 				if ( this._value.negative ) {
-					_decrement( value );
+					_dec( value );
 					if ( value.length <= 0 ) {
 						return ZERO;
 					} else {
 						value.negative = true;
 					}
 				} else {
-					_increment( value );
+					_inc( value );
 				}
 				var result:BigInteger = new BigInteger();
 				result._value = value;
@@ -946,15 +946,15 @@ package by.blooddy.math {
 		/**
 		 * @return		this - 1
 		 */
-		public function decrement():BigInteger {
+		public function dec():BigInteger {
 			if ( this._value ) {
 				var value:BigValue = new BigValue();
 				value.writeBytes( this._value );
 				if ( this._value.negative ) {
-					_increment( value );
+					_inc( value );
 					value.negative = true;
 				} else {
-					_decrement( value );
+					_dec( value );
 					if ( value.length <= 0  ) {
 						return ZERO;
 					}
@@ -1034,7 +1034,7 @@ package by.blooddy.math {
 		/**
 		 * @return		this * v
 		 */
-		public function mult(v:BigInteger):BigInteger {
+		public function mul(v:BigInteger):BigInteger {
 			if ( !this._value || !v._value ) return ZERO;
 			else {
 				
