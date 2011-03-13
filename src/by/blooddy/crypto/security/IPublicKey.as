@@ -19,7 +19,7 @@ package by.blooddy.crypto.security {
 	 */
 	public interface IPublicKey extends IKey {
 
-		function verify(message:ByteArray, signature:ByteArray, pad:IPad=null):Boolean;
+		function verify(message:ByteArray, pad:IPad=null):ByteArray;
 
 	}
 
