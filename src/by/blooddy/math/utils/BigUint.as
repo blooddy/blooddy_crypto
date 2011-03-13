@@ -1200,8 +1200,8 @@ package by.blooddy.math.utils {
 				throw new ArgumentError();
 			} else {
 				var pe:uint = e.pos;
-				var ei:uint = ( le ? Memory.getI32( pe ) : 0 );
-				if ( ei == 1 ) {
+				var ee:uint = ( le ? Memory.getI32( pe ) : 0 );
+				if ( ee == 1 ) {
 					return mod( v, m, pos );
 				} else {
 					var p1:uint = v.pos;
@@ -1217,10 +1217,12 @@ package by.blooddy.math.utils {
 						return v;
 					} else if ( le <= 4 ) {
 						if ( l2 == 4 && Memory.getUI16( p2 + 2 ) == 0 ) {
-							return _modPowInt_simple( p1, l1, ei, uint( Memory.getI32( p2 ) ), pos );
+							return _modPowInt_simple( p1, l1, ee, uint( Memory.getI32( p2 ) ), pos );
 						} else {
-							return _modPowInt_classic( p1, l1, ei, p2, l2, pos );
+							return _modPowInt_classic( p1, l1, ee, p2, l2, pos );
 						}
+					} else {
+						return _modPow_classic( p1, l1, pe, le, p2, l2, pos );
 					}
 				}
 			}
@@ -2281,7 +2283,7 @@ package by.blooddy.math.utils {
 		 * @private
 		 * @return		pow( v1, e ) % v2;
 		 */
-		private static function _modPow_classic(p1:uint, l1:uint, ep:uint, el:uint, p2:uint, l2:uint, pos:uint):BigUint {
+		private static function _modPow_classic(p1:uint, l1:uint, pe:uint, le:uint, p2:uint, l2:uint, pos:uint):BigUint {
 			var r:BigUint;
 			if ( _compare( p1, l1, p2, l2 ) >= 0 ) {
 				r = _mod( p1, l1, p2, l2, pos );
@@ -2290,7 +2292,7 @@ package by.blooddy.math.utils {
 				r = new BigUint( p1, l1 );
 			}
 			var g:BigUint;
-			var e:BigUint = new BigUint( ep, el );
+			var e:BigUint = new BigUint( pe, le );
 			if ( r.len > 0 ) {
 				do {
 					if ( testBit( e, 0 ) ) {
