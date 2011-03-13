@@ -91,14 +91,14 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @inheritDoc
 		 */
-		public function sign():ByteArray {
+		public function sign(message:ByteArray, pad:IPad=null):ByteArray {
 			return null;
 		}
 	
 		/**
 		 * @inheritDoc
 		 */
-		public function decrypt(bytes:ByteArray, pad:IPad=null):ByteArray {
+		public function decrypt(message:ByteArray, pad:IPad=null):ByteArray {
 
 			if ( !pad ) pad = PKCS1_V1_5;
 
@@ -112,7 +112,7 @@ package by.blooddy.crypto.security.rsa {
 			var tmp:ByteArray = _domain.domainMemory;
 			var mem:ByteArray = new ByteArray();
 			mem.writeBytes( this.bytes );
-			mem.writeBytes( bytes );
+			mem.writeBytes( message );
 			mem.length += 65e4;
 			// TODO: buffer for result
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
@@ -123,14 +123,14 @@ package by.blooddy.crypto.security.rsa {
 				var ob:uint = ( BigUint.getBitLength( this.n ) + 7 ) / 8;
 				var ib:uint = ob - 11;
 	
-				if ( bytes.length % ob ) throw new ArgumentError();
+				if ( message.length % ob ) throw new ArgumentError();
 	
 				pad.blockSize = ob;
 				
 				var mpad:MemoryPad = pad as MemoryPad;
 				
 				var i:uint = this.bytes.length;
-				var p:uint = i + bytes.length;
+				var p:uint = i + message.length;
 	
 				var pos:uint = p;
 				

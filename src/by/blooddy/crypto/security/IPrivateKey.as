@@ -6,6 +6,8 @@
 
 package by.blooddy.crypto.security {
 
+	import by.blooddy.crypto.security.pad.IPad;
+	
 	import flash.utils.ByteArray;
 
 	/**
@@ -17,7 +19,7 @@ package by.blooddy.crypto.security {
 	 */
 	public interface IPrivateKey extends IKey {
 
-		function sign():ByteArray;
+		function sign(message:ByteArray, pad:IPad=null):ByteArray;
 
 	}
 

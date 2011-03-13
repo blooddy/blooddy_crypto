@@ -122,14 +122,14 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @inhertDoc
 		 */
-		public function verify(bytes:ByteArray):Boolean {
+		public function verify(message:ByteArray, signature:ByteArray, pad:IPad=null):Boolean {
 			return false;
 		}
 
 		/**
 		 * @inhertDoc
 		 */
-		public function encrypt(bytes:ByteArray, pad:IPad=null):ByteArray {
+		public function encrypt(message:ByteArray, pad:IPad=null):ByteArray {
 
 			if ( !pad ) pad = PKCS1_V1_5;
 
@@ -143,7 +143,7 @@ package by.blooddy.crypto.security.rsa {
 			var tmp:ByteArray = _domain.domainMemory;
 			var mem:ByteArray = new ByteArray();
 			mem.writeBytes( this.bytes );
-			mem.writeBytes( bytes );
+			mem.writeBytes( message );
 			mem.length += 65e4;
 			// TODO: buffer for result
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
@@ -159,7 +159,7 @@ package by.blooddy.crypto.security.rsa {
 				var mpad:MemoryPad = pad as MemoryPad;
 				
 				var i:uint = this.bytes.length;
-				var p:uint = i + bytes.length;
+				var p:uint = i + message.length;
 				
 				var pos:uint = p;
 				
