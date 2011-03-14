@@ -43,14 +43,22 @@ package by.blooddy.crypto.security.rsa {
 		/**
 		 * @private
 		 */
-		private static const KEY_PAIR:RSAKeyPair = RSAKeyDecoder.decodePEM(
+		private static const _keys:Vector.<String> = new <String>[
 			"-----BEGIN RSA PRIVATE KEY-----\n" +
 			"MGQCAQACEQDJG3bkuB9Ie7jOldQTVdzPAgMBAAECEQCOGqcPhP8t8mX8cb4cQEaR\n" +
 			"AgkA5WTYuAGmH0cCCQDgbrto0i7qOQIINYr5btGrtccCCQCYy4qX4JDEMQIJAJll\n" +
 			"OnLVtCWk\n" +
 			"-----END RSA PRIVATE KEY-----"
-		);
+		];
 
+		/**
+		 * @private
+		 */
+		private static const _padds:Vector.<IPad> = new <IPad>[
+			NONE,
+			PKCS1_V1_5
+		];
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Methods
@@ -60,19 +68,29 @@ package by.blooddy.crypto.security.rsa {
 		//----------------------------------
 		//  encrypt_decrypt
 		//----------------------------------
-		
-		public static var $encrypt_decrypt:Array = [
-			[ 'big big line!!! big big line!!!', PKCS1_V1_5 ],
-			[ 'big big line!!! big big line!!!', NONE ]
-		];
+
+		public static function $encrypt_decrypt():Array {
+			var result:Array = new Array();
+			var arr:Array;
+			for each ( var key:String in _keys ) {
+				for each ( var pad:IPad in _padds ) {
+					result.push( [
+						RSAKeyDecoder.decodePEM( key ),
+						'big big line!!! big big line!!!',
+						pad
+					] );
+				}
+			}
+			return result;
+		}
 		
 		[Test( order="1", dataProvider="$encrypt_decrypt" )]
-		public function encrypt_decrypt(message:String, pad:IPad):void {
+		public function encrypt_decrypt(keyPair:RSAKeyPair, message:String, pad:IPad):void {
 			var bytes:ByteArray = new ByteArray();
 			bytes.writeUTFBytes( message );
 			
-			bytes = KEY_PAIR.privateKey.decrypt(
-				KEY_PAIR.publicKey.encrypt( bytes, pad ),
+			bytes = keyPair.privateKey.decrypt(
+				keyPair.publicKey.encrypt( bytes, pad ),
 				pad
 			);
 
@@ -87,12 +105,12 @@ package by.blooddy.crypto.security.rsa {
 		//----------------------------------
 		
 		[Test( order="2", dataProvider="$encrypt_decrypt" )]
-		public function sign_verify(message:String, pad:IPad):void {
+		public function sign_verify(keyPair:RSAKeyPair, message:String, pad:IPad):void {
 			var bytes:ByteArray = new ByteArray();
 			bytes.writeUTFBytes( message );
 			
-			bytes = KEY_PAIR.publicKey.verify(
-				KEY_PAIR.privateKey.sign( bytes, pad ),
+			bytes = keyPair.publicKey.verify(
+				keyPair.privateKey.sign( bytes, pad ),
 				pad
 			);
 			
