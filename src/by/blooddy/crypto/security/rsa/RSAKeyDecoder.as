@@ -76,10 +76,10 @@ package by.blooddy.crypto.security.rsa {
 		 */
 		public static function decodeXML(xml:XML):RSAKeyPair {
 			var keyPair:RSAKeyPair;
-			var mem:ByteArray = _domain.domainMemory;
-			var tmp:ByteArray = new ByteArray();
-			tmp.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
-			_domain.domainMemory = tmp;
+			var tmp:ByteArray = _domain.domainMemory;
+			var mem:ByteArray = new ByteArray();
+			mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH; // TODO: check this
+			_domain.domainMemory = mem;
 			try {
 
 				var i:uint;
@@ -102,23 +102,21 @@ package by.blooddy.crypto.security.rsa {
 						args = new Array();
 
 						// данные big int по ключу
-						args.push( tmp );
+						args.push( mem );
 
 						// заполняем массив
 						list = xml.ns::*;
 
-						bi = decodeXMLInteger( list[ 0 ], p );
-						args.push( bi ); // m
-						p += bi.len;
-
-						bi = decodeXMLInteger( list[ 1 ], p );
-						args.push( bi ); // e
-						p += bi.len;
+						for ( i=0; i<2; ++i ) {
+							bi = decodeXMLInteger( list[ i ], p )
+							args.push( bi ); // n, e
+							p += bi.len;
+						}
 
 						if ( k.type == PEM.RSA_PUBLIC_KEY ) {
 
 							_domain.domainMemory = null; // надо длинну менять, и надо память сбрасывать
-							tmp.length = p;
+							mem.length = p;
 
 							// создаём ключ
 							keyPair = new RSAKeyPair(
@@ -132,14 +130,14 @@ package by.blooddy.crypto.security.rsa {
 							args.push( bi ); // d
 							p += bi.len;
 
-							for ( i=2; i<7; i++ ) {
+							for ( i=2; i<7; ++i ) {
 								bi = decodeXMLInteger( list[ i ], p )
 								args.push( bi ); // p, q, dp, dq, invq
 								p += bi.len;
 							}
 
 							_domain.domainMemory = null; // надо длинну менять, и надо память сбрасывать
-							tmp.length = p;
+							mem.length = p;
 
 							// создаём ключ
 							keyPair = new RSAKeyPair(
@@ -176,7 +174,7 @@ package by.blooddy.crypto.security.rsa {
 			} catch ( e:* ) {
 				Error.throwError( SyntaxError, 0 );
 			} finally {
-				_domain.domainMemory = mem;
+				_domain.domainMemory = tmp;
 			}
 
 			return keyPair;
@@ -218,12 +216,6 @@ package by.blooddy.crypto.security.rsa {
 			return result;
 		}
 
-		//--------------------------------------------------------------------------
-		//
-		//  Private class methods
-		//
-		//--------------------------------------------------------------------------
-
 		/**
 		 * @private
 		 */
@@ -254,16 +246,13 @@ package by.blooddy.crypto.security.rsa {
 					// агрументы для созания ключа
 					args = new Array();
 					
-					bi = decodeDERInteger( t.seq[ 0 ], p );
-					bi.pos -= len;
-					args.push( bi ); // m
-					p += bi.len;
+					for ( i=0; i<2; ++i ) {
+						bi = decodeDERInteger( t.seq[ i ], p );
+						bi.pos -= len;
+						args.push( bi );
+						p += bi.len;
+					}
 
-					bi = decodeDERInteger( t.seq[ 1 ], p );
-					bi.pos -= len;
-					args.push( bi ); // e
-					p += bi.len;
-					
 					// данные big int по ключу
 					bytes = new ByteArray();
 					mem.position = len;
@@ -280,20 +269,10 @@ package by.blooddy.crypto.security.rsa {
 					// агрументы для созания ключа
 					args = new Array();
 
-					bi = decodeDERInteger( t.seq[ 1 ], p );
-					bi.pos -= len;
-					args.push( bi ); // m
-					p += bi.len;
-
-					bi = decodeDERInteger( t.seq[ 2 ], p );
-					bi.pos -= len;
-					args.push( bi ); // e
-					p += bi.len;
-					
-					for ( var i:uint = 3; i<9; ++i ) {
+					for ( var i:uint = 1; i<9; ++i ) {
 						bi = decodeDERInteger( t.seq[ i ], p );
 						bi.pos -= len;
-						args.push( bi ); // m
+						args.push( bi );
 						p += bi.len;
 					}
 
