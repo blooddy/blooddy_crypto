@@ -258,7 +258,9 @@ package by.blooddy.crypto.security.rsa {
 		public function getPublicKey():RSAPublicKey {
 			internalCall = true;
 			var result:RSAPublicKey = new RSAPublicKey();
-			result.bytes = this.bytes;
+			result.bytes = new ByteArray();
+			result.bytes.writeBytes( this.bytes, this.n.pos, this.n.len );
+			result.bytes.writeBytes( this.bytes, this.e.pos, this.e.len );
 			result.n = this.n;
 			result.e = this.e;
 			return result;
