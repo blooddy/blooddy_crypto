@@ -1226,22 +1226,17 @@ package by.blooddy.math.utils {
 					}
 				}
 			}
-			throw new IllegalOperationError( 'TODO' );
 		}
 
+		public static function modInv(v:BigUint, m:BigUint, pos:uint):BigUint {
+			throw new IllegalOperationError( 'TODO' );
+		}
+		
 		public static function gcd(v:BigUint, a:BigUint, pos:uint):BigUint {
 			throw new IllegalOperationError( 'TODO' );
 		}
 
-		public static function modInverse(v:BigUint, m:BigUint, pos:uint):BigUint {
-			throw new IllegalOperationError( 'TODO' );
-		}
-
 		public static function isProbablePrime(v:BigUint, t:int):Boolean {
-			throw new IllegalOperationError( 'TODO' );
-		}
-
-		public static function primify(v:BigUint, bits:int, t:int):void {
 			throw new IllegalOperationError( 'TODO' );
 		}
 
