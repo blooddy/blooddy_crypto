@@ -168,6 +168,13 @@ package by.blooddy.math.utils {
 			return toString( _r );
 		}
 		
+		public static function modInv(v:String, m:String):String {
+			var _v:BigUint = fromString( v, 5 );
+			var _m:BigUint = fromString( m, _v.pos + _v.len );
+			var _r:BigUint = BigUint.modInv( _v, _m, _m.pos + _m.len );
+			return toString( _r );
+		}
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Private class methods

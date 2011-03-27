@@ -1228,15 +1228,31 @@ package by.blooddy.math.utils {
 			}
 		}
 
+		/**
+		 * @return		1 / v % m
+		 * @throws		ArgumentError	m == 0
+		 */
 		public static function modInv(v:BigUint, m:BigUint, pos:uint):BigUint {
-			throw new IllegalOperationError( 'TODO' );
+			var l1:uint = v.len;
+			var l2:uint = m.len;
+			if ( l2 == 0 ) {
+				throw new ArgumentError();
+			} else {
+				var p1:uint = v.pos;
+				var p2:uint = m.pos;
+				if ( l1 == 4 && Memory.getI32( p1 ) == 1 ) {
+					return v;
+				} else {
+					return _modInv( p1, l1, p2, l2, pos );
+				}
+			}
 		}
 		
 		public static function gcd(v:BigUint, a:BigUint, pos:uint):BigUint {
 			throw new IllegalOperationError( 'TODO' );
 		}
 
-		public static function isProbablePrime(v:BigUint, t:int):Boolean {
+		public static function isProbablePrime(v:BigUint, certainty:int):Boolean {
 			throw new IllegalOperationError( 'TODO' );
 		}
 
@@ -2318,7 +2334,15 @@ package by.blooddy.math.utils {
 			}
 			return g;
 		}
-		
+
+		/**
+		 * @private
+		 * @return		1 / v1 % v2
+		 */
+		private static function _modInv(p1:uint, l1:uint, p2:uint, l2:uint, pos:uint):BigUint {
+			throw new IllegalOperationError( 'TODO' );
+		}
+
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor

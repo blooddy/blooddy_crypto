@@ -596,7 +596,7 @@ package by.blooddy.math.utils {
 		}
 
 		//----------------------------------
-		//  modPowInt
+		//  modPow
 		//----------------------------------
 
 		public static var $modPow:Array = [
@@ -635,6 +635,32 @@ package by.blooddy.math.utils {
 		[Test( order="28", dataProvider="$divAndMod_error", expects="ArgumentError" )]
 		public function modPow_error(v:String, e:String, m:String):void {
 			BigUintStr.modPow( v, e, m );
+		}
+		
+		//----------------------------------
+		//  modInv
+		//----------------------------------
+
+		public static var $modInv:Array = [
+			[ '1', '123', '1' ],
+		];
+		
+		[Test( order="29", dataProvider="$modInv" )]
+		public function modInv(v:String, m:String, result:String):void {
+			var R:String = BigUintStr.modInv( v, m );
+			Assert.assertEquals(
+				'1 / 0x' + v.toLowerCase() + ' % 0x' + m.toLowerCase(),
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  mod_error
+		//----------------------------------
+		
+		[Test( order="30", dataProvider="$divAndMod_error", expects="ArgumentError" )]
+		public function modInv_error(v:String, m:String):void {
+			BigUintStr.mod( v, m );
 		}
 		
 	}
