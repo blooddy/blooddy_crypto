@@ -179,38 +179,13 @@ package by.blooddy.math.utils {
 			}
 		}
 
-//		/**
-//		 * @return		~v1
-//		 */
-//		public static function not(v:BigUint, pos:uint):BigUint {
-//			var p:uint = v.pos;
-//			var l:uint = v.len;
-//			if ( l == 0 ) {
-//				return v;
-//			} else {
-//				var len:uint = 0;
-//				l -= 4;
-//				while ( len < l ) {
-//					Memory.setI32( pos + len, ~Memory.getI32( p + len ) );
-//					len += 4;
-//				}
-//				var k:int = Memory.getI32( p + len );
-//				var i:uint = 0x80000000;
-//				while ( ( k & i ) == 0 ) {
-//					i >>>= 1;
-//				}
-//				--i;
-//				Memory.setI32( pos + len, ( ~k ) & i );
-//				len += 4;
-//				CRYPTO::inline {
-//					BigUint$.clean( pos, len );
-//					return new BigUint( pos, len );
-//				}
-//				CRYPTO::debug {
-//					return _clean( pos, len );
-//				}
-//			}
-//		}
+		[Deprecated]
+		/**
+		 * @return		~v1
+		 */
+		public static function not(v:BigUint, pos:uint):BigUint {
+			throw new IllegalOperationError();
+		}
 
 		/**
 		 * @return		v1 & v2
@@ -1240,9 +1215,19 @@ package by.blooddy.math.utils {
 			} else {
 				var p1:uint = v.pos;
 				var p2:uint = m.pos;
-				if ( l1 == 4 && Memory.getI32( p1 ) == 1 ) {
+				var c1:uint = Memory.getI32( p1 )
+				var c2:uint = Memory.getI32( p2 );
+				if ( l2 == 4 && c2 == 1 ) {
+					return new BigUint();
+				} else if ( l1 == 4 && c1 == 1 ) {
 					return v;
 				} else {
+					if ( c1 & 1 == 0 && c2 && 1 == 0 ) {
+						throw new ArgumentError();
+					}
+					v = mod( v, m, pos );
+					p1 = v.pos;
+					l1 = v.len;
 					return _modInv( p1, l1, p2, l2, pos );
 				}
 			}
@@ -2340,6 +2325,13 @@ package by.blooddy.math.utils {
 		 * @return		1 / v1 % v2
 		 */
 		private static function _modInv(p1:uint, l1:uint, p2:uint, l2:uint, pos:uint):BigUint {
+			var c1:uint = Memory.getI32( p1 );
+			var c2:uint = Memory.getI32( p1 );
+//			if ( c1 & 1 ) { // montgomery
+				
+//			} else { // lorencz
+				
+//			}
 			throw new IllegalOperationError( 'TODO' );
 		}
 
