@@ -800,6 +800,258 @@ package by.blooddy.math {
 			BigInteger.fromString( v ).mod( BigInteger.fromString( m ) )
 		}
 		
+		//----------------------------------
+		//  modPow
+		//----------------------------------
+		
+		public static var $modPow:Array = [
+			[ '0', '7B', '123', '0' ],
+			[ '12345678901abcdef12345678901abcdef12345678901abcdef', '1', '1873618', '561397' ],
+			[ '123', '7B', '1', '0' ],
+			[ '1', '7B', '123', '1' ],
+			[ '123', '0', '123', '1' ],
+			[ '12345678901abcdef12345678901abcdef12345678901abcdef', '400', '1267', 'b83' ],
+			[ '12345678901abcdef12345678901abcdef12345678901abcdef', '400', '1873618', '9679' ],
+			[ '1234', '43', '1873618', '7ed7d8' ],
+			[ '1234', '43', '9832982309712532378643', '126ecd88d701d98ea61f4d' ],
+			[ '1989746288117', '3039', '9832982309712532378643', '48a7483ca7ab708cdb412f' ],
+			[ '12345678901abcdef12345678901abcdef12345678901abcdef', '100E', '9832982309712532378643', '65076beaec746d529526e2' ],
+			[ 'a4490a31763dea84e0d24086fbd81a296c7ab7d5abbb9fab', '100E', '31277332fa4a8c2d', '1728dfa593045a85' ],
+			[ 'a4490a31763dea84e0d24086fbd81a296c7ab7d5abbb9fab', '400', '31277332fa4a8c2d', '14222a18073275b4' ],
+			[ '12345678901abcdef12345678901abcdef12345678901abcdef', '400', '9832982309712532378643', '139d30ff985d42243a7432' ],
+			[ '1989746288117', '303930393039', '9832982309712532378643', '1790cbdddcb66f5c389557' ],
+			[ '12345678901abcdef12345678901abcdef12345678901abcdef', '100E100E100E', '9832982309712532378643', '3834a321291e8cf75de38' ],
+			[ 'a4490a31763dea84e0d24086fbd81a296c7ab7d5abbb9fab', '100E100E100E', '31277332FA4A8C2D', '74de237ea79016e' ],
+			[ 'a4490a31763dea84e0d24086fbd81a296c7ab7d5abbb9fab', '400400400', '31277332fa4a8c2d', 'c9b06956092e766' ],
+			[ '12345678901abcdef12345678901abcdef12345678901abcdef', '400400400', '9832982309712532378643', '12623b7f5433e8c64fcc9d' ],
+			[ 'a4490a31763dea84e0d24086fbd81a296c7ab7d5abbb9fab', 'b41ef633dcf80686', '31277332fa4a8c2d', '2620ce0973b52dbb' ],
+			[ '12345678901abcdef12345678901abcdef12345678901abcdef', 'b41ef633dcf80686', '9832982309712532378643', '5a786ece858b1f725ff591' ]
+		];
+		
+		[Test( order="27", dataProvider="$modPow" )]
+		public function modPow(v:String, e:String, m:String, result:String):void {
+			var R:String = BigInteger.fromString( v ).modPow( BigInteger.fromString( e ), BigInteger.fromString( m ) ).toString();
+			Assert.assertEquals(
+				'pow( ' + v.toLowerCase() + ', ' + e.toLowerCase() + ' ) % ' + m.toLowerCase(),
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+
+		//----------------------------------
+		//  modPow_error
+		//----------------------------------
+
+		public static var $modPow_error:Array = [
+			[ '1', '1', '0' ]
+		];
+
+		[Test( order="28", dataProvider="$modPow_error", expects="ArgumentError" )]
+		public function modPow_error(v:String, e:String, m:String):void {
+			BigInteger.fromString( v ).modPow( BigInteger.fromString( e ), BigInteger.fromString( m ) );
+		}
+		
+		//----------------------------------
+		//  modInv
+		//----------------------------------
+
+		public static var $modInv:Array = [
+			[ '1', 'e14f', '1' ],
+			[ 'e14f', '1', '0' ],
+			[ '-1', 'e14f', 'e14e' ],
+			[ '1586e', 'e14f', '7bfc' ],
+			[ 'eccdae67', 'e14f', '52f4' ],
+			[ '145efeca3', 'e14f', '48cb' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 'e14f', 'ab38' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 'e14f', '9fe1' ],
+			[ 'e14f', '1586e', '9ae5' ],
+			[ 'eccdae67', '1586e', '12eff' ],
+			[ '145efeca3', '1586e', '560d' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '1586e', '6f6f' ],
+			[ 'e14f', 'eccdae67', '959e4202' ],
+			[ '1586e', 'eccdae67', '1c7c8f53' ],
+			[ '145efeca3', 'eccdae67', '5f8c0dd2' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 'eccdae67', '9f899f6c' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 'eccdae67', '9fe20abc' ],
+			[ 'e14f', '145efeca3', 'dca20de3' ],
+			[ '1586e', '145efeca3', 'f481aa2e' ],
+			[ 'eccdae67', '145efeca3', 'c26d0220' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '145efeca3', '856e5938' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '145efeca3', '45b6b7d5' ],
+			[ 'e14f', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '327f82c50c4d3d7897dcfa31c089b128b61c13e27e7999131ebf30ec5314c7a0' ],
+			[ '1586e', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '8e4b224873c5b5105dd01e56db44b5c16ffcdf74bde51ad27c43a309a998171c' ],
+			[ 'eccdae67', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '44a231711a54743808d50cf0abf042d75d28f0e27f72f6d71dbeb57d16cbe83c' ],
+			[ '145efeca3', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '7c3c6e3c42747a3f4e531f9f02269b3c4c9376c0d701109327518a3faae80fdc' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 'd00324f2d4e8765986748d525e3b7519e07ffd758fcaacd0607403a273f0c9dd' ],
+			[ 'e14f', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '319df884c124004c51f433f4bca5035e470b29f40536515c65ed6d8089a1b753' ],
+			[ 'eccdae67', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '377fd5da5a9c50c67689155e2d07b69c5ea1e38bffd84c5d33efe92617e5e0b1' ],
+			[ '145efeca3', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '8650344cdf7991778373880a9ca03a9119639dc9597b16e6a90374513a0d26ff' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '1e58bb4bf76ac0e0a52e921a619170cff71ac1fc33e846e8707ec1269ad82c1' ],
+			[ '-1586e', 'e14f', '6553' ],
+			[ '-eccdae67', 'e14f', '8e5b' ],
+			[ '-145efeca3', 'e14f', '9884' ],
+			[ '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 'e14f', '3617' ],
+			[ '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 'e14f', '416e' ],
+			[ '-e14f', '1586e', 'bd89' ],
+			[ '-eccdae67', '1586e', '296f' ],
+			[ '-145efeca3', '1586e', '10261' ],
+			[ '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '1586e', 'e8ff' ],
+			[ '-e14f', 'eccdae67', '572f6c65' ],
+			[ '-1586e', 'eccdae67', 'd0511f14' ],
+			[ '-145efeca3', 'eccdae67', '8d41a095' ],
+			[ '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 'eccdae67', '4d440efb' ],
+			[ '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 'eccdae67', '4ceba3ab' ],
+			[ '-e14f', '145efeca3', '694ddec0' ],
+			[ '-1586e', '145efeca3', '516e4275' ],
+			[ '-eccdae67', '145efeca3', '8382ea83' ],
+			[ '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '145efeca3', 'c081936b' ],
+			[ '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '145efeca3', '1003934ce' ],
+			[ '-e14f', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '9fd966ecf1efa335bd96b881d484bb68d137ea32400edc821c9712a0a4c84b59' ],
+			[ '-1586e', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '440dc7698a772b9df7a3945cb9c9b6d017571ea000a35ac2bf12a0834e44fbdd' ],
+			[ '-eccdae67', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '8db6b840e3e86c764c9ea5c2e91e29ba2a2b0d323f157ebe1d978e0fe1112abd' ],
+			[ '-145efeca3', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '561c7b75bbc8666f0720931492e7d1553ac08753e78765021404b94d4cf5031d' ],
+			[ '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '255c4bf29546a54ceff256136d2f777a6d4009f2ebdc8c4dae23fea83ec491c' ],
+			[ '-e14f', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '793d8cca5d47052924a154fca82f59b50c919eb61973b7571be89897aa7ab24f' ],
+			[ '-eccdae67', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '735baf74c3ceb4af000c739337cca676f4fae51e1ed1bc564de61cf21c3688f1' ],
+			[ '-145efeca3', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '248b51023ef173fdf32200e6c83422823a392ae0c52ef1ccd8d291c6fa0f42a3' ],
+			[ '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 'a8f5f99a5ef459676c429fcfbebb4606542b1c8a5b6b8444face1a05ca6ee6e1' ],
+		];
+
+		[Test( order="29", dataProvider="$modInv" )]
+		public function modInv(v:String, m:String, result:String):void {
+			var R:String = BigInteger.fromString( v ).modInv( BigInteger.fromString( m ) ).toString();
+			Assert.assertEquals(
+				'1 / ' + v.toLowerCase() + ' % ' + m.toLowerCase(),
+				R.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  modInv_error
+		//----------------------------------
+		
+		public static var $modInv_error:Array = [
+			[ '1', '0' ],
+			[ 'e14f', '-1' ],
+			[ '0', 'e14f' ],
+			[ '0', '-e14f' ],
+			[ 'e14f', 'e14f' ],
+			[ '1586e', '1586e' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '1586e' ],
+			[ 'eccdae67', 'eccdae67' ],
+			[ '145efeca3', '145efeca3' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ '1586e', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ 'e14f', '-e14f' ],
+			[ '1586e', '-e14f' ],
+			[ 'eccdae67', '-e14f' ],
+			[ '145efeca3', '-e14f' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '-e14f' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '-e14f' ],
+			[ 'e14f', '-1586e' ],
+			[ '1586e', '-1586e' ],
+			[ 'eccdae67', '-1586e' ],
+			[ '145efeca3', '-1586e' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '-1586e' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '-1586e' ],
+			[ 'e14f', '-eccdae67' ],
+			[ '1586e', '-eccdae67' ],
+			[ 'eccdae67', '-eccdae67' ],
+			[ '145efeca3', '-eccdae67' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '-eccdae67' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '-eccdae67' ],
+			[ 'e14f', '-145efeca3' ],
+			[ '1586e', '-145efeca3' ],
+			[ 'eccdae67', '-145efeca3' ],
+			[ '145efeca3', '-145efeca3' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '-145efeca3' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '-145efeca3' ],
+			[ 'e14f', '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ '1586e', '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ 'eccdae67', '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ '145efeca3', '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ 'e14f', '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ '1586e', '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ 'eccdae67', '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ '145efeca3', '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ '-e14f', 'e14f' ],
+			[ '-1586e', '1586e' ],
+			[ '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '1586e' ],
+			[ '-eccdae67', 'eccdae67' ],
+			[ '-145efeca3', '145efeca3' ],
+			[ '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ '-1586e', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ '-e14f', '-e14f' ],
+			[ '-1586e', '-e14f' ],
+			[ '-eccdae67', '-e14f' ],
+			[ '-145efeca3', '-e14f' ],
+			[ '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '-e14f' ],
+			[ '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '-e14f' ],
+			[ '-e14f', '-1586e' ],
+			[ '-1586e', '-1586e' ],
+			[ '-eccdae67', '-1586e' ],
+			[ '-145efeca3', '-1586e' ],
+			[ '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '-1586e' ],
+			[ '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '-1586e' ],
+			[ '-e14f', '-eccdae67' ],
+			[ '-1586e', '-eccdae67' ],
+			[ '-eccdae67', '-eccdae67' ],
+			[ '-145efeca3', '-eccdae67' ],
+			[ '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '-eccdae67' ],
+			[ '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '-eccdae67' ],
+			[ '-e14f', '-145efeca3' ],
+			[ '-1586e', '-145efeca3' ],
+			[ '-eccdae67', '-145efeca3' ],
+			[ '-145efeca3', '-145efeca3' ],
+			[ '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '-145efeca3' ],
+			[ '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '-145efeca3' ],
+			[ '-e14f', '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ '-1586e', '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ '-eccdae67', '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ '-145efeca3', '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ '-e14f', '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ '-1586e', '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ '-eccdae67', '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ '-145efeca3', '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ '-d258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '-aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+		];
+		
+		[Test( order="30", dataProvider="$modInv_error", expects="ArgumentError" )]
+		public function modInv_error(v:String, m:String):void {
+			BigInteger.fromString( v ).modInv( BigInteger.fromString( m ) )
+		}
+		
+		//----------------------------------
+		//  isProbablePrime
+		//----------------------------------
+		
+		public static var $isProbablePrime:Array = [
+			[ 'e14f', 100, true ],
+			[ 'eccdae67', 100, true ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 100, true ],
+			[ '9814b69b58eb83c8a43eda490eb435d449f9e007504658dc09fa6108de5de7b6473e1873e5e5ad43ab39fc082c18611c2e1a0292fddab31e552ad8593366105f', 100, true ],
+			[ '92cd745064716d98e61028b7c30b2eb78859e9fa79bebcfa9d8bffd17c89a4af1608bf47aea1c263a8f5c996cac8741962bb838cd66c96424b20d4027022f9bbaf7567d472b2e1a00e0e0367c23a078dbe188bdc469b8b78c45a1a0d56e30dad7237716f28814b7ac89fb20efbe3c2b2b2dd77991ae349cd89587be2eade30db', 100, true ],
+			[ '1586e', 100, false ],
+			[ '145efeca3', 100, false ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 100, false ],
+			[ '566a649fadf8d776e57029cb357f9552b42a6c17c1f712d162eb623ee72160d0c3c57c9c1db8d2711b2c5b1880ba5857c2b9a037cb9a1dce10028ba78ba8c238', 100, false ],
+			[ '57192bdb901752cc061a4f6a41f9c52495ce5cf1ef102a887bca3d3b099747ad170664e989c3e8ee37c307c56225fb41cc688c87fe69b669735e82baf2320a3f6ca583ff8d1911ac52adc616d18a7a27cff1ff2b3c24013e2a6215709f3a21cdd55c368b77d6b090b7f20c25ff8010109b17121cb0376eaa626cdbad0ca85a799', 100, false ],
+		];
+		
+		[Test( order="33", dataProvider="$isProbablePrime" )]
+		public function isProbablePrime(v:String, certainty:int, result:Boolean):void {
+			var R:Boolean = BigInteger.fromString( v ).isProbablePrime( certainty );
+			Assert.assertEquals( R, result );
+		}
+
 	}
 	
 }

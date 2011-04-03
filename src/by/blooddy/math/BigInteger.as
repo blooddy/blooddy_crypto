@@ -1233,22 +1233,7 @@ package by.blooddy.math {
 		 * @return		pow( this, e ) % m
 		 * @throws		ArgumentError	m == 0
 		 */
-		public function modPowInt(e:int, m:BigInteger):BigInteger {
-			throw new IllegalOperationError( 'TODO' );
-		}
-
-		/**
-		 * @return		pow( this, e ) % m
-		 * @throws		ArgumentError	m == 0
-		 */
 		public function modPow(e:BigInteger, m:BigInteger):BigInteger {
-			throw new IllegalOperationError( 'TODO' );
-		}
-
-		/**
-		 * @reutrn		gcd( this, v )
-		 */
-		public function gcd(v:BigInteger):BigInteger {
 			throw new IllegalOperationError( 'TODO' );
 		}
 
@@ -1256,10 +1241,16 @@ package by.blooddy.math {
 		 * @return		1 / this % m
 		 * @throws		ArgumentError	this == 0 || m == 0
 		 */
-		public function modInverse(m:BigInteger):BigInteger {
+		public function modInv(m:BigInteger):BigInteger {
 			throw new IllegalOperationError( 'TODO' );
 		}
-
+		
+		/**
+		 * @reutrn		gcd( this, v )
+		 */
+		public function gcd(v:BigInteger):BigInteger {
+			throw new IllegalOperationError( 'TODO' );
+		}
 		
 		public function isProbablePrime(certainty:int):Boolean {
 			throw new IllegalOperationError( 'TODO' );
