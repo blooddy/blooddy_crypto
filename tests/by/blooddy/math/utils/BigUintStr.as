@@ -175,6 +175,11 @@ package by.blooddy.math.utils {
 			return toString( _r );
 		}
 		
+		public static function isProbablePrime(v:String, certainty:int):Boolean {
+			var _v:BigUint = fromString( v, 5 );
+			return BigUint.isProbablePrime( _v, certainty );
+		}
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Private class methods

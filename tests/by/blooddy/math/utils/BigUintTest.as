@@ -624,15 +624,23 @@ package by.blooddy.math.utils {
 		];
 
 		[Test( order="27", dataProvider="$modPow" )]
-		public function modPow(v:String, e:String, m:String, resut:String):void {
+		public function modPow(v:String, e:String, m:String, result:String):void {
 			var R:String = BigUintStr.modPow( v, e, m );
 			Assert.assertEquals(
 				'pow( 0x' + v.toLowerCase() + ', 0x' + e + ' ) % ' + '0x' + m.toLowerCase(),
-				R.toLowerCase(), resut.toLowerCase()
+				R.toLowerCase(), result.toLowerCase()
 			);
 		}
 
-		[Test( order="28", dataProvider="$divAndMod_error", expects="ArgumentError" )]
+		//----------------------------------
+		//  modPow_error
+		//----------------------------------
+
+		public static var $modPow_error:Array = [
+			[ '1', '1', '0' ]
+		];
+
+		[Test( order="28", dataProvider="$modPow_error", expects="ArgumentError" )]
 		public function modPow_error(v:String, e:String, m:String):void {
 			BigUintStr.modPow( v, e, m );
 		}
@@ -640,9 +648,38 @@ package by.blooddy.math.utils {
 		//----------------------------------
 		//  modInv
 		//----------------------------------
-
+		
 		public static var $modInv:Array = [
-			[ '1', '123', '1' ],
+			[ '1', 'e14f', '1' ],
+			[ 'e14f', '1', '0' ],
+			[ '1586e', 'e14f', '7bfc' ],
+			[ 'eccdae67', 'e14f', '52f4' ],
+			[ '145efeca3', 'e14f', '48cb' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 'e14f', 'ab38' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 'e14f', '9fe1' ],
+			[ 'e14f', '1586e', '9ae5' ],
+			[ 'eccdae67', '1586e', '12eff' ],
+			[ '145efeca3', '1586e', '560d' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '1586e', '6f6f' ],
+			[ 'e14f', 'eccdae67', '959e4202' ],
+			[ '1586e', 'eccdae67', '1c7c8f53' ],
+			[ '145efeca3', 'eccdae67', '5f8c0dd2' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 'eccdae67', '9f899f6c' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 'eccdae67', '9fe20abc' ],
+			[ 'e14f', '145efeca3', 'dca20de3' ],
+			[ '1586e', '145efeca3', 'f481aa2e' ],
+			[ 'eccdae67', '145efeca3', 'c26d0220' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '145efeca3', '856e5938' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '145efeca3', '45b6b7d5' ],
+			[ 'e14f', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '327f82c50c4d3d7897dcfa31c089b128b61c13e27e7999131ebf30ec5314c7a0' ],
+			[ '1586e', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '8e4b224873c5b5105dd01e56db44b5c16ffcdf74bde51ad27c43a309a998171c' ],
+			[ 'eccdae67', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '44a231711a54743808d50cf0abf042d75d28f0e27f72f6d71dbeb57d16cbe83c' ],
+			[ '145efeca3', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', '7c3c6e3c42747a3f4e531f9f02269b3c4c9376c0d701109327518a3faae80fdc' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 'd00324f2d4e8765986748d525e3b7519e07ffd758fcaacd0607403a273f0c9dd' ],
+			[ 'e14f', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '319df884c124004c51f433f4bca5035e470b29f40536515c65ed6d8089a1b753' ],
+			[ 'eccdae67', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '377fd5da5a9c50c67689155e2d07b69c5ea1e38bffd84c5d33efe92617e5e0b1' ],
+			[ '145efeca3', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '8650344cdf7991778373880a9ca03a9119639dc9597b16e6a90374513a0d26ff' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '1e58bb4bf76ac0e0a52e921a619170cff71ac1fc33e846e8707ec1269ad82c1' ],
 		];
 		
 		[Test( order="29", dataProvider="$modInv" )]
@@ -655,14 +692,50 @@ package by.blooddy.math.utils {
 		}
 		
 		//----------------------------------
-		//  mod_error
+		//  modInv_error
 		//----------------------------------
 		
-		[Test( order="30", dataProvider="$divAndMod_error", expects="ArgumentError" )]
+		public static var $modInv_error:Array = [
+			[ '1', '0' ],
+			[ '0', 'e14f' ],
+			[ 'e14f', 'e14f' ],
+			[ '1586e', '1586e' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', '1586e' ],
+			[ 'eccdae67', 'eccdae67' ],
+			[ '145efeca3', '145efeca3' ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9' ],
+			[ '1586e', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2' ],
+		];
+		
+		[Test( order="30", dataProvider="$modInv_error", expects="ArgumentError" )]
 		public function modInv_error(v:String, m:String):void {
-			BigUintStr.mod( v, m );
+			BigUintStr.modInv( v, m );
 		}
 		
+		//----------------------------------
+		//  isProbablePrime
+		//----------------------------------
+		
+		public static var $isProbablePrime:Array = [
+			[ 'e14f', 100, true ],
+			[ 'eccdae67', 100, true ],
+			[ 'd258e9b1fe3ce0ae5573b2b3950e6c918753fe14be8875953b56438cf7dd12f9', 100, true ],
+			[ '9814b69b58eb83c8a43eda490eb435d449f9e007504658dc09fa6108de5de7b6473e1873e5e5ad43ab39fc082c18611c2e1a0292fddab31e552ad8593366105f', 100, true ],
+			[ '92cd745064716d98e61028b7c30b2eb78859e9fa79bebcfa9d8bffd17c89a4af1608bf47aea1c263a8f5c996cac8741962bb838cd66c96424b20d4027022f9bbaf7567d472b2e1a00e0e0367c23a078dbe188bdc469b8b78c45a1a0d56e30dad7237716f28814b7ac89fb20efbe3c2b2b2dd77991ae349cd89587be2eade30db', 100, true ],
+			[ '1586e', 100, false ],
+			[ '145efeca3', 100, false ],
+			[ 'aadb854f1e6b0575769588f164d45d13539cc8aa1eaa08b381d60618341c69a2', 100, false ],
+			[ '566a649fadf8d776e57029cb357f9552b42a6c17c1f712d162eb623ee72160d0c3c57c9c1db8d2711b2c5b1880ba5857c2b9a037cb9a1dce10028ba78ba8c238', 100, false ],
+			[ '57192bdb901752cc061a4f6a41f9c52495ce5cf1ef102a887bca3d3b099747ad170664e989c3e8ee37c307c56225fb41cc688c87fe69b669735e82baf2320a3f6ca583ff8d1911ac52adc616d18a7a27cff1ff2b3c24013e2a6215709f3a21cdd55c368b77d6b090b7f20c25ff8010109b17121cb0376eaa626cdbad0ca85a799', 100, false ],
+		];
+		
+		[Test( order="33", dataProvider="$isProbablePrime" )]
+		public function isProbablePrime(v:String, certainty:int, result:Boolean):void {
+			var R:Boolean = BigUintStr.isProbablePrime( v, certainty );
+			Assert.assertEquals( R, result );
+		}
+
 	}
 
 }
