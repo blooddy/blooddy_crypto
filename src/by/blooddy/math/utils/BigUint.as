@@ -1210,7 +1210,7 @@ package by.blooddy.math.utils {
 		public static function modInv(v:BigUint, m:BigUint, pos:uint):BigUint {
 			var l1:uint = v.len;
 			var l2:uint = m.len;
-			if ( l2 == 0 ) {
+			if ( l1 == 0 || l2 == 0 ) {
 				throw new ArgumentError();
 			} else {
 				var p1:uint = v.pos;
@@ -1222,13 +1222,22 @@ package by.blooddy.math.utils {
 				} else if ( l1 == 4 && c1 == 1 ) {
 					return v;
 				} else {
-					if ( c1 & 1 == 0 && c2 && 1 == 0 ) {
+					if ( ( c1 & 1 ) == 0 && ( c2 & 1 ) == 0 ) {
 						throw new ArgumentError();
+					} else {
+						if ( l1 >= l2 ) {
+							v = mod( v, m, pos );
+							if ( v.pos != p1 ) {
+								l1 = v.len;
+								if ( l1 == 0 ) {
+									throw new ArgumentError();
+								}
+								p1 = v.pos;
+								pos = p1 + l1;
+							}
+						}
+						return _modInv( p1, l1, p2, l2, pos );
 					}
-					v = mod( v, m, pos );
-					p1 = v.pos;
-					l1 = v.len;
-					return _modInv( p1, l1, p2, l2, pos );
 				}
 			}
 		}
@@ -2330,6 +2339,25 @@ package by.blooddy.math.utils {
 //			if ( c1 & 1 ) { // montgomery
 				
 //			} else { // lorencz
+
+				var max:uint = ( l1 > l2 ? l1 : l2 );
+				var up:uint = p2;
+				var ul:uint = l2;
+				var vp:uint = p1;
+				var vl:uint = l1;
+
+				// r == 0 && s == 1, but with enough place
+				var rp:uint = pos;
+				var rl:uint = 0;
+				var sp:uint = pos + max;
+				var sl:uint = 4;
+				Memory.setI32( sp, 1 );
+
+				var coefU:int = 0;
+				var coefV:int = 0;
+				var n:uint = getBitLength( new BigUint( p2, l2 ) );
+				var k:int;
+				
 				
 //			}
 			throw new IllegalOperationError( 'TODO' );
