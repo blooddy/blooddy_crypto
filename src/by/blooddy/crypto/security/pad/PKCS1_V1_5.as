@@ -110,7 +110,7 @@ internal final class $PKCS1_V1_5 extends MemoryPad {
 			case 0x02:
 				// blocktype 2: padding bytes are random non-zero bytes
 				// generate non-zero padding bytes
-				ARC4Random.readPool( k, ks );
+				ARC4Random.readPool( k, ks, true );
 				break;
 			default:
 				throw new ArgumentError();

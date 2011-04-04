@@ -57,7 +57,7 @@ package by.blooddy.crypto.security.utils {
 		/**
 		 * @private
 		 */
-		public static function readPool(pos:uint, len:uint):void {
+		public static function readPool(pos:uint, len:uint, skipZero:Boolean=false):void {
 			
 			var mem:ByteArray = _domain.domainMemory;
 			
@@ -114,10 +114,30 @@ package by.blooddy.crypto.security.utils {
 			
 			var ti:uint;
 			var tj:uint;
-			
-			do {
-				
+
+			if ( skipZero ) {
+
 				do {
+
+					do {
+						if ( ++i > 0xFF ) i &= 0xFF;
+						ti = Memory.getUI8( p + i );
+						j += ti;
+						if ( j > 0xFF ) j &= 0xFF;
+						tj = Memory.getUI8( p + j );
+						Memory.setI8( p + i, tj );
+						Memory.setI8( p + j, ti );
+						t = Memory.getUI8( p + ( ( ti + tj ) & 0xFF ) );
+					} while ( t == 0 );
+					Memory.setI8( pos, t );
+					++pos;
+					
+				} while ( pos < len );
+
+			} else {
+
+				do {
+
 					if ( ++i > 0xFF ) i &= 0xFF;
 					ti = Memory.getUI8( p + i );
 					j += ti;
@@ -125,12 +145,12 @@ package by.blooddy.crypto.security.utils {
 					tj = Memory.getUI8( p + j );
 					Memory.setI8( p + i, tj );
 					Memory.setI8( p + j, ti );
-					t = Memory.getUI8( p + ( ( ti + tj ) & 0xFF ) );
-				} while ( t == 0 );
-				Memory.setI8( pos, t );
-				++pos;
-				
-			} while ( pos < len );
+					Memory.setI8( pos, Memory.getUI8( p + ( ( ti + tj ) & 0xFF ) ) );
+					++pos;
+
+				} while ( pos < len );
+
+			}
 			
 			_i = i;
 			_j = j;
