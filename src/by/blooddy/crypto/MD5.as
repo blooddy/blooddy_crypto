@@ -56,9 +56,9 @@ package by.blooddy.crypto {
 			
 			var mem:ByteArray = digest( bytes );
 			
-			var k:uint;
-			var i:uint = 0;
-			var j:uint = 31;
+			var k:int;
+			var i:int = 0;
+			var j:int = 31;
 			
 			mem.position = 16;
 			mem.writeUTFBytes( '0123456789abcdef' );
@@ -103,7 +103,7 @@ package by.blooddy.crypto {
 			bytes.readBytes( pad, 0, bytes.length - padPos );
 			bytes.length -= 64;
 			
-			var k:uint = len & 63;
+			var k:int = len & 63;
 			
 			bytes.length = Math.max(
 				len + ( k ? 128 - k : 64 ),
@@ -112,8 +112,8 @@ package by.blooddy.crypto {
 			
 			_DOMAIN.domainMemory = bytes;
 			
-			var i:uint = len << 3;
-			var bytesLength:uint = ( ( ( ( i + 64 ) >>> 9 ) << 4 ) + 15 ) << 2; // длинна для подсчёта в блоках
+			var i:int = len << 3;
+			var bytesLength:int = ( ( ( ( i + 64 ) >>> 9 ) << 4 ) + 15 ) << 2; // длинна для подсчёта в блоках
 			
 //			Memory.setI32( ( i >>> 5 ) << 2, Memory.getI32( ( i >>> 5 ) << 2 ) | ( 0x80 << ( i & 31 ) ) );
 			si32( li32( ( i >>> 5 ) << 2 ) | 0x80 << ( i & 31 ), ( i >>> 5 ) << 2 );
@@ -202,32 +202,32 @@ package by.blooddy.crypto {
 //			const T3E:int =    718787259;
 //			const T3F:int = -  343485551;
 
-			var x0:int;
-			var x1:int;
-			var x2:int;
-			var x3:int;
-			var x4:int;
-			var x5:int;
-			var x6:int;
-			var x7:int;
-			var x8:int;
-			var x9:int;
-			var xA:int;
-			var xB:int;
-			var xC:int;
-			var xD:int;
-			var xE:int;
-			var xF:int;
+			var x0:int = 0;
+			var x1:int = 0;
+			var x2:int = 0;
+			var x3:int = 0;
+			var x4:int = 0;
+			var x5:int = 0;
+			var x6:int = 0;
+			var x7:int = 0;
+			var x8:int = 0;
+			var x9:int = 0;
+			var xA:int = 0;
+			var xB:int = 0;
+			var xC:int = 0;
+			var xD:int = 0;
+			var xE:int = 0;
+			var xF:int = 0;
 			
 			var a:int =   1732584193;
 			var b:int = -  271733879;
 			var c:int = - 1732584194;
 			var d:int =    271733878;
 			
-			var aa:int;
-			var bb:int;
-			var cc:int;
-			var dd:int;
+			var aa:int = 0;
+			var bb:int = 0;
+			var cc:int = 0;
+			var dd:int = 0;
 			
 			i = 0;
 			

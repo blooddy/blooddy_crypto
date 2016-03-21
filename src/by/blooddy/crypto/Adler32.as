@@ -54,11 +54,11 @@ package by.blooddy.crypto {
 
 				_DOMAIN.domainMemory = bytes;
 				
-				var i:uint = 0;
-				var a:uint = 1;
-				var b:uint = 0;
+				var i:int = 0;
+				var a:int = 1;
+				var b:int = 0;
 
-				var tlen:uint;
+				var tlen:int = 0;
 
 				do
 				{

@@ -89,7 +89,7 @@ package by.blooddy.crypto {
 				newLines *= 0.75; // переносы будем отсчитывать по исходнику. поэтому отсчитывать надо по 3 байта
 			}
 
-			var i:uint = 63 + len - bytes.length + 2; // сюда запишем данные для кодирования
+			var i:int = 63 + len - bytes.length + 2; // сюда запишем данные для кодирования
 			if ( insertNewLines ) {
 				// что бы не производить допрасчёты, сдвинем для кратности стартовую позицию.
 				i += newLines - i % newLines;
@@ -106,8 +106,8 @@ package by.blooddy.crypto {
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 			_DOMAIN.domainMemory = mem;
 
-			var j:uint = 63;	// сюда запишем результат
-			var c:uint;
+			var j:int = 63;	// сюда запишем результат
+			var c:int = 0;
 
 			do {
 				
@@ -197,16 +197,16 @@ package by.blooddy.crypto {
 			mem.writeUTFBytes( '=' ); // записываю pad на всякий случай
 
 			// помещаем в пямять
-			if ( bytesLength < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 			_DOMAIN.domainMemory = mem;
 
-			var i:uint = 255;
-			var j:uint = 255;
+			var i:int = 255;
+			var j:int = 255;
 
-			var a:uint;
-			var b:uint;
-			var c:uint;
-			var d:uint;
+			var a:int = 0;
+			var b:int = 0;
+			var c:int = 0;
+			var d:int = 0;
 
 			do {
 

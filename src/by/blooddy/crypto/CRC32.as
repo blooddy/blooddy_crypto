@@ -46,9 +46,9 @@ package by.blooddy.crypto {
 			
 			_DOMAIN.domainMemory = mem;
 			
-			var c:uint;
-			var j:uint;
-			var i:uint;
+			var c:int = 0;
+			var j:int = 0;
+			var i:int = 0;
 			for ( i=0; i<256; ++i ) {
 				c = i;
 				for ( j=0; j<8; ++j ) {
@@ -97,8 +97,8 @@ package by.blooddy.crypto {
 				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 				_DOMAIN.domainMemory = mem;
 
-				var c:uint = 0xFFFFFFFF;
-				var i:uint = 1024;
+				var c:int = -1;
+				var i:int = 1024;
 				do {
 					//c = Memory.getI32( ( ( ( c ^ Memory.getUI8( i ) ) & 0xFF ) << 2 ) ) ^ ( c >>> 8 );
 					c = li32( ( ( ( c ^ li8( i ) ) & 0xFF ) << 2 ) ) ^ ( c >>> 8 );
