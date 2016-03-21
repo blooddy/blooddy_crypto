@@ -16,7 +16,7 @@ package by.blooddy.crypto {
 	/**
 	 * @author					BlooDHounD
 	 * @version					1.0
-	 * @playerversion			Flash 9
+	 * @playerversion			Flash 11.4
 	 * @langversion				3.0
 	 */
 	public final class CRC32Test {
@@ -36,14 +36,14 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 
 		public static var $hash:Array = [
-			[ 'тестовая запсь для подсчёта crc', 0x49C523BC ]
+			[ 'тестовая запись для подсчёта crc', 0xF7D05FA0 ]
 		];
 
 		[Test( dataProvider="$hash" )]
 		public function hash(str:String, result:uint):void {
 			var bytes:ByteArray = new ByteArray();
 			bytes.writeUTFBytes( str );
-			Assert.assertEquals( CRC32.hash( bytes ), result );
+			Assert.assertEquals( CRC32.hashBytes( bytes ), result );
 		}
 
 	}

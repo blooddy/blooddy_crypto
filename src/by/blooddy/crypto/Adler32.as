@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-//  (C) 2011 BlooDHounD
+//  (C) 2016 BlooDHounD
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -10,18 +10,16 @@ package by.blooddy.crypto {
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
 	
-	import avm2.intrinsics.memory.li32;
 	import avm2.intrinsics.memory.li8;
-	import avm2.intrinsics.memory.si32;
 
 	/**
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 11.4
 	 * @langversion				3.0
-	 * @created					28.01.2011 20:07:33
+	 * @created					21.03.2016 4:50:11
 	 */
-	public final class CRC32 {
+	public final class Adler32 {
 
 		//--------------------------------------------------------------------------
 		//
@@ -34,48 +32,12 @@ package by.blooddy.crypto {
 		 */
 		private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
 		
-		/**
-		 * @private
-		 */
-		private static const _TABLE:ByteArray = ( function():ByteArray {
-		
-			var tmp:ByteArray = _DOMAIN.domainMemory;
-			
-			var mem:ByteArray = new ByteArray();
-			mem.length = Math.max( 1024, ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH );
-			
-			_DOMAIN.domainMemory = mem;
-			
-			var c:uint;
-			var j:uint;
-			var i:uint;
-			for ( i=0; i<256; ++i ) {
-				c = i;
-				for ( j=0; j<8; ++j ) {
-					if ( ( c & 1 ) == 1 ) {
-						c = 0xEDB88320 ^ ( c >>> 1 );
-					} else {
-						c >>>= 1;
-					}
-				}
-				//Memory.setI32( i << 2, c );
-				si32( c, i << 2 );
-			}
-			
-			_DOMAIN.domainMemory = tmp;
-			
-			mem.length = 1024;
-			
-			return mem;
-
-		}() );
-
 		//--------------------------------------------------------------------------
 		//
 		//  Class methods
 		//
 		//--------------------------------------------------------------------------
-
+		
 		[Deprecated( replacement="hashBytes" )]
 		public static function hash(bytes:ByteArray):uint {
 			return hashBytes( bytes );
@@ -86,51 +48,63 @@ package by.blooddy.crypto {
 			var len:uint = bytes.length;
 			if ( len > 0 ) {
 
-				len += 1024;
-
 				var tmp:ByteArray = _DOMAIN.domainMemory;
 
-				var mem:ByteArray = new ByteArray();
-				mem.writeBytes( _TABLE );
-				mem.writeBytes( bytes );
+				if ( len < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) bytes.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 
-				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
-				_DOMAIN.domainMemory = mem;
+				_DOMAIN.domainMemory = bytes;
+				
+				var i:uint = 0;
+				var a:uint = 1;
+				var b:uint = 0;
 
-				var c:uint = 0xFFFFFFFF;
-				var i:uint = 1024;
-				do {
-					//c = Memory.getI32( ( ( ( c ^ Memory.getUI8( i ) ) & 0xFF ) << 2 ) ) ^ ( c >>> 8 );
-					c = li32( ( ( ( c ^ li8( i ) ) & 0xFF ) << 2 ) ) ^ ( c >>> 8 );
-				} while ( ++i < len );
+				var tlen:uint;
 
+				do
+				{
+					tlen = i + 5552;
+					if ( tlen > len ) tlen = len;
+
+					do {
+						a = a + li8( i );
+						b = b + a;
+						i++;
+					} while ( i < tlen );
+					
+					a = a % 65521;
+					b = b % 65521;
+
+				} while ( i < len );
+				
 				_DOMAIN.domainMemory = tmp;
 
-				return c ^ 0xFFFFFFFF;
+				bytes.length = len;
+				
+				return ( b << 16 ) | a;
 
 			} else {
 
-				return 0;
+				return 1;
 
 			}
 
 		}
-
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
 		//
 		//--------------------------------------------------------------------------
-
+		
 		/**
 		 * @private
 		 * Constructor
 		 */
-		public function CRC32() {
+		public function Adler32() {
 			super();
 			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
 		}
-
+		
 	}
 
 }

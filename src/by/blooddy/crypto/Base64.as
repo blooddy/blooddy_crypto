@@ -14,15 +14,13 @@ package by.blooddy.crypto {
 	import avm2.intrinsics.memory.si16;
 	import avm2.intrinsics.memory.si8;
 	
-	import by.blooddy.system.Memory;
-	
 	/**
 	 * Encodes and decodes binary data using
 	 * <a herf="http://www.faqs.org/rfcs/rfc4648.html">Base64</a> encoding algorithm.
 	 *
 	 * @author					BlooDHounD
 	 * @version					3.0
-	 * @playerversion			Flash 10
+	 * @playerversion			Flash 11.4
 	 * @langversion				3.0
 	 */
 	public final class Base64 {

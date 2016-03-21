@@ -16,7 +16,7 @@ package by.blooddy.crypto {
 	/**
 	 * @author					BlooDHounD
 	 * @version					1.0
-	 * @playerversion			Flash 9
+	 * @playerversion			Flash 11.4
 	 * @langversion				3.0
 	 */
 	public class Base64Test {
