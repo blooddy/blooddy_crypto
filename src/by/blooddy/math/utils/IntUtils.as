@@ -6,8 +6,6 @@
 
 package by.blooddy.math.utils {
 	
-	import apparat.inline.Inlined;
-	
 	[ExcludeClass]
 	/**
 	 * @author					BlooDHounD
@@ -16,7 +14,7 @@ package by.blooddy.math.utils {
 	 * @langversion				3.0
 	 * @created					12.01.2011 17:03:08
 	 */
-	public final class IntUtils extends Inlined {
+	public final class IntUtils {
 		
 		//--------------------------------------------------------------------------
 		//

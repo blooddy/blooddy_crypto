@@ -6,11 +6,13 @@
 
 package by.blooddy.crypto {
 
-	import by.blooddy.system.Memory;
-	
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
+	
+	import avm2.intrinsics.memory.li32;
+	import avm2.intrinsics.memory.li8;
+	import avm2.intrinsics.memory.si32;
 
 	/**
 	 * @author					BlooDHounD
@@ -30,12 +32,43 @@ package by.blooddy.crypto {
 		/**
 		 * @private
 		 */
-		private static const _domain:ApplicationDomain = ApplicationDomain.currentDomain;
+		private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
 		
 		/**
 		 * @private
 		 */
-		private static const _TABLE:ByteArray = createTable();
+		private static const _TABLE:ByteArray = ( function():ByteArray {
+		
+			var tmp:ByteArray = _DOMAIN.domainMemory;
+			
+			var mem:ByteArray = new ByteArray();
+			mem.length = Math.max( 1024, ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH );
+			
+			_DOMAIN.domainMemory = mem;
+			
+			var c:uint;
+			var j:uint;
+			var i:uint;
+			for ( i=0; i<256; ++i ) {
+				c = i;
+				for ( j=0; j<8; ++j ) {
+					if ( ( c & 1 ) == 1 ) {
+						c = 0xEDB88320 ^ ( c >>> 1 );
+					} else {
+						c >>>= 1;
+					}
+				}
+				//Memory.setI32( i << 2, c );
+				si32( c, i << 2 );
+			}
+			
+			_DOMAIN.domainMemory = tmp;
+			
+			mem.length = 1024;
+			
+			return mem;
+
+		}() );
 
 		//--------------------------------------------------------------------------
 		//
@@ -43,29 +76,35 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 
+		[Deprecated( replacement="hashBytes" )]
 		public static function hash(bytes:ByteArray):uint {
+			return hashBytes( bytes );
+		}
+		
+		public static function hashBytes(bytes:ByteArray):uint {
 
 			var len:uint = bytes.length;
 			if ( len > 0 ) {
 
 				len += 1024;
 
-				var tmp:ByteArray = _domain.domainMemory;
+				var tmp:ByteArray = _DOMAIN.domainMemory;
 
 				var mem:ByteArray = new ByteArray();
 				mem.writeBytes( _TABLE );
 				mem.writeBytes( bytes );
 
 				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
-				_domain.domainMemory = mem;
+				_DOMAIN.domainMemory = mem;
 
 				var c:uint = 0xFFFFFFFF;
 				var i:uint = 1024;
 				do {
-					c = Memory.getI32( ( ( ( c ^ Memory.getUI8( i ) ) & 0xFF ) << 2 ) ) ^ ( c >>> 8 );
+					//c = Memory.getI32( ( ( ( c ^ Memory.getUI8( i ) ) & 0xFF ) << 2 ) ) ^ ( c >>> 8 );
+					c = li32( ( ( ( c ^ li8( i ) ) & 0xFF ) << 2 ) ) ^ ( c >>> 8 );
 				} while ( ++i < len );
 
-				_domain.domainMemory = tmp;
+				_DOMAIN.domainMemory = tmp;
 
 				return c ^ 0xFFFFFFFF;
 
@@ -75,46 +114,6 @@ package by.blooddy.crypto {
 
 			}
 
-		}
-
-		//--------------------------------------------------------------------------
-		//
-		//  Private class methods
-		//
-		//--------------------------------------------------------------------------
-
-		/**
-		 * @private
-		 */
-		private static function createTable():ByteArray {
-
-			var tmp:ByteArray = _domain.domainMemory;
-
-			var mem:ByteArray = new ByteArray();
-			mem.length = Math.max( 1024, ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH );
-
-			_domain.domainMemory = mem;
-
-			var c:uint;
-			var j:uint;
-			var i:uint;
-			for ( i=0; i<256; ++i ) {
-				c = i;
-				for ( j=0; j<8; ++j ) {
-					if ( c & 1 == 1 ) {
-						c = 0xEDB88320 ^ ( c >>> 1 );
-					} else {
-						c >>>= 1;
-					}
-				}
-				Memory.setI32( i << 2, c );
-			}
-
-			_domain.domainMemory = tmp;
-
-			mem.length = 1024;
-
-			return mem;
 		}
 
 		//--------------------------------------------------------------------------

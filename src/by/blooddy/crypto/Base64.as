@@ -6,11 +6,15 @@
 
 package by.blooddy.crypto {
 	
-	import by.blooddy.system.Memory;
-	
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
+	
+	import avm2.intrinsics.memory.li8;
+	import avm2.intrinsics.memory.si16;
+	import avm2.intrinsics.memory.si8;
+	
+	import by.blooddy.system.Memory;
 	
 	/**
 	 * Encodes and decodes binary data using
@@ -32,7 +36,7 @@ package by.blooddy.crypto {
 		/**
 		 * @private
 		 */
-		private static const _domain:ApplicationDomain = ApplicationDomain.currentDomain;
+		private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
 
 		/**
 		 * @private
@@ -51,11 +55,6 @@ package by.blooddy.crypto {
 			'\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40'
 		);
 
-		/**
-		 * @private
-		 */
-		private static const _PATTERN:RegExp = /^[A-Za-z\d\+\/\s\v\b]*[=\s\v\b]*$/;
-
 		//--------------------------------------------------------------------------
 		//
 		//  Class methods
@@ -63,7 +62,7 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 
 		public static function isValid(str:String):Boolean {
-			return _PATTERN.test( str );
+			return /^[A-Za-z\d\+\/\s\v\b]*[=\s\v\b]*$/.test( str );
 		}
 
 		/**
@@ -76,13 +75,15 @@ package by.blooddy.crypto {
 		 *
 		 * @return					The data encoded.
 		 */
-		public static function encode(bytes:ByteArray!, newLines:uint=0):String {
+		public static function encode(bytes:ByteArray, newLines:uint=0):String {
 
 			if ( bytes == null ) Error.throwError( TypeError, 2007, 'bytes' );
 			if ( newLines & 3 )	throw new RangeError();
 
 			if ( bytes.length == 0 ) return '';
 
+			var tmp:ByteArray = _DOMAIN.domainMemory;
+			
 			var insertNewLines:Boolean = newLines != 0;
 			var len:uint = Math.ceil( bytes.length / 3 ) << 2;
 			if ( insertNewLines ) {
@@ -96,36 +97,42 @@ package by.blooddy.crypto {
 				i += newLines - i % newLines;
 			}
 
-			var tmp:ByteArray = _domain.domainMemory;
-			
 			var mem:ByteArray = new ByteArray();
 			mem.writeBytes( _ENCODE_TABLE );
 			mem.position = i + 1;
 			mem.writeBytes( bytes );
 			var rest:uint = bytes.length % 3;
 			var bytesLength:uint = mem.length - rest - 1;
+
 			// помещаем в пямять
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
-			_domain.domainMemory = mem;
-
+			_DOMAIN.domainMemory = mem;
 
 			var j:uint = 63;	// сюда запишем результат
 			var c:uint;
 
 			do {
 				
-				c =	Memory.getUI8( ++i ) << 16 |
-					Memory.getUI8( ++i ) << 8  |
-					Memory.getUI8( ++i )       ;
+//				c =	Memory.getUI8( ++i ) << 16 |
+//					Memory.getUI8( ++i ) << 8  |
+//					Memory.getUI8( ++i )       ;
+				c =	li8( ++i ) << 16 |
+					li8( ++i ) << 8  |
+					li8( ++i )       ;
 
 				// TODO: speed test: setI8 x4 vs setI32
-				Memory.setI8( ++j, Memory.getUI8(   c >>> 18          ) );
-				Memory.setI8( ++j, Memory.getUI8( ( c >>> 12 ) & 0x3F ) );
-				Memory.setI8( ++j, Memory.getUI8( ( c >>> 6  ) & 0x3F ) );
-				Memory.setI8( ++j, Memory.getUI8(   c          & 0x3F ) );
+//				Memory.setI8( ++j, Memory.getUI8(   c >>> 18          ) );
+				si8( li8(   c >>> 18          ), ++j );
+//				Memory.setI8( ++j, Memory.getUI8( ( c >>> 12 ) & 0x3F ) );
+				si8( li8( ( c >>> 12 ) & 0x3F ), ++j );
+//				Memory.setI8( ++j, Memory.getUI8( ( c >>> 6  ) & 0x3F ) );
+				si8( li8( ( c >>> 6  ) & 0x3F ), ++j );
+//				Memory.setI8( ++j, Memory.getUI8(   c          & 0x3F ) );
+				si8( li8(   c          & 0x3F ), ++j );
 
 				if ( insertNewLines && i % newLines == 0 ) {
-					Memory.setI16( ++j, 0x0A0D );
+//					Memory.setI16( ++j, 0x0A0D );
+					si16( 0x0A0D, ++j );
 					++j;
 				}
 
@@ -133,22 +140,33 @@ package by.blooddy.crypto {
 
 			if ( rest ) {
 				if ( rest == 1 ) {
-					c = Memory.getUI8( ++i );
-					Memory.setI8( ++j, Memory.getUI8(   c >>> 2       ) );
-					Memory.setI8( ++j, Memory.getUI8( ( c & 3 ) <<  4 ) );
-					Memory.setI8( ++j, 61 )
-					Memory.setI8( ++j, 61 )
+//					c = Memory.getUI8( ++i );
+					c = li8( ++i );
+//					Memory.setI8( ++j, Memory.getUI8(   c >>> 2       ) );
+					si8( li8(   c >>> 2       ), ++j );
+//					Memory.setI8( ++j, Memory.getUI8( ( c & 3 ) <<  4 ) );
+					si8( li8( ( c & 3 ) <<  4 ), ++j );
+//					Memory.setI8( ++j, 61 );
+					si8( 61, ++j );
+//					Memory.setI8( ++j, 61 );
+					si8( 61, ++j );
 				} else {
-					c =	( Memory.getUI8( ++i ) << 8 )	|
-						  Memory.getUI8( ++i )			;
-					Memory.setI8( ++j, Memory.getUI8(   c >>> 10          ) );
-					Memory.setI8( ++j, Memory.getUI8( ( c >>>  4 ) & 0x3F ) );
-					Memory.setI8( ++j, Memory.getUI8( ( c & 15 ) << 2     ) );
-					Memory.setI8( ++j, 61 )
+//					c =	( Memory.getUI8( ++i ) << 8 )	|
+//						  Memory.getUI8( ++i )			;
+					c =	( li8( ++i ) << 8 )	|
+						  li8( ++i )		;
+//					Memory.setI8( ++j, Memory.getUI8(   c >>> 10          ) );
+					si8( li8(   c >>> 10          ), ++j );
+//					Memory.setI8( ++j, Memory.getUI8( ( c >>>  4 ) & 0x3F ) );
+					si8( li8( ( c >>>  4 ) & 0x3F ), ++j );
+//					Memory.setI8( ++j, Memory.getUI8( ( c & 15 ) << 2     ) );
+					si8( li8( ( c & 15 ) << 2     ), ++j );
+//					Memory.setI8( ++j, 61 )
+					si8( 61, ++j );
 				}
 			}
 
-			_domain.domainMemory = tmp;
+			_DOMAIN.domainMemory = tmp;
 
 			mem.position = 64;
 			return mem.readUTFBytes( len );
@@ -166,22 +184,23 @@ package by.blooddy.crypto {
 		 *
 		 * @throws	VerifyError		string is not valid
 		 */
-		public static function decode(str:String!):ByteArray {
+		public static function decode(str:String):ByteArray {
 
 			if ( str == null ) Error.throwError( TypeError, 2007, 'str' );
 
 			if ( !str )	return new ByteArray();
 
-			var tmp:ByteArray = _domain.domainMemory;
+			var tmp:ByteArray = _DOMAIN.domainMemory;
 
 			var mem:ByteArray = new ByteArray();
 			mem.writeBytes( _DECODE_TABLE );
 			mem.writeUTFBytes( str );
 			var bytesLength:uint = mem.length;
 			mem.writeUTFBytes( '=' ); // записываю pad на всякий случай
+
 			// помещаем в пямять
 			if ( bytesLength < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
-			_domain.domainMemory = mem;
+			_DOMAIN.domainMemory = mem;
 
 			var i:uint = 255;
 			var j:uint = 255;
@@ -193,85 +212,101 @@ package by.blooddy.crypto {
 
 			do {
 
-				a = Memory.getUI8( Memory.getUI8( ++i ) );
+//				a = Memory.getUI8( Memory.getUI8( ++i ) );
+				a = li8( li8( ++i ) );
 				if ( a >= 0x40 ) {
 					while ( a == 0x43 ) { // пропускаем пробелы
-						a = Memory.getUI8( Memory.getUI8( ++i ) );
+//						a = Memory.getUI8( Memory.getUI8( ++i ) );
+						a = li8( li8( ++i ) );
 					}
 					if ( a == 0x41 ) { // наткнулись на pad
 						b = c = d = 0x41;
 						break;
 					} else if ( a == 0x40 ) { // не валидный символ
-						_domain.domainMemory = tmp;
+						_DOMAIN.domainMemory = tmp;
 						Error.throwError( VerifyError, 1509 );
 					}
 				}
 
-				b = Memory.getUI8( Memory.getUI8( ++i ) );
+//				b = Memory.getUI8( Memory.getUI8( ++i ) );
+				b = li8( li8( ++i ) );
 				if ( b >= 0x40 ) {
 					while ( b == 0x43 ) { // пропускаем пробелы
-						b = Memory.getUI8( Memory.getUI8( ++i ) );
+//						b = Memory.getUI8( Memory.getUI8( ++i ) );
+						b = li8( li8( ++i ) );
 					}
 					if ( b == 0x41 ) { // наткнулись на pad
 						c = d = 0x41;
 						break;
 					} else if ( b == 0x40 ) { // не валидный символ
-						_domain.domainMemory = tmp;
+						_DOMAIN.domainMemory = tmp;
 						Error.throwError( VerifyError, 1509 );
 					}
 				}
 
-				c = Memory.getUI8( Memory.getUI8( ++i ) );
+//				c = Memory.getUI8( Memory.getUI8( ++i ) );
+				c = li8( li8( ++i ) );
 				if ( c >= 0x40 ) {
 					while ( c == 0x43 ) { // пропускаем пробелы
-						c = Memory.getUI8( Memory.getUI8( ++i ) );
+//						c = Memory.getUI8( Memory.getUI8( ++i ) );
+						c = li8( li8( ++i ) );
 					}
 					if ( c == 0x41 ) { // наткнулись на pad
 						d = 0x41;
 						break;
 					} else if ( c == 0x40 ) { // не валидный символ
-						_domain.domainMemory = tmp;
+						_DOMAIN.domainMemory = tmp;
 						Error.throwError( VerifyError, 1509 );
 					}
 				}
 
-				d = Memory.getUI8( Memory.getUI8( ++i ) );
+//				d = Memory.getUI8( Memory.getUI8( ++i ) );
+				d = li8( li8( ++i ) );
 				if ( d >= 0x40 ) {
 					while ( d == 0x43 ) { // пропускаем пробелы
-						d = Memory.getUI8( Memory.getUI8( ++i ) );
+//						d = Memory.getUI8( Memory.getUI8( ++i ) );
+						d = li8( li8( ++i ) );
 					}
 					if ( d == 0x41 ) { // наткнулись на pad
 						break;
 					} else if ( d == 0x40 ) { // не валидный символ
-						_domain.domainMemory = tmp;
+						_DOMAIN.domainMemory = tmp;
 						Error.throwError( VerifyError, 1509 );
 					}
 				}
 
-				Memory.setI8( ++j, ( a << 2 ) | ( b >> 4 ) );
-				Memory.setI8( ++j, ( b << 4 ) | ( c >> 2 ) );
-				Memory.setI8( ++j, ( c << 6 ) |   d        );
+//				Memory.setI8( ++j, ( a << 2 ) | ( b >> 4 ) );
+				si8( ( a << 2 ) | ( b >> 4 ), ++j );
+//				Memory.setI8( ++j, ( b << 4 ) | ( c >> 2 ) );
+				si8( ( b << 4 ) | ( c >> 2 ), ++j );
+//				Memory.setI8( ++j, ( c << 6 ) |   d        );
+				si8( ( c << 6 ) |   d       , ++j );
 
 			} while ( true );
 
 			while ( i < bytesLength ) {
-				if ( !( Memory.getUI8( Memory.getUI8( ++i ) & 0x41 ) ) ) { // что-то помимо
-					_domain.domainMemory = tmp;
+				// что-то помимо
+//				if ( !( Memory.getUI8( Memory.getUI8( ++i ) & 0x41 ) ) ) {
+				if ( !( li8( li8( ++i ) & 0x41 ) ) ) {
+					_DOMAIN.domainMemory = tmp;
 					Error.throwError( VerifyError, 1509 );
 				}
 			}
 
 			if ( a != 0x41 && b != 0x41 ) {
-				Memory.setI8( ++j, ( a << 2 ) | ( b >> 4 ) );
+//				Memory.setI8( ++j, ( a << 2 ) | ( b >> 4 ) );
+				si8( ( a << 2 ) | ( b >> 4 ), ++j );
 				if ( c != 0x41 ) {
-					Memory.setI8( ++j, ( b << 4 ) | ( c >> 2 ) );
+//					Memory.setI8( ++j, ( b << 4 ) | ( c >> 2 ) );
+					si8( ( b << 4 ) | ( c >> 2 ), ++j );
 					if ( d != 0x41 ) {
-						Memory.setI8( ++j, ( c << 6 ) | d );
+//						Memory.setI8( ++j, ( c << 6 ) | d );
+						si8( ( c << 6 ) | d, ++j );
 					}
 				}
 			}
 
-			_domain.domainMemory = tmp;
+			_DOMAIN.domainMemory = tmp;
 			
 			var result:ByteArray = new ByteArray();
 			if ( j > 255 ) {
