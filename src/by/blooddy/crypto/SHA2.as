@@ -79,6 +79,20 @@ package by.blooddy.crypto {
 		/**
 		 * @private
 		 */
+		protected static function $hash(str:String, H:Vector.<int>):String {
+			
+			if ( !str ) str = '';
+			
+			var bytes:ByteArray = new ByteArray();
+			bytes.writeUTFBytes( str );
+			
+			return $hashBytes( bytes, H );
+			
+		}
+
+		/**
+		 * @private
+		 */
 		protected static function $hashBytes(bytes:ByteArray, H:Vector.<int>):String {
 			
 			var mem:ByteArray = $digest( bytes, H );
@@ -114,7 +128,7 @@ package by.blooddy.crypto {
 		/**
 		 * @private
 		 */
-		public static function $digest(bytes:ByteArray, H:Vector.<int>):ByteArray {
+		protected static function $digest(bytes:ByteArray, H:Vector.<int>):ByteArray {
 			
 			var tmp:ByteArray = _DOMAIN.domainMemory;
 

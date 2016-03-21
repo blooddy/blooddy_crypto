@@ -50,14 +50,7 @@ package by.blooddy.crypto {
 		 * @keyword			sha256.hash, hash
 		 */
 		public static function hash(str:String):String {
-			
-			if ( !str ) str = '';
-			
-			var bytes:ByteArray = new ByteArray();
-			bytes.writeUTFBytes( str );
-			
-			return hashBytes( bytes );
-			
+			return $hash( str, _H );
 		}
 		
 		/**
