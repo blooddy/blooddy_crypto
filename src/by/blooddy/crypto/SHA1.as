@@ -74,6 +74,47 @@ package by.blooddy.crypto {
 		 * @keyword			sha1.hashBytes, hashBytes
 		 */
 		public static function hashBytes(bytes:ByteArray):String {
+			
+			var mem:ByteArray = digest( bytes );
+
+			var tmp:ByteArray = _DOMAIN.domainMemory;
+
+			var k:int = 0;
+			var i:int = 0;
+			var j:int = 20 + 16 - 1;
+			
+			mem.position = 20;
+			mem.writeUTFBytes( '0123456789abcdef' );
+			
+			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+			
+			_DOMAIN.domainMemory = mem;
+			
+			do {
+
+				k = li8( i );
+				si8( li8( 20 + ( k >>> 4 ) ), ++j );
+				si8( li8( 20 + ( k & 0xF ) ), ++j );
+
+			} while ( ++i < 20 );
+			
+			_DOMAIN.domainMemory = tmp;
+			
+			mem.position = 20 + 16;
+			return mem.readUTFBytes( 20 * 2 );
+			
+		}
+		
+		/**
+		 * Performs SHA-1 hash algorithm on a <code>ByteArray</code>.
+		 *
+		 * @param	data	The <code>ByteArray</code> data to hash.
+		 *
+		 * @return			A <code>ByteArray</code> containing the hash value of data.
+		 *
+		 * @keyword			sha1.digest, digest
+		 */
+		public static function digest(bytes:ByteArray):ByteArray {
 
 			if ( !bytes ) bytes = new ByteArray();
 			
@@ -255,47 +296,37 @@ package by.blooddy.crypto {
 				
 			} while ( i < bytesLength );
 			
-			mem.position = 0;
-			mem.writeUTFBytes( '0123456789abcdef' );
-			
-			si8( h0 >> 24, 16 );
-			si8( h0 >> 16, 17 );
-			si8( h0 >>  8, 18 );
-			si8( h0      , 19 );
+			si8( h0 >> 24,  0 );
+			si8( h0 >> 16,  1 );
+			si8( h0 >>  8,  2 );
+			si8( h0      ,  3 );
 
-			si8( h1 >> 24, 20 );
-			si8( h1 >> 16, 21 );
-			si8( h1 >>  8, 22 );
-			si8( h1      , 23 );
+			si8( h1 >> 24,  4 );
+			si8( h1 >> 16,  5 );
+			si8( h1 >>  8,  6 );
+			si8( h1      ,  7 );
 			
-			si8( h2 >> 24, 24 );
-			si8( h2 >> 16, 25 );
-			si8( h2 >>  8, 26 );
-			si8( h2      , 27 );
+			si8( h2 >> 24,  8 );
+			si8( h2 >> 16,  9 );
+			si8( h2 >>  8, 10 );
+			si8( h2      , 11 );
 			
-			si8( h3 >> 24, 28 );
-			si8( h3 >> 16, 29 );
-			si8( h3 >>  8, 30 );
-			si8( h3      , 31 );
+			si8( h3 >> 24, 12 );
+			si8( h3 >> 16, 13 );
+			si8( h3 >>  8, 14 );
+			si8( h3      , 15 );
 			
-			si8( h4 >> 24, 32 );
-			si8( h4 >> 16, 33 );
-			si8( h4 >>  8, 34 );
-			si8( h4      , 35 );
-			
-			b = 36 - 1;
-			i = 16;
-			do {
-				a = li8( i );
-				si8( li8( a >>> 4 ), ++b );
-				si8( li8( a & 0xF ), ++b );
-			} while ( ++i < 16 + 5 * 4 );
+			si8( h4 >> 24, 16 );
+			si8( h4 >> 16, 17 );
+			si8( h4 >>  8, 18 );
+			si8( h4      , 19 );
 			
 			_DOMAIN.domainMemory = tmp;
 
-			mem.position = 36;
-			return mem.readUTFBytes( 5 *8 );
-
+			mem.position = 0;
+			mem.length = 5 * 4;
+			return mem;
+			
 		}
 		
 		//--------------------------------------------------------------------------
