@@ -6,7 +6,6 @@
 
 package by.blooddy.crypto {
 
-	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 
 	/**
@@ -48,7 +47,7 @@ package by.blooddy.crypto {
 		 *
 		 * @return			A string containing the hash value of <code>source</code>.
 		 *
-		 * @keyword			sha1.hash, hash
+		 * @keyword			sha224.hash, hash
 		 */
 		public static function hash(str:String):String {
 
@@ -68,12 +67,25 @@ package by.blooddy.crypto {
 		 *
 		 * @return			A string containing the hash value of data.
 		 *
-		 * @keyword			sha1.hashBytes, hashBytes
+		 * @keyword			sha224.hashBytes, hashBytes
 		 */
 		public static function hashBytes(bytes:ByteArray):String {
 			return $hashBytes( bytes, _H );
 		}
 
+		/**
+		 * Performs SHA-224 hash algorithm on a <code>ByteArray</code>.
+		 *
+		 * @param	bytes	The <code>ByteArray</code> data to hash.
+		 *
+		 * @return			A <code>ByteArray</code> containing the hash value of data.
+		 *
+		 * @keyword			sha224.digest, digest
+		 */
+		public static function digest(bytes:ByteArray):ByteArray {
+			return $digest( bytes, _H );
+		}
+		
 	}
 
 }
