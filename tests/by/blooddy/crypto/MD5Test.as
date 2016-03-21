@@ -9,7 +9,6 @@ package by.blooddy.crypto {
 	import flexunit.framework.Assert;
 	
 	import org.flexunit.runners.Parameterized;
-	import flash.utils.ByteArray;
 	
 	[RunWith( "org.flexunit.runners.Parameterized" )]
 	/**
@@ -48,13 +47,6 @@ package by.blooddy.crypto {
 		[Test( dataProvider="$hash" )]
 		public function hash(result:String, str:String):void {
 			Assert.assertEquals( MD5.hash( str ), result );
-		}
-		
-		[Test( dataProvider="$hash" )]
-		public function hashBytes(result:String, str:String):void {
-			var bytes:ByteArray = new ByteArray();
-			bytes.writeUTFBytes( str );
-			Assert.assertEquals( MD5.hashBytes( bytes ), result );
 		}
 		
 	}
