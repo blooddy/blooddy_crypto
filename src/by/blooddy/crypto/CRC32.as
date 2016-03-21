@@ -58,7 +58,7 @@ package by.blooddy.crypto {
 						c >>>= 1;
 					}
 				}
-				//Memory.setI32( i << 2, c );
+//				Memory.setI32( i << 2, c );
 				si32( c, i << 2 );
 			}
 			
@@ -82,11 +82,9 @@ package by.blooddy.crypto {
 		}
 		
 		public static function hashBytes(bytes:ByteArray):uint {
+			if ( bytes && bytes.length > 0 ) {
 
-			var len:uint = bytes.length;
-			if ( len > 0 ) {
-
-				len += 1024;
+				var len:uint = bytes.length + 1024;
 
 				var tmp:ByteArray = _DOMAIN.domainMemory;
 
@@ -100,7 +98,7 @@ package by.blooddy.crypto {
 				var c:int = -1;
 				var i:int = 1024;
 				do {
-					//c = Memory.getI32( ( ( ( c ^ Memory.getUI8( i ) ) & 0xFF ) << 2 ) ) ^ ( c >>> 8 );
+//					c = Memory.getI32( ( ( ( c ^ Memory.getUI8( i ) ) & 0xFF ) << 2 ) ) ^ ( c >>> 8 );
 					c = li32( ( ( ( c ^ li8( i ) ) & 0xFF ) << 2 ) ) ^ ( c >>> 8 );
 				} while ( ++i < len );
 
@@ -113,7 +111,6 @@ package by.blooddy.crypto {
 				return 0;
 
 			}
-
 		}
 
 		//--------------------------------------------------------------------------

@@ -43,7 +43,9 @@ package by.blooddy.crypto {
 
 		public static function hash(str:String):String {
 
-			var bytes:ByteArray = new ByteArray( );
+			if ( !str ) str = '';
+			
+			var bytes:ByteArray = new ByteArray();
 			bytes.writeUTFBytes( str );
 
 			return hashBytes( bytes );
@@ -52,9 +54,9 @@ package by.blooddy.crypto {
 
 		public static function hashBytes(bytes:ByteArray):String {
 
-			var tmp:ByteArray = _DOMAIN.domainMemory;
-			
 			var mem:ByteArray = digest( bytes );
+			
+			var tmp:ByteArray = _DOMAIN.domainMemory;
 			
 			var k:int;
 			var i:int = 0;
@@ -69,11 +71,11 @@ package by.blooddy.crypto {
 			
 			do {
 				
-				//				k = Memory.getUI8( i );
+//				k = Memory.getUI8( i );
 				k = li8( i );
-				//				Memory.setI8( ++j, Memory.getUI8( t + ( k >>> 4 ) ) );
+//				Memory.setI8( ++j, Memory.getUI8( t + ( k >>> 4 ) ) );
 				si8( li8( 16 + ( k >>> 4 ) ), ++j );
-				//				Memory.setI8( ++j, Memory.getUI8( t + ( k & 0xF ) ) );
+//				Memory.setI8( ++j, Memory.getUI8( t + ( k & 0xF ) ) );
 				si8( li8( 16 + ( k & 0xF ) ), ++j );
 				
 			} while ( ++i < 16 );
@@ -87,7 +89,7 @@ package by.blooddy.crypto {
 
 		public static function digest(bytes:ByteArray):ByteArray {
 
-			if ( bytes == null ) Error.throwError( TypeError, 2007, 'bytes' );
+			if ( !bytes ) bytes = new ByteArray();
 			
 			var tmp:ByteArray = _DOMAIN.domainMemory;
 			

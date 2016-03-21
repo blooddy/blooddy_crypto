@@ -75,10 +75,9 @@ package by.blooddy.crypto {
 		 */
 		public static function encode(bytes:ByteArray, newLines:uint=0):String {
 
-			if ( bytes == null ) Error.throwError( TypeError, 2007, 'bytes' );
 			if ( newLines & 3 )	throw new RangeError();
 
-			if ( bytes.length == 0 ) return '';
+			if ( !bytes || bytes.length <= 0 ) return '';
 
 			var tmp:ByteArray = _DOMAIN.domainMemory;
 			
@@ -183,8 +182,6 @@ package by.blooddy.crypto {
 		 * @throws	VerifyError		string is not valid
 		 */
 		public static function decode(str:String):ByteArray {
-
-			if ( str == null ) Error.throwError( TypeError, 2007, 'str' );
 
 			if ( !str )	return new ByteArray();
 

@@ -44,9 +44,9 @@ package by.blooddy.crypto {
 		}
 		
 		public static function hashBytes(bytes:ByteArray):uint {
+			if ( bytes && bytes.length > 0 ) {
 
-			var len:uint = bytes.length;
-			if ( len > 0 ) {
+				var len:uint = bytes.length;
 
 				var tmp:ByteArray = _DOMAIN.domainMemory;
 
@@ -87,7 +87,6 @@ package by.blooddy.crypto {
 				return 1;
 
 			}
-
 		}
 		
 		//--------------------------------------------------------------------------
