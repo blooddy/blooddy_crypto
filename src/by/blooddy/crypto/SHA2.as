@@ -43,8 +43,46 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * @private
+		 */
 		protected static function $hashBytes(bytes:ByteArray, h0:int, h1:int, h2:int, h3:int, h4:int, h5:int, h6:int, h7:int):String {
-
+			
+			var mem:ByteArray = $digest( bytes, h0, h1, h2, h3, h4, h5, h6, h7 );
+			
+			var tmp:ByteArray = _DOMAIN.domainMemory;
+			
+			var k:int = 0;
+			var i:int = 0;
+			var j:int = 32 + 16 - 1;
+			
+			mem.position = 32;
+			mem.writeUTFBytes( '0123456789abcdef' );
+			
+			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+			
+			_DOMAIN.domainMemory = mem;
+			
+			do {
+				
+				k = li8( i );
+				si8( li8( 32 + ( k >>> 4 ) ), ++j );
+				si8( li8( 32 + ( k & 0xF ) ), ++j );
+				
+			} while ( ++i < 32 );
+			
+			_DOMAIN.domainMemory = tmp;
+			
+			mem.position = 32 + 16;
+			return mem.readUTFBytes( 32 * 2 );
+			
+		}
+		
+		/**
+		 * @private
+		 */
+		public static function $digest(bytes:ByteArray, h0:int, h1:int, h2:int, h3:int, h4:int, h5:int, h6:int, h7:int):ByteArray {
+			
 			var tmp:ByteArray = _DOMAIN.domainMemory;
 
 			var i:uint = bytes.length << 3;
@@ -184,58 +222,51 @@ package by.blooddy.crypto {
 			mem.position = 0;
 			mem.writeUTFBytes( '0123456789abcdef' );
 
-			si8( h0 >> 24, 16 );
-			si8( h0 >> 16, 17 );
-			si8( h0 >>  8, 18 );
-			si8( h0      , 19 );
+			si8( h0 >> 24,  0 );
+			si8( h0 >> 16,  1 );
+			si8( h0 >>  8,  2 );
+			si8( h0      ,  3 );
 
-			si8( h1 >> 24, 20 );
-			si8( h1 >> 16, 21 );
-			si8( h1 >>  8, 22 );
-			si8( h1      , 23 );
+			si8( h1 >> 24,  4 );
+			si8( h1 >> 16,  5 );
+			si8( h1 >>  8,  6 );
+			si8( h1      ,  7 );
 
-			si8( h2 >> 24, 24 );
-			si8( h2 >> 16, 25 );
-			si8( h2 >>  8, 26 );
-			si8( h2      , 27 );
+			si8( h2 >> 24,  8 );
+			si8( h2 >> 16,  9 );
+			si8( h2 >>  8, 10 );
+			si8( h2      , 11 );
 
-			si8( h3 >> 24, 28 );
-			si8( h3 >> 16, 29 );
-			si8( h3 >>  8, 30 );
-			si8( h3      , 31 );
+			si8( h3 >> 24, 12 );
+			si8( h3 >> 16, 13 );
+			si8( h3 >>  8, 14 );
+			si8( h3      , 15 );
 
-			si8( h4 >> 24, 32 );
-			si8( h4 >> 16, 33 );
-			si8( h4 >>  8, 34 );
-			si8( h4      , 35 );
+			si8( h4 >> 24, 16 );
+			si8( h4 >> 16, 17 );
+			si8( h4 >>  8, 18 );
+			si8( h4      , 19 );
 			
-			si8( h5 >> 24, 36 );
-			si8( h5 >> 16, 37 );
-			si8( h5 >>  8, 38 );
-			si8( h5      , 39 );
+			si8( h5 >> 24, 20 );
+			si8( h5 >> 16, 21 );
+			si8( h5 >>  8, 22 );
+			si8( h5      , 23 );
 
-			si8( h6 >> 24, 40 );
-			si8( h6 >> 16, 41 );
-			si8( h6 >>  8, 42 );
-			si8( h6      , 43 );
+			si8( h6 >> 24, 24 );
+			si8( h6 >> 16, 25 );
+			si8( h6 >>  8, 26 );
+			si8( h6      , 27 );
 
-			si8( h7 >> 24, 44 );
-			si8( h7 >> 16, 45 );
-			si8( h7 >>  8, 46 );
-			si8( h7      , 47 );
+			si8( h7 >> 24, 28 );
+			si8( h7 >> 16, 29 );
+			si8( h7 >>  8, 30 );
+			si8( h7      , 31 );
 
-			b = 48 - 1;
-			i = 16;
-			do {
-				a = li8( i );
-				si8( li8( a >>> 4 ), ++b );
-				si8( li8( a & 0xF ), ++b );
-			} while ( ++i < 48 );
-			
 			_DOMAIN.domainMemory = tmp;
 
-			mem.position = 48;
-			return mem.readUTFBytes( 64 );
+			mem.position = 0;
+			mem.length = 32;
+			return mem;
 
 		}
 		
