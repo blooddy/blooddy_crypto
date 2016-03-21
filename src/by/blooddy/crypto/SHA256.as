@@ -1,37 +1,25 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-//  © 2016 BlooDHounD
+//  © 2010 BlooDHounD
 //
 ////////////////////////////////////////////////////////////////////////////////
 
 package by.blooddy.crypto {
 
-	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 
 	/**
 	 * Encodes and decodes binary data using 
-	 * <a herf="http://www.faqs.org/rfcs/rfc4634.html">SHA-224 (Secure Hash Algorithm)</a> algorithm.
+	 * <a herf="http://www.faqs.org/rfcs/rfc4634.html">SHA-256 (Secure Hash Algorithm)</a> algorithm.
 	 * 
 	 * @author					BlooDHounD
 	 * @version					2.0
 	 * @playerversion			Flash 10
 	 * @langversion				3.0
-	 * @created					21.03.2016 16:47:48
+	 * @created					21.03.2016 17:06:37
 	 */
-	public final class SHA224 extends SHA2 {
+	public final class SHA256 extends SHA2 {
 
-		//--------------------------------------------------------------------------
-		//
-		//  Class variables
-		//
-		//--------------------------------------------------------------------------
-		
-		/**
-		 * @private
-		 */
-		private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
-		
 		//--------------------------------------------------------------------------
 		//
 		//  Class methods
@@ -39,7 +27,7 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 		
 		/**
-		 * Performs SHA-224 hash algorithm on a String.
+		 * Performs SHA-256 hash algorithm on a String.
 		 *
 		 * @param	str		The string to hash.
 		 *
@@ -48,18 +36,18 @@ package by.blooddy.crypto {
 		 * @keyword			sha1.hash, hash
 		 */
 		public static function hash(str:String):String {
-
+			
 			if ( str ) str = '';
 			
 			var bytes:ByteArray = new ByteArray();
 			bytes.writeUTFBytes( str );
 			
 			return hashBytes( bytes );
-
+			
 		}
 		
 		/**
-		 * Performs SHA-224 hash algorithm on a <code>ByteArray</code>.
+		 * Performs SHA-256 hash algorithm on a <code>ByteArray</code>.
 		 *
 		 * @param	bytes	The <code>ByteArray</code> data to hash.
 		 *
@@ -70,10 +58,10 @@ package by.blooddy.crypto {
 		public static function hashBytes(bytes:ByteArray):String {
 			return $hashBytes(
 				bytes,
-				0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4
+				0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
 			);
 		}
-
+		
 	}
 
 }
