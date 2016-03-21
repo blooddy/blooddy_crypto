@@ -22,6 +22,20 @@ package by.blooddy.crypto {
 
 		//--------------------------------------------------------------------------
 		//
+		//  Class variables
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * @private
+		 */
+		private static const _H:Vector.<int> = Vector.<int>( new <uint>[
+			0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+			0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+		] );
+		
+		//--------------------------------------------------------------------------
+		//
 		//  Class methods
 		//
 		//--------------------------------------------------------------------------
@@ -33,7 +47,7 @@ package by.blooddy.crypto {
 		 *
 		 * @return			A string containing the hash value of <code>source</code>.
 		 *
-		 * @keyword			sha1.hash, hash
+		 * @keyword			sha256.hash, hash
 		 */
 		public static function hash(str:String):String {
 			
@@ -53,14 +67,23 @@ package by.blooddy.crypto {
 		 *
 		 * @return			A string containing the hash value of data.
 		 *
-		 * @keyword			sha1.hashBytes, hashBytes
+		 * @keyword			sha256.hashBytes, hashBytes
 		 */
 		public static function hashBytes(bytes:ByteArray):String {
-			return $hashBytes(
-				bytes,
-				0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
-				0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
-			);
+			return $hashBytes( bytes, _H );
+		}
+		
+		/**
+		 * Performs SHA-256 hash algorithm on a <code>ByteArray</code>.
+		 *
+		 * @param	bytes	The <code>ByteArray</code> data to hash.
+		 *
+		 * @return			A <code>ByteArray</code> containing the hash value of data.
+		 *
+		 * @keyword			sha256.hashBytes, hashBytes
+		 */
+		public static function digest(bytes:ByteArray):ByteArray {
+			return $digest( bytes, _H );
 		}
 		
 	}

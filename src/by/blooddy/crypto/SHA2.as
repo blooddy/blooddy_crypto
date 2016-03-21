@@ -43,8 +43,46 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
-		protected static function $hashBytes(bytes:ByteArray, h0:int, h1:int, h2:int, h3:int, h4:int, h5:int, h6:int, h7:int):String {
-
+		/**
+		 * @private
+		 */
+		protected static function $hashBytes(bytes:ByteArray, H:Vector.<int>):String {
+			
+			var mem:ByteArray = $digest( bytes, H );
+			
+			var tmp:ByteArray = _DOMAIN.domainMemory;
+			
+			var k:int = 0;
+			var i:int = 0;
+			var j:int = 32 + 16 - 1;
+			
+			mem.position = 32;
+			mem.writeUTFBytes( '0123456789abcdef' );
+			
+			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+			
+			_DOMAIN.domainMemory = mem;
+			
+			do {
+				
+				k = li8( i );
+				si8( li8( 32 + ( k >>> 4 ) ), ++j );
+				si8( li8( 32 + ( k & 0xF ) ), ++j );
+				
+			} while ( ++i < 32 );
+			
+			_DOMAIN.domainMemory = tmp;
+			
+			mem.position = 32 + 16;
+			return mem.readUTFBytes( 32 * 2 );
+			
+		}
+		
+		/**
+		 * @private
+		 */
+		public static function $digest(bytes:ByteArray, H:Vector.<int>):ByteArray {
+			
 			var tmp:ByteArray = _DOMAIN.domainMemory;
 
 			var i:uint = bytes.length << 3;
@@ -84,6 +122,15 @@ package by.blooddy.crypto {
 				si32( k[ i ], 256 + ( i << 2 ) );
 			} while( ++i < 64 );
 			
+			var h0:int = H[ 0 ];
+			var h1:int = H[ 1 ];
+			var h2:int = H[ 2 ];
+			var h3:int = H[ 3 ];
+			var h4:int = H[ 4 ];
+			var h5:int = H[ 5 ];
+			var h6:int = H[ 6 ];
+			var h7:int = H[ 7 ];
+
 			var a:int = 0;
 			var b:int = 0;
 			var c:int = 0;
@@ -121,8 +168,13 @@ package by.blooddy.crypto {
 
 					si32( w, t );
 
-					t1 = h + ((e << 26 | e >>> 6) ^ (e << 21 | e >>> 11) ^ (e << 7 | e >>> 25)) + (e & f ^ ~e & g) + li32(256 + t) + w;
-					t2 = ((a << 30 | a >>> 2) ^ (a << 19 | a >>> 13) ^ (a << 10 | a >>> 22)) + (a & b ^ a & c ^ b & c);
+					t1 = h +
+						( ( e << 26 | e >>> 6 ) ^ ( e << 21 | e >>> 11 ) ^ ( e << 7 | e >>> 25 ) ) +
+						( ( e & f ) ^ ( ~e & g ) ) +
+						li32( 256 + t ) +
+						w;
+					t2 = ( ( a << 30 | a >>> 2 ) ^ ( a << 19 | a >>> 13 ) ^ ( a << 10 | a >>> 22 ) ) +
+						( ( a & b ) ^ ( a & c ) ^ ( b & c ) );
 
 					h = g;
 					g = f;
@@ -132,7 +184,8 @@ package by.blooddy.crypto {
 					c = b;
 					b = a;
 					a = t1 + t2;
-					t = t + 4;
+
+					t += 4;
 
 				} while ( t < 64 );
 				
@@ -164,78 +217,69 @@ package by.blooddy.crypto {
 					c = b;
 					b = a;
 					a = t1 + t2;
-					t = t + 4;
+
+					t += 4;
 
 				} while ( t < 256 );
 				
-				h0 = h0 + a;
-				h1 = h1 + b;
-				h2 = h2 + c;
-				h3 = h3 + d;
-				h4 = h4 + e;
-				h5 = h5 + f;
-				h6 = h6 + g;
-				h7 = h7 + h;
+				h0 += a;
+				h1 += b;
+				h2 += c;
+				h3 += d;
+				h4 += e;
+				h5 += f;
+				h6 += g;
+				h7 += h;
 
 				i += 64;
 
 			} while ( i < bytesLength );
 			
-			mem.position = 0;
-			mem.writeUTFBytes( '0123456789abcdef' );
+			si8( h0 >> 24,  0 );
+			si8( h0 >> 16,  1 );
+			si8( h0 >>  8,  2 );
+			si8( h0      ,  3 );
 
-			si8( h0 >> 24, 16 );
-			si8( h0 >> 16, 17 );
-			si8( h0 >>  8, 18 );
-			si8( h0      , 19 );
+			si8( h1 >> 24,  4 );
+			si8( h1 >> 16,  5 );
+			si8( h1 >>  8,  6 );
+			si8( h1      ,  7 );
 
-			si8( h1 >> 24, 20 );
-			si8( h1 >> 16, 21 );
-			si8( h1 >>  8, 22 );
-			si8( h1      , 23 );
+			si8( h2 >> 24,  8 );
+			si8( h2 >> 16,  9 );
+			si8( h2 >>  8, 10 );
+			si8( h2      , 11 );
 
-			si8( h2 >> 24, 24 );
-			si8( h2 >> 16, 25 );
-			si8( h2 >>  8, 26 );
-			si8( h2      , 27 );
+			si8( h3 >> 24, 12 );
+			si8( h3 >> 16, 13 );
+			si8( h3 >>  8, 14 );
+			si8( h3      , 15 );
 
-			si8( h3 >> 24, 28 );
-			si8( h3 >> 16, 29 );
-			si8( h3 >>  8, 30 );
-			si8( h3      , 31 );
-
-			si8( h4 >> 24, 32 );
-			si8( h4 >> 16, 33 );
-			si8( h4 >>  8, 34 );
-			si8( h4      , 35 );
+			si8( h4 >> 24, 16 );
+			si8( h4 >> 16, 17 );
+			si8( h4 >>  8, 18 );
+			si8( h4      , 19 );
 			
-			si8( h5 >> 24, 36 );
-			si8( h5 >> 16, 37 );
-			si8( h5 >>  8, 38 );
-			si8( h5      , 39 );
+			si8( h5 >> 24, 20 );
+			si8( h5 >> 16, 21 );
+			si8( h5 >>  8, 22 );
+			si8( h5      , 23 );
 
-			si8( h6 >> 24, 40 );
-			si8( h6 >> 16, 41 );
-			si8( h6 >>  8, 42 );
-			si8( h6      , 43 );
+			si8( h6 >> 24, 24 );
+			si8( h6 >> 16, 25 );
+			si8( h6 >>  8, 26 );
+			si8( h6      , 27 );
 
-			si8( h7 >> 24, 44 );
-			si8( h7 >> 16, 45 );
-			si8( h7 >>  8, 46 );
-			si8( h7      , 47 );
+			si8( h7 >> 24, 28 );
+			si8( h7 >> 16, 29 );
+			si8( h7 >>  8, 30 );
+			si8( h7      , 31 );
 
-			b = 48 - 1;
-			i = 16;
-			do {
-				a = li8( i );
-				si8( li8( a >>> 4 ), ++b );
-				si8( li8( a & 0xF ), ++b );
-			} while ( ++i < 48 );
-			
 			_DOMAIN.domainMemory = tmp;
 
-			mem.position = 48;
-			return mem.readUTFBytes( 64 );
+			mem.position = 0;
+			mem.length = 32;
+			return mem;
 
 		}
 		
