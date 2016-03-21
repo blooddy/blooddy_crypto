@@ -5,6 +5,9 @@
     <classEntry path="by.blooddy.crypto.Base64"/>
     <classEntry path="by.blooddy.crypto.CRC32"/>
     <classEntry path="by.blooddy.crypto.MD5"/>
+    <classEntry path="by.blooddy.crypto.SHA1"/>
+    <classEntry path="by.blooddy.crypto.SHA224"/>
+    <classEntry path="by.blooddy.crypto.SHA256"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>
