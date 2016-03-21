@@ -81,7 +81,7 @@ package by.blooddy.crypto {
 			
 			var k:int;
 			var i:int = 0;
-			var j:int = 31;
+			var j:int = 16 + 16 - 1;
 			
 			mem.position = 16;
 			mem.writeUTFBytes( '0123456789abcdef' );
@@ -103,8 +103,8 @@ package by.blooddy.crypto {
 			
 			_DOMAIN.domainMemory = tmp;
 			
-			mem.position = 32;
-			return mem.readUTFBytes( 32 );
+			mem.position = 16 + 16;
+			return mem.readUTFBytes( 16 * 2 );
 
 		}
 
@@ -521,8 +521,8 @@ package by.blooddy.crypto {
 			_DOMAIN.domainMemory = tmp;
 			
 			var result:ByteArray = new ByteArray();
-			bytes.position = len;
-			bytes.readBytes( result, 0, 16 );
+			result.writeBytes( bytes, len, 16 );
+			result.position = 0;
 			
 			bytes.position = padPos;
 			bytes.writeBytes( pad );
