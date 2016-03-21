@@ -42,36 +42,46 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 
 		public static function hash(str:String):String {
+
 			var bytes:ByteArray = new ByteArray( );
 			bytes.writeUTFBytes( str );
-			return _hashBytes( bytes );
+
+			return hashBytes( bytes );
+
 		}
 
 		public static function hashBytes(bytes:ByteArray):String {
+
+			var tmp:ByteArray = _DOMAIN.domainMemory;
 			
-			if ( bytes == null ) Error.throwError( TypeError, 2007, 'bytes' );
+			var mem:ByteArray = digest( bytes );
 			
-			var pos:uint = bytes.position;
-			var len:uint = bytes.length;
-
-			// бинарники могут быть очень большими, и его копирование может быть
-			// слишким дорогим. поэтому копируем только паизменяемую часть
-			var padPos:uint = Math.max( 0, bytes.length - 64 );
-			var pad:ByteArray = new ByteArray();
-			bytes.position = padPos;
-			bytes.length += 64;
-			bytes.readBytes( pad, 0, bytes.length - padPos );
-			bytes.length -= 64;
-
-			var result:String = _hashBytes( bytes );
-
-			bytes.position = padPos;
-			bytes.writeBytes( pad );
-
-			bytes.length = len;
-			bytes.position = pos;
-
-			return result;
+			var k:uint;
+			var i:uint = 0;
+			var j:uint = 31;
+			
+			mem.position = 16;
+			mem.writeUTFBytes( '0123456789abcdef' );
+			
+			mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+			
+			_DOMAIN.domainMemory = mem;
+			
+			do {
+				
+				//				k = Memory.getUI8( i );
+				k = li8( i );
+				//				Memory.setI8( ++j, Memory.getUI8( t + ( k >>> 4 ) ) );
+				si8( li8( 16 + ( k >>> 4 ) ), ++j );
+				//				Memory.setI8( ++j, Memory.getUI8( t + ( k & 0xF ) ) );
+				si8( li8( 16 + ( k & 0xF ) ), ++j );
+				
+			} while ( ++i < 16 );
+			
+			_DOMAIN.domainMemory = tmp;
+			
+			mem.position = 32;
+			return mem.readUTFBytes( 32 );
 
 		}
 
@@ -102,82 +112,6 @@ package by.blooddy.crypto {
 			
 			_DOMAIN.domainMemory = bytes;
 			
-			_digest( len );
-			
-			_DOMAIN.domainMemory = tmp;
-			
-			var result:ByteArray = new ByteArray();
-			bytes.position = len;
-			bytes.readBytes( result, 16 );
-
-			bytes.position = padPos;
-			bytes.writeBytes( pad );
-
-			bytes.length = len;
-			bytes.position = pos;
-
-			return result;
-
-		}
-
-		//--------------------------------------------------------------------------
-		//
-		//  Private class methods
-		//
-		//--------------------------------------------------------------------------
-
-		/**
-		 * @private
-		 */
-		private static function _hashBytes(mem:ByteArray):String {
-
-			var tmp:ByteArray = _DOMAIN.domainMemory;
-
-			var len:uint = mem.length;
-			var k:uint = len & 63;
-
-			mem.length = Math.max(
-				len + ( k ? 128 - k : 64 ),
-				ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
-			);
-
-			_DOMAIN.domainMemory = mem;
-
-			_digest( len );
-
-			var i:uint = len;
-			var t:uint = i + 16;
-			var j:uint = t + 16 - 1;
-			
-			len = t;
-
-			mem.position = t;
-			mem.writeUTFBytes( '0123456789abcdef' );
-
-			do {
-
-//				k = Memory.getUI8( i );
-				k = li8( i );
-//				Memory.setI8( ++j, Memory.getUI8( t + ( k >>> 4 ) ) );
-				si8( li8( t + ( k >>> 4 ) ), ++j );
-//				Memory.setI8( ++j, Memory.getUI8( t + ( k & 0xF ) ) );
-				si8( li8( t + ( k & 0xF ) ), ++j );
-				
-			} while ( ++i < len );
-			
-			_DOMAIN.domainMemory = tmp;
-
-			mem.position = t + 16;
-			
-			return mem.readUTFBytes( 32 );
-			
-		}
-
-		/**
-		 * @private
-		 */
-		private static function _digest(len:uint):void {
-
 			var i:uint = len << 3;
 			var bytesLength:uint = ( ( ( ( i + 64 ) >>> 9 ) << 4 ) + 15 ) << 2; // длинна для подсчёта в блоках
 			
@@ -551,7 +485,27 @@ package by.blooddy.crypto {
 //			Memory.setI32( len + 12, d );
 			si32( d, len + 12 );
 
+			_DOMAIN.domainMemory = tmp;
+			
+			var result:ByteArray = new ByteArray();
+			bytes.position = len;
+			bytes.readBytes( result, 0, 16 );
+			
+			bytes.position = padPos;
+			bytes.writeBytes( pad );
+			
+			bytes.length = len;
+			bytes.position = pos;
+			
+			return result;
+
 		}
+
+		//--------------------------------------------------------------------------
+		//
+		//  Private class methods
+		//
+		//--------------------------------------------------------------------------
 
 //		[Inline]
 //		/**
