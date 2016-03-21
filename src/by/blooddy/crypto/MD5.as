@@ -86,7 +86,7 @@ package by.blooddy.crypto {
 			mem.position = 16;
 			mem.writeUTFBytes( '0123456789abcdef' );
 			
-			mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 			
 			_DOMAIN.domainMemory = mem;
 			
@@ -131,10 +131,7 @@ package by.blooddy.crypto {
 			// слишким дорогим. поэтому копируем только паизменяемую часть
 			var padPos:uint = Math.max( 0, bytes.length - 64 );
 			var pad:ByteArray = new ByteArray();
-			bytes.position = padPos;
-			bytes.length += 64;
-			bytes.readBytes( pad, 0, bytes.length - padPos );
-			bytes.length -= 64;
+			pad.writeBytes( bytes, padPos );
 			
 			var k:int = len & 63;
 			
