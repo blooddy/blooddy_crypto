@@ -22,6 +22,20 @@ package by.blooddy.crypto {
 
 		//--------------------------------------------------------------------------
 		//
+		//  Class variables
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * @private
+		 */
+		private static const _H:Vector.<int> = Vector.<int>( new <uint>[
+			0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+			0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+		] );
+		
+		//--------------------------------------------------------------------------
+		//
 		//  Class methods
 		//
 		//--------------------------------------------------------------------------
@@ -56,11 +70,7 @@ package by.blooddy.crypto {
 		 * @keyword			sha1.hashBytes, hashBytes
 		 */
 		public static function hashBytes(bytes:ByteArray):String {
-			return $hashBytes(
-				bytes,
-				0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
-				0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
-			);
+			return $hashBytes( bytes, _H );
 		}
 		
 	}

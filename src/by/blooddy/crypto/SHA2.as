@@ -46,9 +46,9 @@ package by.blooddy.crypto {
 		/**
 		 * @private
 		 */
-		protected static function $hashBytes(bytes:ByteArray, h0:int, h1:int, h2:int, h3:int, h4:int, h5:int, h6:int, h7:int):String {
+		protected static function $hashBytes(bytes:ByteArray, H:Vector.<int>):String {
 			
-			var mem:ByteArray = $digest( bytes, h0, h1, h2, h3, h4, h5, h6, h7 );
+			var mem:ByteArray = $digest( bytes, H );
 			
 			var tmp:ByteArray = _DOMAIN.domainMemory;
 			
@@ -81,7 +81,7 @@ package by.blooddy.crypto {
 		/**
 		 * @private
 		 */
-		public static function $digest(bytes:ByteArray, h0:int, h1:int, h2:int, h3:int, h4:int, h5:int, h6:int, h7:int):ByteArray {
+		public static function $digest(bytes:ByteArray, H:Vector.<int>):ByteArray {
 			
 			var tmp:ByteArray = _DOMAIN.domainMemory;
 
@@ -122,6 +122,15 @@ package by.blooddy.crypto {
 				si32( k[ i ], 256 + ( i << 2 ) );
 			} while( ++i < 64 );
 			
+			var h0:int = H[ 0 ];
+			var h1:int = H[ 1 ];
+			var h2:int = H[ 2 ];
+			var h3:int = H[ 3 ];
+			var h4:int = H[ 4 ];
+			var h5:int = H[ 5 ];
+			var h6:int = H[ 6 ];
+			var h7:int = H[ 7 ];
+
 			var a:int = 0;
 			var b:int = 0;
 			var c:int = 0;
@@ -159,8 +168,13 @@ package by.blooddy.crypto {
 
 					si32( w, t );
 
-					t1 = h + ((e << 26 | e >>> 6) ^ (e << 21 | e >>> 11) ^ (e << 7 | e >>> 25)) + (e & f ^ ~e & g) + li32(256 + t) + w;
-					t2 = ((a << 30 | a >>> 2) ^ (a << 19 | a >>> 13) ^ (a << 10 | a >>> 22)) + (a & b ^ a & c ^ b & c);
+					t1 = h +
+						( ( e << 26 | e >>> 6 ) ^ ( e << 21 | e >>> 11 ) ^ ( e << 7 | e >>> 25 ) ) +
+						( ( e & f ) ^ ( ~e & g ) ) +
+						li32( 256 + t ) +
+						w;
+					t2 = ( ( a << 30 | a >>> 2 ) ^ ( a << 19 | a >>> 13 ) ^ ( a << 10 | a >>> 22 ) ) +
+						( ( a & b ) ^ ( a & c ) ^ ( b & c ) );
 
 					h = g;
 					g = f;
@@ -170,7 +184,8 @@ package by.blooddy.crypto {
 					c = b;
 					b = a;
 					a = t1 + t2;
-					t = t + 4;
+
+					t += 4;
 
 				} while ( t < 64 );
 				
@@ -202,26 +217,24 @@ package by.blooddy.crypto {
 					c = b;
 					b = a;
 					a = t1 + t2;
-					t = t + 4;
+
+					t += 4;
 
 				} while ( t < 256 );
 				
-				h0 = h0 + a;
-				h1 = h1 + b;
-				h2 = h2 + c;
-				h3 = h3 + d;
-				h4 = h4 + e;
-				h5 = h5 + f;
-				h6 = h6 + g;
-				h7 = h7 + h;
+				h0 += a;
+				h1 += b;
+				h2 += c;
+				h3 += d;
+				h4 += e;
+				h5 += f;
+				h6 += g;
+				h7 += h;
 
 				i += 64;
 
 			} while ( i < bytesLength );
 			
-			mem.position = 0;
-			mem.writeUTFBytes( '0123456789abcdef' );
-
 			si8( h0 >> 24,  0 );
 			si8( h0 >> 16,  1 );
 			si8( h0 >>  8,  2 );
