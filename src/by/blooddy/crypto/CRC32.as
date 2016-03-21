@@ -15,6 +15,9 @@ package by.blooddy.crypto {
 	import avm2.intrinsics.memory.si32;
 
 	/**
+	 * Generates a <a href="http://www.mathpages.com/home/kmath458.htm">CRC hash
+	 * (Cyclic Redundancy Check)</a>.
+	 *
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 11.4
@@ -81,6 +84,13 @@ package by.blooddy.crypto {
 			return hashBytes( bytes );
 		}
 		
+		/**
+		 * Generates a polinominal code checksum represented as unsigned integer.
+		 *
+		 * @param	bytes	The data to be hashed.
+		 *
+		 * @return			The resluting checksum.
+		 */
 		public static function hashBytes(bytes:ByteArray):uint {
 			if ( bytes && bytes.length > 0 ) {
 
@@ -124,7 +134,6 @@ package by.blooddy.crypto {
 		 * Constructor
 		 */
 		public function CRC32() {
-			super();
 			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
 		}
 

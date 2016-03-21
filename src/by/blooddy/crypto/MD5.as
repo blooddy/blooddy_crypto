@@ -16,6 +16,9 @@ package by.blooddy.crypto {
 	import avm2.intrinsics.memory.si8;
 	
 	/**
+	 * Encodes and decodes binary data using
+	 * <a herf="http://www.faqs.org/rfcs/rfc1321.html">MD5 (Message Digest)</a> algorithm.
+	 * 
 	 * @author					BlooDHounD
 	 * @version					3.0
 	 * @playerversion			Flash 11.4
@@ -41,6 +44,15 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 
+		/**
+		 * Performs MD5 hash algorithm on a String.
+		 *
+		 * @param	str		The string to hash.
+		 *
+		 * @return			A string containing the hash value of <code>source</code>.
+		 *
+		 * @keyword			md5.hash, hash
+		 */
 		public static function hash(str:String):String {
 
 			if ( !str ) str = '';
@@ -52,6 +64,15 @@ package by.blooddy.crypto {
 
 		}
 
+		/**
+		 * Performs MD5 hash algorithm on a <code>ByteArray</code>.
+		 *
+		 * @param	bytes	The <code>ByteArray</code> data to hash.
+		 *
+		 * @return			A string containing the hash value of data.
+		 *
+		 * @keyword			md5.hashBytes, hashBytes
+		 */
 		public static function hashBytes(bytes:ByteArray):String {
 
 			var mem:ByteArray = digest( bytes );
@@ -87,6 +108,16 @@ package by.blooddy.crypto {
 
 		}
 
+		
+		/**
+		 * Performs MD5 hash algorithm on a <code>ByteArray</code>.
+		 * 
+		 * @param	bytes	The <code>ByteArray</code> data to hash.
+		 * 
+		 * @return			A <code>ByteArray</code> containing the hash value of data.
+		 * 
+		 * @keyword			md5.digest, digest
+		 */
 		public static function digest(bytes:ByteArray):ByteArray {
 
 			if ( !bytes ) bytes = new ByteArray();
@@ -553,7 +584,6 @@ package by.blooddy.crypto {
 		 * Constructor
 		 */
 		public function MD5() {
-			super();
 			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
 		}
 		

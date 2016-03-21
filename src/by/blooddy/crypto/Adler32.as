@@ -100,7 +100,6 @@ package by.blooddy.crypto {
 		 * Constructor
 		 */
 		public function Adler32() {
-			super();
 			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
 		}
 		
