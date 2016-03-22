@@ -16,7 +16,7 @@ package by.blooddy.crypto {
 	 * @version					2.0
 	 * @playerversion			Flash 10
 	 * @langversion				3.0
-	 * @created					21.03.2016 17:06:37
+	 * @created					12.10.2010 18:00:37
 	 */
 	public final class SHA256 extends SHA2 {
 

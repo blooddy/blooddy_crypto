@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-//  (C) 2016 BlooDHounD
+//  © 2010 BlooDHounD
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,9 +21,9 @@ package by.blooddy.crypto {
 	 * 
 	 * @author					BlooDHounD
 	 * @version					3.0
-	 * @playerversion			Flash 11.4
+	 * @playerversion			Flash 10
 	 * @langversion				3.0
-	 * @created					07.03.2011 14:48:31
+	 * @created					03.10.2010 21:07:00
 	 */
 	public final class SHA1 {
 

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-//  (C) 2011 BlooDHounD
+//  © 2016 BlooDHounD
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,7 @@ package by.blooddy.crypto {
 	/**
 	 * @author					BlooDHounD
 	 * @version					1.0
-	 * @playerversion			Flash 11.4
+	 * @playerversion			Flash 10
 	 * @langversion				3.0
 	 * @created					21.03.2016 5:03:17
 	 */

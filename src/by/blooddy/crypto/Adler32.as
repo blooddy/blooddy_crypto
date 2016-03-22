@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-//  (C) 2016 BlooDHounD
+//  © 2010 BlooDHounD
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,10 +14,9 @@ package by.blooddy.crypto {
 
 	/**
 	 * @author					BlooDHounD
-	 * @version					1.0
-	 * @playerversion			Flash 11.4
+	 * @version					2.0
+	 * @playerversion			Flash 10
 	 * @langversion				3.0
-	 * @created					21.03.2016 4:50:11
 	 */
 	public final class Adler32 {
 
