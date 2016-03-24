@@ -94,7 +94,6 @@ package by.blooddy.crypto.serialization {
 
 }
 
-import flash.errors.IllegalOperationError;
 import flash.errors.StackOverflowError;
 import flash.system.ApplicationDomain;
 import flash.utils.ByteArray;
@@ -877,7 +876,7 @@ internal final class JSON$Decoder {
 	}
 	
 	private static function readError(mem:ByteArray, c:int):* {
-		Error.throwError( SyntaxError, 0 );
+		Error.throwError( SyntaxError, 1132 );
 	}
 	
 	private static function readValue(mem:ByteArray, c:int):* {
