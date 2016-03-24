@@ -29,17 +29,7 @@ package by.blooddy.crypto.serialization {
 		/**
 		 * @private
 		 */
-		private static const _EMPTY_ARR:Array = new Array();
-
-		/**
-		 * @private
-		 */
-		private static const _HASH_CLASS:Dictionary = new Dictionary( true );
-
-		/**
-		 * @private
-		 */
-		private static const _HASH_INSTANCE:Dictionary = new Dictionary( true );
+		private static const _HASH:Dictionary = new Dictionary( true );
 
 		//--------------------------------------------------------------------------
 		//
@@ -49,22 +39,14 @@ package by.blooddy.crypto.serialization {
 
 		public static function getPropertyNames(o:Object):Array {
 			if ( typeof o != 'object' || !o ) Error.throwError( TypeError, 2007, 'o' );
-			var isClass:Boolean = o is Class;
-			var arr:Array;
-			var c:Object;
-			if ( isClass ) {
-				c = o as Class;
-				arr = _HASH_CLASS[ c ];
-			} else {
-				c = o.constructor as Class;
-				arr = _HASH_CLASS[ c ];
-			}
+			var c:Object = o is Class ? o as Class : o.constructor;
+			var arr:Array = _HASH[ c ];
 			if ( !arr ) {
 				arr = new Array();
 
 				var n:String;
 				var list:XMLList;
-				for each ( var x:XML in describeType( o ).* ) {
+				for each ( var x:XML in describeType( c ).factory.* ) {
 					n = x.name();
 					if (
 						(
@@ -83,13 +65,10 @@ package by.blooddy.crypto.serialization {
 						}
 					}
 				}
-				if ( isClass ) {
-					_HASH_CLASS[ c ] = arr;
-				} else {
-					_HASH_INSTANCE[ c ] = arr;
-				}
-			}
 
+				_HASH[ c ] = arr;
+
+			}
 			return arr.slice();
 		}
 
