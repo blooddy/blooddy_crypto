@@ -20,7 +20,7 @@ package by.blooddy.crypto {
 	 *
 	 * @author					BlooDHounD
 	 * @version					3.0
-	 * @playerversion			Flash 11.4
+	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 */
 	public final class Base64 {
