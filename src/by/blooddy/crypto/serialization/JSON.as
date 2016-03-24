@@ -108,10 +108,18 @@ import avm2.intrinsics.memory.li8;
 
 import by.blooddy.crypto.serialization.SerializationHelper;
 
+internal class JSON$ {
+	
+	protected static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
+	
+	protected static const _STR:ByteArray = new ByteArray();
+	
+}
+
 /**
  * @private
  */
-internal final class JSON$Encoder {
+internal final class JSON$Encoder extends JSON$ {
 
 	//--------------------------------------------------------------------------
 	//
@@ -122,9 +130,18 @@ internal final class JSON$Encoder {
 	internal static function encode(value:*):String {
 
 		var bytes:ByteArray = new ByteArray();
-		bytes.endian = Endian.LITTLE_ENDIAN;
+		bytes.endian = Endian.BIG_ENDIAN;
 
-		writeValue( new Dictionary(), bytes, value );
+		try {
+		
+//			writeValue( new Dictionary(), bytes, value );
+			_TYPE_WPRITERS[ typeof value ]( new Dictionary(), bytes, value );
+			
+		} finally {
+	
+			_STR.clear();
+			
+		}
 		
 		bytes.position = 0;
 		return bytes.readUTFBytes( bytes.length );
@@ -135,38 +152,24 @@ internal final class JSON$Encoder {
 	//  encode variables
 	//--------------------------------------------------------------------------
 	
-	private static const _TMP:ByteArray = new ByteArray();
+	private static const _ESCAPE_EXP:RegExp = /[\f\n\r\t\v\u0008"\\]/;
 	
 	private static const _ESCAPE:Vector.<int> = ( function():Vector.<int> {
 		
 		var escape:Vector.<int> = new Vector.<int>( 0x100, true );
 		
-		var j:int = 0;
-		
-		for ( ; j < 0x0A; ++j ) {
-			escape[ j ] = ( j + 0x30 ) | 0x30303000;	// 000[0-9]
-		}
-		for ( ; j < 0x10; ++j ) {
-			escape[ j ] = ( j + 0x37 ) | 0x30303000;	// 000[A-F]
-		}
-		for ( ;j < 0x1A; ++j ) {
-			escape[ j ] = ( j + 0x20 ) | 0x30303100;	// 00[1][0-9]
-		}
-		for ( ;j < 0x20; ++j ) {
-			escape[ j ] = ( j + 0x27 ) | 0x30303100;	// 00[1][A-F]
-		}
-		for ( ;j < 0x100; ++j ) {
-			escape[ j ] = j;
+		for ( var i:int = 0; i<0x100; ++i ) {
+			escape[ i ] = i;
 		}
 		
-		escape[ 0x08 ] = 0x625C; // \b
-		escape[ 0x09 ] = 0x745C; // \t
-		escape[ 0x0A ] = 0x6E5C; // \n
-		escape[ 0x0B ] = 0x765C; // \v
-		escape[ 0x0C ] = 0x665C; // \f
-		escape[ 0x0D ] = 0x725C; // \r
-		escape[ 0x22 ] = 0x225C; // \"
-		escape[ 0x2F ] = 0x2F5C; // \/
+		escape[ 0x08 ] = 0x5C62; // \b
+		escape[ 0x09 ] = 0x5C74; // \t
+		escape[ 0x0A ] = 0x5C6E; // \n
+		escape[ 0x0B ] = 0x5C76; // \v
+		escape[ 0x0C ] = 0x5C66; // \f
+		escape[ 0x0D ] = 0x5C72; // \r
+		escape[ 0x22 ] = 0x5C22; // \"
+//		escape[ 0x2F ] = 0x5C2F; // \/
 		escape[ 0x5C ] = 0x5C5C; // \\
 		
 		return escape;
@@ -192,7 +195,7 @@ internal final class JSON$Encoder {
 	}
 	
 	private static function writeNull(hash:Dictionary, bytes:ByteArray, value:*):void {
-		bytes.writeInt( 0x6C6C756E );	// null
+		bytes.writeInt( 0x6E756C6C );	// null
 	}
 	
 	//--------------------------------------------------------------------------
@@ -206,14 +209,15 @@ internal final class JSON$Encoder {
 		'boolean':		writeTypeBoolean,
 		'undefined':	writeNull,
 		'xml':			writeTypeXML,
-		'function':		writeTypeFunction
+		'function':		writeNull
 	};
 	
 	private static function writeTypeNumber(hash:Dictionary, bytes:ByteArray, value:Number):void {
-		if ( isFinite( value ) ) {
+		if ( ( value * 0 ) == 0 /* isFinite( value ) */ ) {
 			bytes.writeUTFBytes( value.toString() );
 		} else {
-			writeNull( hash, bytes, null );
+//			writeNull( hash, bytes, null );
+			bytes.writeInt( 0x6E756C6C );
 		}
 	}
 	
@@ -222,42 +226,71 @@ internal final class JSON$Encoder {
 			
 			bytes.writeByte( 0x22 );	// "
 			
-			var escape:Vector.<int> = _ESCAPE;
-			
-			var tmp:ByteArray = _TMP;
-			tmp.length = 0;
-			tmp.position = 0;
-			tmp.writeUTFBytes( value );
-
-			var i:int = 0;
-			var j:int = 0;
-			var l:int = 0;
-			var len:uint = tmp.length;
-			
-			var c:int = 0;
-			
-			do {
+			if ( _ESCAPE_EXP.test( value ) ) {
 				
-				c = escape[ tmp[ i ] ];
-				if ( c > 0x100 ) {
-					l = i - j;
-					if ( l > 0 ) {
-						bytes.writeBytes( tmp, j, i );
-					}
-					j = i + 1;
-					if ( c > 0x10000 ) {
-						bytes.writeShort( 0x755C );	// \u
-						bytes.writeInt( c );
-					} else {
-						bytes.writeShort( c );
-					}
+				var escape:Vector.<int> = _ESCAPE;
+				
+				var str:ByteArray = _STR;
+				str.writeUTFBytes( value );
+	
+				var i:int = 0;
+				var j:int = 0;
+				var l:int = 0;
+				var len:uint = str.position;
+				
+				var c:int = 0;
+				
+				if ( len >= ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) {
+					
+					var tmp:ByteArray = _DOMAIN.domainMemory;
+					
+					_DOMAIN.domainMemory = str;
+					
+					do {
+						
+						c = escape[ li8( i ) ];
+						if ( c > 0x100 ) {
+							l = i - j;
+							if ( l > 0 ) {
+								bytes.writeBytes( str, j, i );
+							}
+							j = i + 1;
+							bytes.writeShort( c );
+						}
+						
+					} while ( ++i < len );
+
+					_DOMAIN.domainMemory = tmp;
+					
+				} else {
+
+					do {
+					
+						c = escape[ str[ i ] ];
+						if ( c > 0x100 ) {
+							l = i - j;
+							if ( l > 0 ) {
+								bytes.writeBytes( str, j, i );
+							}
+							j = i + 1;
+							bytes.writeShort( c );
+						}
+
+					} while ( ++i < len );
+				
 				}
 				
-			} while ( ++i < len );
-			
-			l = i - j;
-			if ( l > 0 ) {
-				bytes.writeBytes( tmp, j, l );
+				l = i - j;
+				if ( l > 0 ) {
+					bytes.writeBytes( str, j, l );
+				}
+				
+				str.position = 0;
+				
+			} else {
+				
+				bytes.writeUTFBytes( value );
+
 			}
 			
 			bytes.writeByte( 0x22 );	// "
@@ -278,6 +311,8 @@ internal final class JSON$Encoder {
 			
 			hash[ value ] = true;
 
+			var writers:Object = _TYPE_WPRITERS;
+			
 			var v:*;
 
 			if (
@@ -286,7 +321,8 @@ internal final class JSON$Encoder {
 				( v = value.toJSON( null ) ) != value
 			) {
 				
-				writeValue( hash, bytes, v );
+//				writeValue( hash, bytes, v );
+				writers[ typeof v ]( hash, bytes, v );
 				
 			} else {
 			
@@ -311,6 +347,7 @@ internal final class JSON$Encoder {
 							} catch ( _:* ) {
 								continue;
 							}
+
 							if ( typeof v != 'function' ) {
 	
 								if ( f ) bytes.writeByte( 0x2C );	// ,
@@ -318,7 +355,8 @@ internal final class JSON$Encoder {
 		
 								writeTypeString( hash, bytes, k );
 								bytes.writeByte( 0x3A );	// :
-								writeValue( hash, bytes, v );
+//								writeValue( hash, bytes, v );
+								writers[ typeof v ]( hash, bytes, v );
 								
 							}
 	
@@ -339,7 +377,8 @@ internal final class JSON$Encoder {
 									
 									writeTypeString( hash, bytes, k );
 									bytes.writeByte( 0x3A );	// :
-									writeValue( hash, bytes, v );
+//									writeValue( hash, bytes, v );
+									writers[ typeof v ]( hash, bytes, v );
 	
 								}
 								
@@ -356,7 +395,8 @@ internal final class JSON$Encoder {
 								
 								writeTypeString( hash, bytes, k );
 								bytes.writeByte( 0x3A );	// :
-								writeValue( hash, bytes, v );
+//								writeValue( hash, bytes, v );
+								writers[ typeof v ]( hash, bytes, v );
 	
 							}
 						}
@@ -372,30 +412,29 @@ internal final class JSON$Encoder {
 			
 		} else {
 			
-			writeNull( hash, bytes, null );
+//			writeNull( hash, bytes, null );
+			bytes.writeInt( 0x6E756C6C );
 			
 		}
 	}
 	
 	private static function writeTypeBoolean(hash:Dictionary, bytes:ByteArray, value:Boolean):void {
 		if ( value ) {
-			bytes.writeInt( 0x65757274 );	// true
+			bytes.writeInt( 0x74727565 );	// true
 		} else {
-			bytes.writeInt( 0x736C6166 );	// fals
+			bytes.writeInt( 0x66616C73 );	// fals
 			bytes.writeByte( 0x65 );		// e
 		}
 	}
 	
 	private static function writeTypeXML(hash:Dictionary, bytes:ByteArray, value:XML):void {
 		if ( 'toJSON' in value ) {
-			writeValue( hash, bytes, value.toJSON( null ) );
+//			writeValue( hash, bytes, value.toJSON( null ) );
+			var v:* = value.toJSON( null );
+			_TYPE_WPRITERS[ typeof v ]( hash, bytes, v );		
 		} else {
 			writeTypeString( hash, bytes, value.toXMLString() );
 		}
-	}
-	
-	private static function writeTypeFunction(hash:Dictionary, bytes:ByteArray, value:*):void {
-		writeNull( hash, bytes, null );
 	}
 	
 	//--------------------------------------------------------------------------
@@ -420,6 +459,8 @@ internal final class JSON$Encoder {
 		
 		bytes.writeByte( 0x7B );	// {
 		
+		var writers:Object = _TYPE_WPRITERS;
+		
 		var k:String;
 		var v:*;
 		var f:Boolean;
@@ -434,7 +475,8 @@ internal final class JSON$Encoder {
 				
 				writeTypeString( hash, bytes, k );
 				bytes.writeByte( 0x3A );	// :
-				writeValue( hash, bytes, v );
+//				writeValue( hash, bytes, v );
+				writers[ typeof v ]( hash, bytes, v );
 
 			}
 			
@@ -448,13 +490,19 @@ internal final class JSON$Encoder {
 
 		bytes.writeByte( 0x5B );	// [
 		
+		var writers:Object = _TYPE_WPRITERS;
+		
 		var l:uint = value.length;
 		if ( l > 0 ) {
-			writeValue( hash, bytes, value[ 0 ] );
+			var v:* = value[ 0 ];
+//			writeValue( hash, bytes, value[ 0 ] );
+			writers[ typeof v ]( hash, bytes, v );
 			var i:int = 0;
 			while ( ++i < l ) {
 				bytes.writeByte( 0x2C );	// ,
-				writeValue( hash, bytes, value[ i ] );
+				v = value[ i ];
+//				writeValue( hash, bytes, value[ i ] );
+				writers[ typeof v ]( hash, bytes, v );
 			}
 		}
 		
@@ -472,14 +520,16 @@ internal final class JSON$Encoder {
 			if ( value is Vector.<String> ) {
 				
 				if ( value[ 0 ] == null ) {
-					writeNull( hash, bytes, null );
+//					writeNull( hash, bytes, null );
+					bytes.writeInt( 0x6E756C6C );
 				} else {
 					writeTypeString( hash, bytes, value[ 0 ] );
 				}
 				while ( ++i < l ) {
 					bytes.writeByte( 0x2C );	// ,
 					if ( value[ i ] == null ) {
-						writeNull( hash, bytes, null );
+//						writeNull( hash, bytes, null );
+						bytes.writeInt( 0x6E756C6C );
 					} else {
 						writeTypeString( hash, bytes, value[ i ] );
 					}
@@ -495,10 +545,16 @@ internal final class JSON$Encoder {
 
 			} else {
 
-				writeValue( hash, bytes, value[ 0 ] );
+				var writers:Object = _TYPE_WPRITERS;
+				
+				var v:* = value[ 0 ];
+//				writeValue( hash, bytes, value[ 0 ] );
+				writers[ typeof v ]( hash, bytes, v );
 				while ( ++i < l ) {
 					bytes.writeByte( 0x2C );	// ,
-					writeValue( hash, bytes, value[ i ] );
+					v = value[ i ];
+//					writeValue( hash, bytes, value[ i ] );
+					writers[ typeof v ]( hash, bytes, v );
 				}
 
 			}
@@ -514,11 +570,13 @@ internal final class JSON$Encoder {
 		
 		var l:uint = value.length;
 		if ( l > 0 ) {
-			writeTypeNumber( hash, bytes, value[ 0 ] );
+//			writeTypeNumber( hash, bytes, value[ 0 ] );
+			bytes.writeUTFBytes( value[ 0 ].toString() );
 			var i:int = 0;
 			while ( ++i < l ) {
 				bytes.writeByte( 0x2C );	// ,
-				writeTypeNumber( hash, bytes, value[ i ] );
+//				writeTypeNumber( hash, bytes, value[ i ] );
+				bytes.writeUTFBytes( value[ i ].toString() );
 			}
 		}
 		
@@ -532,11 +590,13 @@ internal final class JSON$Encoder {
 		
 		var l:uint = value.length;
 		if ( l > 0 ) {
-			writeTypeNumber( hash, bytes, value[ 0 ] );
+//			writeTypeNumber( hash, bytes, value[ 0 ] );
+			bytes.writeUTFBytes( value[ 0 ].toString() );
 			var i:int = 0;
 			while ( ++i < l ) {
 				bytes.writeByte( 0x2C );	// ,
-				writeTypeNumber( hash, bytes, value[ i ] );
+//				writeTypeNumber( hash, bytes, value[ i ] );
+				bytes.writeUTFBytes( value[ i ].toString() );
 			}
 		}
 		
@@ -550,11 +610,25 @@ internal final class JSON$Encoder {
 		
 		var l:uint = value.length;
 		if ( l > 0 ) {
-			writeTypeNumber( hash, bytes, value[ 0 ] );
+//			writeTypeNumber( hash, bytes, value[ 0 ] );
+			var v:Number = value[ 0 ];
+			if ( ( v * 0 ) == 0 /* isFinite( value ) */ ) {
+				bytes.writeUTFBytes( v.toString() );
+			} else {
+//				writeNull( hash, bytes, null );
+				bytes.writeInt( 0x6E756C6C );
+			}
 			var i:int = 0;
 			while ( ++i < l ) {
 				bytes.writeByte( 0x2C );	// ,
-				writeTypeNumber( hash, bytes, value[ i ] );
+//				writeTypeNumber( hash, bytes, value[ i ] );
+				v = value[ i ];
+				if ( ( v * 0 ) == 0 /* isFinite( value ) */ ) {
+					bytes.writeUTFBytes( v.toString() );
+				} else {
+//					writeNull( hash, bytes, null );
+					bytes.writeInt( 0x6E756C6C );
+				}
 			}
 		}
 		
@@ -579,6 +653,7 @@ internal final class JSON$Encoder {
 		bytes.writeByte( 0x7B );	// {
 		
 		var validKey:Object = _VALID_KEY;
+		var writers:Object = _TYPE_WPRITERS;
 		
 		var k:*;
 		var v:*;
@@ -595,7 +670,8 @@ internal final class JSON$Encoder {
 					
 					writeTypeString( hash, bytes, k );
 					bytes.writeByte( 0x3A );	// :
-					writeValue( hash, bytes, v );
+//					writeValue( hash, bytes, v );
+					writers[ typeof v ]( hash, bytes, v );
 
 				}
 
@@ -611,14 +687,15 @@ internal final class JSON$Encoder {
 	}
 
 	private static function writeClassByteArray(hash:Dictionary, bytes:ByteArray, value:ByteArray):void {
-		writeNull( hash, bytes, value );
+//		writeNull( hash, bytes, value );
+		bytes.writeInt( 0x6C6C756E );
 	}
 }
 
 /**
  * @private
  */
-internal final class JSON$Decoder {
+internal final class JSON$Decoder extends JSON$ {
 
 	//--------------------------------------------------------------------------
 	//
@@ -641,19 +718,26 @@ internal final class JSON$Decoder {
 			
 			_POS = 0;
 			
-			var c:int = skip( mem, li8( 0 ) & 0xFF );
-			if ( c != 0 ) {
+			try {
 			
-				result = readValue( mem, c );
-				
-				c = skip( mem, li8( _POS ) & 0xFF );
+				var c:int = skip( mem, li8( 0 ) & 0xFF );
 				if ( c != 0 ) {
-					readError( mem, c );
+//					result = readValue( mem, c );
+					result = _VALUE_READERS[ c ]( mem, c )
+					c = skip( mem, li8( _POS ) & 0xFF );
+					if ( c != 0 ) {
+						readError( mem, c );
+					}
+					
 				}
 				
-			}
+			} finally {
 			
-			_DOMAIN.domainMemory = tmp;
+				_STR.clear();
+				
+				_DOMAIN.domainMemory = tmp;
+				
+			}
 			
 		}
 		return result;
@@ -662,10 +746,6 @@ internal final class JSON$Decoder {
 	//--------------------------------------------------------------------------
 	//  decode variables
 	//--------------------------------------------------------------------------
-	
-	private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
-	
-	private static const _TMP:ByteArray = new ByteArray();
 	
 	private static const _SKIP:Vector.<Boolean> = ( function():Vector.<Boolean> {
 		
@@ -885,28 +965,31 @@ internal final class JSON$Decoder {
 	
 	private static function readString(mem:ByteArray, to:int):String {
 		
+		var result:String = '';
+		
 		var pos:int = _POS + 1;
-		var p:int = pos;
-		
-		var escape:Vector.<int> = _ESCAPE;
-		var hex:Vector.<Boolean> = _HEX;
-		
-		var tmp:ByteArray = _TMP;
-		tmp.position = 0;
-		tmp.length = 0;
-
-		var l:int = 0;
-		
 		var c:int = 0;
+
 		if ( ( c = li8( pos ) & 0xFF ) != to ) {
+			
+			var escape:Vector.<int> = _ESCAPE;
+			var hex:Vector.<Boolean> = _HEX;
 			var newline:Vector.<Boolean> = _NEWLINE;
+
+			var str:ByteArray = _STR;
+			str.position = 0;
+			
+			var p:int = pos;
+
+			var l:int = 0;
+
 			do {
 			
 				if ( c == 0x5C /* BACK_SLASH */ ) { // escape
 					
 					l = pos - p;
 					if ( l > 0 ) {
-						tmp.writeBytes( mem, p, l );
+						str.writeBytes( mem, p, l );
 					}
 					
 					c = li8( ++pos ) & 0xFF;
@@ -922,13 +1005,13 @@ internal final class JSON$Decoder {
 							mem.position = pos + 1;
 							c = parseInt( mem.readUTFBytes( 4 ), 16 );
 							if ( c > 0xFF ) {
-								tmp.writeShort( c );
+								str.writeShort( c );
 							} else {
-								tmp.writeByte( c );
+								str.writeByte( c );
 							}
 							pos += 4;
 						} else {
-							tmp.writeByte( c );
+							str.writeByte( c );
 						}
 						
 					} else if ( c == 0x78 /* x */ ) {
@@ -938,14 +1021,14 @@ internal final class JSON$Decoder {
 							hex[ li8( pos + 2 ) & 0xFF ] 
 						) {
 							mem.position = pos + 1;
-							tmp.writeByte( parseInt( mem.readUTFBytes( 2 ), 16 ) );
+							str.writeByte( parseInt( mem.readUTFBytes( 2 ), 16 ) );
 							pos += 2;
 						} else {
-							tmp.writeByte( c );
+							str.writeByte( c );
 						}
 	
 					} else {
-						tmp.writeByte( escape[ c ] );
+						str.writeByte( escape[ c ] );
 					}
 					
 					p = pos + 1;
@@ -956,25 +1039,19 @@ internal final class JSON$Decoder {
 
 			} while ( ( c = li8( ++pos ) & 0xFF ) != to );
 
-		}
-
-		l = pos - p;
-		if ( l > 0 ) {
-			tmp.writeBytes( mem, p, l );
+			l = pos - p;
+			if ( l > 0 ) {
+				str.writeBytes( mem, p, l );
+			}
+			
+			l = str.position;
+			str.position = 0;
+			result = str.readUTFBytes( l );
+				
 		}
 
 		_POS = pos + 1;
-
-		if ( tmp.length ) {
-
-			tmp.position = 0;
-			return tmp.readUTFBytes( tmp.length );
-
-		} else {
-
-			return '';
-
-		}
+		return result;
 
 	}
 	
@@ -1108,12 +1185,16 @@ internal final class JSON$Decoder {
 	}
 	
 	private static function readDash(mem:ByteArray, c:int):Number {
-		return -readValue( mem, skip( mem, li8( ++_POS ) ) );
+		c = skip( mem, li8( ++_POS ) );
+//		return -readValue( mem, c );
+		return -_VALUE_READERS[ c ]( mem, c );
 	}
 	
 	private static function readArray(mem:ByteArray, c:int):Array {
 
 		var result:Array = [];
+		
+		var valueReaders:Vector.<Function> = _VALUE_READERS;
 		
 		do {
 			
@@ -1121,7 +1202,8 @@ internal final class JSON$Decoder {
 			if ( c == 0x2C /* COMMA */ ) {
 				result.push( undefined );
 			} else if ( c != 0x5D /* RIGHT_BRACKET */ ) {
-				result.push( readValue( mem, c ) );
+//				result.push( readValue( mem, c ) );
+				result.push( valueReaders[ c ]( mem, c ) );
 				c = skip( mem, li8( _POS ) & 0xFF );
 			}
 			
@@ -1141,19 +1223,23 @@ internal final class JSON$Decoder {
 
 		var result:Object = {};
 		
+		var valueReaders:Vector.<Function> = _VALUE_READERS;
+		var identReaders:Vector.<Function> = _IDENTIFIER_READERS;
+		
 		var key:String;
 		
 		do {
 	
 			c = skip( mem, li8( ++_POS ) & 0xFF );
 			if ( c != 0x7D /* RIGHT_BRACE */ ) {
-				key = _IDENTIFIER_READERS[ c ]( mem, c );
+				key = identReaders[ c ]( mem, c );
 				c = skip( mem, li8( _POS ) & 0xFF );
 				
 				if ( c != 0x3A /* COLON */ ) readError( mem, c );
 				c = skip( mem, li8( ++_POS ) & 0xFF );
 	
-				result[ key ] = readValue( mem, c );
+//				result[ key ] = readValue( mem, c );
+				result[ key ] = valueReaders[ c ]( mem, c );
 				c = skip( mem, li8( _POS ) & 0xFF );
 
 			}
