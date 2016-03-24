@@ -9,6 +9,8 @@ package by.blooddy.crypto.serialization {
 	import flash.utils.Dictionary;
 	import flash.utils.describeType;
 	import flash.utils.getQualifiedClassName;
+	
+	import avmplus.DescribeType;
 
 	[ExcludeClass]
 	/**
@@ -44,26 +46,45 @@ package by.blooddy.crypto.serialization {
 			if ( !arr ) {
 				arr = new Array();
 
-				var n:String;
-				var list:XMLList;
-				for each ( var x:XML in describeType( c ).factory.* ) {
-					n = x.name();
-					if (
-						(
-							(
-								n ==  'accessor' &&
-								x.@access.charAt( 0 ) == 'r'
-							) ||
-							n == 'variable' ||
-							n == 'constant'
-						) &&
-						x.@uri.length() <= 0
-					) {
-						list = x.metadata;
-						if ( list.length() <= 0 || list.( @name == 'Transient' ).length() <= 0 ) {
-							arr.push( x.@name.toString() );
+				try {
+
+					o = DescribeType.get( c, DescribeType.INCLUDE_ACCESSORS | DescribeType.INCLUDE_VARIABLES | DescribeType.INCLUDE_TRAITS | DescribeType.USE_ITRAITS );
+					if ( o.traits ) {
+						var a:Object;
+						for each( a in o.accessors ) {
+							if ( !a.uri && a.access.charAt( 0 ) == 'r' ) {
+								arr.push( a.name );
+							}
+						}
+						if ( a in o.variables ) {
+							arr.push( a.name );
 						}
 					}
+
+				} catch ( e:Error ) {
+				
+					var n:String;
+					var list:XMLList;
+					for each ( var x:XML in describeType( c ).factory.* ) {
+						n = x.name();
+						if (
+							(
+								(
+									n ==  'accessor' &&
+									x.@access.charAt( 0 ) == 'r'
+								) ||
+								n == 'variable' ||
+								n == 'constant'
+							) &&
+							x.@uri.length() <= 0
+						) {
+							list = x.metadata;
+							if ( list.length() <= 0 || list.( @name == 'Transient' ).length() <= 0 ) {
+								arr.push( x.@name.toString() );
+							}
+						}
+					}
+					
 				}
 
 				_HASH[ c ] = arr;
