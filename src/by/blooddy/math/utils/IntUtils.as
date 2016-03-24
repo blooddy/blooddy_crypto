@@ -10,7 +10,7 @@ package by.blooddy.math.utils {
 	/**
 	 * @author					BlooDHounD
 	 * @version					1.0
-	 * @playerversion			Flash 10
+	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 * @created					12.01.2011 17:03:08
 	 */

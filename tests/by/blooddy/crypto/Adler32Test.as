@@ -16,7 +16,7 @@ package by.blooddy.crypto {
 	/**
 	 * @author					BlooDHounD
 	 * @version					1.0
-	 * @playerversion			Flash 10
+	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 * @created					21.03.2016 5:03:17
 	 */

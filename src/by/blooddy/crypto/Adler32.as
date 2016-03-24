@@ -15,7 +15,7 @@ package by.blooddy.crypto {
 	/**
 	 * @author					BlooDHounD
 	 * @version					2.0
-	 * @playerversion			Flash 10
+	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 */
 	public final class Adler32 {

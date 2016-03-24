@@ -28,7 +28,7 @@ package by.blooddy.system {
 	/**
 	 * @author					BlooDHounD
 	 * @version					1.0
-	 * @playerversion			Flash 10
+	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 * @created					11.02.2011 22:55:39
 	 */

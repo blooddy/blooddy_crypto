@@ -20,7 +20,7 @@ package by.blooddy.crypto {
 	 *
 	 * @author					BlooDHounD
 	 * @version					1.0
-	 * @playerversion			Flash 10
+	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 * @created					28.01.2011 20:07:33
 	 */
