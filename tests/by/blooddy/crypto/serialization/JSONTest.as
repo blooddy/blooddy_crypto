@@ -424,9 +424,11 @@ package by.blooddy.crypto.serialization {
 			d.toJSON = function(k:String):* {
 				return d;
 			}
-			Assert.assertEquals(
-				blooddyJSON.encode( d ),
-				nativeJSON.stringify( d )
+			Assert.assertTrue(
+				equalsObjects(
+					blooddyJSON.encode( d ),
+					nativeJSON.stringify( d )
+				)
 			);
 		}
 		
