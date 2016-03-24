@@ -920,7 +920,13 @@ internal final class JSON$Decoder {
 							hex[ li8( pos + 3 ) & 0xFF ] && 
 							hex[ li8( pos + 4 ) & 0xFF ] 
 						) {
-							tmp.writeShort( parseInt( mem.readUTFBytes( 4 ), 16 ) );
+							mem.position = pos + 1;
+							c = parseInt( mem.readUTFBytes( 4 ), 16 );
+							if ( c > 0xFF ) {
+								tmp.writeShort( c );
+							} else {
+								tmp.writeByte( c );
+							}
 							pos += 4;
 						} else {
 							tmp.writeByte( c );
@@ -932,6 +938,7 @@ internal final class JSON$Decoder {
 							hex[ li8( pos + 1 ) & 0xFF ] &&
 							hex[ li8( pos + 2 ) & 0xFF ] 
 						) {
+							mem.position = pos + 1;
 							tmp.writeByte( parseInt( mem.readUTFBytes( 2 ), 16 ) );
 							pos += 2;
 						} else {
