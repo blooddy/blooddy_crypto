@@ -51,13 +51,15 @@ package by.blooddy.crypto.serialization {
 					o = DescribeType.get( c, DescribeType.INCLUDE_ACCESSORS | DescribeType.INCLUDE_VARIABLES | DescribeType.INCLUDE_TRAITS | DescribeType.USE_ITRAITS );
 					if ( o.traits ) {
 						var a:Object;
-						for each( a in o.accessors ) {
+						for each ( a in o.accessors ) {
 							if ( !a.uri && a.access.charAt( 0 ) == 'r' ) {
 								arr.push( a.name );
 							}
 						}
-						if ( a in o.variables ) {
-							arr.push( a.name );
+						for each ( a in o.variables ) {
+							if ( !a.uri ) {
+								arr.push( a.name );
+							}
 						}
 					}
 
