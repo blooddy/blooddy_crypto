@@ -454,6 +454,15 @@ package by.blooddy.crypto.serialization {
 			);
 		}
 		
+		[Test]
+		public function encode_issue_15():void {
+			var o:Object = {a:"\u"};
+			Assert.assertEquals(
+				blooddyJSON.encode( o ),
+				nativeJSON.stringify( o )
+			);
+		}
+		
 		[Test( expects="flash.errors.StackOverflowError" )]
 		public function encode_object_recursion():void {
 			var o:SimpleClass = new SimpleClass();
