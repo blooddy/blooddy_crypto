@@ -35,7 +35,7 @@ package by.blooddy.crypto.serialization {
 		 * @throws	StackOverflowError	
 		 */
 		public static function encode(value:*):String {
-			return JSON$.encode( value );
+			return JSON$Encoder.encode( value );
 		}
 
 		/**
@@ -60,7 +60,7 @@ package by.blooddy.crypto.serialization {
 		 * @throws	SyntaxError
 		 */
 		public static function decode(value:String):* {
-			return JSON$.decode( value );
+			return JSON$Decoder.decode( value );
 		}
 		
 		/**
@@ -96,18 +96,23 @@ package by.blooddy.crypto.serialization {
 
 import flash.errors.IllegalOperationError;
 import flash.errors.StackOverflowError;
+import flash.system.ApplicationDomain;
 import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 import flash.utils.Endian;
 import flash.xml.XMLDocument;
 import flash.xml.XMLNode;
 
+import avm2.intrinsics.memory.li16;
+import avm2.intrinsics.memory.li32;
+import avm2.intrinsics.memory.li8;
+
 import by.blooddy.crypto.serialization.SerializationHelper;
 
 /**
  * @private
  */
-internal final class JSON$ {
+internal final class JSON$Encoder {
 
 	//--------------------------------------------------------------------------
 	//
@@ -221,6 +226,8 @@ internal final class JSON$ {
 			var escape:Vector.<int> = _ESCAPE;
 			
 			var tmp:ByteArray = _TMP;
+			tmp.length = 0;
+			tmp.position = 0;
 			tmp.writeUTFBytes( value );
 
 			var i:int = 0;
@@ -232,7 +239,7 @@ internal final class JSON$ {
 			
 			do {
 				
-				c = _ESCAPE[ tmp[ i ] ];
+				c = escape[ tmp[ i ] ];
 				if ( c > 0x100 ) {
 					l = i - j;
 					if ( l > 0 ) {
@@ -253,9 +260,6 @@ internal final class JSON$ {
 			if ( l > 0 ) {
 				bytes.writeBytes( tmp, j, l );
 			}
-			
-			tmp.length = 0;
-			tmp.position = 0;
 			
 			bytes.writeByte( 0x22 );	// "
 			
@@ -610,6 +614,12 @@ internal final class JSON$ {
 	private static function writeClassByteArray(hash:Dictionary, bytes:ByteArray, value:ByteArray):void {
 		writeNull( hash, bytes, value );
 	}
+}
+
+/**
+ * @private
+ */
+internal final class JSON$Decoder {
 
 	//--------------------------------------------------------------------------
 	//
@@ -618,7 +628,605 @@ internal final class JSON$ {
 	//--------------------------------------------------------------------------
 	
 	internal static function decode(value:String):* {
-		throw new IllegalOperationError();
+		var result:*;
+		if ( value ) {
+			
+			var tmp:ByteArray = _DOMAIN.domainMemory;
+			
+			var mem:ByteArray = new ByteArray();
+			mem.writeUTFBytes( value );
+			mem.writeByte( 0 ); // EOF
+			
+			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+			_DOMAIN.domainMemory = mem;
+			
+			_POS = 0;
+			
+			var c:int = skip( mem, li8( 0 ) & 0xFF );
+			if ( c != 0 ) {
+			
+				result = readValue( mem, c );
+				
+				c = skip( mem, li8( _POS ) & 0xFF );
+				if ( c != 0 ) {
+					readError( mem, c );
+				}
+				
+			}
+			
+			_DOMAIN.domainMemory = tmp;
+			
+		}
+		return result;
+	}
+	
+	//--------------------------------------------------------------------------
+	//  decode variables
+	//--------------------------------------------------------------------------
+	
+	private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
+	
+	private static const _TMP:ByteArray = new ByteArray();
+	
+	private static const _SKIP:Vector.<Boolean> = ( function():Vector.<Boolean> {
+		
+		var skip:Vector.<Boolean> = new Vector.<Boolean>( 0x100, true );
+		
+		skip[ 0x08 ] = true;	/* BACKSPACE */
+		skip[ 0x09 ] = true;	/* TAB */
+		skip[ 0x0A ] = true;	/* NEWLINE */
+		skip[ 0x0B ] = true;	/* VERTICAL_TAB */
+		skip[ 0x0C ] = true;	/* FORM_FEED */
+		skip[ 0x0D ] = true;	/* CARRIAGE_RETURN */
+		skip[ 0x20 ] = true;	/* SPACE */
+		
+		skip[ 0x2F ] = true;	/* SLASH */
+		
+		return skip;
+		
+	}() );
+	
+	private static const _NEWLINE:Vector.<Boolean> = ( function():Vector.<Boolean> {
+		
+		var newline:Vector.<Boolean> = new Vector.<Boolean>( 0x100, true );
+		
+		newline[ 0x00 ] = true;	/* EOS */
+		newline[ 0x0A ] = true;	/* NEWLINE */
+		newline[ 0x0D ] = true;	/* CARRIAGE_RETURN */
+		
+		return newline;
+		
+	}() );
+	
+	private static const _ESCAPE:Vector.<int> = ( function():Vector.<int> {
+	
+		var escape:Vector.<int> = new Vector.<int>( 0x100, true );
+		
+		for ( var i:int = 0; i<0x100; ++i ) {
+			escape[ i ] = i;
+		}
+		
+		escape[ 0x62 ] = 0x08;
+		escape[ 0x74 ] = 0x09;
+		escape[ 0x6E ] = 0x0A;
+		escape[ 0x76 ] = 0x0B;
+		escape[ 0x66 ] = 0x0C;
+		escape[ 0x72 ] = 0x0D;
+		escape[ 0x22 ] = 0x22;
+		escape[ 0x27 ] = 0x27;
+		escape[ 0x5C ] = 0x5C;
+		
+		return escape;
+	
+	}() );
+	
+	private static const _DEC:Vector.<Boolean> = ( function():Vector.<Boolean> {
+		
+		var dec:Vector.<Boolean> = new Vector.<Boolean>( 0x100, true );
+		
+		for ( var i:int = 0x30; i<=0x39; ++i ) { // 0..9
+			dec[ i ] = true;
+		}
+		
+		return dec;
+		
+	}() );
+	
+	private static const _HEX:Vector.<Boolean> = ( function():Vector.<Boolean> {
+		
+		var hex:Vector.<Boolean> = new Vector.<Boolean>( 0x100, true );
+
+		var i:int = 0;
+
+		for ( i=0x30; i<=0x39; ++i ) { // 0..9
+			hex[ i ] = true;
+		}
+		for ( i=0x41; i<=0x46; ++i ) { // A..F
+			hex[ i ] = true;
+		}
+		for ( i=0x61; i<=0x66; ++i ) { // a..f
+			hex[ i ] = true;
+		}
+		
+		return hex;
+		
+	}() );
+
+	private static const _IDENTIFIER:Vector.<Boolean> = ( function():Vector.<Boolean> {
+		
+		var identifier:Vector.<Boolean> = new Vector.<Boolean>( 0x100, true );
+		
+		var i:int = 0;
+		
+		identifier[ 0x24 ] = true;
+		for ( i=0x30; i<=0x39; ++i ) { // 0..9
+			identifier[ i ] = true;
+		}
+		for ( i=0x41; i<=0x5A; ++i ) { // A..Z
+			identifier[ i ] = true;
+		}
+		identifier[ 0x5F ] = true;
+		for ( i=0x61; i<=0x7A; ++i ) { // a..z
+			identifier[ i ] = true;
+		}
+		for ( i=0x80; i<0x100; ++i ) {
+			identifier[ i ] = true;
+		}
+
+		return identifier;
+		
+	}() );
+	
+	private static const _NOT_VALID_IDENTIFIER:Object = {
+		'null': true,
+		'true': true,
+		'false': true
+	};
+
+	private static const _VALUE_READERS:Vector.<Function> = ( function():Vector.<Function> {
+		var readers:Vector.<Function> = new Vector.<Function>( 0x100, true );
+		
+		for ( var i:int = 0; i<0x100; ++i ) {
+			readers[ i ] = readError;
+		}
+		
+		readers[ 0x22 ] = readString;	/* DOUBLE_QUOTE */
+		readers[ 0x27 ] = readString;	/* SINGLE_QUOTE */
+
+		readers[ 0x2D ] = readDash;			/* DASH */
+		readers[ 0x2E ] = readDot;			/* DOT */
+		readers[ 0x30 ] = readNumberZero;	/* ZERO */
+		readers[ 0x31 ] = readNumber;		/* ONE */
+		readers[ 0x32 ] = readNumber;		/* TWO */
+		readers[ 0x33 ] = readNumber;		/* THREE */	
+		readers[ 0x34 ] = readNumber;		/* FOUR */
+		readers[ 0x35 ] = readNumber;		/* FIVE */
+		readers[ 0x36 ] = readNumber;		/* SIX */
+		readers[ 0x37 ] = readNumber;		/* SEVEN */
+		readers[ 0x38 ] = readNumber;		/* EIGHT */
+		readers[ 0x39 ] = readNumber;		/* NINE */
+		
+		readers[ 0x5B ] = readArray;		/* LEFT_BRACKET */
+		
+		readers[ 0x7B ] = readObject;		/* LEFT_BRACE */
+		
+		readers[ 0x6E ] = readNull;			/* n */
+		readers[ 0x74 ] = readTrue;			/* t */
+		readers[ 0x66 ] = readFalse;		/* f */
+		readers[ 0x4E ] = readNaN;			/* N */
+		readers[ 0x75 ] = readUndefined;	/* u */
+		
+		return readers;
+	}() );
+	
+	private static const _IDENTIFIER_READERS:Vector.<Function> = ( function():Vector.<Function> {
+		var readers:Vector.<Function> = _VALUE_READERS.slice(); readers.fixed = true;
+		
+		readers[ 0x5B ] = readError;		/* LEFT_BRACKET */
+		readers[ 0x7B ] = readError;		/* LEFT_BRACE */
+
+		var i:int;
+		
+		readers[ 0x24 ] = readIdentifier;
+		for ( i=0x41; i<=0x5A; ++i ) { // A..Z
+			readers[ i ] = readIdentifier;
+		}
+		readers[ 0x5F ] = readIdentifier;
+		for ( i=0x61; i<=0x7A; ++i ) { // a..z
+			readers[ i ] = readIdentifier;
+		}
+		for ( i=0x80; i<0x100; ++i ) {
+			readers[ i ] = readIdentifier;
+		}
+		
+		return readers;
+	}() );
+
+	private static var _POS:int;
+	
+	//--------------------------------------------------------------------------
+	//  decode main methods
+	//--------------------------------------------------------------------------
+
+	private static function skip(mem:ByteArray, c:int):int {
+		if ( _SKIP[ c ] ) {
+			var pos:int = _POS;
+			do {
+				if ( c == 0x2F /* SLASH */  ) {
+					c = li8( ++pos ) & 0xFF;
+					if ( c == 0x2F /* SLASH */ ) {
+						do {
+							c = li8( ++pos ) & 0xFF;
+						} while ( !_NEWLINE[ c ] );
+					} else if ( c == 0x2A /* ASTERISK */ ) {
+						do {
+							c = li8( ++pos ) & 0xFF;
+							if ( c == 0 /* EOS */ ) {
+								readError( mem, c );
+							}
+						} while ( ( c != 0x2A || ( li8( pos + 1 ) & 0xFF ) != 0x2F ) );
+						++pos;
+					} else {
+						readError( mem, c );
+					}
+				}
+			} while ( _SKIP[ c = li8( ++pos ) & 0xFF ] );
+			_POS = pos;
+		}
+		return c;
+	}
+	
+	private static function readError(mem:ByteArray, c:int):* {
+		Error.throwError( SyntaxError, 0 );
+	}
+	
+	private static function readValue(mem:ByteArray, c:int):* {
+		return _VALUE_READERS[ c ]( mem, c );
+	}
+	
+	private static function readString(mem:ByteArray, to:int):String {
+		
+		var pos:int = _POS + 1;
+		var p:int = pos;
+		
+		var escape:Vector.<int> = _ESCAPE;
+		var hex:Vector.<Boolean> = _HEX;
+		
+		var tmp:ByteArray = _TMP;
+		tmp.position = 0;
+		tmp.length = 0;
+
+		var l:int = 0;
+		
+		var c:int = 0;
+		if ( ( c = li8( pos ) & 0xFF ) != to ) {
+			var newline:Vector.<Boolean> = _NEWLINE;
+			do {
+			
+				if ( c == 0x5C /* BACK_SLASH */ ) { // escape
+					
+					l = pos - p;
+					if ( l > 0 ) {
+						tmp.writeBytes( mem, p, l );
+					}
+					
+					c = li8( ++pos ) & 0xFF;
+					
+					if ( c == 0x75 /* u */ ) {
+						
+						if ( 
+							hex[ li8( pos + 1 ) & 0xFF ] &&
+							hex[ li8( pos + 2 ) & 0xFF ] && 
+							hex[ li8( pos + 3 ) & 0xFF ] && 
+							hex[ li8( pos + 4 ) & 0xFF ] 
+						) {
+							tmp.writeShort( parseInt( mem.readUTFBytes( 4 ), 16 ) );
+							pos += 4;
+						} else {
+							tmp.writeByte( c );
+						}
+						
+					} else if ( c == 0x78 /* x */ ) {
+						
+						if ( 
+							hex[ li8( pos + 1 ) & 0xFF ] &&
+							hex[ li8( pos + 2 ) & 0xFF ] 
+						) {
+							tmp.writeByte( parseInt( mem.readUTFBytes( 2 ), 16 ) );
+							pos += 2;
+						} else {
+							tmp.writeByte( c );
+						}
+	
+					} else {
+						tmp.writeByte( escape[ c ] );
+					}
+					
+					p = pos + 1;
+					
+				} else if ( newline[ c ] ) {
+					readError( mem, c );
+				}
+
+			} while ( ( c = li8( ++pos ) & 0xFF ) != to );
+
+		}
+
+		l = pos - p;
+		if ( l > 0 ) {
+			tmp.writeBytes( mem, p, l );
+		}
+
+		_POS = pos + 1;
+
+		if ( tmp.length ) {
+
+			tmp.position = 0;
+			return tmp.readUTFBytes( tmp.length );
+
+		} else {
+
+			return '';
+
+		}
+
+	}
+	
+	private static function readNumberZero(mem:ByteArray, c:int):Number {
+
+		var result:Number = 0;
+		
+		var pos:int = _POS;
+		var p:int = pos;
+		
+		var num:Vector.<Boolean>;
+
+		c = li8( ++pos ) & 0xFF;
+		if ( c == 0x78 /* x */ || c == 0x58 /* X */ ) {
+
+			num = _HEX;
+			
+			while ( num[ li8( ++pos ) & 0xFF ] ) {}
+			
+			p += 2;
+			c = pos - p;
+			if ( c > 0 ) {
+				mem.position = p;
+				result = parseInt( mem.readUTFBytes( c ), 16 );
+			} else {
+				readError( mem, c );
+			}
+			
+		} else {
+			
+			num = _DEC;
+
+			if ( num[ c ] ) {
+				while ( num[ c = li8( ++pos ) & 0xFF ] ) {}
+			}
+			if ( c == 0x2E /* DOT */ ) {
+				if ( num[ c = li8( ++pos ) & 0xFF ] ) {
+					while ( num[ c = li8( pos++ ) & 0xFF ] ) {}
+				} else {
+					readError( mem, c );
+				}
+			}
+			if ( c == 0x65 /* e */ || c == 0x45 /* E */ ) {
+				c = li8( ++pos ) & 0xFF;
+				if ( c == 0x2D /* DASH */ || c == 0x2B /* PLUS */ ) {
+					c = li8( ++pos ) & 0xFF;
+				}
+				if ( num[ c ] ) {
+					while ( num[ c = li8( ++pos ) & 0xFF ] ) {}
+				} else {
+					readError( mem, c );
+				}
+			}
+			
+			if ( pos > p + 1 ) {
+				mem.position = p;
+				result = parseFloat( mem.readUTFBytes( pos - p ) );
+			}
+			
+		}
+
+		_POS = pos;
+		
+		return result;
+
+	}
+	
+	private static function readNumber(mem:ByteArray, c:int):Number {
+
+		var pos:int = _POS;
+		var p:int = pos;
+		
+		var num:Vector.<Boolean> = _DEC;
+		
+		while ( num[ c = li8( ++pos ) & 0xFF ] ) {}
+		if ( c == 0x2E /* DOT */ ) {
+			if ( num[ c = li8( ++pos ) & 0xFF ] ) {
+				while ( num[ c = li8( pos++ ) & 0xFF ] ) {}
+			} else {
+				readError( mem, c );
+			}
+		}
+		if ( c == 0x65 /* e */ || c == 0x45 /* E */ ) {
+			c = li8( ++pos ) & 0xFF;
+			if ( c == 0x2D /* DASH */ || c == 0x2B /* PLUS */ ) {
+				c = li8( ++pos ) & 0xFF;
+			}
+			if ( num[ c ] ) {
+				while ( num[ c = li8( ++pos ) & 0xFF ] ) {}
+			} else {
+				readError( mem, c );
+			}
+		}
+		
+		_POS = pos;
+
+		mem.position = p;
+		return parseFloat( mem.readUTFBytes( pos - p ) );
+
+	}
+	
+	private static function readDot(mem:ByteArray, c:int):Number {
+		
+		var pos:int = _POS;
+		var p:int = pos;
+		
+		var num:Vector.<Boolean> = _DEC;
+		
+		if ( num[ c = li8( ++pos ) & 0xFF ] ) {
+			while ( num[ c = li8( ++pos ) & 0xFF ] ) {}
+		} else {
+			readError( mem, c );
+		}
+		if ( c == 0x65 /* e */ || c == 0x45 /* E */ ) {
+			c = li8( ++pos ) & 0xFF;
+			if ( c == 0x2D /* DASH */ || c == 0x2B /* PLUS */ ) {
+				c = li8( ++pos ) & 0xFF;
+			}
+			if ( num[ c ] ) {
+				while ( num[ c = li8( ++pos ) & 0xFF ] ) {}
+			} else {
+				readError( mem, c );
+			}
+		}
+		
+		_POS = pos;
+		
+		mem.position = p;
+		return parseFloat( mem.readUTFBytes( pos - p ) );
+		
+	}
+	
+	private static function readDash(mem:ByteArray, c:int):Number {
+		return -readValue( mem, skip( mem, li8( ++_POS ) ) );
+	}
+	
+	private static function readArray(mem:ByteArray, c:int):Array {
+
+		var result:Array = [];
+		
+		do {
+			
+			c = skip( mem, li8( ++_POS ) & 0xFF );
+			if ( c == 0x2C /* COMMA */ ) {
+				result.push( undefined );
+			} else if ( c != 0x5D /* RIGHT_BRACKET */ ) {
+				result.push( readValue( mem, c ) );
+				c = skip( mem, li8( _POS ) & 0xFF );
+			}
+			
+		} while ( c == 0x2C /* COMMA */ );
+		
+		if ( c != 0x5D /* RIGHT_BRACKET */ ) {
+			readError( mem, c );
+		}
+
+		++_POS;
+		
+		return result;
+
+	}
+	
+	private static function readObject(mem:ByteArray, c:int):Object {
+
+		var result:Object = {};
+		
+		var key:String;
+		
+		do {
+	
+			c = skip( mem, li8( ++_POS ) & 0xFF );
+			if ( c != 0x7D /* RIGHT_BRACE */ ) {
+				key = _IDENTIFIER_READERS[ c ]( mem, c );
+				c = skip( mem, li8( _POS ) & 0xFF );
+				
+				if ( c != 0x3A /* COLON */ ) readError( mem, c );
+				c = skip( mem, li8( ++_POS ) & 0xFF );
+	
+				result[ key ] = readValue( mem, c );
+				c = skip( mem, li8( _POS ) & 0xFF );
+
+			}
+					
+		} while ( c == 0x2C /* COMMA */ );
+
+		if ( c != 0x7D /* RIGHT_BRACE */ ) {
+			readError( mem, c );
+		}
+
+		++_POS;
+
+		return result;
+
+	}
+
+	private static function readNull(mem:ByteArray, c:int):* {
+		if ( li32( _POS ) != 0x6C6C756E ) { // null
+			readError( mem, c );
+		}
+		_POS += 4;
+		return null;
+	}
+	
+	private static function readTrue(mem:ByteArray, c:int):Boolean {
+		if ( li32( _POS ) != 0x65757274 ) { // true
+			readError( mem, c );
+		}
+		_POS += 4;
+		return true;
+	}
+	
+	private static function readFalse(mem:ByteArray, c:int):Boolean {
+		if ( li32( _POS + 1 ) != 0x65736C61 ) { // alse
+			readError( mem, c );
+		}
+		_POS += 5;
+		return false;
+	}
+	
+	private static function readNaN(mem:ByteArray, c:int):Number {
+		if ( li16( _POS + 1 ) != 0x4E61 ) { // aN
+			readError( mem, c );
+		}
+		_POS += 3;
+		return Number.NaN;
+	}
+	
+	private static function readUndefined(mem:ByteArray, c:int):* {
+		if (
+			li32( _POS + 1 ) != 0x6665646E || // ndef
+			li32( _POS + 5 ) != 0x64656E69    // ined
+		) {
+			readError( mem, c );
+		}
+		_POS += 9;
+		return undefined;
+	}
+
+	private static function readIdentifier(mem:ByteArray, c:int):String {
+		
+		var pos:int = _POS;
+		var p:int = pos;
+		
+		var identifier:Vector.<Boolean> = _IDENTIFIER;
+		
+		do {
+			c = li8( ++pos ) & 0xFF;
+		} while ( identifier[ c ] );
+
+		_POS = pos;
+
+		mem.position = p;
+		var result:String = mem.readUTFBytes( pos - p );
+		if ( result in _NOT_VALID_IDENTIFIER ) {
+			readError( mem, li8( p ) );
+		}
+		return result;
+
 	}
 	
 }
