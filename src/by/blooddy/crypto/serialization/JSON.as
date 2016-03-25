@@ -142,7 +142,7 @@ internal final class JSON$Encoder extends JSON$ {
 			_STR.clear();
 			
 		}
-		
+
 		bytes.position = 0;
 		return bytes.readUTFBytes( bytes.length );
 
@@ -213,7 +213,7 @@ internal final class JSON$Encoder extends JSON$ {
 	};
 	
 	private static function writeTypeNumber(hash:Dictionary, bytes:ByteArray, value:Number):void {
-		if ( ( value * 0 ) == 0 /* isFinite( value ) */ ) {
+		if ( value * 0 == 0 /* isFinite( value ) */ ) {
 			bytes.writeUTFBytes( value.toString() );
 		} else {
 //			writeNull( hash, bytes, null );
@@ -366,10 +366,10 @@ internal final class JSON$Encoder extends JSON$ {
 					
 					if ( value is Dictionary ) {
 						var validKey:Object = _VALID_KEY;
-						for ( k in value ) {
-							if ( validKey[ typeof k ] ) {						
+						for ( v in value ) {
+							if ( validKey[ typeof v ] ) {						
 								
-								v = value[ k ];
+								v = value[ v ];
 								if ( typeof v != 'function' ) {
 									
 									if ( f ) bytes.writeByte( 0x2C );	// ,
@@ -612,7 +612,7 @@ internal final class JSON$Encoder extends JSON$ {
 		if ( l > 0 ) {
 //			writeTypeNumber( hash, bytes, value[ 0 ] );
 			var v:Number = value[ 0 ];
-			if ( ( v * 0 ) == 0 /* isFinite( value ) */ ) {
+			if ( v * 0 == 0 /* isFinite( value ) */ ) {
 				bytes.writeUTFBytes( v.toString() );
 			} else {
 //				writeNull( hash, bytes, null );
@@ -623,7 +623,7 @@ internal final class JSON$Encoder extends JSON$ {
 				bytes.writeByte( 0x2C );	// ,
 //				writeTypeNumber( hash, bytes, value[ i ] );
 				v = value[ i ];
-				if ( ( v * 0 ) == 0 /* isFinite( value ) */ ) {
+				if ( v * 0 == 0 /* isFinite( value ) */ ) {
 					bytes.writeUTFBytes( v.toString() );
 				} else {
 //					writeNull( hash, bytes, null );
@@ -637,11 +637,11 @@ internal final class JSON$Encoder extends JSON$ {
 	}
 	
 	private static function writeClassXMLDocument(hash:Dictionary, bytes:ByteArray, value:XMLDocument):void {
-		writeTypeXML( hash, bytes, new XML( value.childNodes.length > 0 ? value : new XML() ) );
+		writeTypeXML( hash, bytes, value.childNodes.length > 0 ? new XML( value ) : new XML() );
 	}
 	
 	private static function writeClassXMLNode(hash:Dictionary, bytes:ByteArray, value:XMLNode):void {
-		writeTypeXML( hash, bytes, new XML( value ) );
+		writeTypeXML( hash, bytes, value.childNodes.length > 0 ? new XML( value ) : new XML() );
 	}
 
 	private static function writeClassDate(hash:Dictionary, bytes:ByteArray, value:Date):void {
@@ -734,9 +734,8 @@ internal final class JSON$Decoder extends JSON$ {
 			} finally {
 			
 				_STR.clear();
-				
 				_DOMAIN.domainMemory = tmp;
-				
+
 			}
 			
 		}

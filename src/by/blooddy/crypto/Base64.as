@@ -304,6 +304,7 @@ package by.blooddy.crypto {
 			_DOMAIN.domainMemory = tmp;
 			
 			var result:ByteArray = new ByteArray();
+
 			if ( j > 255 ) {
 				mem.position = 256;
 				mem.readBytes( result, 0, j - 255 );

@@ -42,13 +42,15 @@ package avmplus {
 														HIDE_OBJECT;
 
 		public static const get:Function = ( function():Function {
+			var result:Function;
 			try {
-				return describeTypeJSON;
+				result = describeTypeJSON;
 			} catch ( e:Error ) {
-				return function(o:*, flags:int):Object {
+				result = function(o:*, flags:int):Object {
 					throw new IllegalOperationError( e.message, e.errorID );
 				}
 			}
+			return result;
 		}() );
 		
 		//--------------------------------------------------------------------------
