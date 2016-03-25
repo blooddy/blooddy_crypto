@@ -109,10 +109,10 @@ package by.blooddy.crypto.image {
 		 */
 		protected static function isTransparent(image:BitmapData):Boolean {
 			return image.transparent && (
-				image.getPixel32( 0,           0           ) < 0xFF000000 ||
-				image.getPixel32( image.width, 0           ) < 0xFF000000 ||
-				image.getPixel32( image.width, image.width ) < 0xFF000000 ||
-				image.getPixel32( 0,           image.width ) < 0xFF000000 ||
+				image.getPixel32( 0,               0                ) < 0xFF000000 ||
+				image.getPixel32( image.width - 1, 0                ) < 0xFF000000 ||
+				image.getPixel32( image.width - 1, image.height - 1 ) < 0xFF000000 ||
+				image.getPixel32( 0,               image.height - 1 ) < 0xFF000000 ||
 				image.clone().threshold( image, image.rect, new Point(), '!=', 0xFF000000, 0, 0xFF000000, true ) != 0
 			);
 		}
@@ -153,6 +153,7 @@ package by.blooddy.crypto.image {
 			writeChunk( mem, chunk );
 
 			chunk.length = 0;
+
 		}
 		
 		/**
@@ -160,13 +161,16 @@ package by.blooddy.crypto.image {
 		 */
 		protected static function writeIDAT(mem:ByteArray, data:ByteArray):void {
 			
-			data.compress();
-			data.position = 4;
-			data.writeBytes( data );
-			data.position = 0;
-			data.writeUnsignedInt( 0x49444154 );
+			var chunk:ByteArray = _TMP;
 
-			writeChunk( mem, data );
+			data.compress();
+
+			chunk.writeUnsignedInt( 0x49444154 );
+			chunk.writeBytes( data );
+
+			writeChunk( mem, chunk );
+			
+			chunk.length = 0;
 			
 		}
 		
