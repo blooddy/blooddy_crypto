@@ -39,6 +39,9 @@ package by.blooddy.crypto.image {
 		//
 		//--------------------------------------------------------------------------
 
+		/**
+		 * @private
+		 */
 		private static const NATIVE:Boolean = ApplicationDomain.currentDomain.hasDefinition( 'flash.display.PNGEncoderOptions' );
 
 		//--------------------------------------------------------------------------
@@ -66,7 +69,7 @@ package by.blooddy.crypto.image {
 		 */
 		public static function encode(image:BitmapData, filter:uint=0):ByteArray {
 			if ( NATIVE ) {
-				return image.encode( image.rect, new PNGEncoderOptions( filter != PNGFilter.PAETH ) );
+				return image.encode( image.rect, new PNGEncoderOptions( filter == PNGFilter.NONE ) );
 			} else {
 				var size:uint = image.width * image.height;
 				if ( size >= 32 && size <= 64 ) return PNG8Encoder.encode( image, filter );
