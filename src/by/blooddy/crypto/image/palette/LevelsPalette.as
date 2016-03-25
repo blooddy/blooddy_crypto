@@ -136,10 +136,17 @@ package by.blooddy.crypto.image.palette {
 		/**
 		 * @inheritDoc
 		 */
-		public function getColors():Vector.<uint> {
+		public function getList():Vector.<uint> {
 			return this._list.slice();
 		}
 
+		/**
+		 * @inheritDoc
+		 */
+		public function getHash():Object {
+			return null;
+		}
+		
 		/**
 		 * @inheritDoc
 		 */

@@ -8,6 +8,7 @@ package by.blooddy.crypto.image.palette {
 
 	import flash.display.BitmapData;
 	import flash.errors.IllegalOperationError;
+	import flash.utils.ByteArray;
 
 	/**
 	 * This class provides a palette that can be used in <code>PNGEncoder</code>.
@@ -72,10 +73,20 @@ package by.blooddy.crypto.image.palette {
 		/**
 		 * @inheritDoc
 		 */
-		public function getColors():Vector.<uint> {
+		public function getList():Vector.<uint> {
 			return this._list.slice();
 		}
 
+		/**
+		 * @private
+		 */
+		public function getHash():Object {
+			var bytes:ByteArray = new ByteArray();
+			bytes.writeObject( this._hash );
+			bytes.position = 0;
+			return bytes.readObject();
+		}
+		
 		/**
 		 * @inheritDoc
 		 */

@@ -23,9 +23,20 @@ package by.blooddy.crypto.image.palette {
 		 * Returns the list of the colors used in the palette.
 		 * 
 		 * @return	All the colors used in the palette.
+		 * 
+		 * @see		#getHash
 		 */
-		function getColors():Vector.<uint>;
+		function getList():Vector.<uint>;
 
+		/**
+		 * Returns the hash of the colors used in the palette.
+		 * 
+		 * @return	All the colors used in the palette.
+		 * 
+		 * @see		#getList
+		 */
+		function getHash():Object;
+		
 		/**
 		 * Returns the index of the color inside the palette. 
 		 * It is possible that the same index will be returned for different color values.
