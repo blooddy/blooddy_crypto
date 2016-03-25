@@ -6,13 +6,10 @@
 
 package by.blooddy.crypto.worker {
 
-	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import flash.system.MessageChannel;
-	import flash.system.Worker;
-	import flash.system.WorkerDomain;
-	import flash.utils.ByteArray;
+	import flash.system.ApplicationDomain;
 	import flash.utils.getQualifiedClassName;
+	import flash.utils.setTimeout;
 	
 	import by.blooddy.crypto.events.FaultEvent;
 	import by.blooddy.crypto.events.ResultEvent;
@@ -32,80 +29,6 @@ package by.blooddy.crypto.worker {
 
 		//--------------------------------------------------------------------------
 		//
-		//  Class variables
-		//
-		//--------------------------------------------------------------------------
-		
-		/**
-		 * @private
-		 */
-		private static var _worker:flash.system.Worker;
-		
-		/**
-		 * @private
-		 */
-		private static var _input:MessageChannel;
-		
-		/**
-		 * @private
-		 */
-		private static var _output:MessageChannel;
-		
-		/**
-		 * @private
-		 */
-		private static var _queue:Vector.<Callback>;
-		
-		//--------------------------------------------------------------------------
-		//
-		//  Class methods
-		//
-		//--------------------------------------------------------------------------
-		
-		/**
-		 * @private
-		 */
-		private static function $construct():void {
-			if ( !_worker ) {
-				
-				_worker = WorkerDomain.current.createWorker( new ByteArray() );
-				
-				_input = _worker.createMessageChannel( flash.system.Worker.current );
-				_output = flash.system.Worker.current.createMessageChannel( _worker );
-				
-				_worker.setSharedProperty( 'output', _input );
-				_worker.setSharedProperty( 'input', _output );
-				
-				_queue = new Vector.<Callback>();
-				
-				_input.addEventListener( Event.CHANNEL_MESSAGE, handler_channelMessage );
-				
-			}
-		}
-		
-		/**
-		 * @private
-		 */
-		private static function $call(success:Function, error:Function, ...arguments):void {
-			_queue.push( new Callback( success, error ) );
-			_output.send( arguments );
-		}
-		
-		/**
-		 * @private
-		 */
-		private static function handler_channelMessage(event:Event):void {
-			var result:Object = _input.receive();
-			var callback:Callback = _queue.pop();
-			if ( result.success && callback.success ) {
-				callback.success( result.success );
-			} else if ( result.error && callback.error ) {
-				callback.error( result.error );
-			}
-		}
-		
-		//--------------------------------------------------------------------------
-		//
 		//  Constructor
 		//
 		//--------------------------------------------------------------------------
@@ -117,7 +40,7 @@ package by.blooddy.crypto.worker {
 		public function Worker() {
 			if ( ( this as Object ).constructor != by.blooddy.crypto.worker.Worker ) {
 				super();
-				$construct();
+				if ( AVAIBLE ) $Channel.$construct();
 			} else {
 				Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
 			}
@@ -125,7 +48,7 @@ package by.blooddy.crypto.worker {
 
 		//--------------------------------------------------------------------------
 		//
-		//  Private methods
+		//  Protected methods
 		//
 		//--------------------------------------------------------------------------
 		
@@ -137,10 +60,26 @@ package by.blooddy.crypto.worker {
 		 * @event	data
 		 */
 		protected function call(method:QName, ...args):void {
-			args.unshift( method );
-			$call( this.success, this.error, args );
+			if ( AVAIBLE ) {
+				$Channel.$call( this.success, this.fail, method, args );
+			} else {
+				setTimeout( function():void {
+					try {
+						var o:Object = ApplicationDomain.currentDomain.getDefinition( method.uri );
+						success( o[ method.localName ].apply( args ) );
+					} catch ( e:Error ) {
+						fail( e );
+					}
+				}, 0 );
+			}
 		}
 
+		//--------------------------------------------------------------------------
+		//
+		//  Private methods
+		//
+		//--------------------------------------------------------------------------
+		
 		/**
 		 * @private
 		 */
@@ -151,7 +90,7 @@ package by.blooddy.crypto.worker {
 		/**
 		 * @private
 		 */
-		private function error(e:*):void {
+		private function fail(e:*):void {
 			super.dispatchEvent( new FaultEvent( e ) );
 		}
 		
@@ -159,17 +98,60 @@ package by.blooddy.crypto.worker {
 
 }
 
+import flash.events.Event;
+import flash.system.ApplicationDomain;
+import flash.system.MessageChannel;
+import flash.system.Worker;
+import flash.system.WorkerDomain;
+import flash.utils.ByteArray;
+
 /**
  * @private
  */
-internal final class Callback {
+internal const AVAIBLE:Boolean = ApplicationDomain.currentDomain.hasDefinition( 'flash.system.Worker' ) && Worker.isSupported;
+
+/**
+ * @private
+ */
+internal final class $Channel {
 	
-	public function Callback(success:Function, error:Function) {
-		this.success = success;
-		this.error = error;
+	internal static function $construct():void {
+		if ( !_worker ) {
+			
+			_worker = WorkerDomain.current.createWorker( new ByteArray() );
+			
+			_input = _worker.createMessageChannel( flash.system.Worker.current );
+			_output = flash.system.Worker.current.createMessageChannel( _worker );
+			
+			_worker.setSharedProperty( 'output', _input );
+			_worker.setSharedProperty( 'input', _output );
+			
+			_queue = new Vector.<Function>();
+			
+			_input.addEventListener( Event.CHANNEL_MESSAGE, handler_channelMessage );
+			
+		}
 	}
 	
-	public var success:Function;
-	public var error:Function;
+	internal static function $call(success:Function, fail:Function, ...arguments):void {
+		_queue.push( success, fail );
+		_output.send( arguments );
+	}
+	
+	private static var _worker:flash.system.Worker;
+	
+	private static var _input:MessageChannel;
+	
+	private static var _output:MessageChannel;
+	
+	private static var _queue:Vector.<Function>;
+	
+	private static function handler_channelMessage(event:Event):void {
+		var result:Object = _input.receive();
+		var success:Function = _queue.pop();
+		var fail:Function = _queue.pop();
+		if ( result.success ) success( result.success );
+		else if ( result.fail ) fail( result.fail );
+	}
 	
 }
