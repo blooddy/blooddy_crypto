@@ -108,6 +108,9 @@ import avm2.intrinsics.memory.li8;
 
 import by.blooddy.crypto.serialization.SerializationHelper;
 
+/**
+ * @private
+ */
 internal class JSON$ {
 	
 	protected static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;

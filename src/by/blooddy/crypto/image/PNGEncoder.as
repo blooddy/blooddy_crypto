@@ -158,6 +158,21 @@ package by.blooddy.crypto.image {
 		/**
 		 * @private
 		 */
+		protected static function writeIDAT(mem:ByteArray, data:ByteArray):void {
+			
+			data.compress();
+			data.position = 4;
+			data.writeBytes( data );
+			data.position = 0;
+			data.writeUnsignedInt( 0x49444154 );
+
+			writeChunk( mem, data );
+			
+		}
+		
+		/**
+		 * @private
+		 */
 		protected static function writeTEXT(mem:ByteArray, keyword:String, text:String):void {
 			
 			var chunk:ByteArray = _TMP;
