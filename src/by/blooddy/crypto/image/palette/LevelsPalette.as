@@ -64,11 +64,12 @@ package by.blooddy.crypto.image.palette {
 
 						c =	( Math.round( ri * rc ) << 16 ) |
 							( Math.round( gi * gc ) <<  8 ) |
-							  Math.round( bi * bc )         ;
+							  Math.round( bi * bc )         |
+							  0xFF000000                    ;
 
 						this._hash[ c ] = i;
 
-						this._list[ ++i ] =	c & 0xFF000000;
+						this._list[ ++i ] =	c;
 
 					}
 				}
