@@ -7,8 +7,10 @@
 package by.blooddy.crypto.image {
 
 	import flash.display.BitmapData;
+	import flash.display.PNGEncoderOptions;
 	import flash.errors.IllegalOperationError;
 	import flash.utils.ByteArray;
+	import flash.utils.getQualifiedClassName;
 
 	/**
 	 * Encodes image data using 24 bits of color information per pixel.
@@ -18,7 +20,7 @@ package by.blooddy.crypto.image {
 	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 */
-	public class PNG24Encoder {
+	public final class PNG24Encoder extends PNGEncoder {
 
 		//--------------------------------------------------------------------------
 		//
@@ -43,9 +45,27 @@ package by.blooddy.crypto.image {
 		 * @see						by.blooddy.crypto.image.PNGFilter
 		 */
 		public static function encode(image:BitmapData, filter:uint=0):ByteArray {
-			throw new IllegalOperationError();
+			if ( _NATIVE ) {
+				return image.encode( image.rect, new PNGEncoderOptions( filter == PNGFilter.NONE ) );
+			} else {
+				throw new IllegalOperationError();
+			}
 		}
 
+		//--------------------------------------------------------------------------
+		//
+		//  Constructor
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * @private
+		 * Constructor
+		 */
+		public function PNG24Encoder() {
+			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
+		}
+		
 	}
 
 }

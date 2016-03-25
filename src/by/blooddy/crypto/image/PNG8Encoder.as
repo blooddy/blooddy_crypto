@@ -9,6 +9,7 @@ package by.blooddy.crypto.image {
 	import flash.display.BitmapData;
 	import flash.errors.IllegalOperationError;
 	import flash.utils.ByteArray;
+	import flash.utils.getQualifiedClassName;
 	
 	import by.blooddy.crypto.image.palette.IPalette;
 
@@ -20,7 +21,7 @@ package by.blooddy.crypto.image {
 	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 */
-	public class PNG8Encoder {
+	public final class PNG8Encoder extends PNGEncoder {
 
 		//--------------------------------------------------------------------------
 		//
@@ -33,14 +34,14 @@ package by.blooddy.crypto.image {
 		 *
 		 * @param	image			The <code>BitmapData</code> of the image you wish to encode.
 		 *
+		 * @param	filter			The encoding algorithm you wish to apply while encoding.
+		 * 							Use the constants provided in
+		 * 							<code>by.blooddy.crypto.image.PNGFilter</code> class.
+		 *
 		 * @param	palette			The color patette to use.
 		 * 							If <code>null</code> given, the
 		 * 							<code>by.blooddy.crypto.image.palette.MedianCutPalette</code>
 		 * 							will be used.
-		 *
-		 * @param	filter			The encoding algorithm you wish to apply while encoding.
-		 * 							Use the constants provided in
-		 * 							<code>by.blooddy.crypto.image.PNGFilter</code> class.
 		 *
 		 * @return					The sequence of bytes containing the encoded image.
 		 *
@@ -55,6 +56,20 @@ package by.blooddy.crypto.image {
 			throw new IllegalOperationError();
 		}
 
+		//--------------------------------------------------------------------------
+		//
+		//  Constructor
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * @private
+		 * Constructor
+		 */
+		public function PNG8Encoder() {
+			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
+		}
+		
 	}
 
 }

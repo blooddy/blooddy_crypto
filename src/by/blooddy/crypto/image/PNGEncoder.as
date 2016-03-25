@@ -31,7 +31,7 @@ package by.blooddy.crypto.image {
 	 * @langversion				3.0
 	 * @created					05.07.2010 17:44:26
 	 */
-	public final class PNGEncoder {
+	public class PNGEncoder {
 
 		//--------------------------------------------------------------------------
 		//
@@ -42,7 +42,7 @@ package by.blooddy.crypto.image {
 		/**
 		 * @private
 		 */
-		private static const NATIVE:Boolean = ApplicationDomain.currentDomain.hasDefinition( 'flash.display.PNGEncoderOptions' );
+		protected static const _NATIVE:Boolean = ApplicationDomain.currentDomain.hasDefinition( 'flash.display.PNGEncoderOptions' );
 
 		//--------------------------------------------------------------------------
 		//
@@ -68,7 +68,7 @@ package by.blooddy.crypto.image {
 		 * @throws	ArgumentError	No such filter.
 		 */
 		public static function encode(image:BitmapData, filter:uint=0):ByteArray {
-			if ( NATIVE ) {
+			if ( _NATIVE ) {
 				return image.encode( image.rect, new PNGEncoderOptions( filter == PNGFilter.NONE ) );
 			} else {
 				var size:uint = image.width * image.height;
@@ -85,6 +85,7 @@ package by.blooddy.crypto.image {
 
 		/**
 		 * @private
+		 * Constructor
 		 */
 		public function PNGEncoder() {
 			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
