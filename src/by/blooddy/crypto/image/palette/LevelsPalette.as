@@ -34,6 +34,7 @@ package by.blooddy.crypto.image.palette {
 		 * @throws	RangeError
 		 */
 		public function LevelsPalette(rLevel:uint=8, gLevel:uint=8, bLevel:uint=4, transparent:Boolean=false) {
+
 			super();
 
 			var maxColors:uint = rLevel * gLevel * bLevel + ( transparent ? 1 : 0 );
@@ -102,11 +103,6 @@ package by.blooddy.crypto.image.palette {
 		/**
 		 * @private
 		 */
-		private var _transparent:Boolean;
-
-		/**
-		 * @private
-		 */
 		private var _rRatio:uint;
 
 		/**
@@ -129,6 +125,24 @@ package by.blooddy.crypto.image.palette {
 		 */
 		private var _bc:uint;
 
+		//--------------------------------------------------------------------------
+		//
+		//  Properties
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * @private
+		 */
+		private var _transparent:Boolean;
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function get transparent():Boolean {
+			return this._transparent;
+		}
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Methods

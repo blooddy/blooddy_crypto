@@ -19,12 +19,30 @@ package by.blooddy.crypto.image.palette {
 	 */
 	public interface IPalette {
 
+		//--------------------------------------------------------------------------
+		//
+		//  Properties
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * @copy	flash.display.BitmapData#transparent
+		 */
+		function get transparent():Boolean;
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Methods
+		//
+		//--------------------------------------------------------------------------
+		
 		/**
 		 * Returns the list of the colors used in the palette.
 		 * 
 		 * @return	All the colors used in the palette.
 		 * 
-		 * @see		#getHash
+		 * @see		#getHash()
+		 * @see		#getIndexByColor()
 		 */
 		function getList():Vector.<uint>;
 
@@ -33,7 +51,8 @@ package by.blooddy.crypto.image.palette {
 		 * 
 		 * @return	All the colors used in the palette.
 		 * 
-		 * @see		#getList
+		 * @see		#getList()
+		 * @see		#getIndexByColor()
 		 */
 		function getHash():Object;
 		
@@ -46,6 +65,9 @@ package by.blooddy.crypto.image.palette {
 		 * @return					The index of the color inside the palette.
 		 * 
 		 * @throws	ArgumentError	If the color was not found inside the palette.
+		 * 
+		 * @see		#getList()
+		 * @see		#getHash()
 		 */
 		function getIndexByColor(color:uint):uint;
 
