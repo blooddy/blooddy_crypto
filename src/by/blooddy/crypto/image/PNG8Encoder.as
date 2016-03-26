@@ -61,6 +61,12 @@ package by.blooddy.crypto.image {
 
 		}
 
+		//--------------------------------------------------------------------------
+		//
+		//  Private class methods
+		//
+		//--------------------------------------------------------------------------
+		
 		/**
 		 * @private
 		 */
@@ -97,6 +103,9 @@ package by.blooddy.crypto.image {
 			
 		}
 		
+		/**
+		 * @private
+		 */
 		private static function writePLTE(mem:ByteArray, plte:ByteArray):void {
 			
 			var chunk:ByteArray = _TMP;
@@ -110,6 +119,9 @@ package by.blooddy.crypto.image {
 
 		}
 		
+		/**
+		 * @private
+		 */
 		private static function writeTRNS(mem:ByteArray, trns:ByteArray):void {
 			
 			var chunk:ByteArray = _TMP;
@@ -248,34 +260,18 @@ internal final class PNG8Encoder$ {
 		var width:int = image.width;
 		var height:int = image.height;
 		
-		var hash:Object = palette.getHash();
-		
 		var x:int = 0;
 		var y:int = 0;
 		
 		var i:int = 0;
 		
-		if ( hash ) {
-			
+		do {
+			si8( 0, i++ ); // NONE
+			x = 0;
 			do {
-				si8( 0, i++ ); // NONE
-				x = 0;
-				do {
-					si8( hash[ image.getPixel32( x, y ) ], i++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-
-		} else {
-		
-			do {
-				si8( 0, i++ ); // NONE
-				x = 0;
-				do {
-					si8( palette.getIndexByColor( image.getPixel32( x, y ) ), i++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-
-		}
+				si8( palette.getIndexByColor( image.getPixel32( x, y ) ), i++ );
+			} while ( ++x < width );
+		} while ( ++y < height );
 
 	}
 	
@@ -283,8 +279,6 @@ internal final class PNG8Encoder$ {
 
 		var width:int = image.width;
 		var height:int = image.height;
-		
-		var hash:Object = palette.getHash();
 		
 		var c:int = 0;
 		var c0:int = 0;
@@ -294,33 +288,16 @@ internal final class PNG8Encoder$ {
 		
 		var i:int = 0;
 		
-		if ( hash ) {
-	
+		do {
+			si8( 1, i++ ); // SUB
+			c0 = 0;
+			x = 0;
 			do {
-				si8( 1, i++ ); // SUB
-				c0 = 0;
-				x = 0;
-				do {
-					c = hash[ image.getPixel32( x, y ) ];
-					si8( c - c0, i++ );
-					c0 = c;
-				} while ( ++x < width );
-			} while ( ++y < height );
-
-		} else {
-			
-			do {
-				si8( 1, i++ ); // SUB
-				c0 = 0;
-				x = 0;
-				do {
-					c = palette.getIndexByColor( image.getPixel32( x, y ) );
-					si8( c - c0, i++ );
-					c0 = c;
-				} while ( ++x < width );
-			} while ( ++y < height );
-
-		}
+				c = palette.getIndexByColor( image.getPixel32( x, y ) );
+				si8( c - c0, i++ );
+				c0 = c;
+			} while ( ++x < width );
+		} while ( ++y < height );
 
 	}
 	
@@ -331,8 +308,6 @@ internal final class PNG8Encoder$ {
 		
 		var len:uint = image.width * image.height + image.height;
 		
-		var hash:Object = palette.getHash();
-		
 		var c:int = 0;
 		
 		var x:int = 0;
@@ -341,33 +316,16 @@ internal final class PNG8Encoder$ {
 		var i:int = 0;
 		var j:int = 0;
 		
-		if ( hash ) {
-
+		do {
+			si8( 2, i++ ); // UP
+			j = len;
+			x = 0;
 			do {
-				si8( 2, i++ ); // UP
-				j = len;
-				x = 0;
-				do {
-					c = hash[ image.getPixel32( x, y ) ];
-					si8( c - li8( j ), i++ );
-					si8( c, j++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-
-		} else {
-			
-			do {
-				si8( 2, i++ ); // UP
-				j = len;
-				x = 0;
-				do {
-					c = palette.getIndexByColor( image.getPixel32( x, y ) );
-					si8( c - li8( j ), i++ );
-					si8( c, j++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-
-		}
+				c = palette.getIndexByColor( image.getPixel32( x, y ) );
+				si8( c - li8( j ), i++ );
+				si8( c, j++ );
+			} while ( ++x < width );
+		} while ( ++y < height );
 
 	}
 	
@@ -378,8 +336,6 @@ internal final class PNG8Encoder$ {
 		
 		var len:uint = image.width * image.height + image.height;
 		
-		var hash:Object = palette.getHash();
-		
 		var c:int = 0;
 		var c0:int = 0;
 		
@@ -389,37 +345,18 @@ internal final class PNG8Encoder$ {
 		var i:int = 0;
 		var j:int = 0;
 		
-		if ( hash ) {
-
+		do {
+			si8( 3, i++ ); // AVERAGE
+			j = len;
+			c0 = 0;
+			x = 0;
 			do {
-				si8( 3, i++ ); // AVERAGE
-				j = len;
-				c0 = 0;
-				x = 0;
-				do {
-					c = hash[ image.getPixel32( x, y ) ];
-					si8( c - ( ( c0 + li8( j ) ) >>> 1 ), i++ );
-					c0 = c;
-					si8( c, j++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-
-		} else {
-			
-			do {
-				si8( 3, i++ ); // AVERAGE
-				j = len;
-				c0 = 0;
-				x = 0;
-				do {
-					c = palette.getIndexByColor( image.getPixel32( x, y ) );
-					si8( c - ( ( c0 + li8( j ) ) >>> 1 ), i++ );
-					c0 = c;
-					si8( c, j++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-
-		}
+				c = palette.getIndexByColor( image.getPixel32( x, y ) );
+				si8( c - ( ( c0 + li8( j ) ) >>> 1 ), i++ );
+				c0 = c;
+				si8( c, j++ );
+			} while ( ++x < width );
+		} while ( ++y < height );
 
 	}
 	
@@ -429,8 +366,6 @@ internal final class PNG8Encoder$ {
 		var height:int = image.height;
 		
 		var len:uint = image.width * image.height + image.height;
-		
-		var hash:Object = palette.getHash();
 		
 		var c:int = 0;
 		var c0:int = 0;
@@ -448,57 +383,28 @@ internal final class PNG8Encoder$ {
 		var i:int = 0;
 		var j:int = 0;
 		
-		if ( hash ) {
-			
+		do {
+			si8( 4, i++ ); // PAETH
+			j = len;
+			c0 = 0;
+			c2 = 0;
+			x = 0;
 			do {
-				si8( 4, i++ ); // PAETH
-				j = len;
-				c0 = 0;
-				c2 = 0;
-				x = 0;
-				do {
-					c = hash[ image.getPixel32( x, y ) ];
-					c1 = li8( j );
-					p = c0 + c1 - c2;
-					pa = p - c0; if ( pa < 0 ) pa = -pa;
-					pb = p - c1; if ( pb < 0 ) pb = -pb;
-					pc = p - c2; if ( pc < 0 ) pc = -pc;
-					if ( pa <= pb && pa <= pc ) p = c0;
-					else if ( pb <= pc )		p = c1;
-					else						p = c2;
-					si8( c - p, i++ );
-					c0 = c;
-					c2 = c1;
-					si8( c, j++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-
-		} else {
-			
-			do {
-				si8( 4, i++ ); // PAETH
-				j = len;
-				c0 = 0;
-				c2 = 0;
-				x = 0;
-				do {
-					c = palette.getIndexByColor( image.getPixel32( x, y ) );
-					c1 = li8( j );
-					p = c0 + c1 - c2;
-					pa = p - c0; if ( pa < 0 ) pa = -pa;
-					pb = p - c1; if ( pb < 0 ) pb = -pb;
-					pc = p - c2; if ( pc < 0 ) pc = -pc;
-					if ( pa <= pb && pa <= pc ) p = c0;
-					else if ( pb <= pc )		p = c1;
-					else						p = c2;
-					si8( c - p, i++ );
-					c0 = c;
-					c2 = c1;
-					si8( c, j++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-
-		}
+				c = palette.getIndexByColor( image.getPixel32( x, y ) );
+				c1 = li8( j );
+				p = c0 + c1 - c2;
+				pa = p - c0; if ( pa < 0 ) pa = -pa;
+				pb = p - c1; if ( pb < 0 ) pb = -pb;
+				pc = p - c2; if ( pc < 0 ) pc = -pc;
+				if ( pa <= pb && pa <= pc ) p = c0;
+				else if ( pb <= pc )		p = c1;
+				else						p = c2;
+				si8( c - p, i++ );
+				c0 = c;
+				c2 = c1;
+				si8( c, j++ );
+			} while ( ++x < width );
+		} while ( ++y < height );
 
 	}
 	

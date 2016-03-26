@@ -161,7 +161,7 @@ package by.blooddy.crypto.image.palette {
 			var t:uint = 0;
 			
 			var lminA:uint = 0xFF000000;
-			var lmaxA:uint = ( transparent ? 0x00000000 : 0xFF000000 );
+			var lmaxA:uint = 0x00000000;
 			var lminR:uint = 0x00FF0000;
 			var lmaxR:uint = 0x00000000;
 			var lminG:uint = 0x0000FF00;
@@ -216,7 +216,7 @@ package by.blooddy.crypto.image.palette {
 				var v:uint = 0;
 				
 				var rminA:uint = 0xFF000000;
-				var rmaxA:uint = ( transparent ? 0x00000000 : 0xFF000000 );
+				var rmaxA:uint = 0x00000000;
 				var rminR:uint = 0x00FF0000;
 				var rmaxR:uint = 0x00000000;
 				var rminG:uint = 0x0000FF00;
@@ -414,16 +414,6 @@ package by.blooddy.crypto.image.palette {
 			return this._list.slice();
 		}
 
-		/**
-		 * @private
-		 */
-		public function getHash():Object {
-			var bytes:ByteArray = new ByteArray();
-			bytes.writeObject( this._hash );
-			bytes.position = 0;
-			return bytes.readObject();
-		}
-		
 		/**
 		 * @inheritDoc
 		 */

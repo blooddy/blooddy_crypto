@@ -159,13 +159,6 @@ package by.blooddy.crypto.image.palette {
 		/**
 		 * @inheritDoc
 		 */
-		public function getHash():Object {
-			return null;
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
 		public function getIndexByColor(color:uint):uint {
 			if ( this._transparent && color < 0x33000000 ) {
 

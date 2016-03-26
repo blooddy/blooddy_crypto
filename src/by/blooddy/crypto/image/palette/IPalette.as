@@ -41,21 +41,10 @@ package by.blooddy.crypto.image.palette {
 		 * 
 		 * @return	All the colors used in the palette.
 		 * 
-		 * @see		#getHash()
 		 * @see		#getIndexByColor()
 		 */
 		function getList():Vector.<uint>;
 
-		/**
-		 * Returns the hash of the colors used in the palette.
-		 * 
-		 * @return	All the colors used in the palette.
-		 * 
-		 * @see		#getList()
-		 * @see		#getIndexByColor()
-		 */
-		function getHash():Object;
-		
 		/**
 		 * Returns the index of the color inside the palette. 
 		 * It is possible that the same index will be returned for different color values.
@@ -67,7 +56,6 @@ package by.blooddy.crypto.image.palette {
 		 * @throws	ArgumentError	If the color was not found inside the palette.
 		 * 
 		 * @see		#getList()
-		 * @see		#getHash()
 		 */
 		function getIndexByColor(color:uint):uint;
 
