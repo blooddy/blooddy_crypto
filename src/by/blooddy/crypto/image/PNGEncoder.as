@@ -98,27 +98,6 @@ package by.blooddy.crypto.image {
 		
 		/**
 		 * @private
-		 * 
-		 * углубленный способ проверки прозрачности. флаг прозрачности может стоять,
-		 * но картинка может быть не прозрачна. немного теряем в скорости на прозрачных
-		 * картинках, зато выйигрываем с установленным флагом в ~5 раз.
-		 *
-		 * @param	image	картинка на проверку
-		 *
-		 * @return			прозрачна или нет?
-		 */
-		protected static function isTransparent(image:BitmapData):Boolean {
-			return image.transparent && (
-				image.getPixel32( 0,               0                ) < 0xFF000000 ||
-				image.getPixel32( image.width - 1, 0                ) < 0xFF000000 ||
-				image.getPixel32( image.width - 1, image.height - 1 ) < 0xFF000000 ||
-				image.getPixel32( 0,               image.height - 1 ) < 0xFF000000 ||
-				image.clone().threshold( image, image.rect, new Point(), '!=', 0xFF000000, 0, 0xFF000000, true ) != 0
-			);
-		}
-		
-		/**
-		 * @private
 		 */
 		protected static function writeSignature(mem:ByteArray):void {
 			mem.writeUnsignedInt( 0x89504e47 );

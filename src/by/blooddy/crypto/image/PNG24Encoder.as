@@ -67,7 +67,7 @@ package by.blooddy.crypto.image {
 		 */
 		private static function $encode(image:BitmapData, filter:uint):ByteArray {
 			
-			var transparent:Boolean = isTransparent( image );
+			var transparent:Boolean = isTransparentImage( image );
 			
 			// create output byte array
 			var result:ByteArray = new ByteArray();
