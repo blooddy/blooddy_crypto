@@ -131,7 +131,7 @@ internal final class JSON$Encoder extends JSON$ {
 	//--------------------------------------------------------------------------
 	
 	// ReferenceError fix
-	if ( !ByteArray.prototype.toJSON ) {
+	if ( !( 'toJSON' in ByteArray.prototype ) ) {
 		ByteArray.prototype.toJSON = null;
 	}
 	
