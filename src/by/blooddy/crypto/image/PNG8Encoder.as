@@ -66,8 +66,6 @@ package by.blooddy.crypto.image {
 		 */
 		private static function $encode(image:BitmapData, filter:uint, palette:IPalette):ByteArray {
 			
-			var transparent:Boolean = palette.transparent;
-			
 			// create output byte array
 			var result:ByteArray = new ByteArray();
 			
@@ -78,14 +76,14 @@ package by.blooddy.crypto.image {
 			writeIHDR( result, image.width, image.height, 0x08, 0x03 );
 			
 			// PLTE, tRNS
-			var plte:Vector.<ByteArray> = PNG8Encoder$.encodePalette( transparent, palette );
+			var plte:Vector.<ByteArray> = PNG8Encoder$.encodePalette( palette );
 			writePLTE( result, plte[ 0 ] );
 			if ( plte[ 1 ] ) {
 				writeTRNS( result, plte[ 1 ] );
 			}
 			
 			// IDAT
-			writeIDAT( result, PNG8Encoder$.encode( image, filter, transparent, palette ) );
+			writeIDAT( result, PNG8Encoder$.encode( image, filter, palette ) );
 			
 			// tEXt
 			writeTEXT( result, 'Software', 'by.blooddy.crypto.image.PNG8Encoder' );
@@ -163,8 +161,9 @@ internal final class PNG8Encoder$ {
 	//
 	//--------------------------------------------------------------------------
 	
-	internal static function encodePalette(transparent:Boolean, palette:IPalette):Vector.<ByteArray> {
+	internal static function encodePalette(palette:IPalette):Vector.<ByteArray> {
 		
+		var transparent:Boolean = palette.transparent;
 		var colors:Vector.<uint> = palette.getList();
 		
 		var tmp:ByteArray = _DOMAIN.domainMemory;
@@ -214,7 +213,7 @@ internal final class PNG8Encoder$ {
 		return result;//new <ByteArray>[ plte, trns ];
 	}
 	
-	internal static function encode(image:BitmapData, filter:uint, transparent:Boolean, palette:IPalette):ByteArray {
+	internal static function encode(image:BitmapData, filter:uint, palette:IPalette):ByteArray {
 
 		var tmp:ByteArray = _DOMAIN.domainMemory;
 		
@@ -226,7 +225,7 @@ internal final class PNG8Encoder$ {
 
 		_DOMAIN.domainMemory = mem;
 		
-		_ENCODERS[ int( transparent ) ][ filter ]( image, palette );
+		_ENCODERS[ filter ]( image, palette );
 		
 		_DOMAIN.domainMemory = tmp;
 
@@ -240,9 +239,8 @@ internal final class PNG8Encoder$ {
 	
 	private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
 	
-	private static const _ENCODERS:Vector.<Vector.<Function>> = new <Vector.<Function>>[
-		new <Function>[ encodeNone,            encodeSub,            encodeUp,            encodeAverage,            encodePaeth            ],
-		new <Function>[ encodeNoneTransparent, encodeSubTransparent, encodeUpTransparent, encodeAverageTransparent, encodePaethTransparent ]
+	private static const _ENCODERS:Vector.<Function> = new <Function>[
+		encodeNoneTransparent, encodeSubTransparent, encodeUpTransparent, encodeAverageTransparent, encodePaethTransparent
 	];
 	
 	private static function encodeNoneTransparent(image:BitmapData, palette:IPalette):void {
@@ -502,265 +500,6 @@ internal final class PNG8Encoder$ {
 
 		}
 
-	}
-	
-	private static function encodeNone(image:BitmapData, palette:IPalette):void {
-		
-		var width:int = image.width;
-		var height:int = image.height;
-		
-		var hash:Object = palette.getHash();
-		
-		var x:int = 0;
-		var y:int = 0;
-		
-		var i:int = 0;
-		
-		if ( hash ) {
-			
-			do {
-				si8( 0, i++ ); // NONE
-				x = 0;
-				do {
-					si8( hash[ image.getPixel( x, y ) ], i++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-			
-		} else {
-			
-			do {
-				si8( 0, i++ ); // NONE
-				x = 0;
-				do {
-					si8( palette.getIndexByColor( image.getPixel( x, y ) ), i++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-			
-		}
-		
-	}
-	
-	private static function encodeSub(image:BitmapData, palette:IPalette):void {
-		
-		var width:int = image.width;
-		var height:int = image.height;
-		
-		var hash:Object = palette.getHash();
-		
-		var c:int = 0;
-		var c0:int = 0;
-		
-		var x:int = 0;
-		var y:int = 0;
-		
-		var i:int = 0;
-		
-		if ( hash ) {
-			
-			do {
-				si8( 1, i++ ); // SUB
-				c0 = 0;
-				x = 0;
-				do {
-					c = hash[ image.getPixel( x, y ) ];
-					si8( c - c0, i++ );
-					c0 = c;
-				} while ( ++x < width );
-			} while ( ++y < height );
-			
-		} else {
-			
-			do {
-				si8( 1, i++ ); // SUB
-				c0 = 0;
-				x = 0;
-				do {
-					c = palette.getIndexByColor( image.getPixel( x, y ) );
-					si8( c - c0, i++ );
-					c0 = c;
-				} while ( ++x < width );
-			} while ( ++y < height );
-			
-		}
-		
-	}
-	
-	private static function encodeUp(image:BitmapData, palette:IPalette):void {
-		
-		var width:int = image.width;
-		var height:int = image.height;
-		
-		var len:uint = image.width * image.height + image.height;
-		
-		var hash:Object = palette.getHash();
-		
-		var c:int = 0;
-		
-		var x:int = 0;
-		var y:int = 0;
-		
-		var i:int = 0;
-		var j:int = 0;
-		
-		if ( hash ) {
-			
-			do {
-				si8( 2, i++ ); // UP
-				j = len;
-				x = 0;
-				do {
-					c = hash[ image.getPixel( x, y ) ];
-					si8( c - li8( j ), i++ );
-					si8( c, j++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-			
-		} else {
-			
-			do {
-				si8( 2, i++ ); // UP
-				j = len;
-				x = 0;
-				do {
-					c = palette.getIndexByColor( image.getPixel( x, y ) );
-					si8( c - li8( j ), i++ );
-					si8( c, j++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-			
-		}
-		
-	}
-	
-	private static function encodeAverage(image:BitmapData, palette:IPalette):void {
-		
-		var width:int = image.width;
-		var height:int = image.height;
-		
-		var len:uint = image.width * image.height + image.height;
-		
-		var hash:Object = palette.getHash();
-		
-		var c:int = 0;
-		var c0:int = 0;
-		
-		var x:int = 0;
-		var y:int = 0;
-		
-		var i:int = 0;
-		var j:int = 0;
-		
-		if ( hash ) {
-			
-			do {
-				si8( 3, i++ ); // AVERAGE
-				j = len;
-				c0 = 0;
-				x = 0;
-				do {
-					c = hash[ image.getPixel( x, y ) ];
-					si8( c - ( ( c0 + li8( j ) ) >>> 1 ), i++ );
-					c0 = c;
-					si8( c, j++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-			
-		} else {
-			
-			do {
-				si8( 3, i++ ); // AVERAGE
-				j = len;
-				c0 = 0;
-				x = 0;
-				do {
-					c = palette.getIndexByColor( image.getPixel( x, y ) );
-					si8( c - ( ( c0 + li8( j ) ) >>> 1 ), i++ );
-					c0 = c;
-					si8( c, j++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-			
-		}
-		
-	}
-	
-	private static function encodePaeth(image:BitmapData, palette:IPalette):void {
-		
-		var width:int = image.width;
-		var height:int = image.height;
-		
-		var len:uint = image.width * image.height + image.height;
-		
-		var hash:Object = palette.getHash();
-		
-		var c:int = 0;
-		var c0:int = 0;
-		var c1:int = 0;
-		var c2:int = 0;
-		
-		var p:int = 0;
-		var pa:int = 0;
-		var pb:int = 0;
-		var pc:int = 0;
-		
-		var x:int = 0;
-		var y:int = 0;
-		
-		var i:int = 0;
-		var j:int = 0;
-		
-		if ( hash ) {
-			
-			do {
-				si8( 4, i++ ); // PAETH
-				j = len;
-				c0 = 0;
-				c2 = 0;
-				x = 0;
-				do {
-					c = hash[ image.getPixel( x, y ) ];
-					c1 = li8( j );
-					p = c0 + c1 - c2;
-					pa = p - c0; if ( pa < 0 ) pa = -pa;
-					pb = p - c1; if ( pb < 0 ) pb = -pb;
-					pc = p - c2; if ( pc < 0 ) pc = -pc;
-					if ( pa <= pb && pa <= pc ) p = c0;
-					else if ( pb <= pc )		p = c1;
-					else						p = c2;
-					si8( c - p, i++ );
-					c0 = c;
-					c2 = c1;
-					si8( c, j++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-			
-		} else {
-			
-			do {
-				si8( 4, i++ ); // PAETH
-				j = len;
-				c0 = 0;
-				c2 = 0;
-				x = 0;
-				do {
-					c = palette.getIndexByColor( image.getPixel( x, y ) );
-					c1 = li8( j );
-					p = c0 + c1 - c2;
-					pa = p - c0; if ( pa < 0 ) pa = -pa;
-					pb = p - c1; if ( pb < 0 ) pb = -pb;
-					pc = p - c2; if ( pc < 0 ) pc = -pc;
-					if ( pa <= pb && pa <= pc ) p = c0;
-					else if ( pb <= pc )		p = c1;
-					else						p = c2;
-					si8( c - p, i++ );
-					c0 = c;
-					c2 = c1;
-					si8( c, j++ );
-				} while ( ++x < width );
-			} while ( ++y < height );
-			
-		}
-		
 	}
 	
 }
