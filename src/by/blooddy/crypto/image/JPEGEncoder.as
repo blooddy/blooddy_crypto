@@ -89,7 +89,9 @@ import flash.errors.IllegalOperationError;
 import flash.system.ApplicationDomain;
 import flash.utils.ByteArray;
 
+import avm2.intrinsics.memory.lf64;
 import avm2.intrinsics.memory.li8;
+import avm2.intrinsics.memory.sf64;
 import avm2.intrinsics.memory.si16;
 import avm2.intrinsics.memory.si32;
 import avm2.intrinsics.memory.si8;
@@ -195,7 +197,89 @@ internal final class JPEGTable$ {
 	 * </table>
 	 */
 	private static function createQuantTable(quality:uint):ByteArray {
-		return null;
+
+		var sf:int = ( quality <= 1
+			?	5000
+			:	( quality < 50
+				?	5000 / quality
+				:	200 - ( quality << 1 )
+			)
+		);
+		
+		var tmp:ByteArray = _DOMAIN.domainMemory;
+		
+		var mem:ByteArray = new ByteArray();
+		
+		mem.position = 130;
+		// YQT
+		mem.writeUTFBytes( '\x10\x0b\x0a\x10\x18\x28\x33\x3d\x0c\x0c\x0e\x13\x1a\x3a\x3c\x37\x0e\x0d\x10\x18\x28\x39\x45\x38\x0e\x11\x16\x1d\x33\x57\x50\x3e\x12\x16\x25\x38\x44\x6d\x67\x4d\x18\x23\x37\x40\x51\x68\x71\x5c\x31\x40\x4e\x57\x67\x79\x78\x65\x48\x5c\x5f\x62\x70\x64\x67\x63' );
+		// UVQT
+		mem.writeUTFBytes( '\x11\x12\x18\x2f\x63\x63\x63\x63\x12\x15\x1a\x42\x63\x63\x63\x63\x18\x1a\x38\x63\x63\x63\x63\x63\x2f\x42\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63' );
+		
+		// ZigZag
+		mem.position = 1154;
+		mem.writeUTFBytes( '\x00\x01\x05\x06\x0e\x0f\x1b\x1c\x02\x04\x07\x0d\x10\x1a\x1d\x2a\x03\x08\x0c\x11\x19\x1e\x29\x2b\x09\x0b\x12\x18\x1f\x28\x2c\x35\x0a\x13\x17\x20\x27\x2d\x34\x36\x14\x16\x21\x26\x2e\x33\x37\x3c\x15\x22\x25\x2f\x32\x38\x3b\x3d\x23\x24\x30\x31\x39\x3a\x3e\x3f' );
+		
+		mem.length += 64;
+		if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+
+		_DOMAIN.domainMemory = mem;
+		
+		var i:uint;
+		var t:uint;
+		
+		// YTable
+		i = 0;
+		do {
+			t = ( li8( 130 + i ) * sf + 50 ) / 100;
+			if ( t < 1 ) t = 1;
+			else if ( t > 255 ) t = 255;
+			si8( t, 1 + li8( 1154 + i ) );
+		} while ( ++i < 64 );
+		
+		// UVTable
+		i = 0;
+		do {
+			t = ( li8( 194 + i ) * sf + 50 ) / 100;
+			if ( t < 1 ) t = 1;
+			else if ( t > 255 ) t = 255;
+			si8( t, 66 + li8( 1154 + i ) );
+		} while ( ++i < 64 );
+		
+		// aasf
+		sf64( 1.000000000, 1154 + 64 + 8 * 0 );
+		sf64( 1.387039845, 1154 + 64 + 8 * 1 );
+		sf64( 1.306562965, 1154 + 64 + 8 * 2 );
+		sf64( 1.175875602, 1154 + 64 + 8 * 3 );
+		sf64( 1.000000000, 1154 + 64 + 8 * 4 );
+		sf64( 0.785694958, 1154 + 64 + 8 * 5 );
+		sf64( 0.541196100, 1154 + 64 + 8 * 6 );
+		sf64( 0.275899379, 1154 + 64 + 8 * 7 );
+		
+		// fdtbl_Y
+		// fdtbl_UV
+		var row:int;
+		var col:int;
+		var n:Number;
+		i = 0;
+		row = 0;
+		do {
+			col = 0;
+			do {
+				n = lf64( 1154 + 64 + row ) * lf64( 1154 + 64 + col ) * 8;
+				sf64( 1.0 / ( li8(  1 + li8( 1154 + i ) ) * n ), 130       + ( i << 3 ) );
+				sf64( 1.0 / ( li8( 66 + li8( 1154 + i ) ) * n ), 130 + 512 + ( i << 3 ) );
+				++i;
+				col += 8;
+			} while ( col < 64 );
+			row += 8;
+		} while ( row < 64 );
+		
+		_DOMAIN.domainMemory = tmp;
+		
+		mem.length = 1154;
+		return mem;
+		
 	}
 	
 	/**
@@ -303,7 +387,7 @@ internal final class JPEGTable$ {
 		var low:int = 1;
 		var upp:int = 2;
 		
-		var p:uint;
+		var p:int;
 		var i:int;
 		var l:int;
 		var cat:uint = 1;
