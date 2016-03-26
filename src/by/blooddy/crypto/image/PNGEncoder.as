@@ -8,7 +8,6 @@ package by.blooddy.crypto.image {
 
 	import flash.display.BitmapData;
 	import flash.display.PNGEncoderOptions;
-	import flash.geom.Point;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
@@ -59,7 +58,9 @@ package by.blooddy.crypto.image {
 		//--------------------------------------------------------------------------
 
 		/**
-		 * Creates a PNG-encoded byte sequence from the specified <code>BitmapData</code>
+		 * Creates a PNG-encoded byte sequence from the specified <code>BitmapData</code>.
+		 * 
+		 * Used <code>flash.display.BitmapData.encode</code>, if possible.
 		 * 
 		 * @param	image			The <code>BitmapData</code> of the image you wish to encode.
 		 * 
@@ -67,13 +68,13 @@ package by.blooddy.crypto.image {
 		 * 							Use the constants provided in 
 		 * 							<code>by.blooddy.crypto.image.PNGFilter</code> class.
 		 * 
-		 * @see						by.blooddy.crypto.image.PNGFilter
-		 * @see						flash.display.BitmapData#encode
-		 * 
 		 * @return					The sequence of bytes containing the encoded image.
 		 * 
 		 * @throws	TypeError		
 		 * @throws	ArgumentError	No such filter.
+		 * 
+		 * @see						by.blooddy.crypto.image.PNGFilter
+		 * @see						flash.display.BitmapData#encode()
 		 */
 		public static function encode(image:BitmapData, filter:uint=0):ByteArray {
 			

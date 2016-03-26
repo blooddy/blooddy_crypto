@@ -49,9 +49,9 @@ package by.blooddy.crypto.image {
 		 * @throws	TypeError		
 		 * @throws	ArgumentError	No such filter.
 		 *
+		 * @see 					by.blooddy.crypto.image.PNGFilter
 		 * @see 					by.blooddy.crypto.image.palette.IPalette
 		 * @see 					by.blooddy.crypto.image.palette.MedianCutPalette
-		 * @see 					by.blooddy.crypto.image.PNGFilter
 		 */
 		public static function encode(image:BitmapData, filter:uint=0, palette:IPalette=null):ByteArray {
 			

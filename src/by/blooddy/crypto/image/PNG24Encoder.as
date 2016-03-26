@@ -28,7 +28,9 @@ package by.blooddy.crypto.image {
 		//--------------------------------------------------------------------------
 
 		/**
-		 * Creates a PNG image from the specified <code>BitmapData</code>
+		 * Creates a PNG image from the specified <code>BitmapData</code>.
+		 * 
+		 * Used <code>flash.display.BitmapData.encode</code>, if possible.
 		 *
 		 * @param	image			The <code>BitmapData</code> to be converted to PNG format.
 		 *
@@ -42,6 +44,7 @@ package by.blooddy.crypto.image {
 		 * @throws	ArgumentError	No such filter.
 		 *
 		 * @see						by.blooddy.crypto.image.PNGFilter
+		 * @see						flash.display.BitmapData#encode()
 		 */
 		public static function encode(image:BitmapData, filter:uint=0):ByteArray {
 
