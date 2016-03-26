@@ -89,6 +89,9 @@ import flash.errors.IllegalOperationError;
 import flash.system.ApplicationDomain;
 import flash.utils.ByteArray;
 
+import avm2.intrinsics.memory.si16;
+import avm2.intrinsics.memory.si8;
+
 /**
  * @private
  */
@@ -235,7 +238,50 @@ internal final class JPEGTable$ {
 	 * </table>
 	 */
 	private static function createCategoryTable():ByteArray {
-		return null;
+
+		var tmp:ByteArray = _DOMAIN.domainMemory;
+		
+		var mem:ByteArray = new ByteArray();
+		mem.length = Math.max( 0xFFFF * 3, ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH );
+
+		_DOMAIN.domainMemory = mem;
+		
+		var low:int = 1;
+		var upp:int = 2;
+		
+		var p:uint;
+		var i:int;
+		var l:int;
+		var cat:uint = 1;
+		do {
+			
+			// Positive numbers
+			i = low;
+			l = upp;
+			do {
+				p = ( 32767 + i ) * 3;
+				si8( cat, p );
+				si16( i, p + 1 );
+			} while ( ++i < l );
+			
+			// Negative numbers
+			i = - upp + 1;
+			l = - low;
+			do {
+				p = ( 32767 + i ) * 3;
+				si8( cat, p );
+				si16( upp - 1 + i, p + 1 );
+			} while ( ++i <= l );
+			
+			low <<= 1;
+			upp <<= 1;
+			
+		} while ( ++cat <= 15 );
+		
+		_DOMAIN.domainMemory = tmp;
+		
+		return mem;
+
 	}
 
 }
