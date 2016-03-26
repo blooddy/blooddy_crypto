@@ -42,6 +42,8 @@ package by.blooddy.crypto.image {
 
 		/**
 		 * Creates a JPEG image from the specified <code>BitmapData</code>.
+		 * 
+		 * Used <code>flash.display.BitmapData.encode</code>, if posible.
 		 *
 		 * @param	image		The <code>BitmapData</code> to be encoded.
 		 *
@@ -49,7 +51,7 @@ package by.blooddy.crypto.image {
 		 *
 		 * @return 				a <code>ByteArray</code> representing the JPEG encoded image data.
 		 *
-		 * @throws	TypeError
+		 * @see					flash.display.JPEGEncoderOptions
 		 */
 		public static function encode(image:BitmapData, quality:uint=60):ByteArray {
 
@@ -120,4 +122,120 @@ internal final class JPEGEncoder$ {
 	
 	private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
 	
+}
+
+/**
+ * @private
+ */
+internal final class JPEGTable$ {
+	
+	//--------------------------------------------------------------------------
+	//
+	//  Table
+	//
+	//--------------------------------------------------------------------------
+	
+	/**
+	 * <table>
+	 *	<tr><th>     0</th><td>QuantTable				</td><td>			</td></tr>
+	 *	<tr><th>  1154</th><td>ZigZag					</td><td>			</td></tr>
+	 *	<tr><th>  1218</th><td>HuffmanTable				</td><td>			</td></tr>
+	 *	<tr><th>  3212</th><td>CategoryTable			</td><td>			</td></tr>
+	 *	<tr><th>199817</th><td>							</td><td>			</td></tr>
+	 * </table>
+	 */
+	internal static function getTable(quality:uint=60):ByteArray {
+		
+		var quants:ByteArray = _QUANTS[ quality ];
+		if ( !quants ) {
+			_QUANTS[ quality ] = quants = createQuantTable( quality );
+		}
+
+		var result:ByteArray = new ByteArray();
+		result.writeBytes( quants );
+		result.writeBytes( _TABLE );
+		result.position = 0;
+
+		return result;
+
+	}
+	
+	//--------------------------------------------------------------------------
+	//  table main methods
+	//--------------------------------------------------------------------------
+	
+	private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
+
+	private static const _QUANTS:Vector.<ByteArray> = new Vector.<ByteArray>( 100, true );
+
+	private static const _TMP:ByteArray = new ByteArray();
+	
+	private static const _TABLE:ByteArray = ( function():ByteArray {
+		var table:ByteArray = new ByteArray();
+		table.writeBytes( createZigZagTable() );
+		table.writeBytes( createHuffmanTable() );
+		table.writeBytes( createCategoryTable() );
+		return table;
+	}() );
+	
+	/**
+	 * <table>
+	 *	<tr><th>   0</th><td>0							</td><td>[1]{1}		</td></tr>
+	 *	<tr><th>   1</th><td>YTable						</td><td>[1]{64}	</td></tr>
+	 *	<tr><th>  64</th><td>0							</td><td>[1]{1}		</td></tr>
+	 *	<tr><th>  65</th><td>UVTable					</td><td>[1]{64}	</td></tr>
+	 *	<tr><th> 130</th><td>fdtbl_Y					</td><td>[8]{64}	</td></tr>
+	 *	<tr><th> 642</th><td>fdtbl_UV					</td><td>[8]{64}	</td></tr>
+	 * 	<tr><th>1154</th><td>							</td><td>			</td></tr>
+	 * </table>
+	 */
+	private static function createQuantTable(quality:uint):ByteArray {
+		return null;
+	}
+	
+	/**
+	 * <table>
+	 *	<tr><th> 0</th><td>ZigZag						</td><td>[1]{64}	</td></tr>
+	 *	<tr><th>64</th><td>								</td><td>			</td></tr>
+	 * </table>
+	 */
+	private static function createZigZagTable():ByteArray {
+		return null;
+	}
+	
+	/**
+	 * <table>
+	 *	<tr><th>   0</th><td>0							</td><td>[1]{1}		</td></tr>
+	 *	<tr><th>   1</th><td>std_dc_luminance_nrcodes	</td><td>[1]{16}	</td></tr>
+	 *	<tr><th>  17</th><td>std_dc_luminance_values	</td><td>[1]{12}	</td></tr>
+	 *	<tr><th>  29</th><td>0							</td><td>[1]{1}		</td></tr>
+	 *	<tr><th>  30</th><td>std_ac_luminance_nrcodes	</td><td>[1]{16}	</td></tr>
+	 *	<tr><th>  47</th><td>std_ac_luminance_values	</td><td>[1]{162}	</td></tr>
+	 *	<tr><th> 208</th><td>0							</td><td>[1]{1}		</td></tr>
+	 *	<tr><th> 209</th><td>std_dc_chrominance_nrcodes	</td><td>[1]{16}	</td></tr>
+	 *	<tr><th> 225</th><td>std_dc_chrominance_values	</td><td>[1]{12}	</td></tr>
+	 *	<tr><th> 237</th><td>0							</td><td>[1]{1}		</td></tr>
+	 *	<tr><th> 238</th><td>std_ac_chrominance_nrcodes	</td><td>[1]{16}	</td></tr>
+	 *	<tr><th> 254</th><td>std_ac_chrominance_values	</td><td>[1]{162}	</td></tr>
+	 *	<tr><th> 416</th><td>YDC_HT						</td><td>[1,2]{12}	</td></tr>
+	 *	<tr><th> 452</th><td>YAC_HT						</td><td>[1,2]{251}	</td></tr>
+	 *	<tr><th>1205</th><td>UVDC_HT					</td><td>[1,2]{12}	</td></tr>
+	 *	<tr><th>1241</th><td>UVAC_HT					</td><td>[1,2]{251}	</td></tr>
+	 *	<tr><th>1994</th><td>							</td><td>			</td></tr>
+	 * </table>
+	 */
+	private static function createHuffmanTable():ByteArray {
+		return null;
+	}
+
+	/**
+	 * <table>
+	 *	<tr><th>     0</th><td>cat						</td><td>[1,2]{65534}	</td></tr>
+	 *	<tr><th>196605</th><td>							</td><td>				</td></tr>
+	 * </table>
+	 */
+	private static function createCategoryTable():ByteArray {
+		return null;
+	}
+
 }
