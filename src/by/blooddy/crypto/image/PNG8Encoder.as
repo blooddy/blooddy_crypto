@@ -12,6 +12,7 @@ package by.blooddy.crypto.image {
 	
 	import by.blooddy.crypto.image.palette.IPalette;
 	import by.blooddy.crypto.image.palette.MedianCutPalette;
+	import by.blooddy.crypto.image.palette.SourcePalette;
 
 	/**
 	 * Encodes image data using 8 bits of color information per pixel.
@@ -57,7 +58,13 @@ package by.blooddy.crypto.image {
 			if ( image == null ) Error.throwError( TypeError, 2007, 'image' );
 			if ( filter < 0 || filter > 4 ) Error.throwError( ArgumentError, 2008, 'filter' );
 			
-			return $encode( image, filter, palette || new MedianCutPalette( image ) );
+			return $encode(
+				image, filter,
+				palette || ( image.width * image.height <= 256
+					? new SourcePalette( image )
+					: new MedianCutPalette( image )
+				)
+			);
 
 		}
 
