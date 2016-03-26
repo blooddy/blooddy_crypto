@@ -93,6 +93,8 @@ package by.blooddy.crypto.image {
 			// IEND
 			writeIEND( result );
 			
+			_TMP.clear();
+			
 			return result;
 			
 		}
@@ -148,7 +150,6 @@ import flash.utils.ByteArray;
 import avm2.intrinsics.memory.li8;
 import avm2.intrinsics.memory.si8;
 
-import by.blooddy.core.utils.ByteArrayUtils;
 import by.blooddy.crypto.image.palette.IPalette;
 
 /**
@@ -345,8 +346,8 @@ internal final class PNG8Encoder$ {
 		if ( hash ) {
 
 			do {
-				j = len;
 				si8( 2, i++ ); // UP
+				j = len;
 				x = 0;
 				do {
 					c = hash[ image.getPixel32( x, y ) ];
@@ -358,8 +359,8 @@ internal final class PNG8Encoder$ {
 		} else {
 			
 			do {
-				j = len;
 				si8( 2, i++ ); // UP
+				j = len;
 				x = 0;
 				do {
 					c = palette.getIndexByColor( image.getPixel32( x, y ) );
@@ -393,30 +394,30 @@ internal final class PNG8Encoder$ {
 		if ( hash ) {
 
 			do {
-				j = len;
 				si8( 3, i++ ); // AVERAGE
+				j = len;
 				c0 = 0;
 				x = 0;
 				do {
 					c = hash[ image.getPixel32( x, y ) ];
 					si8( c - ( ( c0 + li8( j ) ) >>> 1 ), i++ );
 					c0 = c;
-					si8( j++, c );
+					si8( c, j++ );
 				} while ( ++x < width );
 			} while ( ++y < height );
 
 		} else {
 			
 			do {
-				j = len;
 				si8( 3, i++ ); // AVERAGE
+				j = len;
 				c0 = 0;
 				x = 0;
 				do {
 					c = palette.getIndexByColor( image.getPixel32( x, y ) );
 					si8( c - ( ( c0 + li8( j ) ) >>> 1 ), i++ );
 					c0 = c;
-					si8( j++, c );
+					si8( c, j++ );
 				} while ( ++x < width );
 			} while ( ++y < height );
 
@@ -452,8 +453,8 @@ internal final class PNG8Encoder$ {
 		if ( hash ) {
 			
 			do {
+				si8( 4, i++ ); // PAETH
 				j = len;
-				si8( 3, i++ ); // PAETH
 				c0 = 0;
 				c2 = 0;
 				x = 0;
@@ -470,15 +471,15 @@ internal final class PNG8Encoder$ {
 					si8( c - p, i++ );
 					c0 = c;
 					c2 = c1;
-					si8( j++, c );
+					si8( c, j++ );
 				} while ( ++x < width );
 			} while ( ++y < height );
 
 		} else {
 			
 			do {
+				si8( 4, i++ ); // PAETH
 				j = len;
-				si8( 3, i++ ); // PAETH
 				c0 = 0;
 				c2 = 0;
 				x = 0;
@@ -495,7 +496,7 @@ internal final class PNG8Encoder$ {
 					si8( c - p, i++ );
 					c0 = c;
 					c2 = c1;
-					si8( j++, c );
+					si8( c, j++ );
 				} while ( ++x < width );
 			} while ( ++y < height );
 
@@ -604,8 +605,8 @@ internal final class PNG8Encoder$ {
 		if ( hash ) {
 			
 			do {
-				j = len;
 				si8( 2, i++ ); // UP
+				j = len;
 				x = 0;
 				do {
 					c = hash[ image.getPixel( x, y ) ];
@@ -617,8 +618,8 @@ internal final class PNG8Encoder$ {
 		} else {
 			
 			do {
-				j = len;
 				si8( 2, i++ ); // UP
+				j = len;
 				x = 0;
 				do {
 					c = palette.getIndexByColor( image.getPixel( x, y ) );
@@ -652,30 +653,30 @@ internal final class PNG8Encoder$ {
 		if ( hash ) {
 			
 			do {
-				j = len;
 				si8( 3, i++ ); // AVERAGE
+				j = len;
 				c0 = 0;
 				x = 0;
 				do {
 					c = hash[ image.getPixel( x, y ) ];
 					si8( c - ( ( c0 + li8( j ) ) >>> 1 ), i++ );
 					c0 = c;
-					si8( j++, c );
+					si8( c, j++ );
 				} while ( ++x < width );
 			} while ( ++y < height );
 			
 		} else {
 			
 			do {
-				j = len;
 				si8( 3, i++ ); // AVERAGE
+				j = len;
 				c0 = 0;
 				x = 0;
 				do {
 					c = palette.getIndexByColor( image.getPixel( x, y ) );
 					si8( c - ( ( c0 + li8( j ) ) >>> 1 ), i++ );
 					c0 = c;
-					si8( j++, c );
+					si8( c, j++ );
 				} while ( ++x < width );
 			} while ( ++y < height );
 			
@@ -711,8 +712,8 @@ internal final class PNG8Encoder$ {
 		if ( hash ) {
 			
 			do {
+				si8( 4, i++ ); // PAETH
 				j = len;
-				si8( 3, i++ ); // PAETH
 				c0 = 0;
 				c2 = 0;
 				x = 0;
@@ -729,15 +730,15 @@ internal final class PNG8Encoder$ {
 					si8( c - p, i++ );
 					c0 = c;
 					c2 = c1;
-					si8( j++, c );
+					si8( c, j++ );
 				} while ( ++x < width );
 			} while ( ++y < height );
 			
 		} else {
 			
 			do {
+				si8( 4, i++ ); // PAETH
 				j = len;
-				si8( 3, i++ ); // PAETH
 				c0 = 0;
 				c2 = 0;
 				x = 0;
@@ -754,7 +755,7 @@ internal final class PNG8Encoder$ {
 					si8( c - p, i++ );
 					c0 = c;
 					c2 = c1;
-					si8( j++, c );
+					si8( c, j++ );
 				} while ( ++x < width );
 			} while ( ++y < height );
 			

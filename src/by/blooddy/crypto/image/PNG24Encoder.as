@@ -87,6 +87,8 @@ package by.blooddy.crypto.image {
 			// IEND
 			writeIEND( result );
 
+			_TMP.clear();
+			
 			return result;
 			
 		}
@@ -132,13 +134,15 @@ internal final class PNG24Encoder$ {
 		
 		var tmp:ByteArray = _DOMAIN.domainMemory;
 		
-		var len:uint = ( image.width * image.height ) * ( transparent ? 4 : 3 ) + image.height + image.width * 4;
-
 		var mem:ByteArray = new ByteArray();
-		mem.length = Math.max( len, ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH );
+		mem.length = Math.max(
+			( image.width * image.height ) * ( transparent ? 4 : 3 ) + image.height + image.width * 4,
+			ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH
+		);
+
 		_DOMAIN.domainMemory = mem;
 		
-		_ENCODERS[ transparent ][ filter ]( image );
+		_ENCODERS[ int( transparent ) ][ filter ]( image );
 		
 		_DOMAIN.domainMemory = tmp;
 
@@ -152,7 +156,7 @@ internal final class PNG24Encoder$ {
 	
 	private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
 	
-	private static const _ENCODERS:Vector.<Vector.<Function>> = new Vector.<Vector.<Function>>[
+	private static const _ENCODERS:Vector.<Vector.<Function>> = new <Vector.<Function>>[
 		new <Function>[ encodeNone,            encodeSub,            encodeUp,            encodeAverage,            encodePaeth            ],
 		new <Function>[ encodeNoneTransparent, encodeSubTransparent, encodeUpTransparent, encodeAverageTransparent, encodePaethTransparent ]
 	];
@@ -356,7 +360,7 @@ internal final class PNG24Encoder$ {
 				si8( a - ( ( a0 + li8( j + 3 ) ) >>> 1 ), i++ );
 				a0 = a;
 				
-				si32( j, c );
+				si32( c, j );
 				j += 4;
 				
 			} while ( ++x < width );
@@ -477,7 +481,7 @@ internal final class PNG24Encoder$ {
 				a0 = a;
 				a2 = a1;
 				
-				si32( j, c );
+				si32( c, j );
 				j += 4;
 				
 			} while ( ++x < width );
@@ -644,7 +648,7 @@ internal final class PNG24Encoder$ {
 				si8( b - ( ( b0 + li8( j ) ) >>> 1 ), i++ );
 				b0 = b;
 				
-				si32( j, c );
+				si32( c, j );
 				j += 4;
 				
 			} while ( ++x < width );
@@ -746,7 +750,7 @@ internal final class PNG24Encoder$ {
 				b0 = b;
 				b2 = b1;
 				
-				si32( j, c );
+				si32( c, j );
 				j += 4;
 				
 			} while ( ++x < width );

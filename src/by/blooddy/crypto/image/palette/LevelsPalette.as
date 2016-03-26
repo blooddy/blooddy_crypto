@@ -56,7 +56,8 @@ package by.blooddy.crypto.image.palette {
 			var i:int = -1;
 			var c:uint;
 
-			this._list = new Vector.<uint>( maxColors, true );
+			this._list.length = maxColors;
+			this._list.fixed = true;
 
 			for ( ri=0; ri<rLevel; ++ri ) {
 				for ( gi=0; gi<gLevel; ++gi ) {
@@ -91,7 +92,7 @@ package by.blooddy.crypto.image.palette {
 		/**
 		 * @private
 		 */
-		private var _list:Vector.<uint>;
+		private const _list:Vector.<uint> = new Vector.<uint>();
 
 		/**
 		 * @private
@@ -166,9 +167,9 @@ package by.blooddy.crypto.image.palette {
 
 				} else {
 
-					var i:uint =	( ( color & 0x00FF0000 ) >>> 16 ) / this._rc * this._rRatio +
-									( ( color & 0x0000FF00 )  >>  8 ) / this._gc * this._gRatio +
-									  ( color & 0x000000FF )          / this._bc;
+					var i:uint =	( ( color >> 16 ) & 0xFF ) / this._rc * this._rRatio +
+									( ( color >>  8 ) & 0xFF ) / this._gc * this._gRatio +
+									  ( color         & 0xFF ) / this._bc;
 
 					this._hash[ color ] = i;
 
