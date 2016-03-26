@@ -126,6 +126,17 @@ internal final class JSON$Encoder extends JSON$ {
 
 	//--------------------------------------------------------------------------
 	//
+	//  Static
+	//
+	//--------------------------------------------------------------------------
+	
+	// ReferenceError fix
+	if ( !ByteArray.prototype.toJSON ) {
+		ByteArray.prototype.toJSON = null;
+	}
+	
+	//--------------------------------------------------------------------------
+	//
 	//  Encode
 	//
 	//--------------------------------------------------------------------------
@@ -318,13 +329,8 @@ internal final class JSON$Encoder extends JSON$ {
 			
 			var v:*;
 
-			var toJSON:Boolean;
-			try {
-				toJSON = 'toJSON' in value;
-			} catch ( _:* ) {}
-			
 			if (
-				toJSON &&
+				'toJSON' in value &&
 				typeof value[ 'toJSON' ] == 'function' &&
 				( v = value.toJSON( null ) ) != value
 			) {
