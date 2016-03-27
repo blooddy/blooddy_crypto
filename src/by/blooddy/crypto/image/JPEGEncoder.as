@@ -369,14 +369,17 @@ internal final class JPEGEncoder$ {
 		DC = DU0;
 		
 		var pos:int;
+		var mpos:int;
 		
 		// Encode DC
 		if ( diff == 0 ) {
-			writeMBits( HTDC ); // Diff might be 0
+			writeBits( li8( HTDC ), li16( HTDC + 1 ) ); // Diff might be 0
 		} else {
 			pos = ( 32767 + diff ) * 3;
-			writeMBits( HTDC + li8( 256 + 512 * 3 + 3212 + pos ) * 3 );
-			writeMBits( 256 + 512 * 3 + 3212 + pos );
+			mpos = HTDC + li8( 256 + 512 * 3 + 3212 + pos ) * 3;
+			writeBits( li8( mpos ), li16( mpos + 1 ) );
+			mpos = 256 + 512 * 3 + 3212 + pos;
+			writeBits( li8( mpos ), li16( mpos + 1 ) );
 		}
 		
 		// Encode ACs
@@ -398,19 +401,22 @@ internal final class JPEGEncoder$ {
 					lng = nrzeroes >> 4;
 					nrmarker = 1;
 					while ( nrmarker <= lng ) {
-						writeMBits( HTAC + 0xF0 * 3 );
+						mpos = HTAC + 0xF0 * 3;
+						writeBits( li8( mpos ), li16( mpos + 1 ) );
 						++nrmarker;
 					}
 					nrzeroes &= 0xF;
 				}
 				pos = ( 32767 + li32( i << 2 ) ) * 3;
-				writeMBits( HTAC + ( nrzeroes << 4 ) * 3 + li8( 256 + 512 * 3 + 3212 + pos ) * 3 );
-				writeMBits( 256 + 512 * 3 + 3212 + pos );
+				mpos = HTAC + ( nrzeroes << 4 ) * 3 + li8( 256 + 512 * 3 + 3212 + pos ) * 3;
+				writeBits( li8( mpos ), li16( mpos + 1 ) );
+				mpos = 256 + 512 * 3 + 3212 + pos;
+				writeBits( li8( mpos ), li16( mpos + 1 ) );
 				i++;
 			}
 		}
 		if ( end0pos != 63 ) {
-			writeMBits( HTAC );
+			writeBits( li8( HTAC ), li16( HTAC + 1 ) );
 		}
 		return DC;
 	}
@@ -563,13 +569,6 @@ internal final class JPEGEncoder$ {
 			);
 		} while ( ++i < 64 );
 		
-	}
-	
-	/**
-	 * @private
-	 */
-	private static function writeMBits(addres:uint):void {
-		writeBits( li8( addres ), li16( addres + 1 ) );
 	}
 	
 	private static function writeBits(len:int, val:int):void {
