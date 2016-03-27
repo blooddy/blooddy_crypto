@@ -5,14 +5,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package by.blooddy.crypto.image {
-
+	
 	import flash.display.BitmapData;
 	import flash.display.JPEGEncoderOptions;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
 	import flash.utils.getQualifiedClassName;
-
+	
 	/**
 	 * Encodes image data using
 	 * <a href="http://www.w3.org/Graphics/JPEG/itu-t81.pdf">JPEG</a> compression method.
@@ -23,7 +23,7 @@ package by.blooddy.crypto.image {
 	 * @langversion				3.0
 	 */
 	public final class JPEGEncoder {
-
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Class variables
@@ -40,7 +40,7 @@ package by.blooddy.crypto.image {
 		//  Class methods
 		//
 		//--------------------------------------------------------------------------
-
+		
 		/**
 		 * Creates a JPEG image from the specified <code>BitmapData</code>.
 		 * 
@@ -55,10 +55,10 @@ package by.blooddy.crypto.image {
 		 * @see					flash.display.JPEGEncoderOptions
 		 */
 		public static function encode(image:BitmapData, quality:uint=60):ByteArray {
-
+			
 			if ( image == null ) Error.throwError( TypeError, 2007, 'image' );
 			if ( quality > 100 ) Error.throwError( RangeError, 2006, 'quality' );
-
+			
 			if ( _NATIVE ) {
 				return image.encode( image.rect, new JPEGEncoderOptions( quality ) );
 			} else {
@@ -66,7 +66,7 @@ package by.blooddy.crypto.image {
 			}
 			
 		}
-
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Private class methods
@@ -78,42 +78,43 @@ package by.blooddy.crypto.image {
 		 */
 		private static function $encode(image:BitmapData, quality:uint):ByteArray {
 			
-			// Create JPEG tables
-
-			var table:ByteArray = JPEGTable$.getTable( quality );
+			// Create tables
+			
+			var quantTable:ByteArray = JPEGTable$.getQuantTable( quality );
+			var jpegTable:ByteArray = JPEGTable$.getJPEGTable();
 			
 			// Create JPEG data
-
+			
 			var result:ByteArray = new ByteArray();
 			result.endian = Endian.BIG_ENDIAN;
 			
 			result.writeShort( 0xFFD8 ); // SOI
 			
 			writeAPP0( result );
-
+			
 			//writeAPP1( result, 'by.blooddy.crypto.image.JPEGEncoder' );
-
-			writeDQT( result, table );
-
+			
+			writeDQT( result, quantTable );
+			
 			writeSOF0( result, image.width, image.height );
-
-			writeDHT( result, table );
-
+			
+			writeDHT( result, jpegTable );
+			
 			writeSOS( result );
-
-			result.writeBytes( JPEGEncoder$.encode( image, table ) );
+			
+			result.writeBytes( JPEGEncoder$.encode( image, quantTable, jpegTable ) );
 			
 			result.writeShort( 0xFFD9 ); // EOI
 			
 			return result;
 			
 		}
-
+		
 		/**
 		 * @private
 		 */
 		private static function writeAPP0(mem:ByteArray):void {
-
+			
 			mem.writeShort(			0xFFE0		);	// marker
 			mem.writeShort(			0x0010		);	// length
 			mem.writeUnsignedInt(	0x4A464946	);	// JFIF
@@ -122,14 +123,14 @@ package by.blooddy.crypto.image {
 			mem.writeByte(			0x00		);	// xyunits
 			mem.writeUnsignedInt(	0x00010001	);	// density
 			mem.writeShort(			0x0000		);	// thumbn
-
+			
 		}
 		
 		/**
 		 * @private
 		 */
 		private static function writeAPP1(mem:ByteArray, text:String):void {
-
+			
 			mem.writeShort(			0xFFE1		);	// marker
 			mem.writeShort(			0x0046		);	// length
 			
@@ -156,7 +157,7 @@ package by.blooddy.crypto.image {
 		 * @private
 		 */
 		private static function writeDQT(mem:ByteArray, table:ByteArray):void {
-
+			
 			mem.writeShort(			0xFFDB		);	// marker
 			mem.writeShort(			0x0084		);	// length
 			
@@ -166,14 +167,14 @@ package by.blooddy.crypto.image {
 			
 			mem[ p +   0 ] =		0x00;
 			mem[ p +  65 ] =		0x01;
-
+			
 		}
 		
 		/**
 		 * @private
 		 */
 		private static function writeSOF0(mem:ByteArray, width:int, height:int):void {
-
+			
 			mem.writeShort(			0xFFC0		);	// marker
 			mem.writeShort(			0x0011		);	// length, truecolor YUV JPG
 			mem.writeByte(			0x08		);	// precision
@@ -189,33 +190,33 @@ package by.blooddy.crypto.image {
 			mem.writeByte(			0x03		);	// IdV
 			mem.writeByte(			0x11		);	// HVV
 			mem.writeByte(			0x01		);	// QTV
-
+			
 		}
 		
 		/**
 		 * @private
 		 */
 		private static function writeDHT(mem:ByteArray, table:ByteArray):void {
-
+			
 			mem.writeShort(			0xFFC4		);	// marker
 			mem.writeShort(			0x01A2		);	// length
 			
 			var p:uint = mem.position;
-
-			mem.writeBytes( 		table, 1218, 416 );
+			
+			mem.writeBytes( 		table, 64, 416 );
 			
 			mem[ p +   0 ] =		0x00;		// HTYDCinfo
 			mem[ p +  29 ] =		0x10;		// HTYACinfo
 			mem[ p + 208 ] =		0x01;		// HTUDCinfo
 			mem[ p + 237 ] =		0x11;		// HTUACinfo
-
+			
 		}
-
+		
 		/**
 		 * @private
 		 */
 		private static function writeSOS(mem:ByteArray):void {
-
+			
 			mem.writeShort(			0xFFDA		);	// marker
 			mem.writeShort(			0x000C		);	// length
 			mem.writeByte(			0x03		);	// nrofcomponents
@@ -224,7 +225,7 @@ package by.blooddy.crypto.image {
 			mem.writeShort(			0x0311		);	// IdV, HTV
 			mem.writeShort(			0x003F		);	// Ss, Se
 			mem.writeByte(			0x00		);	// Bf
-
+			
 		}
 		
 		//--------------------------------------------------------------------------
@@ -242,7 +243,7 @@ package by.blooddy.crypto.image {
 		}
 		
 	}
-
+	
 }
 
 import flash.display.BitmapData;
@@ -262,14 +263,14 @@ import avm2.intrinsics.memory.si8;
  * @private
  */
 internal final class JPEGEncoder$ {
-
+	
 	//--------------------------------------------------------------------------
 	//
 	//  Encode
 	//
 	//--------------------------------------------------------------------------
 	
-	internal static function encode(image:BitmapData, table:ByteArray):ByteArray {
+	internal static function encode(image:BitmapData, quantTable:ByteArray, jpegTable:ByteArray):ByteArray {
 		
 		var width:int = image.width;
 		var height:int = image.height;
@@ -278,13 +279,14 @@ internal final class JPEGEncoder$ {
 		
 		var mem:ByteArray = new ByteArray();
 		mem.position = 256 + 512 * 3;
-		mem.writeBytes( table );
+		mem.writeBytes( quantTable );
+		mem.writeBytes( jpegTable );
 		mem.length += width * height * 3;
-
+		
 		if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
-
+		
 		_DOMAIN.domainMemory = mem;
-
+		
 		_BYTE_OUT = 256 + 512 * 3 + 199817;
 		_BYTE_POS = 7;
 		_BYTE_NEW = 0;
@@ -301,13 +303,13 @@ internal final class JPEGEncoder$ {
 		do {
 			x = 0;
 			do {
-
+				
 				rgb2yuv( image, x, y );
 				
 				DCY = processDU( 256 + 512 * 0, 256 + 512 * 3 + 130, DCY, 256 + 512 * 3 + 1218 + 416,  256 + 512 * 3 + 1218 + 452  );
 				DCU = processDU( 256 + 512 * 1, 256 + 512 * 3 + 642, DCU, 256 + 512 * 3 + 1218 + 1205, 256 + 512 * 3 + 1218 + 1241 );
 				DCV = processDU( 256 + 512 * 2, 256 + 512 * 3 + 642, DCV, 256 + 512 * 3 + 1218 + 1205, 256 + 512 * 3 + 1218 + 1241 );
-
+				
 				x += 8;
 			} while ( x < width );
 			y += 8;
@@ -325,9 +327,9 @@ internal final class JPEGEncoder$ {
 		mem.length = _BYTE_OUT - 256 + 512 * 3 + 199817;
 		
 		return mem;
-
+		
 	}
-
+	
 	//--------------------------------------------------------------------------
 	//  encode main methods
 	//--------------------------------------------------------------------------
@@ -337,7 +339,7 @@ internal final class JPEGEncoder$ {
 	private static var _BYTE_OUT:int = 0;
 	private static var _BYTE_POS:int = 0;
 	private static var _BYTE_NEW:int = 0;
-
+	
 	private static function rgb2yuv(image:BitmapData, _x:int, _y:int):void {
 		
 		var pos:int = 0;
@@ -497,7 +499,7 @@ internal final class JPEGEncoder$ {
 			sf64( z11 - z4, data + dataOff + 7 * 8 );
 			
 			dataOff += 64; // advance pointer to next row
-
+			
 		} while ( dataOff < 512 );
 		
 		// Pass 2: process columns.
@@ -618,45 +620,14 @@ internal final class JPEGEncoder$ {
 internal final class JPEGTable$ {
 	
 	//--------------------------------------------------------------------------
-	//
-	//  Table
-	//
-	//--------------------------------------------------------------------------
-	
-	/**
-	 * <table>
-	 *	<tr><th>     0</th><td>QuantTable				</td><td>			</td></tr>
-	 *	<tr><th>  1154</th><td>ZigZag					</td><td>			</td></tr>
-	 *	<tr><th>  1218</th><td>HuffmanTable				</td><td>			</td></tr>
-	 *	<tr><th>  3212</th><td>CategoryTable			</td><td>			</td></tr>
-	 *	<tr><th>199817</th><td>							</td><td>			</td></tr>
-	 * </table>
-	 * 
-	 * @see	#createQuantTable()
-	 * @see	#createZigZagTable()
-	 * @see	#createHuffmanTable()
-	 * @see	#createCategoryTable()
-	 */
-	internal static function getTable(quality:uint):ByteArray {
-		
-		var result:ByteArray = new ByteArray();
-		result.writeBytes( getQuantTable( quality ) );
-		result.writeBytes( getJPEGTable() );
-		result.position = 0;
-
-		return result;
-
-	}
-	
-	//--------------------------------------------------------------------------
 	//  variables
 	//--------------------------------------------------------------------------
-
+	
 	/**
 	 * @private
 	 */
 	private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
-
+	
 	//--------------------------------------------------------------------------
 	//  quant table
 	//--------------------------------------------------------------------------
@@ -665,7 +636,7 @@ internal final class JPEGTable$ {
 	 * @see	#createQuantTable()
 	 */
 	private static const _QUANTS:Vector.<ByteArray> = new Vector.<ByteArray>( 100, true );
-
+	
 	/**
 	 * <table>
 	 *	<tr><th>   0</th><td>0							</td><td>[1]{1}		</td></tr>
@@ -888,7 +859,7 @@ internal final class JPEGTable$ {
 		return mem;
 		
 	}
-
+	
 	/**
 	 * <table>
 	 *	<tr><th>     0</th><td>cat						</td><td>[1,2]{65534}	</td></tr>
@@ -896,12 +867,12 @@ internal final class JPEGTable$ {
 	 * </table>
 	 */
 	private static function createCategoryTable():ByteArray {
-
+		
 		var tmp:ByteArray = _DOMAIN.domainMemory;
 		
 		var mem:ByteArray = new ByteArray();
 		mem.length = Math.max( 0xFFFF * 3, ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH );
-
+		
 		_DOMAIN.domainMemory = mem;
 		
 		var low:int = 1;
@@ -939,9 +910,9 @@ internal final class JPEGTable$ {
 		_DOMAIN.domainMemory = tmp;
 		
 		return mem;
-
+		
 	}
-
+	
 	/**
 	 * @private
 	 */
@@ -976,7 +947,7 @@ internal final class JPEGTable$ {
 			codeValue <<= 1;
 			
 		} while ( ++i <= 16 );
-
+		
 	}
 	
 }
