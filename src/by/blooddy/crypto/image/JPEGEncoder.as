@@ -360,22 +360,169 @@ internal final class JPEGEncoder$ {
 		
 	}
 	
-	private static function processDU(CDU:uint, fdtbl:uint, DC:int, HTDC:uint, HTAC:uint):int {
+	private static function processDU(CDU:int, fdtbl:int, DC:int, HTDC:int, HTAC:int):int {
 		
-		fDCTQuant( CDU, fdtbl ); // DCT & quantization core
+		// DCT & quantization core
+		var dataOff:int;
+		var d0:Number, d1:Number, d2:Number, d3:Number, d4:Number, d5:Number, d6:Number, d7:Number;
+		var tmp0:Number, tmp1:Number, tmp2:Number, tmp3:Number, tmp4:Number, tmp5:Number, tmp6:Number, tmp7:Number;
+		var tmp10:Number, tmp11:Number, tmp12:Number, tmp13:Number;
+		var z1:Number, z2:Number, z3:Number, z4:Number, z5:Number;
+		var z11:Number, z13:Number;
 		
-		var DU0:int = li32( 0 );
-		var diff:int = DU0 - DC;
-		DC = DU0;
+		/* Pass 1: process rows. */
+		dataOff = 0;
+		do {
+			
+			d0 = lf64( CDU + dataOff + 0 * 8 );
+			d1 = lf64( CDU + dataOff + 1 * 8 );
+			d2 = lf64( CDU + dataOff + 2 * 8 );
+			d3 = lf64( CDU + dataOff + 3 * 8 );
+			d4 = lf64( CDU + dataOff + 4 * 8 );
+			d5 = lf64( CDU + dataOff + 5 * 8 );
+			d6 = lf64( CDU + dataOff + 6 * 8 );
+			d7 = lf64( CDU + dataOff + 7 * 8 );
+			
+			tmp0 = d0 + d7;
+			tmp7 = d0 - d7;
+			tmp1 = d1 + d6;
+			tmp6 = d1 - d6;
+			tmp2 = d2 + d5;
+			tmp5 = d2 - d5;
+			tmp3 = d3 + d4;
+			tmp4 = d3 - d4;
+			
+			// Even part
+			// phase 2
+			tmp10 = tmp0 + tmp3;
+			tmp13 = tmp0 - tmp3;
+			tmp11 = tmp1 + tmp2;
+			tmp12 = tmp1 - tmp2;
+			
+			// phase 3
+			sf64( tmp10 + tmp11, CDU + dataOff + 0 * 8 );
+			sf64( tmp10 - tmp11, CDU + dataOff + 4 * 8 );
+			
+			// phase 5
+			z1 = ( tmp12 + tmp13 ) * 0.707106781;	// c4
+			sf64( tmp13 + z1, CDU + dataOff + 2 * 8 );
+			sf64( tmp13 - z1, CDU + dataOff + 6 * 8 );
+			
+			// Odd part
+			// phase 2
+			tmp10 = tmp4 + tmp5;
+			tmp11 = tmp5 + tmp6;
+			tmp12 = tmp6 + tmp7;
+			
+			// The rotator is modified from fig 4-8 to avoid extra negations.
+			z5 = ( tmp10 - tmp12 ) * 0.382683433;	// c6
+			z2 = 0.541196100 * tmp10 + z5;			// c2-c6
+			z4 = 1.306562965 * tmp12 + z5;			// c2+c6
+			z3 = tmp11 * 0.707106781;				// c4
+			
+			//phase 5
+			z11 = tmp7 + z3;
+			z13 = tmp7 - z3;
+			
+			// phase 6
+			sf64( z13 + z2, CDU + dataOff + 5 * 8 );
+			sf64( z13 - z2, CDU + dataOff + 3 * 8 );
+			sf64( z11 + z4, CDU + dataOff + 1 * 8 );
+			sf64( z11 - z4, CDU + dataOff + 7 * 8 );
+			
+			dataOff += 64; // advance pointer to next row
+			
+		} while ( dataOff < 512 );
+		
+		// Pass 2: process columns.
+		dataOff = 0;
+		do {
+			
+			d0 = lf64( CDU + dataOff +  0 * 8 );
+			d1 = lf64( CDU + dataOff +  8 * 8 );
+			d2 = lf64( CDU + dataOff + 16 * 8 );
+			d3 = lf64( CDU + dataOff + 24 * 8 );
+			d4 = lf64( CDU + dataOff + 32 * 8 );
+			d5 = lf64( CDU + dataOff + 40 * 8 );
+			d6 = lf64( CDU + dataOff + 48 * 8 );
+			d7 = lf64( CDU + dataOff + 56 * 8 );
+			
+			tmp0 = d0 + d7;
+			tmp7 = d0 - d7;
+			tmp1 = d1 + d6;
+			tmp6 = d1 - d6;
+			tmp2 = d2 + d5;
+			tmp5 = d2 - d5;
+			tmp3 = d3 + d4;
+			tmp4 = d3 - d4;
+			
+			// Even part
+			// phase 2
+			tmp10 = tmp0 + tmp3;
+			tmp13 = tmp0 - tmp3;
+			tmp11 = tmp1 + tmp2;
+			tmp12 = tmp1 - tmp2;
+			
+			// phase 3
+			sf64( tmp10 + tmp11, CDU + dataOff +  0 * 8 );
+			sf64( tmp10 - tmp11, CDU + dataOff + 32 * 8 );
+			
+			// phase 5
+			z1 = ( tmp12 + tmp13 ) * 0.707106781;	// c4
+			sf64( tmp13 + z1, CDU + dataOff + 16 * 8 );
+			sf64( tmp13 - z1, CDU + dataOff + 48 * 8 );
+			
+			// Odd part
+			// phase 2
+			tmp10 = tmp4 + tmp5;
+			tmp11 = tmp5 + tmp6;
+			tmp12 = tmp6 + tmp7;
+			
+			// The rotator is modified from fig 4-8 to avoid extra negations.
+			z5 = ( tmp10 - tmp12 ) * 0.382683433;	// c6
+			z2 = 0.541196100 * tmp10 + z5;			// c2-c6
+			z4 = 1.306562965 * tmp12 + z5;			// c2+c6
+			z3 = tmp11 * 0.707106781;				// c4
+			
+			// phase 5
+			z11 = tmp7 + z3;
+			z13 = tmp7 - z3;
+			
+			// phase 6
+			sf64( z13 + z2, CDU + dataOff + 40 * 8 );
+			sf64( z13 - z2, CDU + dataOff + 24 * 8 );
+			sf64( z11 + z4, CDU + dataOff +  8 * 8 );
+			sf64( z11 - z4, CDU + dataOff + 56 * 8 );
+			
+			dataOff += 8; // advance pointer to next column
+		} while ( dataOff < 64 );
+		
+		// Quantize/descale the coefficients
+		var fDCTQuant:Number;
+		var i:int = 0;
+		do {
+			// Apply the quantization and scaling factor & Round to nearest integer
+			fDCTQuant = lf64( CDU + ( i << 3 ) ) * lf64( fdtbl + ( i << 3 ) );
+			si32(
+				fDCTQuant + ( fDCTQuant > 0.0 ? 0.5 : - 0.5 ),
+				li8( 256 + 512 * 3 + 1154 + i ) << 2 // ZigZag reorder
+			);
+		} while ( ++i < 64 );
+
+		// processDU
+		
+		CDU = li32( 0 );
+		dataOff = CDU - DC;
+		DC = CDU;
 		
 		var pos:int;
 		var mpos:int;
 		
 		// Encode DC
-		if ( diff == 0 ) {
+		if ( dataOff == 0 ) {
 			writeBits( li8( HTDC ), li16( HTDC + 1 ) ); // Diff might be 0
 		} else {
-			pos = ( 32767 + diff ) * 3;
+			pos = ( 32767 + dataOff ) * 3;
 			mpos = HTDC + li8( 256 + 512 * 3 + 3212 + pos ) * 3;
 			writeBits( li8( mpos ), li16( mpos + 1 ) );
 			mpos = 256 + 512 * 3 + 3212 + pos;
@@ -388,11 +535,13 @@ internal final class JPEGEncoder$ {
 		
 		// end0pos = first element in reverse order !=0
 		if ( end0pos != 0 ) {
-			var i:int = 1;
+
 			var lng:int;
 			var startpos:int;
 			var nrzeroes:int;
 			var nrmarker:int;
+
+			i = 1;
 			while ( i <= end0pos ) {
 				startpos = i;
 				while ( i <= end0pos && li32( i << 2 ) == 0 ) ++i;
@@ -412,163 +561,17 @@ internal final class JPEGEncoder$ {
 				writeBits( li8( mpos ), li16( mpos + 1 ) );
 				mpos = 256 + 512 * 3 + 3212 + pos;
 				writeBits( li8( mpos ), li16( mpos + 1 ) );
-				i++;
+				++i;
 			}
+
 		}
+		
 		if ( end0pos != 63 ) {
 			writeBits( li8( HTAC ), li16( HTAC + 1 ) );
 		}
-		return DC;
-	}
 	
-	private static function fDCTQuant(data:uint, fdtbl:uint):void {
-		
-		var dataOff:int;
-		var d0:Number, d1:Number, d2:Number, d3:Number, d4:Number, d5:Number, d6:Number, d7:Number;
-		var tmp0:Number, tmp1:Number, tmp2:Number, tmp3:Number, tmp4:Number, tmp5:Number, tmp6:Number, tmp7:Number;
-		var tmp10:Number, tmp11:Number, tmp12:Number, tmp13:Number;
-		var z1:Number, z2:Number, z3:Number, z4:Number, z5:Number;
-		var z11:Number, z13:Number;
-		
-		/* Pass 1: process rows. */
-		dataOff = 0;
-		do {
-			
-			d0 = lf64( data + dataOff + 0 * 8 );
-			d1 = lf64( data + dataOff + 1 * 8 );
-			d2 = lf64( data + dataOff + 2 * 8 );
-			d3 = lf64( data + dataOff + 3 * 8 );
-			d4 = lf64( data + dataOff + 4 * 8 );
-			d5 = lf64( data + dataOff + 5 * 8 );
-			d6 = lf64( data + dataOff + 6 * 8 );
-			d7 = lf64( data + dataOff + 7 * 8 );
-			
-			tmp0 = d0 + d7;
-			tmp7 = d0 - d7;
-			tmp1 = d1 + d6;
-			tmp6 = d1 - d6;
-			tmp2 = d2 + d5;
-			tmp5 = d2 - d5;
-			tmp3 = d3 + d4;
-			tmp4 = d3 - d4;
-			
-			// Even part
-			// phase 2
-			tmp10 = tmp0 + tmp3;
-			tmp13 = tmp0 - tmp3;
-			tmp11 = tmp1 + tmp2;
-			tmp12 = tmp1 - tmp2;
-			
-			// phase 3
-			sf64( tmp10 + tmp11, data + dataOff + 0 * 8 );
-			sf64( tmp10 - tmp11, data + dataOff + 4 * 8 );
-			
-			// phase 5
-			z1 = ( tmp12 + tmp13 ) * 0.707106781;	// c4
-			sf64( tmp13 + z1, data + dataOff + 2 * 8 );
-			sf64( tmp13 - z1, data + dataOff + 6 * 8 );
-			
-			// Odd part
-			// phase 2
-			tmp10 = tmp4 + tmp5;
-			tmp11 = tmp5 + tmp6;
-			tmp12 = tmp6 + tmp7;
-			
-			// The rotator is modified from fig 4-8 to avoid extra negations.
-			z5 = ( tmp10 - tmp12 ) * 0.382683433;	// c6
-			z2 = 0.541196100 * tmp10 + z5;			// c2-c6
-			z4 = 1.306562965 * tmp12 + z5;			// c2+c6
-			z3 = tmp11 * 0.707106781;				// c4
-			
-			//phase 5
-			z11 = tmp7 + z3;
-			z13 = tmp7 - z3;
-			
-			// phase 6
-			sf64( z13 + z2, data + dataOff + 5 * 8 );
-			sf64( z13 - z2, data + dataOff + 3 * 8 );
-			sf64( z11 + z4, data + dataOff + 1 * 8 );
-			sf64( z11 - z4, data + dataOff + 7 * 8 );
-			
-			dataOff += 64; // advance pointer to next row
-			
-		} while ( dataOff < 512 );
-		
-		// Pass 2: process columns.
-		dataOff = 0;
-		do {
-			
-			d0 = lf64( data + dataOff +  0 * 8 );
-			d1 = lf64( data + dataOff +  8 * 8 );
-			d2 = lf64( data + dataOff + 16 * 8 );
-			d3 = lf64( data + dataOff + 24 * 8 );
-			d4 = lf64( data + dataOff + 32 * 8 );
-			d5 = lf64( data + dataOff + 40 * 8 );
-			d6 = lf64( data + dataOff + 48 * 8 );
-			d7 = lf64( data + dataOff + 56 * 8 );
-			
-			tmp0 = d0 + d7;
-			tmp7 = d0 - d7;
-			tmp1 = d1 + d6;
-			tmp6 = d1 - d6;
-			tmp2 = d2 + d5;
-			tmp5 = d2 - d5;
-			tmp3 = d3 + d4;
-			tmp4 = d3 - d4;
-			
-			// Even part
-			// phase 2
-			tmp10 = tmp0 + tmp3;
-			tmp13 = tmp0 - tmp3;
-			tmp11 = tmp1 + tmp2;
-			tmp12 = tmp1 - tmp2;
-			
-			// phase 3
-			sf64( tmp10 + tmp11, data + dataOff +  0 * 8 );
-			sf64( tmp10 - tmp11, data + dataOff + 32 * 8 );
-			
-			// phase 5
-			z1 = ( tmp12 + tmp13 ) * 0.707106781;	// c4
-			sf64( tmp13 + z1, data + dataOff + 16 * 8 );
-			sf64( tmp13 - z1, data + dataOff + 48 * 8 );
-			
-			// Odd part
-			// phase 2
-			tmp10 = tmp4 + tmp5;
-			tmp11 = tmp5 + tmp6;
-			tmp12 = tmp6 + tmp7;
-			
-			// The rotator is modified from fig 4-8 to avoid extra negations.
-			z5 = ( tmp10 - tmp12 ) * 0.382683433;	// c6
-			z2 = 0.541196100 * tmp10 + z5;			// c2-c6
-			z4 = 1.306562965 * tmp12 + z5;			// c2+c6
-			z3 = tmp11 * 0.707106781;				// c4
-			
-			// phase 5
-			z11 = tmp7 + z3;
-			z13 = tmp7 - z3;
-			
-			// phase 6
-			sf64( z13 + z2, data + dataOff + 40 * 8 );
-			sf64( z13 - z2, data + dataOff + 24 * 8 );
-			sf64( z11 + z4, data + dataOff +  8 * 8 );
-			sf64( z11 - z4, data + dataOff + 56 * 8 );
-			
-			dataOff += 8; // advance pointer to next column
-		} while ( dataOff < 64 );
-		
-		// Quantize/descale the coefficients
-		var fDCTQuant:Number;
-		var i:int = 0;
-		do {
-			// Apply the quantization and scaling factor & Round to nearest integer
-			fDCTQuant = lf64( data + ( i << 3 ) ) * lf64( fdtbl + ( i << 3 ) );
-			si32(
-				fDCTQuant + ( fDCTQuant > 0.0 ? 0.5 : - 0.5 ),
-				li8( 256 + 512 * 3 + 1154 + i ) << 2 // ZigZag reorder
-			);
-		} while ( ++i < 64 );
-		
+		return DC;
+
 	}
 	
 	private static function writeBits(len:int, val:int):void {
