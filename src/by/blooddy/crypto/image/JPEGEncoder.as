@@ -282,15 +282,58 @@ internal final class JPEGEncoder$ {
 		var DCU:int = 0;
 		var DCV:int = 0;
 		
-		var x:int;
-		var y:int;
+		var x:int = 0;
+		var y:int = 0;
+		
+		var pos:int = 0;
+		
+		var xi:int = 0;
+		var yi:int = 0;
+		
+		var xm:int = 0;
+		var ym:int = 0;
+		
+		var c:int = 0;
+		var r:int = 0;
+		var g:int = 0;
+		var b:int = 0;
 		
 		y = 0;
 		do {
 			x = 0;
 			do {
 				
-				rgb2yuv( image, x, y );
+				// RGB to YUV
+
+				pos = 0;
+				
+				xi = x;
+				yi = y;
+				
+				xm = x + 8;
+				ym = y + 8;
+				
+				yi = y;
+				do {
+					xi = x;
+					do {
+						
+						c = image.getPixel( xi, yi );
+						
+						r =   c >>> 16         ;
+						g = ( c >>   8 ) & 0xFF;
+						b =   c          & 0xFF;
+						
+						sf64(   0.29900 * r + 0.58700 * g + 0.11400 * b - 0x80, 256 + 512 * 0 + pos ); // YDU
+						sf64( - 0.16874 * r - 0.33126 * g + 0.50000 * b       , 256 + 512 * 1 + pos ); // UDU
+						sf64(   0.50000 * r - 0.41869 * g - 0.08131 * b       , 256 + 512 * 2 + pos ); // VDU
+						
+						pos += 8;
+						
+					} while ( ++xi < xm );
+				} while ( ++yi < ym );
+
+				// processDU
 				
 				DCY = processDU( 256 + 512 * 0, 256 + 512 * 3 + 130, DCY, 256 + 512 * 3 + 1218 + 416,  256 + 512 * 3 + 1218 + 452  );
 				DCU = processDU( 256 + 512 * 1, 256 + 512 * 3 + 642, DCU, 256 + 512 * 3 + 1218 + 1205, 256 + 512 * 3 + 1218 + 1241 );
@@ -325,40 +368,6 @@ internal final class JPEGEncoder$ {
 	private static var _BYTE_OUT:int = 0;
 	private static var _BYTE_POS:int = 0;
 	private static var _BYTE_NEW:int = 0;
-	
-	private static function rgb2yuv(image:BitmapData, _x:int, _y:int):void {
-		
-		var pos:int = 0;
-		
-		var xm:int = _x + 8;
-		var ym:int = _y + 8;
-		
-		var c:int;
-		var r:int;
-		var g:int;
-		var b:int;
-		
-		do {
-			do {
-				
-				c = image.getPixel( _x, _y );
-				
-				r =   c >>> 16         ;
-				g = ( c >>   8 ) & 0xFF;
-				b =   c          & 0xFF;
-				
-				sf64(   0.29900 * r + 0.58700 * g + 0.11400 * b - 0x80, 256 + 512 * 0 + pos ); // YDU
-				sf64( - 0.16874 * r - 0.33126 * g + 0.50000 * b       , 256 + 512 * 1 + pos ); // UDU
-				sf64(   0.50000 * r - 0.41869 * g - 0.08131 * b       , 256 + 512 * 2 + pos ); // VDU
-				
-				pos += 8;
-				
-			} while ( ++_x < xm );
-			_x -= 8;
-		} while ( ++_y < ym );
-		_y -= 8;
-		
-	}
 	
 	private static function processDU(CDU:int, fdtbl:int, DC:int, HTDC:int, HTAC:int):int {
 		
