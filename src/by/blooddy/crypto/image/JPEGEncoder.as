@@ -78,16 +78,16 @@ package by.blooddy.crypto.image {
 		 */
 		private static function $encode(image:BitmapData, quality:uint):ByteArray {
 			
-			var result:ByteArray = new ByteArray();
-			result.endian = Endian.LITTLE_ENDIAN;
-			
 			// Create JPEG tables
 
 			var table:ByteArray = JPEGTable$.getTable( quality );
 			
-			// Write JPEG data
+			// Create JPEG data
+
+			var result:ByteArray = new ByteArray();
+			result.endian = Endian.BIG_ENDIAN;
 			
-			result.writeShort( 0xD8FF ); // SOI
+			result.writeShort( 0xFFD8 ); // SOI
 			
 			writeAPP0( result );
 
@@ -103,7 +103,7 @@ package by.blooddy.crypto.image {
 
 			result.writeBytes( JPEGEncoder$.encode( image, table ) );
 			
-			result.writeShort( 0xD9FF ); // EOI
+			result.writeShort( 0xFFD9 ); // EOI
 			
 			return result;
 			
@@ -114,13 +114,13 @@ package by.blooddy.crypto.image {
 		 */
 		private static function writeAPP0(mem:ByteArray):void {
 
-			mem.writeShort(			0xE0FF		);	// marker
-			mem.writeShort(			0x1000		);	// length
-			mem.writeUnsignedInt(	0x4649464A	);	// JFIF
+			mem.writeShort(			0xFFE0		);	// marker
+			mem.writeShort(			0x0010		);	// length
+			mem.writeUnsignedInt(	0x4A464946	);	// JFIF
 			mem.writeByte(			0x00		);	//
 			mem.writeShort(			0x0101		);	// version
 			mem.writeByte(			0x00		);	// xyunits
-			mem.writeUnsignedInt(	0x01000100	);	// density
+			mem.writeUnsignedInt(	0x00010001	);	// density
 			mem.writeShort(			0x0000		);	// thumbn
 
 		}
@@ -130,20 +130,20 @@ package by.blooddy.crypto.image {
 		 */
 		private static function writeAPP1(mem:ByteArray, text:String):void {
 
-			mem.writeShort(			0xE1FF		);	// marker
-			mem.writeShort(			0x4600		);	// length
+			mem.writeShort(			0xFFE1		);	// marker
+			mem.writeShort(			0x0046		);	// length
 			
-			mem.writeUnsignedInt(	0x66697845	);	// Exif
+			mem.writeUnsignedInt(	0x45786966	);	// Exif
 			mem.writeShort(			0x0000		);	//
-			mem.writeInt(			0x002A4949	);	// TIFF Header
-			mem.writeInt(			0x00000008	);	//
+			mem.writeInt(			0x49492A00	);	// TIFF Header
+			mem.writeInt(			0x08000000	);	//
 			
-			mem.writeShort(			0x0001		);
+			mem.writeShort(			0x0100		);
 			
-			mem.writeShort(			0x0131		);	// tag
-			mem.writeShort(			0x0002		);	// type
-			mem.writeInt(			0x00000023	);	// count
-			mem.writeInt(			0x0000001A	);	// value offset
+			mem.writeShort(			0x3101		);	// tag
+			mem.writeShort(			0x0200		);	// type
+			mem.writeInt(			0x23000000	);	// count
+			mem.writeInt(			0x1A000000	);	// value offset
 			mem.writeInt(			0x00000000	);	//
 			
 			mem.writeMultiByte(		text, 'x-ascii' ); // length=35
@@ -157,8 +157,8 @@ package by.blooddy.crypto.image {
 		 */
 		private static function writeDQT(mem:ByteArray, table:ByteArray):void {
 
-			mem.writeShort(			0xDBFF		);	// marker
-			mem.writeShort(			0x8400		);	// length
+			mem.writeShort(			0xFFDB		);	// marker
+			mem.writeShort(			0x0084		);	// length
 			
 			var p:uint = mem.position;
 			
@@ -174,17 +174,11 @@ package by.blooddy.crypto.image {
 		 */
 		private static function writeSOF0(mem:ByteArray, width:int, height:int):void {
 
-			mem.writeShort(			0xC0FF		);	// marker
-			mem.writeShort(			0x1100		);	// length, truecolor YUV JPG
+			mem.writeShort(			0xFFC0		);	// marker
+			mem.writeShort(			0x0011		);	// length, truecolor YUV JPG
 			mem.writeByte(			0x08		);	// precision
-			mem.writeShort(							// height
-				( ( ( height >> 8 ) & 0xFF )      ) |
-				( ( ( height      ) & 0xFF ) << 8 )
-			);
-			mem.writeShort(							// width
-				( ( ( width >> 8  ) & 0xFF )      ) |
-				( ( ( width       ) & 0xFF ) << 8 )
-			);
+			mem.writeShort(			height		);	// height
+			mem.writeShort(			width		);	// width
 			mem.writeByte(			0x03		);	// nrofcomponents
 			mem.writeByte(			0x01		);	// IdY
 			mem.writeByte(			0x11		);	// HVY
@@ -203,8 +197,8 @@ package by.blooddy.crypto.image {
 		 */
 		private static function writeDHT(mem:ByteArray, table:ByteArray):void {
 
-			mem.writeShort(			0xC4FF		);	// marker
-			mem.writeShort(			0xA201		);	// length
+			mem.writeShort(			0xFFC4		);	// marker
+			mem.writeShort(			0x01A2		);	// length
 			
 			var p:uint = mem.position;
 
@@ -222,13 +216,13 @@ package by.blooddy.crypto.image {
 		 */
 		private static function writeSOS(mem:ByteArray):void {
 
-			mem.writeShort(			0xDAFF		);	// marker
-			mem.writeShort(			0x0C00		);	// length
+			mem.writeShort(			0xFFDA		);	// marker
+			mem.writeShort(			0x000C		);	// length
 			mem.writeByte(			0x03		);	// nrofcomponents
-			mem.writeShort(			0x0001		);	// IdY, HTY
-			mem.writeShort(			0x1102		);	// IdU, HTU
-			mem.writeShort(			0x1103		);	// IdV, HTV
-			mem.writeShort(			0x3f00		);	// Ss, Se
+			mem.writeShort(			0x0100		);	// IdY, HTY
+			mem.writeShort(			0x0211		);	// IdU, HTU
+			mem.writeShort(			0x0311		);	// IdV, HTV
+			mem.writeShort(			0x003F		);	// Ss, Se
 			mem.writeByte(			0x00		);	// Bf
 
 		}
