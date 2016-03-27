@@ -639,14 +639,9 @@ internal final class JPEGTable$ {
 	 */
 	internal static function getTable(quality:uint):ByteArray {
 		
-		var quants:ByteArray = _QUANTS[ quality ];
-		if ( !quants ) {
-			_QUANTS[ quality ] = quants = createQuantTable( quality );
-		}
-
 		var result:ByteArray = new ByteArray();
-		result.writeBytes( quants );
-		result.writeBytes( _TABLE );
+		result.writeBytes( getQuantTable( quality ) );
+		result.writeBytes( getJPEGTable() );
 		result.position = 0;
 
 		return result;
@@ -654,7 +649,7 @@ internal final class JPEGTable$ {
 	}
 	
 	//--------------------------------------------------------------------------
-	//  table main methods
+	//  variables
 	//--------------------------------------------------------------------------
 
 	/**
@@ -662,25 +657,15 @@ internal final class JPEGTable$ {
 	 */
 	private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
 
+	//--------------------------------------------------------------------------
+	//  quant table
+	//--------------------------------------------------------------------------
+	
 	/**
 	 * @see	#createQuantTable()
 	 */
 	private static const _QUANTS:Vector.<ByteArray> = new Vector.<ByteArray>( 100, true );
 
-	/**
-	 * @see	#createQuantTable()
-	 * @see	#createZigZagTable()
-	 * @see	#createHuffmanTable()
-	 * @see	#createCategoryTable()
-	 */
-	private static const _TABLE:ByteArray = ( function():ByteArray {
-		var table:ByteArray = new ByteArray();
-		table.writeBytes( createZigZagTable() );
-		table.writeBytes( createHuffmanTable() );
-		table.writeBytes( createCategoryTable() );
-		return table;
-	}() );
-	
 	/**
 	 * <table>
 	 *	<tr><th>   0</th><td>0							</td><td>[1]{1}		</td></tr>
@@ -692,89 +677,132 @@ internal final class JPEGTable$ {
 	 * 	<tr><th>1154</th><td>							</td><td>			</td></tr>
 	 * </table>
 	 */
-	private static function createQuantTable(quality:uint):ByteArray {
-
-		var sf:int = ( quality <= 1
-			?	5000
-			:	( quality < 50
-				?	5000 / quality
-				:	200 - ( quality << 1 )
-			)
-		);
+	internal static function getQuantTable(quality:uint):ByteArray {
 		
-		var tmp:ByteArray = _DOMAIN.domainMemory;
-		
-		var mem:ByteArray = new ByteArray();
-		
-		mem.position = 130;
-		// YQT
-		mem.writeUTFBytes( '\x10\x0b\x0a\x10\x18\x28\x33\x3d\x0c\x0c\x0e\x13\x1a\x3a\x3c\x37\x0e\x0d\x10\x18\x28\x39\x45\x38\x0e\x11\x16\x1d\x33\x57\x50\x3e\x12\x16\x25\x38\x44\x6d\x67\x4d\x18\x23\x37\x40\x51\x68\x71\x5c\x31\x40\x4e\x57\x67\x79\x78\x65\x48\x5c\x5f\x62\x70\x64\x67\x63' );
-		// UVQT
-		mem.writeUTFBytes( '\x11\x12\x18\x2f\x63\x63\x63\x63\x12\x15\x1a\x42\x63\x63\x63\x63\x18\x1a\x38\x63\x63\x63\x63\x63\x2f\x42\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63' );
-		
-		// ZigZag
-		mem.position = 1154;
-		mem.writeUTFBytes( '\x00\x01\x05\x06\x0e\x0f\x1b\x1c\x02\x04\x07\x0d\x10\x1a\x1d\x2a\x03\x08\x0c\x11\x19\x1e\x29\x2b\x09\x0b\x12\x18\x1f\x28\x2c\x35\x0a\x13\x17\x20\x27\x2d\x34\x36\x14\x16\x21\x26\x2e\x33\x37\x3c\x15\x22\x25\x2f\x32\x38\x3b\x3d\x23\x24\x30\x31\x39\x3a\x3e\x3f' );
-		
-		mem.length += 64;
-		if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
-
-		_DOMAIN.domainMemory = mem;
-		
-		var i:int;
-		var t:int;
-		
-		// YTable
-		i = 0;
-		do {
-			t = ( li8( 130 + i ) * sf + 50 ) / 100;
-			if ( t < 1 ) t = 1;
-			else if ( t > 255 ) t = 255;
-			si8( t, 1 + li8( 1154 + i ) );
-		} while ( ++i < 64 );
-		
-		// UVTable
-		i = 0;
-		do {
-			t = ( li8( 194 + i ) * sf + 50 ) / 100;
-			if ( t < 1 ) t = 1;
-			else if ( t > 255 ) t = 255;
-			si8( t, 66 + li8( 1154 + i ) );
-		} while ( ++i < 64 );
-		
-		// aasf
-		sf64( 1.000000000, 1154 + 64 + 8 * 0 );
-		sf64( 1.387039845, 1154 + 64 + 8 * 1 );
-		sf64( 1.306562965, 1154 + 64 + 8 * 2 );
-		sf64( 1.175875602, 1154 + 64 + 8 * 3 );
-		sf64( 1.000000000, 1154 + 64 + 8 * 4 );
-		sf64( 0.785694958, 1154 + 64 + 8 * 5 );
-		sf64( 0.541196100, 1154 + 64 + 8 * 6 );
-		sf64( 0.275899379, 1154 + 64 + 8 * 7 );
-		
-		// fdtbl_Y
-		// fdtbl_UV
-		var row:int;
-		var col:int;
-		var n:Number;
-		i = 0;
-		row = 0;
-		do {
-			col = 0;
+		var mem:ByteArray = _QUANTS[ quality ];
+		if ( !mem ) {
+			
+			var sf:int = ( quality <= 1
+				?	5000
+				:	( quality < 50
+					?	5000 / quality
+					:	200 - ( quality << 1 )
+				)
+			);
+			
+			var tmp:ByteArray = _DOMAIN.domainMemory;
+			
+			mem = new ByteArray();
+			
+			mem.position = 130;
+			// YQT
+			mem.writeUTFBytes( '\x10\x0b\x0a\x10\x18\x28\x33\x3d\x0c\x0c\x0e\x13\x1a\x3a\x3c\x37\x0e\x0d\x10\x18\x28\x39\x45\x38\x0e\x11\x16\x1d\x33\x57\x50\x3e\x12\x16\x25\x38\x44\x6d\x67\x4d\x18\x23\x37\x40\x51\x68\x71\x5c\x31\x40\x4e\x57\x67\x79\x78\x65\x48\x5c\x5f\x62\x70\x64\x67\x63' );
+			// UVQT
+			mem.writeUTFBytes( '\x11\x12\x18\x2f\x63\x63\x63\x63\x12\x15\x1a\x42\x63\x63\x63\x63\x18\x1a\x38\x63\x63\x63\x63\x63\x2f\x42\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63\x63' );
+			
+			// ZigZag
+			mem.position = 1154;
+			mem.writeUTFBytes( '\x00\x01\x05\x06\x0e\x0f\x1b\x1c\x02\x04\x07\x0d\x10\x1a\x1d\x2a\x03\x08\x0c\x11\x19\x1e\x29\x2b\x09\x0b\x12\x18\x1f\x28\x2c\x35\x0a\x13\x17\x20\x27\x2d\x34\x36\x14\x16\x21\x26\x2e\x33\x37\x3c\x15\x22\x25\x2f\x32\x38\x3b\x3d\x23\x24\x30\x31\x39\x3a\x3e\x3f' );
+			
+			mem.length += 64;
+			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+			
+			_DOMAIN.domainMemory = mem;
+			
+			var i:int;
+			var t:int;
+			
+			// YTable
+			i = 0;
 			do {
-				n = lf64( 1154 + 64 + row ) * lf64( 1154 + 64 + col ) * 8;
-				sf64( 1.0 / ( li8(  1 + li8( 1154 + i ) ) * n ), 130       + ( i << 3 ) );
-				sf64( 1.0 / ( li8( 66 + li8( 1154 + i ) ) * n ), 130 + 512 + ( i << 3 ) );
-				++i;
-				col += 8;
-			} while ( col < 64 );
-			row += 8;
-		} while ( row < 64 );
+				t = ( li8( 130 + i ) * sf + 50 ) / 100;
+				if ( t < 1 ) t = 1;
+				else if ( t > 255 ) t = 255;
+				si8( t, 1 + li8( 1154 + i ) );
+			} while ( ++i < 64 );
+			
+			// UVTable
+			i = 0;
+			do {
+				t = ( li8( 194 + i ) * sf + 50 ) / 100;
+				if ( t < 1 ) t = 1;
+				else if ( t > 255 ) t = 255;
+				si8( t, 66 + li8( 1154 + i ) );
+			} while ( ++i < 64 );
+			
+			// aasf
+			sf64( 1.000000000, 1154 + 64 + 8 * 0 );
+			sf64( 1.387039845, 1154 + 64 + 8 * 1 );
+			sf64( 1.306562965, 1154 + 64 + 8 * 2 );
+			sf64( 1.175875602, 1154 + 64 + 8 * 3 );
+			sf64( 1.000000000, 1154 + 64 + 8 * 4 );
+			sf64( 0.785694958, 1154 + 64 + 8 * 5 );
+			sf64( 0.541196100, 1154 + 64 + 8 * 6 );
+			sf64( 0.275899379, 1154 + 64 + 8 * 7 );
+			
+			// fdtbl_Y
+			// fdtbl_UV
+			var row:int;
+			var col:int;
+			var n:Number;
+			i = 0;
+			row = 0;
+			do {
+				col = 0;
+				do {
+					n = lf64( 1154 + 64 + row ) * lf64( 1154 + 64 + col ) * 8;
+					sf64( 1.0 / ( li8(  1 + li8( 1154 + i ) ) * n ), 130       + ( i << 3 ) );
+					sf64( 1.0 / ( li8( 66 + li8( 1154 + i ) ) * n ), 130 + 512 + ( i << 3 ) );
+					++i;
+					col += 8;
+				} while ( col < 64 );
+				row += 8;
+			} while ( row < 64 );
+			
+			_DOMAIN.domainMemory = tmp;
+			
+			mem.length = 1154;
+			_QUANTS[ quality ] = mem;
+			
+		}
 		
-		_DOMAIN.domainMemory = tmp;
-		
-		mem.length = 1154;
 		return mem;
+		
+	}
+	
+	//--------------------------------------------------------------------------
+	//  JPEG table
+	//--------------------------------------------------------------------------
+	
+	/**
+	 * @see	#createZigZagTable()
+	 * @see	#createHuffmanTable()
+	 * @see	#createCategoryTable()
+	 */
+	private static var _TABLE:ByteArray;
+	
+	/**
+	 * <table>
+	 *	<tr><th>     0</th><td>ZigZag					</td><td>			</td></tr>
+	 *	<tr><th>    64</th><td>HuffmanTable				</td><td>			</td></tr>
+	 *	<tr><th>  2058</th><td>CategoryTable			</td><td>			</td></tr>
+	 *	<tr><th>198663</th><td>							</td><td>			</td></tr>
+	 * </table>
+	 * 
+	 * @see	#createZigZagTable()
+	 * @see	#createHuffmanTable()
+	 * @see	#createCategoryTable()
+	 */
+	internal static function getJPEGTable():ByteArray {
+		
+		if ( !_TABLE ) {
+			_TABLE = new ByteArray();
+			_TABLE.writeBytes( createZigZagTable() );
+			_TABLE.writeBytes( createHuffmanTable() );
+			_TABLE.writeBytes( createCategoryTable() );
+		}
+		
+		return _TABLE;
 		
 	}
 	
@@ -832,13 +860,10 @@ internal final class JPEGTable$ {
 		mem.position++;
 		mem.writeUTFBytes( '\x00\x02\x01\x03\x03\x02\x04\x03\x05\x05\x04\x04\x00\x00\x01\x7d' );
 		// std_ac_luminance_values
+		mem.position = 208;
 		arr = new <uint>[ 0x00030201, 0x12051104, 0x06413121, 0x07615113, 0x32147122, 0x08a19181, 0xc1b14223, 0xf0d15215, 0x72623324, 0x160a0982, 0x1a191817, 0x28272625, 0x35342a29, 0x39383736, 0x4544433a, 0x49484746, 0x5554534a, 0x59585756, 0x6564635a, 0x69686766, 0x7574736a, 0x79787776, 0x8584837a, 0x89888786, 0x9493928a, 0x98979695, 0xa3a29a99, 0xa7a6a5a4, 0xb2aaa9a8, 0xb6b5b4b3, 0xbab9b8b7, 0xc5c4c3c2, 0xc9c8c7c6, 0xd4d3d2ca, 0xd8d7d6d5, 0xe2e1dad9, 0xe6e5e4e3, 0xeae9e8e7, 0xf4f3f2f1, 0xf8f7f6f5, 0x0000faf9 ];
 		i = 0;
-		do {
-			si32( arr[ i ], 46 + ( i << 2 ) );
-		} while ( ++i < 41 );
-		
-		mem.position = 208;
+		do { si32( arr[ i ], 46 + ( i << 2 ) ) } while ( ++i < 41 );
 		// std_dc_chrominance_nrcodes
 		mem.position++;
 		mem.writeUTFBytes( '\x00\x03\x01\x01\x01\x01\x01\x01\x01\x01\x01\x00\x00\x00\x00\x00' );
@@ -850,10 +875,9 @@ internal final class JPEGTable$ {
 		// std_ac_chrominance_values
 		arr = new <uint>[ 0x03020100, 0x21050411, 0x41120631, 0x71610751, 0x81322213, 0x91421408, 0x09c1b1a1, 0xf0523323, 0xd1726215, 0x3424160a, 0x17f125e1, 0x261a1918, 0x2a292827, 0x38373635, 0x44433a39, 0x48474645, 0x54534a49, 0x58575655, 0x64635a59, 0x68676665, 0x74736a69, 0x78777675, 0x83827a79, 0x87868584, 0x928a8988, 0x96959493, 0x9a999897, 0xa5a4a3a2, 0xa9a8a7a6, 0xb4b3b2aa, 0xb8b7b6b5, 0xc3c2bab9, 0xc7c6c5c4, 0xd2cac9c8, 0xd6d5d4d3, 0xdad9d8d7, 0xe5e4e3e2, 0xe9e8e7e6, 0xf4f3f2ea, 0xf8f7f6f5, 0x0000faf9 ];
 		i = 0;
-		do {
-			si32( arr[ i ], 254 + ( i << 2 ) );
-		} while ( ++i < 41 );
+		do { si32( arr[ i ], 254 + ( i << 2 ) ) } while ( ++i < 41 );
 		
+		// compute
 		computeHuffmanTable(   0, 416 );	// YDC_HT
 		computeHuffmanTable(  29, 452 );	// YAC_HT
 		computeHuffmanTable( 208, 1205 );	// UVDC_HT
