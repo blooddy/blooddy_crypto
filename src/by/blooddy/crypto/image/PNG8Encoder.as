@@ -99,7 +99,7 @@ package by.blooddy.crypto.image {
 			writeIDAT( result, PNG8Encoder$.encode( image, filter, palette ) );
 			
 			// tEXt
-			writeTEXT( result, 'Software', 'by.blooddy.crypto.image.PNG8Encoder' );
+			//writeTEXT( result, 'Software', 'by.blooddy.crypto.image.PNG8Encoder' );
 			
 			// IEND
 			writeIEND( result );

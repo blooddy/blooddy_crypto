@@ -8,13 +8,10 @@ package by.blooddy.crypto.image {
 
 	import flash.display.BitmapData;
 	import flash.display.JPEGEncoderOptions;
-	import flash.errors.IllegalOperationError;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
 	import flash.utils.getQualifiedClassName;
-	
-	import by.blooddy.core.utils.ByteArrayUtils;
 
 	/**
 	 * Encodes image data using
@@ -85,6 +82,7 @@ package by.blooddy.crypto.image {
 			result.endian = Endian.LITTLE_ENDIAN;
 			
 			// Create JPEG tables
+
 			var table:ByteArray = JPEGTable$.getTable( quality );
 			
 			// Write JPEG data
@@ -93,7 +91,7 @@ package by.blooddy.crypto.image {
 			
 			writeAPP0( result );
 
-			writeAPP1( result, 'by.blooddy.crypto.image.JPEGEncoder' );
+			//writeAPP1( result, 'by.blooddy.crypto.image.JPEGEncoder' );
 
 			writeDQT( result, table );
 
@@ -254,7 +252,6 @@ package by.blooddy.crypto.image {
 }
 
 import flash.display.BitmapData;
-import flash.errors.IllegalOperationError;
 import flash.system.ApplicationDomain;
 import flash.utils.ByteArray;
 

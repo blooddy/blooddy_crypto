@@ -85,7 +85,7 @@ package by.blooddy.crypto.image {
 			writeIDAT( result, PNG24Encoder$.encode( image, filter, transparent ) );
 			
 			// tEXt
-			writeTEXT( result, 'Software', 'by.blooddy.crypto.image.PNG24Encoder' );
+			//writeTEXT( result, 'Software', 'by.blooddy.crypto.image.PNG24Encoder' );
 
 			// IEND
 			writeIEND( result );
