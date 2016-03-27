@@ -8,9 +8,13 @@ package by.blooddy.crypto.image {
 
 	import flash.display.BitmapData;
 	import flash.display.JPEGEncoderOptions;
+	import flash.errors.IllegalOperationError;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
+	import flash.utils.Endian;
 	import flash.utils.getQualifiedClassName;
+	
+	import by.blooddy.core.utils.ByteArrayUtils;
 
 	/**
 	 * Encodes image data using
@@ -61,11 +65,171 @@ package by.blooddy.crypto.image {
 			if ( _NATIVE ) {
 				return image.encode( image.rect, new JPEGEncoderOptions( quality ) );
 			} else {
-				return JPEGEncoder$.encode( image, quality );
+				return $encode( image, quality );
 			}
 			
 		}
 
+		//--------------------------------------------------------------------------
+		//
+		//  Private class methods
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * @private
+		 */
+		private static function $encode(image:BitmapData, quality:uint):ByteArray {
+			
+			var result:ByteArray = new ByteArray();
+			result.endian = Endian.LITTLE_ENDIAN;
+			
+			// Create JPEG tables
+			var table:ByteArray = JPEGTable$.getTable( quality );
+			
+			// Add JPEG headers
+			
+			result.writeShort( 0xD8FF ); // SOI
+			
+			writeAPP0( result );
+			writeAPP1( result, 'by.blooddy.crypto.image.JPEGEncoder' );
+			writeDQT( result, table );
+			writeSOF0( result, image.width, image.height );
+			writeDHT( result, table );
+			writeSOS( result );
+			
+			result.writeBytes( JPEGEncoder$.encode( image, table ) );
+			
+			result.writeShort( 0xD9FF ); // EOI
+			
+			return result;
+			
+		}
+
+		/**
+		 * @private
+		 */
+		private static function writeAPP0(mem:ByteArray):void {
+
+			mem.writeShort(			0xE0FF		);	// marker
+			mem.writeShort(			0x1000		);	// length
+			mem.writeUnsignedInt(	0x4649464A	);	// JFIF
+			mem.writeByte(			0x00		);	//
+			mem.writeShort(			0x0101		);	// version
+			mem.writeByte(			0x00		);	// xyunits
+			mem.writeUnsignedInt(	0x01000100	);	// density
+			mem.writeShort(			0x0000		);	// thumbn
+
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function writeAPP1(mem:ByteArray, text:String):void {
+
+			mem.writeShort(			0xE1FF		);	// marker
+			mem.writeShort(			0x4600		);	// length
+			
+			mem.writeUnsignedInt(	0x66697845	);	// Exif
+			mem.writeShort(			0x0000		);	//
+			mem.writeInt(			0x002A4949	);	// TIFF Header
+			mem.writeInt(			0x00000008	);	//
+			
+			mem.writeShort(			0x0001		);
+			
+			mem.writeShort(			0x0131		);	// tag
+			mem.writeShort(			0x0002		);	// type
+			mem.writeInt(			0x00000023	);	// count
+			mem.writeInt(			0x0000001A	);	// value offset
+			mem.writeInt(			0x00000000	);	//
+			
+			mem.writeMultiByte(		text, 'x-ascii' ); // length=35
+			
+			mem.writeByte(			0x00		);	// zero
+			
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function writeDQT(mem:ByteArray, table:ByteArray):void {
+
+			mem.writeShort(			0xDBFF		);	// marker
+			mem.writeShort(			0x8400		);	// length
+			
+			var p:uint = mem.position;
+			
+			mem.writeBytes( 		table, 0, 130 );
+			
+			mem[ p +   0 ] =		0x00;
+			mem[ p +  65 ] =		0x01;
+
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function writeSOF0(mem:ByteArray, width:int, height:int):void {
+
+			mem.writeShort(			0xC0FF		);	// marker
+			mem.writeShort(			0x1100		);	// length, truecolor YUV JPG
+			mem.writeByte(			0x08		);	// precision
+			mem.writeShort(							// height
+				( ( ( height >> 8 ) & 0xFF )      ) |
+				( ( ( height      ) & 0xFF ) << 8 )
+			);
+			mem.writeShort(							// width
+				( ( ( width >> 8  ) & 0xFF )      ) |
+				( ( ( width       ) & 0xFF ) << 8 )
+			);
+			mem.writeByte(			0x03		);	// nrofcomponents
+			mem.writeByte(			0x01		);	// IdY
+			mem.writeByte(			0x11		);	// HVY
+			mem.writeByte(			0x00		);	// QTY
+			mem.writeByte(			0x02		);	// IdU
+			mem.writeByte(			0x11		);	// HVU
+			mem.writeByte(			0x01		);	// QTU
+			mem.writeByte(			0x03		);	// IdV
+			mem.writeByte(			0x11		);	// HVV
+			mem.writeByte(			0x01		);	// QTV
+
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function writeDHT(mem:ByteArray, table:ByteArray):void {
+
+			mem.writeShort(			0xC4FF		);	// marker
+			mem.writeShort(			0xA201		);	// length
+			
+			var p:uint = mem.position;
+
+			mem.writeBytes( 		table, 1218, 416 );
+			
+			mem[ p +   0 ] =		0x00;		// HTYDCinfo
+			mem[ p +  29 ] =		0x10;		// HTYACinfo
+			mem[ p + 208 ] =		0x01;		// HTUDCinfo
+			mem[ p + 237 ] =		0x11;		// HTUACinfo
+
+		}
+
+		/**
+		 * @private
+		 */
+		private static function writeSOS(mem:ByteArray):void {
+
+			mem.writeShort(			0xDAFF		);	// marker
+			mem.writeShort(			0x0C00		);	// length
+			mem.writeByte(			0x03		);	// nrofcomponents
+			mem.writeShort(			0x0001		);	// IdY, HTY
+			mem.writeShort(			0x1102		);	// IdU, HTU
+			mem.writeShort(			0x1103		);	// IdV, HTV
+			mem.writeShort(			0x3f00		);	// Ss, Se
+			mem.writeByte(			0x00		);	// Bf
+
+		}
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -90,6 +254,8 @@ import flash.system.ApplicationDomain;
 import flash.utils.ByteArray;
 
 import avm2.intrinsics.memory.lf64;
+import avm2.intrinsics.memory.li16;
+import avm2.intrinsics.memory.li32;
 import avm2.intrinsics.memory.li8;
 import avm2.intrinsics.memory.sf64;
 import avm2.intrinsics.memory.si16;
@@ -107,11 +273,19 @@ internal final class JPEGEncoder$ {
 	//
 	//--------------------------------------------------------------------------
 	
-	internal static function encode(image:BitmapData, qulity:uint):ByteArray {
+	internal static function encode(image:BitmapData, table:ByteArray):ByteArray {
+		
+		var width:int = image.width;
+		var height:int = image.height;
 		
 		var tmp:ByteArray = _DOMAIN.domainMemory;
 		
 		var mem:ByteArray = new ByteArray();
+		mem.position = 256 + 512 * 3;
+		mem.writeBytes( table );
+		mem.length += width * height * 3;
+
+		if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 
 		_DOMAIN.domainMemory = mem;
 
@@ -150,8 +324,13 @@ internal final class JPEGTable$ {
 	 *	<tr><th>  3212</th><td>CategoryTable			</td><td>			</td></tr>
 	 *	<tr><th>199817</th><td>							</td><td>			</td></tr>
 	 * </table>
+	 * 
+	 * @see	#createQuantTable()
+	 * @see	#createZigZagTable()
+	 * @see	#createHuffmanTable()
+	 * @see	#createCategoryTable()
 	 */
-	internal static function getTable(quality:uint=60):ByteArray {
+	internal static function getTable(quality:uint):ByteArray {
 		
 		var quants:ByteArray = _QUANTS[ quality ];
 		if ( !quants ) {
@@ -170,13 +349,23 @@ internal final class JPEGTable$ {
 	//--------------------------------------------------------------------------
 	//  table main methods
 	//--------------------------------------------------------------------------
-	
+
+	/**
+	 * @private
+	 */
 	private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
 
+	/**
+	 * @see	#createQuantTable()
+	 */
 	private static const _QUANTS:Vector.<ByteArray> = new Vector.<ByteArray>( 100, true );
 
-	private static const _TMP:ByteArray = new ByteArray();
-	
+	/**
+	 * @see	#createQuantTable()
+	 * @see	#createZigZagTable()
+	 * @see	#createHuffmanTable()
+	 * @see	#createCategoryTable()
+	 */
 	private static const _TABLE:ByteArray = ( function():ByteArray {
 		var table:ByteArray = new ByteArray();
 		table.writeBytes( createZigZagTable() );
@@ -225,8 +414,8 @@ internal final class JPEGTable$ {
 
 		_DOMAIN.domainMemory = mem;
 		
-		var i:uint;
-		var t:uint;
+		var i:int;
+		var t:int;
 		
 		// YTable
 		i = 0;
@@ -390,7 +579,7 @@ internal final class JPEGTable$ {
 		var p:int;
 		var i:int;
 		var l:int;
-		var cat:uint = 1;
+		var cat:int = 1;
 		do {
 			
 			// Positive numbers
@@ -422,15 +611,18 @@ internal final class JPEGTable$ {
 
 	}
 
-	public static function computeHuffmanTable(toRead:int, toWrite:int):void {
+	/**
+	 * @private
+	 */
+	private static function computeHuffmanTable(toRead:int, toWrite:int):void {
 		
 		var codeValue:int = 0;
 		var pos_in_table:int = 0;
 		
-		var i:uint;
-		var j:uint;
-		var l:uint;
-		var p:uint;
+		var i:int;
+		var j:int;
+		var l:int;
+		var p:int;
 		
 		i = 1;
 		do {
