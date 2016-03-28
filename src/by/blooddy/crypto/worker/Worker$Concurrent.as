@@ -38,30 +38,31 @@ package by.blooddy.crypto.worker {
 		//
 		//--------------------------------------------------------------------------
 
-		private static const _WORKER:flash.system.Worker = WorkerDomain.current.createWorker( new ByteArray() );
-		
-		private static const _INPUT:MessageChannel = _WORKER.createMessageChannel( flash.system.Worker.current );
-		
-		private static const _OUTPUT:MessageChannel = flash.system.Worker.current.createMessageChannel( _WORKER );
-		
 		private static const _QUEUE:Vector.<Function> = new Vector.<Function>();
 		
-		/* init */ {
+		private static const _CHANNEL:MessageChannel = ( function():MessageChannel {
+			
+			var worker:flash.system.Worker = WorkerDomain.current.createWorker( new ByteArray() );
+			
+			var input:MessageChannel = worker.createMessageChannel( flash.system.Worker.current );
+			var output:MessageChannel = flash.system.Worker.current.createMessageChannel( worker );
 
-			_WORKER.setSharedProperty( 'output', _INPUT );
-			_WORKER.setSharedProperty( 'input', _OUTPUT );
-	
-			_INPUT.addEventListener( Event.CHANNEL_MESSAGE, function(event:Event):void {
+			input.addEventListener( Event.CHANNEL_MESSAGE, function(event:Event):void {
 				var success:Function = _QUEUE.shift();
 				var fault:Function = _QUEUE.shift();
-				var result:Object = _INPUT.receive( true );
+				var result:Object = input.receive( true );
 				if ( result.fault ) fault( result.fault );
 				else if ( result.success ) success( result.success );
 			} );
 			
-			_WORKER.start();
+			worker.setSharedProperty( 'output', input );
+			worker.setSharedProperty( 'input', output );
+				
+			worker.start();
+				
+			return output;
 			
-		}
+		}() );
 		
 		//--------------------------------------------------------------------------
 		//
@@ -90,11 +91,11 @@ package by.blooddy.crypto.worker {
 		/**
 		 * @inheritDoc
 		 */
-		public function call(success:Function, fault:Function, method:QName, args:Array):void {
+		public function call(success:Function, fault:Function, method:QName, arguments:Array):void {
 			
 			_QUEUE.push( success, fault );
 
-			_OUTPUT.send( [ method, args ] );
+			_CHANNEL.send( { method: method, arguments: arguments } );
 
 		}
 		
