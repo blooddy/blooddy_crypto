@@ -183,14 +183,14 @@ internal final class PNG24Encoder$ {
 			do {
 
 				mem.writeBytes( bmp, y * width, width );
+				mem.writeByte( 0 ); // NONE
 
 				i = x + width;
 				do {
 					si8( li8( i - 4 ), i );
 					i -= 4;
 				} while ( i > x );
-				si8( 0, x ); // NONE
-
+				
 				x += width + 1;
 
 			} while ( ++y < height );
