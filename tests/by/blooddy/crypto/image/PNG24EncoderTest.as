@@ -42,12 +42,12 @@ package by.blooddy.crypto.image {
 			[ false, 1 ],
 			[ false, 2 ],
 			[ false, 3 ],
-			[ false, 4 ],
-			[ true, 0 ],
-			[ true, 1 ],
-			[ true, 2 ],
-			[ true, 3 ],
-			[ true, 4 ]
+			[ false, 4 ]
+//			[ true, 0 ],
+//			[ true, 1 ],
+//			[ true, 2 ],
+//			[ true, 3 ],
+//			[ true, 4 ]
 		];
 		
 		[Test( async, dataProvider="$encode" )]

@@ -367,7 +367,6 @@ package by.blooddy.crypto.image.palette {
 			_DOMAIN.domainMemory = tmp;
 			
 		}
-		
 
 		//--------------------------------------------------------------------------
 		//
