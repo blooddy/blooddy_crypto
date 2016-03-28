@@ -9,11 +9,8 @@ package by.blooddy.crypto.worker {
 	import flash.events.EventDispatcher;
 	import flash.utils.getQualifiedClassName;
 	
-	import by.blooddy.crypto.events.FaultEvent;
-	import by.blooddy.crypto.events.ResultEvent;
-	
-	[Event( type="by.blooddy.crypto.events.ResultEvent", name="result" )]
-	[Event( type="by.blooddy.crypto.events.FaultEvent", name="fault" )]
+	[Event( type="by.blooddy.crypto.worker.WorkerEvent", name="result" )]
+	[Event( type="by.blooddy.crypto.worker.WorkerEvent", name="fault" )]
 	
 	/**
 	 * @private
@@ -69,11 +66,8 @@ package by.blooddy.crypto.worker {
 		//--------------------------------------------------------------------------
 		
 		/**
-		 * @param	callback
 		 * @param	method
 		 * @param	args
-		 * 
-		 * @event	data
 		 */
 		protected function call(method:String, ...args):void {
 			worker.call(
@@ -93,14 +87,14 @@ package by.blooddy.crypto.worker {
 		 * @private
 		 */
 		private function success(result:*):void {
-			super.dispatchEvent( new ResultEvent( result ) );
+			super.dispatchEvent( new WorkerEvent( WorkerEvent.SUCCESS, false, false, result ) );
 		}
 		
 		/**
 		 * @private
 		 */
 		private function fail(e:*):void {
-			super.dispatchEvent( new FaultEvent( e ) );
+			super.dispatchEvent( new WorkerEvent( WorkerEvent.FAULT, false, false, e ) );
 		}
 		
 	}

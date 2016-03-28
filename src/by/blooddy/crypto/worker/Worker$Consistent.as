@@ -56,7 +56,7 @@ package by.blooddy.crypto.worker {
 		/**
 		 * @inheritDoc
 		 */
-		public function call(success:Function, fail:Function, method:QName, args:Array):void {
+		public function call(success:Function, fault:Function, method:QName, args:Array):void {
 			setTimeout( function():void {
 				try {
 
@@ -65,7 +65,7 @@ package by.blooddy.crypto.worker {
 
 				} catch ( e:Error ) {
 
-					fail( e );
+					fault( e );
 
 				}
 			}, 0 );

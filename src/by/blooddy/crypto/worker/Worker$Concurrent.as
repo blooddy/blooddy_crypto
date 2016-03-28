@@ -53,10 +53,10 @@ package by.blooddy.crypto.worker {
 	
 			_INPUT.addEventListener( Event.CHANNEL_MESSAGE, function(event:Event):void {
 				var success:Function = _QUEUE.shift();
-				var fail:Function = _QUEUE.shift();
+				var fault:Function = _QUEUE.shift();
 				var result:Object = _INPUT.receive( true );
-				if ( result.success ) success( result.success );
-				else if ( result.fail ) fail( result.fail );
+				if ( result.fault ) fault( result.fault );
+				else if ( result.success ) success( result.success );
 			} );
 			
 			_WORKER.start();
@@ -90,9 +90,9 @@ package by.blooddy.crypto.worker {
 		/**
 		 * @inheritDoc
 		 */
-		public function call(success:Function, fail:Function, method:QName, args:Array):void {
+		public function call(success:Function, fault:Function, method:QName, args:Array):void {
 			
-			_QUEUE.push( success, fail );
+			_QUEUE.push( success, fault );
 
 			_OUTPUT.send( [ method, args ] );
 

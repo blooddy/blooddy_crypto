@@ -4,7 +4,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package by.blooddy.crypto.events {
+package by.blooddy.crypto.worker {
 
 	import flash.events.Event;
 	
@@ -14,9 +14,9 @@ package by.blooddy.crypto.events {
 	 * @version					1.0
 	 * @playerversion			Flash 11.4
 	 * @langversion				3.0
-	 * @created					25.03.2016 1:32:46
+	 * @created					25.03.2016 1:17:56
 	 */
-	public class FaultEvent extends Event {
+	public class WorkerEvent extends Event {
 
 		//--------------------------------------------------------------------------
 		//
@@ -24,8 +24,10 @@ package by.blooddy.crypto.events {
 		//
 		//--------------------------------------------------------------------------
 		
-		public static const FAULT:String = 'fault';
-		
+		public static const SUCCESS:String =	'success';
+
+		public static const FAULT:String =		'fault';
+	
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -38,9 +40,9 @@ package by.blooddy.crypto.events {
 		 * @param	bubbles
 		 * @param	cancelable
 		 */
-		public function FaultEvent(error:*, type='error', bubbles:Boolean=false, cancelable:Boolean=false) {
+		public function WorkerEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false, data:*=null) {
 			super( type, bubbles, cancelable );
-			this.error = error;
+			this.data = data;
 		}
 
 		//--------------------------------------------------------------------------
@@ -49,7 +51,7 @@ package by.blooddy.crypto.events {
 		//
 		//--------------------------------------------------------------------------
 		
-		public var error:*;
+		public var data:*;
 		
 		//--------------------------------------------------------------------------
 		//
@@ -61,7 +63,7 @@ package by.blooddy.crypto.events {
 		 * @private
 		 */
 		public override function clone():Event {
-			return new FaultEvent( this.error, super.type, super.bubbles, super.cancelable );
+			return new WorkerEvent( super.type, super.bubbles, super.cancelable, this.data );
 		}
 		
 	}
