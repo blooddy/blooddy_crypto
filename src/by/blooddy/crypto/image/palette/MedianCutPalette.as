@@ -360,12 +360,13 @@ package by.blooddy.crypto.image.palette {
 				} while ( x < z );
 			} while ( ++i < colorCount );
 			
+			this._transparent = transparent;
+			
 			this._list.fixed = true;
 			
 			_DOMAIN.domainMemory = tmp;
 			
 		}
-		
 
 		//--------------------------------------------------------------------------
 		//
