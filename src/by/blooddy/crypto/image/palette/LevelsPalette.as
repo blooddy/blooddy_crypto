@@ -78,7 +78,7 @@ package by.blooddy.crypto.image.palette {
 
 			if ( transparent ) {
 				this._list[ ++i ] = 0x00000000;
-				this._transparent = false;
+				this._transparent = true;
 			}
 
 			this._list.fixed = true;
