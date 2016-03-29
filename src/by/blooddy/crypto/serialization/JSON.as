@@ -10,6 +10,9 @@ package by.blooddy.crypto.serialization {
 	import flash.utils.getQualifiedClassName;
 
 	/**
+	 * The JSON class lets applications import and export data
+	 * using JavaScript Object Notation (JSON) format.
+	 * 
 	 * @author					BlooDHounD
 	 * @version					3.0
 	 * @playerversion			Flash 10.1
@@ -28,22 +31,32 @@ package by.blooddy.crypto.serialization {
 
 		[Deprecated( replacement="stringify" )]
 		/**
-		 * @param	value
+		 * Returns a String, in JSON format, that represents an ActionScript
+		 * value. The stringify method can take three parameters. 
 		 * 
-		 * @return
+		 * @param	value	The ActionScript value to be converted
+		 * 					into a JSON string
 		 * 
-		 * @throws	StackOverflowError	
+		 * @return			JSON string
+		 * 
+		 * @throws	StackOverflowError	When the stringify() method encounters a cyclic structure.
 		 */
 		public static function encode(value:*):String {
 			return JSON$Encoder.encode( value );
 		}
 
 		/**
-		 * @param	value
+		 * Returns a String, in JSON format, that represents an ActionScript
+		 * value. The stringify method can take three parameters.
+		 *  
+		 * Used native <code>JSON.stringify</code>, if possible.
 		 * 
-		 * @return
+		 * @param	value	The ActionScript value to be converted
+		 * 					into a JSON string
 		 * 
-		 * @throws	StackOverflowError	
+		 * @return			JSON string
+		 * 
+		 * @throws	StackOverflowError	When the stringify() method encounters a cyclic structure.
 		 */
 		public static const stringify:Function = ( ApplicationDomain.currentDomain.hasDefinition( 'JSON' )
 			? ApplicationDomain.currentDomain.getDefinition( 'JSON' ).stringify
@@ -52,24 +65,30 @@ package by.blooddy.crypto.serialization {
 		
 		[Deprecated( replacement="parse" )]
 		/**
-		 * @param	value
+		 * Accepts a JSON-formatted String and returns an ActionScript Object
+		 * that represents that value.
 		 * 
-		 * @return
+		 * @param	value	The JSON string to be parsed
 		 * 
-		 * @throws	TypeError			
-		 * @throws	SyntaxError
+		 * @return			ActionScript Object
+		 * 
+		 * @throws	SyntaxError		When wrong JSON string value passed.
 		 */
 		public static function decode(value:String):* {
 			return JSON$Decoder.decode( value );
 		}
 		
 		/**
-		 * @param	value
+		 * Accepts a JSON-formatted String and returns an ActionScript Object
+		 * that represents that value.
 		 * 
-		 * @return
+		 * Used native <code>JSON.parse</code>, if possible.
 		 * 
-		 * @throws	TypeError			
-		 * @throws	SyntaxError
+		 * @param	value	The JSON string to be parsed
+		 * 
+		 * @return			ActionScript Object
+		 * 
+		 * @throws	SyntaxError		When wrong JSON string value passed.
 		 */
 		public static const parse:Function = ( ApplicationDomain.currentDomain.hasDefinition( 'JSON' )
 			? ApplicationDomain.currentDomain.getDefinition( 'JSON' ).parse
@@ -108,6 +127,9 @@ import avm2.intrinsics.memory.li8;
 
 import by.blooddy.crypto.serialization.SerializationHelper;
 
+/**
+ * @private
+ */
 internal class JSON$ {
 	
 	protected static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
@@ -121,6 +143,17 @@ internal class JSON$ {
  */
 internal final class JSON$Encoder extends JSON$ {
 
+	//--------------------------------------------------------------------------
+	//
+	//  Static
+	//
+	//--------------------------------------------------------------------------
+	
+	// ReferenceError fix
+	if ( !( 'toJSON' in ByteArray.prototype ) ) {
+		ByteArray.prototype.toJSON = null;
+	}
+	
 	//--------------------------------------------------------------------------
 	//
 	//  Encode
@@ -236,7 +269,7 @@ internal final class JSON$Encoder extends JSON$ {
 				var i:int = 0;
 				var j:int = 0;
 				var l:int = 0;
-				var len:uint = str.position;
+				var len:uint = str.length;
 				
 				var c:int = 0;
 				
@@ -285,7 +318,7 @@ internal final class JSON$Encoder extends JSON$ {
 					bytes.writeBytes( str, j, l );
 				}
 				
-				str.position = 0;
+				str.length = 0;
 				
 			} else {
 				
@@ -317,7 +350,7 @@ internal final class JSON$Encoder extends JSON$ {
 
 			if (
 				'toJSON' in value &&
-				typeof value.toJSON == 'function' &&
+				typeof value[ 'toJSON' ] == 'function' &&
 				( v = value.toJSON( null ) ) != value
 			) {
 				
@@ -433,7 +466,9 @@ internal final class JSON$Encoder extends JSON$ {
 			var v:* = value.toJSON( null );
 			_TYPE_WPRITERS[ typeof v ]( hash, bytes, v );		
 		} else {
-			writeTypeString( hash, bytes, value.toXMLString() );
+//			writeTypeString( hash, bytes, value.toXMLString() );
+			bytes.writeInt( 0x22584D4C );
+			bytes.writeByte( 0x22 );
 		}
 	}
 	
@@ -688,7 +723,7 @@ internal final class JSON$Encoder extends JSON$ {
 
 	private static function writeClassByteArray(hash:Dictionary, bytes:ByteArray, value:ByteArray):void {
 //		writeNull( hash, bytes, value );
-		bytes.writeInt( 0x6C6C756E );
+		bytes.writeInt( 0x6E756C6C );
 	}
 }
 
@@ -977,7 +1012,6 @@ internal final class JSON$Decoder extends JSON$ {
 			var newline:Vector.<Boolean> = _NEWLINE;
 
 			var str:ByteArray = _STR;
-			str.position = 0;
 			
 			var p:int = pos;
 
@@ -1044,10 +1078,11 @@ internal final class JSON$Decoder extends JSON$ {
 				str.writeBytes( mem, p, l );
 			}
 			
-			l = str.position;
 			str.position = 0;
-			result = str.readUTFBytes( l );
-				
+			result = str.readUTFBytes( str.length );
+
+			str.length = 0;
+			
 		}
 
 		_POS = pos + 1;

@@ -5,13 +5,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package by.blooddy.crypto.serialization {
-
-	import flash.system.ApplicationDomain;
+	
 	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
 	import flash.xml.XMLDocument;
-	
-	import by.blooddy.crypto.serialization.JSON;
 	
 	import org.flexunit.Assert;
 	
@@ -22,7 +19,7 @@ package by.blooddy.crypto.serialization {
 	 * @langversion				3.0
 	 */
 	public class JSONTest {
-
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Private class variables
@@ -31,7 +28,7 @@ package by.blooddy.crypto.serialization {
 		
 		private static const blooddyJSON:Object = by.blooddy.crypto.serialization.JSON;
 		
-		private static const nativeJSON:Object = ApplicationDomain.currentDomain.getDefinition( 'JSON' );
+		//		private static const nativeJSON:Object = ApplicationDomain.currentDomain.getDefinition( 'JSON' );
 		
 		//--------------------------------------------------------------------------
 		//
@@ -89,7 +86,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_null():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( null ),
-				nativeJSON.stringify( null )
+				//nativeJSON.stringify( null )
+				'null'
 			);
 		}
 		
@@ -97,7 +95,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_undefined():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( undefined ),
-				nativeJSON.stringify( undefined )
+				//nativeJSON.stringify( undefined )
+				'null'
 			);
 		}
 		
@@ -105,15 +104,18 @@ package by.blooddy.crypto.serialization {
 		public function encode_notFinite():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( NaN ),
-				nativeJSON.stringify( NaN )
+				//nativeJSON.stringify( NaN )
+				'null'
 			);
 			Assert.assertEquals(
 				blooddyJSON.encode( Number.NEGATIVE_INFINITY ),
-				nativeJSON.stringify( Number.NEGATIVE_INFINITY )
+				//nativeJSON.stringify( Number.NEGATIVE_INFINITY )
+				'null'
 			);
 			Assert.assertEquals(
 				blooddyJSON.encode( Number.POSITIVE_INFINITY ),
-				nativeJSON.stringify( Number.POSITIVE_INFINITY )
+				//nativeJSON.stringify( Number.POSITIVE_INFINITY )
+				'null'
 			);
 		}
 		
@@ -121,7 +123,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_number_positive():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( 5 ),
-				nativeJSON.stringify( 5 )
+				//nativeJSON.stringify( 5 )
+				'5'
 			);
 		}
 		
@@ -129,7 +132,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_number_negative():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( -5 ),
-				nativeJSON.stringify( -5 )
+				//nativeJSON.stringify( -5 )
+				'-5'
 			);
 		}
 		
@@ -137,7 +141,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_false():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( false ),
-				nativeJSON.stringify( false )
+				//nativeJSON.stringify( false )
+				'false'
 			);
 		}
 		
@@ -145,7 +150,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_true():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( true ),
-				nativeJSON.stringify( true )
+				//nativeJSON.stringify( true )
+				'true'
 			);
 		}
 		
@@ -153,7 +159,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_string():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( 'asd' ),
-				nativeJSON.stringify( 'asd' )
+				//nativeJSON.stringify( 'asd' )
+				'"asd"'
 			);
 		}
 		
@@ -161,7 +168,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_string_enpty():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( '' ),
-				nativeJSON.stringify( '' )
+				//nativeJSON.stringify( '' )
+				'""'
 			);
 		}
 		
@@ -177,8 +185,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_string_nonescape():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( '\x3\u044\5' ),
-				nativeJSON.stringify( '\x3\u044\5' )
-				//'"\x3\u044\5"'
+//				nativeJSON.stringify( '\x3\u044\5' )
+				'"\x3\u044\5"'
 			);
 		}
 		
@@ -186,8 +194,9 @@ package by.blooddy.crypto.serialization {
 		public function encode_xml():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( <xml field="098"><node field="123" /></xml> ),
-				nativeJSON.stringify( <xml field="098"><node field="123" /></xml> )
-				//'"<xml field=\\"098\\"><node field=\\"123\\"\\/><\\/xml>"'
+//				nativeJSON.stringify( <xml field="098"><node field="123" /></xml> )
+				//				'"<xml field=\\"098\\"><node field=\\"123\\"\\/><\\/xml>"'
+				'"XML"'
 			);
 		}
 		
@@ -195,8 +204,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_xmlDocument():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( new XMLDocument( '<xml field="098">\n         <node            field = "123" />\n\r\t</xml>' ) ),
+				//				'"<xml field=\\"098\\"><node field=\\"123\\"\\/><\\/xml>"'
 				'"XML"'
-//				'"<xml field=\\"098\\"><node field=\\"123\\"\\/><\\/xml>"'
 			);
 		}
 		
@@ -204,8 +213,9 @@ package by.blooddy.crypto.serialization {
 		public function encode_xml_empty():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( new XML() ),
-				nativeJSON.stringify( new XML() )
-				//'""'
+//				nativeJSON.stringify( new XML() )
+				//				'""'
+				'"XML"'
 			);
 		}
 		
@@ -221,8 +231,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_array_empty():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( [] ),
-				nativeJSON.stringify( [] )
-				//'[]'
+//				nativeJSON.stringify( [] )
+				'[]'
 			);
 		}
 		
@@ -230,13 +240,13 @@ package by.blooddy.crypto.serialization {
 		public function encode_array_trailComma():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( [5,,,] ),
-				nativeJSON.stringify( [5,,,] )
-				//'[5]'
+//				nativeJSON.stringify( [5,,,] )
+				'[5,null,null]'
 			);
 			Assert.assertEquals(
-				blooddyJSON.encode( new Array( 100 ) ),
-				nativeJSON.stringify( new Array( 100 ) )
-				//'[]'
+				blooddyJSON.encode( new Array( 3 ) ),
+//				nativeJSON.stringify( new Array( 3 ) )
+				'[null,null,null]'
 			);
 		}
 		
@@ -244,8 +254,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_array_leadComma():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( [,,5] ),
-				nativeJSON.stringify( [,,5] )
-				//'[null,null,5]'
+//				nativeJSON.stringify( [,,5] )
+				'[null,null,5]'
 			);
 		}
 		
@@ -253,28 +263,28 @@ package by.blooddy.crypto.serialization {
 		public function encode_vector_empty():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( new <*>[] ),
-				nativeJSON.stringify( new <*>[] )
-				//'[]'
+//				nativeJSON.stringify( new <*>[] )
+				'[]'
 			);
 			Assert.assertEquals(
 				blooddyJSON.encode( new <SimpleClass>[] ),
-				nativeJSON.stringify( new <SimpleClass>[] )
-				//'[]'
+//				nativeJSON.stringify( new <SimpleClass>[] )
+				'[]'
 			);
 			Assert.assertEquals(
 				blooddyJSON.encode( new <uint>[] ),
-				nativeJSON.stringify( new <uint>[] )
-				//'[]'
+//				nativeJSON.stringify( new <uint>[] )
+				'[]'
 			);
 			Assert.assertEquals(
 				blooddyJSON.encode( new <int>[] ),
-				nativeJSON.stringify( new <int>[] )
-				//'[]'
+//				nativeJSON.stringify( new <int>[] )
+				'[]'
 			);
 			Assert.assertEquals(
 				blooddyJSON.encode( new <Number>[] ),
-				nativeJSON.stringify( new <Number>[] )
-				//'[]'
+//				nativeJSON.stringify( new <Number>[] )
+				'[]'
 			);
 		}
 		
@@ -282,13 +292,13 @@ package by.blooddy.crypto.serialization {
 		public function encode_vector_int():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( new <uint>[1,5,6] ),
-				nativeJSON.stringify( new <uint>[1,5,6] )
-				//'[1,5,6]'
+//				nativeJSON.stringify( new <uint>[1,5,6] )
+				'[1,5,6]'
 			);
 			Assert.assertEquals(
 				blooddyJSON.encode( new <int>[1,-5,6] ),
-				nativeJSON.stringify( new <int>[1,-5,6] )
-				//'[1,-5,6]'
+//				nativeJSON.stringify( new <int>[1,-5,6] )
+				'[1,-5,6]'
 			);
 		}
 		
@@ -296,8 +306,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_vector_number():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( new <Number>[1.555,0.5e-1,6,NaN] ),
-				nativeJSON.stringify( new <Number>[1.555,0.5e-1,6,NaN] )
-				//'[1.555,0.05,6]'
+//				nativeJSON.stringify( new <Number>[1.555,0.5e-1,6,NaN] )
+				'[1.555,0.05,6,null]'
 			);
 		}
 		
@@ -305,8 +315,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_vector_object():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( new <*>[{},5,null] ),
-				nativeJSON.stringify( new <*>[{},5,null] )
-				//'[{},5]'
+//				nativeJSON.stringify( new <*>[{},5,null] )
+				'[{},5,null]'
 			);
 		}
 		
@@ -314,8 +324,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_object_empty():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( {} ),
-				nativeJSON.stringify( {} )
-				//'{}'
+//				nativeJSON.stringify( {} )
+				'{}'
 			);
 		}
 		
@@ -323,8 +333,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_object_key_string():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( { "string key": "value" } ),
-				nativeJSON.stringify( { "string key": "value" } )
-				//'{"string key":"value"}'
+//				nativeJSON.stringify( { "string key": "value" } )
+				'{"string key":"value"}'
 			);
 		}
 		
@@ -332,8 +342,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_object_key_nonstring():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( { key: "value", 5:true } ),
-				nativeJSON.stringify( { key: "value", 5:true } )
-				//'{"key":"value","5":true}'
+//				nativeJSON.stringify( { key: "value", 5:true } )
+				'{"5":true,"key":"value"}'
 			);
 		}
 		
@@ -341,8 +351,8 @@ package by.blooddy.crypto.serialization {
 		public function encode_object_key_undefined_NaN():void {
 			Assert.assertEquals(
 				blooddyJSON.encode( {undefined:1,NaN:2} ),
-				nativeJSON.stringify( {undefined:1,NaN:2} )
-				//'{"undefined":1,"NaN":2}'
+//				nativeJSON.stringify( {undefined:1,NaN:2} )
+				'{"NaN":2,"undefined":1}'
 			);
 		}
 		
@@ -351,8 +361,8 @@ package by.blooddy.crypto.serialization {
 			Assert.assertTrue(
 				equalsObjects(
 					blooddyJSON.encode( new SimpleClass() ),
-					nativeJSON.stringify( new SimpleClass() )
-					//blooddyJSON.decode( '{"accessor":4,"variable":1,"constant":2,"getter":3,"dynamicProperty":0}' )
+					//					nativeJSON.stringify( new SimpleClass() )
+					'{"accessor":4,"variable":1,"constant":2,"getter":3,"dynamicProperty":0}'
 				)
 			);
 		}
@@ -362,8 +372,8 @@ package by.blooddy.crypto.serialization {
 			var obj:Object = { toJSON: function(k:String):* { return {a:5} } };
 			Assert.assertEquals(
 				blooddyJSON.encode( obj ),
-				nativeJSON.stringify( obj )
-				//'{}'
+//				nativeJSON.stringify( obj )
+				'{"a":5}'
 			);
 		}
 		
@@ -372,8 +382,8 @@ package by.blooddy.crypto.serialization {
 			var obj:Object = { toJSON: function(k:String):* { return obj } };
 			Assert.assertEquals(
 				blooddyJSON.encode( obj ),
-				nativeJSON.stringify( obj )
-				//'{}'
+//				nativeJSON.stringify( obj )
+				'{}'
 			);
 		}
 		
@@ -382,7 +392,8 @@ package by.blooddy.crypto.serialization {
 			var dic:Dictionary = new Dictionary();
 			Assert.assertEquals(
 				blooddyJSON.encode( dic ),
-				nativeJSON.stringify( dic )
+//				nativeJSON.stringify( dic )
+				'{}'
 			);
 		}
 		
@@ -396,7 +407,8 @@ package by.blooddy.crypto.serialization {
 			};
 			Assert.assertEquals(
 				blooddyJSON.encode( dic ),
-				nativeJSON.stringify( dic )
+//				nativeJSON.stringify( dic )
+				'{"test":true}'
 			);
 		}
 		
@@ -405,30 +417,31 @@ package by.blooddy.crypto.serialization {
 			var exp:RegExp = /asd/g;
 			Assert.assertEquals(
 				blooddyJSON.encode( exp ),
-				nativeJSON.stringify( exp )
+//				nativeJSON.stringify( exp )
+				'{"lastIndex":0,"ignoreCase":false,"global":true,"source":"asd","multiline":false,"dotall":false,"extended":false}'
 			);
 		}
-
+		
 		[Test]
 		public function encode_date():void {
-			var d:Date = new Date();
+			var d:Date = new Date( 555555555 );
 			Assert.assertEquals(
 				blooddyJSON.encode( d ),
-				nativeJSON.stringify( d )
+//				nativeJSON.stringify( d )
+				'{"date":7,"hours":13,"minutes":19,"seconds":15,"milliseconds":555,"fullYearUTC":1970,"monthUTC":0,"dateUTC":7,"hoursUTC":10,"minutesUTC":19,"secondsUTC":15,"millisecondsUTC":555,"time":555555555,"timezoneOffset":-180,"day":3,"dayUTC":3,"fullYear":1970,"month":0}'
 			);
 		}
-
+		
 		[Test]
 		public function encode_date_recursion():void {
-			var d:Date = new Date();
+			var d:Date = new Date( 555555555 );
 			d.toJSON = function(k:String):* {
 				return d;
 			}
-			Assert.assertTrue(
-				equalsObjects(
-					blooddyJSON.encode( d ),
-					nativeJSON.stringify( d )
-				)
+			Assert.assertEquals(
+				blooddyJSON.encode( d ),
+//				nativeJSON.stringify( d )
+				'{"date":7,"hours":13,"minutes":19,"seconds":15,"milliseconds":555,"fullYearUTC":1970,"monthUTC":0,"dateUTC":7,"hoursUTC":10,"minutesUTC":19,"secondsUTC":15,"millisecondsUTC":555,"time":555555555,"timezoneOffset":-180,"day":3,"dayUTC":3,"fullYear":1970,"month":0}'
 			);
 		}
 		
@@ -439,7 +452,8 @@ package by.blooddy.crypto.serialization {
 			bytes.writeUTFBytes( 'asd' );
 			Assert.assertEquals(
 				blooddyJSON.encode( bytes ),
-				nativeJSON.stringify( bytes )
+//				nativeJSON.stringify( bytes )
+				'null'
 			);
 		}
 		
@@ -450,7 +464,8 @@ package by.blooddy.crypto.serialization {
 			bytes.writeUTFBytes( 'asd' );
 			Assert.assertEquals(
 				blooddyJSON.encode( bytes ),
-				nativeJSON.stringify( bytes )
+//				nativeJSON.stringify( bytes )
+				'{"bytesAvailable":0,"length":4,"endian":"bigEndian","objectEncoding":3,"position":4}'
 			);
 		}
 		
@@ -459,7 +474,8 @@ package by.blooddy.crypto.serialization {
 			var o:Object = {a:"\u"};
 			Assert.assertEquals(
 				blooddyJSON.encode( o ),
-				nativeJSON.stringify( o )
+//				nativeJSON.stringify( o )
+				'{"a":"u"}'
 			);
 		}
 		
@@ -872,5 +888,5 @@ package by.blooddy.crypto.serialization {
 		}
 		
 	}
-
+	
 }

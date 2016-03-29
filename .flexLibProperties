@@ -8,6 +8,14 @@
     <classEntry path="by.blooddy.crypto.SHA1"/>
     <classEntry path="by.blooddy.crypto.SHA224"/>
     <classEntry path="by.blooddy.crypto.SHA256"/>
+    <classEntry path="by.blooddy.crypto.image.JPEGEncoder"/>
+    <classEntry path="by.blooddy.crypto.image.PNG24Encoder"/>
+    <classEntry path="by.blooddy.crypto.image.PNG8Encoder"/>
+    <classEntry path="by.blooddy.crypto.image.PNGEncoder"/>
+    <classEntry path="by.blooddy.crypto.image.PNGFilter"/>
+    <classEntry path="by.blooddy.crypto.image.palette.IPalette"/>
+    <classEntry path="by.blooddy.crypto.image.palette.LevelsPalette"/>
+    <classEntry path="by.blooddy.crypto.image.palette.MedianCutPalette"/>
     <classEntry path="by.blooddy.crypto.serialization.JSON"/>
   </includeClasses>
   <includeResources/>

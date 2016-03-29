@@ -340,7 +340,6 @@ package by.blooddy.crypto {
 		 * Constructor
 		 */
 		public function SHA1() {
-			super();
 			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
 		}
 		

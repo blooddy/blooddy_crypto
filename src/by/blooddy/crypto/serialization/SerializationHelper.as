@@ -39,12 +39,17 @@ package by.blooddy.crypto.serialization {
 		//
 		//--------------------------------------------------------------------------
 
-		public static function getPropertyNames(o:Object):Array {
+		public static function getPropertyNames(o:Object):Vector.<String> {
+
 			if ( typeof o != 'object' || !o ) Error.throwError( TypeError, 2007, 'o' );
+
 			var c:Object = o is Class ? o as Class : o.constructor;
-			var arr:Array = _HASH[ c ];
-			if ( !arr ) {
-				arr = new Array();
+
+			var result:Vector.<String> = _HASH[ c ];
+
+			if ( !result ) {
+
+				result = new Vector.<String>();
 
 				try {
 
@@ -53,12 +58,12 @@ package by.blooddy.crypto.serialization {
 						var a:Object;
 						for each ( a in o.traits.accessors ) {
 							if ( !a.uri && a.access.charAt( 0 ) == 'r' ) {
-								arr.push( a.name );
+								result.push( a.name );
 							}
 						}
 						for each ( a in o.traits.variables ) {
 							if ( !a.uri ) {
-								arr.push( a.name );
+								result.push( a.name );
 							}
 						}
 					}
@@ -82,17 +87,19 @@ package by.blooddy.crypto.serialization {
 						) {
 							list = x.metadata;
 							if ( list.length() <= 0 || list.( @name == 'Transient' ).length() <= 0 ) {
-								arr.push( x.@name.toString() );
+								result.push( x.@name.toString() );
 							}
 						}
 					}
 					
 				}
 
-				_HASH[ c ] = arr;
+				_HASH[ c ] = result;
 
 			}
-			return arr.slice();
+
+			return result.slice();
+
 		}
 
 		//--------------------------------------------------------------------------
