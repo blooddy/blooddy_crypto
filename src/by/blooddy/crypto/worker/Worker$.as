@@ -17,7 +17,7 @@ package by.blooddy.crypto.worker {
 	 */
 	internal interface Worker$ {
 
-		function call(success:Function, fault:Function, method:QName, args:Array):void;
+		function call(success:Function, fault:Function, className:String, methodName:String, args:Array):void;
 		
 	}
 

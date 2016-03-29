@@ -56,12 +56,12 @@ package by.blooddy.crypto.worker {
 		/**
 		 * @inheritDoc
 		 */
-		public function call(success:Function, fault:Function, method:QName, args:Array):void {
+		public function call(success:Function, fault:Function, className:String, methodName:String, args:Array):void {
 			setTimeout( function():void {
 				try {
 
-					var target:Object = ApplicationDomain.currentDomain.getDefinition( method.uri );
-					success( target[ method.localName ].apply( target, args ) );
+					var target:Object = ApplicationDomain.currentDomain.getDefinition( className );
+					success( target[ methodName ].apply( target, args ) );
 
 				} catch ( e:Error ) {
 

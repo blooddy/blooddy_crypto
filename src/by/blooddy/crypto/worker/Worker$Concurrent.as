@@ -91,11 +91,11 @@ package by.blooddy.crypto.worker {
 		/**
 		 * @inheritDoc
 		 */
-		public function call(success:Function, fault:Function, method:QName, arguments:Array):void {
+		public function call(success:Function, fault:Function, className:String, methodName:String, arguments:Array):void {
 			
 			_QUEUE.push( success, fault );
 
-			_CHANNEL.send( { method: method, arguments: arguments } );
+			_CHANNEL.send( { c: className, m: methodName, a: arguments } );
 
 		}
 		

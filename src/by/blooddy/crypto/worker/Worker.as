@@ -9,7 +9,7 @@ package by.blooddy.crypto.worker {
 	import flash.events.EventDispatcher;
 	import flash.utils.getQualifiedClassName;
 	
-	[Event( type="by.blooddy.crypto.worker.WorkerEvent", name="result" )]
+	[Event( type="by.blooddy.crypto.worker.WorkerEvent", name="success" )]
 	[Event( type="by.blooddy.crypto.worker.WorkerEvent", name="fault" )]
 	
 	/**
@@ -72,7 +72,7 @@ package by.blooddy.crypto.worker {
 		protected function call(method:String, ...args):void {
 			worker.call(
 				this.success, this.fail,
-				new QName( getQualifiedClassName( this ), method ),
+				getQualifiedClassName( this ), method,
 				args
 			);
 		}

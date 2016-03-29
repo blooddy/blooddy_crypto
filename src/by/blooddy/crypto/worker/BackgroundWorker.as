@@ -6,12 +6,12 @@
 
 package by.blooddy.crypto.worker {
 
+	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.system.ApplicationDomain;
 	import flash.system.MessageChannel;
 	import flash.system.Worker;
 	
-	[ExcludeClass]
 	/**
 	 * @private
 	 * @author					BlooDHounD
@@ -20,7 +20,7 @@ package by.blooddy.crypto.worker {
 	 * @langversion				3.0
 	 * @created					Mar 28, 2016 11:24:15 AM
 	 */
-	public final class BackgroundWorker {
+	public final class BackgroundWorker extends Sprite {
 
 		//--------------------------------------------------------------------------
 		//
@@ -39,15 +39,12 @@ package by.blooddy.crypto.worker {
 
 				var data:Object = input.receive( true );
 
-				var method:QName = data.method;
-				var arguments:Array = data.arguments;
-
 				try {
 					
-					var target:Object = ApplicationDomain.currentDomain.getDefinition( method.uri );
+					var target:Object = ApplicationDomain.currentDomain.getDefinition( data.c );
 					
 					output.send( {
-						success: target[ method.localName ].apply( target, arguments )
+						success: target[ data.m ].apply( target, data.a )
 					} );
 					
 				} catch ( e:Error ) {
