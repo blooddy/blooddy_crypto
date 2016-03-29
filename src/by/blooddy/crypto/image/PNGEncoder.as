@@ -10,9 +10,9 @@ package by.blooddy.crypto.image {
 	import flash.display.PNGEncoderOptions;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
-	import flash.utils.getQualifiedClassName;
 	
 	import by.blooddy.crypto.CRC32;
+	import by.blooddy.crypto.worker.Worker;
 
 	/**
 	 * Encodes image data using 
@@ -33,7 +33,7 @@ package by.blooddy.crypto.image {
 	 * @langversion				3.0
 	 * @created					05.07.2010 17:44:26
 	 */
-	public class PNGEncoder {
+	public class PNGEncoder extends Worker {
 
 		//--------------------------------------------------------------------------
 		//
@@ -226,14 +226,34 @@ package by.blooddy.crypto.image {
 		//
 		//--------------------------------------------------------------------------
 
-		/**
-		 * @private
-		 * Constructor
-		 */
 		public function PNGEncoder() {
-			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
+			super();
 		}
 
+		//--------------------------------------------------------------------------
+		//
+		//  Methods
+		//
+		//--------------------------------------------------------------------------
+		
+		public function encode(image:BitmapData, filter:uint=0):void {
+
+			if ( image == null ) Error.throwError( TypeError, 2007, 'image' );
+			if ( filter < 0 || filter > 4 ) Error.throwError( ArgumentError, 2008, 'filter' );
+			
+			super.call( 'encodeBytes', image.getPixels( image.rect ), image.width, image.height, filter );
+			
+		}
+		
+		public function encodeBytes(bytes:ByteArray, width:uint, height:uint, filter:uint=0):void {
+			
+			if ( bytes == null ) Error.throwError( TypeError, 2007, 'bytes' );
+			if ( filter < 0 || filter > 4 ) Error.throwError( ArgumentError, 2008, 'filter' );
+			
+			super.call( 'encodeBytes', bytes, width, height, filter );
+			
+		}
+		
 	}
 
 }
