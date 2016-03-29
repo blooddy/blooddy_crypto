@@ -12,6 +12,7 @@ package by.blooddy.crypto.worker {
 	import flash.system.MessageChannel;
 	import flash.system.Worker;
 	
+	[SWF( width="1", height="1", frameRate="1", scriptTimeLimit="-1", scriptRecursionLimit="10000", pageTitle="blooddy_crypto" )]
 	/**
 	 * @private
 	 * @author					BlooDHounD

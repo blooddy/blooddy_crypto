@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<flex-config>
+
+	<compiler>
+
+		<debug>true</debug>
+		<optimize>true</optimize>
+		<show-actionscript-warnings>false</show-actionscript-warnings>
+
+	</compiler>
+
+	<target-player>21</target-player>
+
+	<metadata>
+		<title>blooddy_crypto</title>
+		<publisher>BlooDHounD</publisher>
+		<creator>BlooDHounD</creator>
+		<description>http://www.blooddy.by</description>
+	</metadata>
+
+</flex-config>

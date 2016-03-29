@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<flex-config>
+
+	<compiler>
+
+		<debug>false</debug>
+		<compress>true</compress>
+
+	</compiler>
+
+</flex-config>
