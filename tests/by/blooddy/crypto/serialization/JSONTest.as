@@ -896,7 +896,10 @@ package by.blooddy.crypto.serialization {
 			var json:by.blooddy.crypto.serialization.JSON = new blooddyJSON();
 			json.parse( '{"key1":[{"key2":5},67,"test",null],"key3":[true,false]}' );
 			json.addEventListener( WorkerEvent.SUCCESS, Async.asyncHandler( this, function(event:WorkerEvent, data:*):void {
-				Assert.assertEquals( event.data, {"key1":[{"key2":5},67,"test",null]} );
+				Assert.assertTrue( equalsObjects(
+					event.data,
+					{"key1":[{"key2":5},67,"test",null],"key3":[true,false]}
+				) );
 			}, 1e3 ) );
 			Async.registerFailureEvent( this, json, WorkerEvent.FAULT );
 			
