@@ -67,6 +67,37 @@ package by.blooddy.crypto.image {
 			
 		}
 		
+		/**
+		 * Creates a JPEG image from the specified <code>ByteArray</code>.
+		 * 
+		 * Used <code>flash.display.BitmapData.encode</code>, if posible.
+		 *
+		 * @param	bytes		The <code>ByteArray</code> to be encoded.
+		 * @param	width		
+		 * @param	height		
+		 *
+		 * @param	quality		The compression level, possible values are 1 through 100 inclusive.
+		 *
+		 * @return 				a <code>ByteArray</code> representing the JPEG encoded image data.
+		 *
+		 * @see					#encode()
+		 */
+		public static function encodeBytes(bytes:ByteArray, width:uint, height:uint, quality:uint=60):ByteArray {
+			
+			if ( bytes == null ) Error.throwError( TypeError, 2007, 'bytes' );
+			if ( quality > 100 ) Error.throwError( RangeError, 2006, 'quality' );
+			
+			var image:BitmapData = new BitmapData( width, height, false );
+
+			var pos:uint = bytes.position;
+			bytes.position = 0;
+			image.setPixels( image.rect, bytes );
+			bytes.position = pos;
+			
+			return encode( image, quality );
+			
+		}
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Private class methods

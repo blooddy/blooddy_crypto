@@ -46,7 +46,6 @@ package by.blooddy.crypto.image {
 		 *
 		 * @return					The sequence of bytes containing the encoded image.
 		 *
-		 * @throws	TypeError		
 		 * @throws	ArgumentError	No such filter.
 		 *
 		 * @see 					by.blooddy.crypto.image.PNGFilter
@@ -66,6 +65,45 @@ package by.blooddy.crypto.image {
 				)
 			);
 
+		}
+
+		/**
+		 * Creates a PNG-encoded byte sequence from the specified <code>ByteArray</code>.
+		 * 
+		 * @param	bytes			The <code>ByteArray</code> to be encoded.
+		 * @param	width			Image width.
+		 * @param	height			Image height.
+		 * 
+		 * @param	filter			The encoding algorithm you wish to apply while encoding.
+		 * 							Use the constants provided in 
+		 * 							<code>by.blooddy.crypto.image.PNGFilter</code> class.
+		 * 
+		 * @param	palette			The color patette to use.
+		 * 							If <code>null</code> given, the
+		 * 							<code>by.blooddy.crypto.image.palette.MedianCutPalette</code>
+		 * 							will be used.
+		 * 
+		 * @return					The sequence of bytes containing the encoded image.
+		 * 
+		 * @throws	ArgumentError	No such filter.
+		 * 
+		 * @see						by.blooddy.crypto.image.PNGFilter
+		 * @see						#encode()
+		 */
+		public static function encodeBytes(bytes:ByteArray, width:uint, height:uint, filter:uint=0, palette:IPalette=null):ByteArray {
+			
+			if ( bytes == null ) Error.throwError( TypeError, 2007, 'bytes' );
+			if ( filter < 0 || filter > 4 ) Error.throwError( ArgumentError, 2008, 'filter' );
+			
+			var image:BitmapData = new BitmapData( width, height, false );
+			
+			var pos:uint = bytes.position;
+			bytes.position = 0;
+			image.setPixels( image.rect, bytes );
+			bytes.position = pos;
+			
+			return encode( image, filter, palette );
+			
 		}
 
 		//--------------------------------------------------------------------------
