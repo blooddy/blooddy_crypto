@@ -7,7 +7,8 @@
 package by.blooddy.crypto.serialization {
 
 	import flash.system.ApplicationDomain;
-	import flash.utils.getQualifiedClassName;
+	
+	import by.blooddy.crypto.worker.Worker;
 
 	/**
 	 * The JSON class lets applications import and export data
@@ -21,7 +22,7 @@ package by.blooddy.crypto.serialization {
 	 * 
 	 * @see						http://www.json.org
 	 */
-	public final class JSON {
+	public final class JSON extends Worker {
 
 		//--------------------------------------------------------------------------
 		//
@@ -101,12 +102,22 @@ package by.blooddy.crypto.serialization {
 		//
 		//--------------------------------------------------------------------------
 		
-		/**
-		 * @private
-		 * Constructor
-		 */
 		public function JSON() {
-			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
+			super();
+		}
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Methods
+		//
+		//--------------------------------------------------------------------------
+		
+		public function stringify(value:*):void {
+			super.call( 'stringify', value );
+		}
+		
+		public function parse(value:String):* {
+			super.call( 'parse', value );
 		}
 		
 	}
