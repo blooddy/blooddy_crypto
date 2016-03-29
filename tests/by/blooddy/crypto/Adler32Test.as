@@ -8,8 +8,11 @@ package by.blooddy.crypto {
 
 	import flash.utils.ByteArray;
 	
+	import by.blooddy.crypto.worker.WorkerEvent;
+	
 	import flexunit.framework.Assert;
 	
+	import org.flexunit.async.Async;
 	import org.flexunit.runners.Parameterized;
 	
 	[RunWith( "org.flexunit.runners.Parameterized" )]
@@ -47,6 +50,21 @@ package by.blooddy.crypto {
 			Assert.assertEquals( Adler32.hashBytes( bytes ), result );
 		}
 
+		[Test( async, dataProvider="$hash" )]
+		public function asyncHash(str:String, result:uint):void {
+			
+			var bytes:ByteArray = new ByteArray();
+			bytes.writeUTFBytes( str );
+			
+			var hash:Adler32 = new Adler32();
+			hash.hashBytes( bytes );
+			hash.addEventListener( WorkerEvent.SUCCESS, Async.asyncHandler( this, function(event:WorkerEvent, data:*):void {
+				Assert.assertEquals( event.data, result );
+			}, 1e3 ) );
+			Async.registerFailureEvent( this, hash, WorkerEvent.FAULT );
+			
+		}
+		
 	}
 
 }
