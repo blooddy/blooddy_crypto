@@ -352,13 +352,14 @@ package by.blooddy.crypto.serialization {
 		
 		[Test]
 		public function encode_object_key_undefined_NaN():void {
-			Assert.assertEquals(
-				blooddyJSON.encode( {undefined:1,NaN:2} ),
-//				nativeJSON.stringify( {undefined:1,NaN:2} )
-				'{"NaN":2,"undefined":1}'
+			var result:String = blooddyJSON.encode( {undefined:1,NaN:2} );
+//			nativeJSON.stringify( {undefined:1,NaN:2} )
+			Assert.assertTrue(
+				result == '{"NaN":2,"undefined":1}' ||
+				result == '{"undefined":1,"NaN":2}'
 			);
 		}
-		
+
 		[Test( order=1 )]
 		public function encode_object_class():void {
 			Assert.assertTrue(
@@ -393,13 +394,14 @@ package by.blooddy.crypto.serialization {
 		[Test]
 		public function encode_dic():void {
 			var dic:Dictionary = new Dictionary();
-			Assert.assertEquals(
-				blooddyJSON.encode( dic ),
-//				nativeJSON.stringify( dic )
-				'{}'
+			var result:String = blooddyJSON.encode( dic );
+//			nativeJSON.stringify( dic )
+			Assert.assertTrue(
+				result == '{}' ||
+				result == '"Dictionary"'
 			);
 		}
-		
+
 		[Test]
 		public function encode_dic_toJSON_recursion():void {
 			var dic:Dictionary = new Dictionary();
@@ -418,45 +420,49 @@ package by.blooddy.crypto.serialization {
 		[Test]
 		public function encode_regexp():void {
 			var exp:RegExp = /asd/g;
-			Assert.assertEquals(
-				blooddyJSON.encode( exp ),
-//				nativeJSON.stringify( exp )
-				'{"lastIndex":0,"ignoreCase":false,"global":true,"source":"asd","multiline":false,"dotall":false,"extended":false}'
+			var result:String = blooddyJSON.encode( exp );
+//			nativeJSON.stringify( exp )
+			Assert.assertTrue(
+				result == '{"lastIndex":0,"ignoreCase":false,"global":true,"source":"asd","multiline":false,"dotall":false,"extended":false}' ||
+				result == '{"ignoreCase":false,"multiline":false,"dotall":false,"extended":false,"source":"asd","lastIndex":0,"global":true}'
 			);
 		}
-		
+
 		[Test]
 		public function encode_date():void {
 			var d:Date = new Date( 555555555 );
-			Assert.assertEquals(
-				blooddyJSON.encode( d ),
-//				nativeJSON.stringify( d )
-				'{"date":7,"hours":13,"minutes":19,"seconds":15,"milliseconds":555,"fullYearUTC":1970,"monthUTC":0,"dateUTC":7,"hoursUTC":10,"minutesUTC":19,"secondsUTC":15,"millisecondsUTC":555,"time":555555555,"timezoneOffset":-180,"day":3,"dayUTC":3,"fullYear":1970,"month":0}'
+			var result:String = blooddyJSON.encode( d );
+//			nativeJSON.stringify( d )
+			Assert.assertTrue(
+				result == '"Wed Jan 7 13:19:15 GMT+0300 1970"' ||
+				result == '{"date":7,"hours":13,"minutes":19,"seconds":15,"milliseconds":555,"fullYearUTC":1970,"monthUTC":0,"dateUTC":7,"hoursUTC":10,"minutesUTC":19,"secondsUTC":15,"millisecondsUTC":555,"time":555555555,"timezoneOffset":-180,"day":3,"dayUTC":3,"fullYear":1970,"month":0}'
 			);
 		}
-		
+
 		[Test]
 		public function encode_date_recursion():void {
 			var d:Date = new Date( 555555555 );
 			d.toJSON = function(k:String):* {
 				return d;
 			}
-			Assert.assertEquals(
-				blooddyJSON.encode( d ),
-//				nativeJSON.stringify( d )
-				'{"date":7,"hours":13,"minutes":19,"seconds":15,"milliseconds":555,"fullYearUTC":1970,"monthUTC":0,"dateUTC":7,"hoursUTC":10,"minutesUTC":19,"secondsUTC":15,"millisecondsUTC":555,"time":555555555,"timezoneOffset":-180,"day":3,"dayUTC":3,"fullYear":1970,"month":0}'
+			var result:String = blooddyJSON.encode( d );
+//			nativeJSON.stringify( d )
+			Assert.assertTrue(
+				result == '{"date":7,"hours":13,"minutes":19,"seconds":15,"milliseconds":555,"fullYearUTC":1970,"monthUTC":0,"dateUTC":7,"hoursUTC":10,"minutesUTC":19,"secondsUTC":15,"millisecondsUTC":555,"time":555555555,"timezoneOffset":-180,"day":3,"dayUTC":3,"fullYear":1970,"month":0}' ||
+				result == '{"fullYear":1970,"month":0,"date":7,"seconds":15,"fullYearUTC":1970,"monthUTC":0,"hoursUTC":10,"minutesUTC":19,"secondsUTC":15,"minutes":19,"time":555555555,"milliseconds":555,"day":3,"dayUTC":3,"timezoneOffset":-180,"hours":13,"dateUTC":7,"millisecondsUTC":555}'
 			);
 		}
-		
+
 		[Test]
 		public function encode_bytearray():void {
 			var bytes:ByteArray = new ByteArray();
 			bytes.writeBoolean( true );
 			bytes.writeUTFBytes( 'asd' );
-			Assert.assertEquals(
-				blooddyJSON.encode( bytes ),
-//				nativeJSON.stringify( bytes )
-				'null'
+			var result:String = blooddyJSON.encode( bytes );
+//			nativeJSON.stringify( bytes )
+			Assert.assertTrue(
+				result == 'null' ||
+				result == '"ByteArray"'
 			);
 		}
 		
@@ -465,13 +471,14 @@ package by.blooddy.crypto.serialization {
 			var bytes:SimpleByteArray = new SimpleByteArray();
 			bytes.writeBoolean( true );
 			bytes.writeUTFBytes( 'asd' );
-			Assert.assertEquals(
-				blooddyJSON.encode( bytes ),
-//				nativeJSON.stringify( bytes )
-				'{"bytesAvailable":0,"length":4,"endian":"bigEndian","objectEncoding":3,"position":4}'
+			var result:String = blooddyJSON.encode( bytes );
+//			nativeJSON.stringify( bytes )
+			Assert.assertTrue(
+				result == '{"bytesAvailable":0,"length":4,"endian":"bigEndian","objectEncoding":3,"position":4}' ||
+				result == '{"objectEncoding":3,"bytesAvailable":0,"endian":"bigEndian","length":4,"position":4}'
 			);
 		}
-		
+
 		[Test]
 		public function encode_issue_15():void {
 			var o:Object = {a:"\u"};
