@@ -69,11 +69,10 @@ package by.blooddy.crypto.worker {
 		 * @param	method
 		 * @param	args
 		 */
-		protected function call(method:String, ...args):void {
-			worker.call(
-				this.success, this.fail,
-				getQualifiedClassName( this ), method,
-				args
+		protected function call(method:String, ...arguments):void {
+			worker.process(
+				getQualifiedClassName( this ), method, arguments,
+				this.success, this.fail
 			);
 		}
 

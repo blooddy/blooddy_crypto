@@ -94,7 +94,7 @@ package by.blooddy.crypto.worker {
 		/**
 		 * @inheritDoc
 		 */
-		public function call(success:Function, fault:Function, className:String, methodName:String, arguments:Array):void {
+		public function process(className:String, methodName:String, arguments:Array, success:Function, fault:Function):void {
 			
 			_QUEUE.push( success, fault );
 

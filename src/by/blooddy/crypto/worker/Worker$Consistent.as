@@ -56,7 +56,7 @@ package by.blooddy.crypto.worker {
 		/**
 		 * @inheritDoc
 		 */
-		public function call(success:Function, fault:Function, className:String, methodName:String, args:Array):void {
+		public function process(className:String, methodName:String, args:Array, success:Function, fault:Function):void {
 			setTimeout( function():void {
 				try {
 

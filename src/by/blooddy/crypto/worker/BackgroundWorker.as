@@ -37,9 +37,17 @@ package by.blooddy.crypto.worker {
 			var output:MessageChannel = worker.getSharedProperty( 'output' );
 
 			input.addEventListener( Event.CHANNEL_MESSAGE, function(event:Event):void {
-
+				process();
+			} );
+			
+			if ( input.messageAvailable ) {
+				process();
+			}
+			
+			function process():void {
+				
 				var data:Object = input.receive( true );
-
+				
 				try {
 					
 					var target:Object = ApplicationDomain.currentDomain.getDefinition( data.c );
@@ -56,7 +64,7 @@ package by.blooddy.crypto.worker {
 					
 				}
 
-			} );
+			}
 			
 			return output;
 			
