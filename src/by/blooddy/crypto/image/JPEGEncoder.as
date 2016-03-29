@@ -12,6 +12,8 @@ package by.blooddy.crypto.image {
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
 	
+	import by.blooddy.crypto.worker.Worker;
+	
 	/**
 	 * Encodes image data using
 	 * <a href="http://www.w3.org/Graphics/JPEG/itu-t81.pdf">JPEG</a> compression method.
@@ -21,7 +23,7 @@ package by.blooddy.crypto.image {
 	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 */
-	public final class JPEGEncoder {
+	public final class JPEGEncoder extends Worker {
 		
 		//--------------------------------------------------------------------------
 		//
