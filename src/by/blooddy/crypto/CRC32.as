@@ -8,11 +8,12 @@ package by.blooddy.crypto {
 
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
-	import flash.utils.getQualifiedClassName;
 	
 	import avm2.intrinsics.memory.li32;
 	import avm2.intrinsics.memory.li8;
 	import avm2.intrinsics.memory.si32;
+	
+	import by.blooddy.crypto.worker.Worker;
 
 	/**
 	 * Generates a <a href="http://www.mathpages.com/home/kmath458.htm">CRC hash
@@ -24,7 +25,7 @@ package by.blooddy.crypto {
 	 * @langversion				3.0
 	 * @created					28.01.2011 20:07:33
 	 */
-	public final class CRC32 {
+	public final class CRC32 extends Worker {
 
 		//--------------------------------------------------------------------------
 		//
@@ -129,14 +130,20 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 
-		/**
-		 * @private
-		 * Constructor
-		 */
 		public function CRC32() {
-			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
+			super();
 		}
 
+		//--------------------------------------------------------------------------
+		//
+		//  Methods
+		//
+		//--------------------------------------------------------------------------
+		
+		public function hashBytes(bytes:ByteArray):void {
+			super.call( 'hashBytes', bytes );
+		}
+		
 	}
 
 }
