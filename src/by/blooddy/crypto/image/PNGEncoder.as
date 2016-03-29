@@ -10,6 +10,7 @@ package by.blooddy.crypto.image {
 	import flash.display.PNGEncoderOptions;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
+	import flash.utils.getQualifiedClassName;
 	
 	import by.blooddy.crypto.CRC32;
 	import by.blooddy.crypto.worker.Worker;
@@ -227,7 +228,11 @@ package by.blooddy.crypto.image {
 		//--------------------------------------------------------------------------
 
 		public function PNGEncoder() {
-			super();
+			if ( ( this as Object ).constructor == PNG24Encoder || ( this as Object ).constructor == PNG8Encoder ) {
+				super();
+			} else {
+				Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
+			}
 		}
 
 		//--------------------------------------------------------------------------
