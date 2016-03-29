@@ -8,9 +8,10 @@ package by.blooddy.crypto {
 
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
-	import flash.utils.getQualifiedClassName;
 	
 	import avm2.intrinsics.memory.li8;
+	
+	import by.blooddy.crypto.worker.Worker;
 
 	/**
 	 * @author					BlooDHounD
@@ -18,7 +19,7 @@ package by.blooddy.crypto {
 	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 */
-	public final class Adler32 {
+	public final class Adler32 extends Worker {
 
 		//--------------------------------------------------------------------------
 		//
@@ -94,12 +95,18 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
-		/**
-		 * @private
-		 * Constructor
-		 */
 		public function Adler32() {
-			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
+			super();
+		}
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Methods
+		//
+		//--------------------------------------------------------------------------
+		
+		public function hashBytes(bytes:ByteArray):void {
+			super.call( 'hashBytes', bytes );
 		}
 		
 	}
