@@ -11,7 +11,6 @@ package by.blooddy.crypto.image {
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
-	import flash.utils.getQualifiedClassName;
 	
 	/**
 	 * Encodes image data using
@@ -251,12 +250,32 @@ package by.blooddy.crypto.image {
 		//
 		//--------------------------------------------------------------------------
 		
-		/**
-		 * @private
-		 * Constructor
-		 */
 		public function JPEGEncoder() {
-			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
+			super();
+		}
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Methods
+		//
+		//--------------------------------------------------------------------------
+		
+		public function encode(image:BitmapData, quality:uint=60):void {
+			
+			if ( image == null ) Error.throwError( TypeError, 2007, 'image' );
+			if ( quality > 100 ) Error.throwError( RangeError, 2006, 'quality' );
+			
+			super.call( 'encodeBytes', image.getPixels( image.rect ), image.width, image.height, quality );
+			
+		}
+		
+		public function encodeBytes(bytes:ByteArray, width:uint, height:uint, quality:uint=60):void {
+			
+			if ( bytes == null ) Error.throwError( TypeError, 2007, 'bytes' );
+			if ( quality > 100 ) Error.throwError( RangeError, 2006, 'quality' );
+			
+			super.call( 'encodeBytes', bytes, width, height, quality );
+			
 		}
 		
 	}
