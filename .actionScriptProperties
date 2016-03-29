@@ -48,7 +48,9 @@
     <application path="blooddy_crypto_git.as"/>
   </applications>
   <modules/>
-  <workers/>
+  <workers>
+    <worker embed="true" path="src/by/blooddy/crypto/worker/BackgroundWorker.as"/>
+  </workers>
   <buildCSSFiles/>
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
 </actionScriptProperties>

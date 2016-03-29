@@ -8,12 +8,13 @@ package by.blooddy.crypto {
 
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
-	import flash.utils.getQualifiedClassName;
 	
 	import avm2.intrinsics.memory.li32;
 	import avm2.intrinsics.memory.li8;
 	import avm2.intrinsics.memory.si32;
 	import avm2.intrinsics.memory.si8;
+	
+	import by.blooddy.crypto.worker.Worker;
 	
 	/**
 	 * Encodes and decodes binary data using
@@ -25,7 +26,7 @@ package by.blooddy.crypto {
 	 * @langversion				3.0
 	 * @created					07.03.2011 14:48:31
 	 */
-	public final class MD5 {
+	public final class MD5 extends Worker {
 
 		//--------------------------------------------------------------------------
 		//
@@ -576,14 +577,28 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
-		/**
-		 * @private
-		 * Constructor
-		 */
 		public function MD5() {
-			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
+			super();
 		}
 		
+		//--------------------------------------------------------------------------
+		//
+		//  Methods
+		//
+		//--------------------------------------------------------------------------
+		
+		public function hash(str:String):void {
+			super.call( 'hash', str );
+		}
+		
+		public function hashBytes(bytes:ByteArray):void {
+			super.call( 'hashBytes', bytes );
+		}
+		
+		public function digest(bytes:ByteArray):void {
+			super.call( 'digest', bytes );
+		}
+
 	}
 	
 }

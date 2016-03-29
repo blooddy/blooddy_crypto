@@ -8,7 +8,6 @@ package by.blooddy.crypto.image {
 
 	import flash.display.BitmapData;
 	import flash.utils.ByteArray;
-	import flash.utils.getQualifiedClassName;
 	
 	import by.blooddy.crypto.image.palette.IPalette;
 	import by.blooddy.crypto.image.palette.MedianCutPalette;
@@ -186,12 +185,8 @@ package by.blooddy.crypto.image {
 		//
 		//--------------------------------------------------------------------------
 		
-		/**
-		 * @private
-		 * Constructor
-		 */
 		public function PNG8Encoder() {
-			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
+			super();
 		}
 		
 	}

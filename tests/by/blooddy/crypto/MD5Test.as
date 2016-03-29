@@ -6,8 +6,11 @@
 
 package by.blooddy.crypto {
 
+	import by.blooddy.crypto.worker.WorkerEvent;
+	
 	import flexunit.framework.Assert;
 	
+	import org.flexunit.async.Async;
 	import org.flexunit.runners.Parameterized;
 	
 	[RunWith( "org.flexunit.runners.Parameterized" )]
@@ -49,6 +52,18 @@ package by.blooddy.crypto {
 			Assert.assertEquals( MD5.hash( str ), result );
 		}
 		
+		[Test( async, dataProvider="$hash" )]
+		public function asyncHash(result:String, str:String):void {
+			
+			var hash:MD5 = new MD5();
+			hash.hash( str );
+			hash.addEventListener( WorkerEvent.SUCCESS, Async.asyncHandler( this, function(event:WorkerEvent, data:*):void {
+				Assert.assertEquals( event.data, result );
+			}, 1e3 ) );
+			Async.registerFailureEvent( this, hash, WorkerEvent.FAULT );
+
+		}
+
 	}
 	
 }

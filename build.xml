@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="blooddy_crypto" default="compile">
+
+	<property file="build.properties" />
+	
+	<property name="AIR_SDK_HOME" value="${flex.sdk}" />
+    <property name="FLEX_HOME" value="${flex.sdk}" />
+	
+	<taskdef resource="flexTasks.tasks" classpath="${flex.sdk}/ant/lib/flexTasks.jar" />
+
+	<target name="tmp.worker">
+
+		<property name="worker.path" value="${basedir}/src/by/blooddy/crypto/worker" />
+		<property name="worker.name" value="BackgroundWorker" />
+
+		<copy
+			file="${worker.path}/${worker.name}.swf"
+			tofile="${worker.path}/${worker.name}.tmp.swf"
+		/>
+
+	</target>
+
+	<target name="untmp.worker">
+	
+		<property name="worker.path" value="${basedir}/src/by/blooddy/crypto/worker" />
+		<property name="worker.name" value="BackgroundWorker" />
+
+		<move
+			file="${worker.path}/${worker.name}.tmp.swf"
+			toFile="${worker.path}/${worker.name}.swf"
+		/>
+	
+	</target>
+
+	<target name="compile.worker" description="Compile Worker">
+
+		<property name="worker.path" value="${basedir}/src/by/blooddy/crypto/worker" />
+		<property name="worker.name" value="BackgroundWorker" />
+
+		<mxmlc failonerror="true"
+			file="${worker.path}/${worker.name}.as"
+			output="${worker.path}/${worker.name}.swf"
+			swf-version="17"
+		>
+
+			<load-config filename="${flex.sdk}/frameworks/air-config.xml" />
+			<load-config filename="${basedir}/build.config.xml" />
+			<load-config filename="${basedir}/build.config.worker.xml" />
+
+			<source-path path-element="${basedir}/src" />
+ 
+			<includes symbol="by.blooddy.crypto.Adler32" />
+			<includes symbol="by.blooddy.crypto.Base64" />
+			<includes symbol="by.blooddy.crypto.CRC32" />
+			<includes symbol="by.blooddy.crypto.MD5" />
+			<includes symbol="by.blooddy.crypto.SHA1" />
+			<includes symbol="by.blooddy.crypto.SHA224" />
+			<includes symbol="by.blooddy.crypto.SHA256" />
+			<includes symbol="by.blooddy.crypto.serialization.JSON" />
+			<includes symbol="by.blooddy.crypto.image.PNGEncoder" />
+			<includes symbol="by.blooddy.crypto.image.JPEGEncoder" />
+
+			<externs symbol="by.blooddy.crypto.worker.Worker$Concurrent" />
+			<externs symbol="by.blooddy.crypto.worker.WorkerEvent" />
+			<externs symbol="by.blooddy.crypto.worker.BackgroundWorkerSWF" />
+ 
+		</mxmlc>
+
+	</target>
+
+	<target name="compile.library" depends="compile.worker" description="Compile Library">
+
+		<compc failonerror="true"
+			output="${basedir}/bin/blooddy_crypto.swc"
+			swf-version="10"
+			include-classes="by.blooddy.crypto.Adler32 by.blooddy.crypto.Base64 by.blooddy.crypto.CRC32 by.blooddy.crypto.MD5 by.blooddy.crypto.SHA1 by.blooddy.crypto.SHA224 by.blooddy.crypto.SHA256 by.blooddy.crypto.serialization.JSON by.blooddy.crypto.image.PNGEncoder by.blooddy.crypto.image.JPEGEncoder"
+		>
+
+			<load-config filename="${flex.sdk}/frameworks/air-config.xml" />
+			<load-config filename="${basedir}/build.config.xml" />
+
+			<source-path path-element="${basedir}/src" />
+
+		</compc>
+
+	</target>
+
+
+	<target name="compile">
+		<antcall target="tmp.worker" />
+		<antcall target="compile.library" />
+		<antcall target="untmp.worker" />
+	</target>
+
+</project>
