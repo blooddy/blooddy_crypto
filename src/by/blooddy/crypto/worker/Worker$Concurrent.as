@@ -10,6 +10,7 @@ package by.blooddy.crypto.worker {
 	import flash.system.MessageChannel;
 	import flash.system.Worker;
 	import flash.system.WorkerDomain;
+	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
 
 	[ExcludeClass]
@@ -41,7 +42,10 @@ package by.blooddy.crypto.worker {
 		
 		private static const _CHANNEL:MessageChannel = ( function():MessageChannel {
 			
-			var worker:flash.system.Worker = WorkerDomain.current.createWorker( new BackgroundWorkerSWF() );
+			[Embed( source="BackgroundWorker.swf", mimeType="application/octet-stream" )]
+			var BackgroundWorkerSWF:Class;
+			
+			var worker:flash.system.Worker = WorkerDomain.current.createWorker( new BackgroundWorkerSWF() as ByteArray );
 			
 			var input:MessageChannel = worker.createMessageChannel( flash.system.Worker.current );
 			var output:MessageChannel = flash.system.Worker.current.createMessageChannel( worker );
