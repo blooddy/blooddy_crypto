@@ -14,7 +14,7 @@ package by.blooddy.crypto {
 	import avm2.intrinsics.memory.si32;
 	import avm2.intrinsics.memory.si8;
 	
-	import by.blooddy.crypto.worker.Worker;
+	import by.blooddy.crypto.process.Process;
 
 	[ExcludeClass]
 	/**
@@ -25,7 +25,7 @@ package by.blooddy.crypto {
 	 * @langversion				3.0
 	 * @created					21.03.2016 16:47:48
 	 */
-	internal class SHA2 extends Worker {
+	internal class SHA2 extends Process {
 
 		//--------------------------------------------------------------------------
 		//

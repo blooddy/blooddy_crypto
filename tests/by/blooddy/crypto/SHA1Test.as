@@ -1,6 +1,6 @@
 package by.blooddy.crypto {
 
-	import by.blooddy.crypto.worker.WorkerEvent;
+	import by.blooddy.crypto.events.ProcessEvent;
 	
 	import flexunit.framework.Assert;
 	
@@ -51,10 +51,10 @@ package by.blooddy.crypto {
 			
 			var hash:SHA1 = new SHA1();
 			hash.hash( str );
-			hash.addEventListener( WorkerEvent.SUCCESS, Async.asyncHandler( this, function(event:WorkerEvent, data:*):void {
+			hash.addEventListener( ProcessEvent.COMPLETE, Async.asyncHandler( this, function(event:ProcessEvent, data:*):void {
 				Assert.assertEquals( event.data, result );
 			}, 1e3 ) );
-			Async.registerFailureEvent( this, hash, WorkerEvent.FAULT );
+			Async.registerFailureEvent( this, hash, ProcessEvent.ERROR );
 			
 		}
 		

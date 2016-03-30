@@ -8,7 +8,7 @@ package by.blooddy.crypto.serialization {
 
 	import flash.system.ApplicationDomain;
 	
-	import by.blooddy.crypto.worker.Worker;
+	import by.blooddy.crypto.process.Process;
 
 	/**
 	 * The JSON class lets applications import and export data
@@ -22,7 +22,7 @@ package by.blooddy.crypto.serialization {
 	 * 
 	 * @see						http://www.json.org
 	 */
-	public final class JSON extends Worker {
+	public final class JSON extends Process {
 
 		//--------------------------------------------------------------------------
 		//

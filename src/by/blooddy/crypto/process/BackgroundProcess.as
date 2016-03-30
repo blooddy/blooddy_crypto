@@ -4,7 +4,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package by.blooddy.crypto.worker {
+package by.blooddy.crypto.process {
 
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -21,7 +21,7 @@ package by.blooddy.crypto.worker {
 	 * @langversion				3.0
 	 * @created					Mar 28, 2016 11:24:15 AM
 	 */
-	public final class BackgroundWorker extends Sprite {
+	public final class BackgroundProcess extends Sprite {
 
 		//--------------------------------------------------------------------------
 		//
@@ -31,7 +31,7 @@ package by.blooddy.crypto.worker {
 		
 		private static const _CHANNEL:MessageChannel = ( function():MessageChannel {
 			
-			var worker:flash.system.Worker = flash.system.Worker.current;
+			var worker:Worker = Worker.current;
 			
 			var input:MessageChannel = worker.getSharedProperty( 'input' );
 			var output:MessageChannel = worker.getSharedProperty( 'output' );
@@ -70,19 +70,6 @@ package by.blooddy.crypto.worker {
 			
 		}() );
 		
-		//--------------------------------------------------------------------------
-		//
-		//  Constructor
-		//
-		//--------------------------------------------------------------------------
-		
-		/**
-		 * Constructor
-		 */
-		public function BackgroundWorker() {
-			super();
-		}
-
 	}
 	
 }

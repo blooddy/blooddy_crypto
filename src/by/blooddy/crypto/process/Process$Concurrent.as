@@ -4,7 +4,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package by.blooddy.crypto.worker {
+package by.blooddy.crypto.process {
 
 	import flash.events.Event;
 	import flash.system.MessageChannel;
@@ -22,7 +22,7 @@ package by.blooddy.crypto.worker {
 	 * @langversion				3.0
 	 * @created					25.03.2016 15:52:46
 	 */
-	internal final class Worker$Concurrent implements Worker$ {
+	internal final class Process$Concurrent implements Process$ {
 
 		//--------------------------------------------------------------------------
 		//
@@ -30,7 +30,7 @@ package by.blooddy.crypto.worker {
 		//
 		//--------------------------------------------------------------------------
 		
-		internal static const instance:Worker$Concurrent = new Worker$Concurrent();
+		internal static const instance:Process$Concurrent = new Process$Concurrent();
 		
 		//--------------------------------------------------------------------------
 		//
@@ -42,13 +42,13 @@ package by.blooddy.crypto.worker {
 		
 		private static const _CHANNEL:MessageChannel = ( function():MessageChannel {
 			
-			[Embed( source="BackgroundWorker.swf", mimeType="application/octet-stream" )]
+			[Embed( source="BackgroundProcess.swf", mimeType="application/octet-stream" )]
 			var BackgroundWorkerSWF:Class;
 			
-			var worker:flash.system.Worker = WorkerDomain.current.createWorker( new BackgroundWorkerSWF() as ByteArray );
+			var worker:Worker = WorkerDomain.current.createWorker( new BackgroundWorkerSWF() as ByteArray );
 			
-			var input:MessageChannel = worker.createMessageChannel( flash.system.Worker.current );
-			var output:MessageChannel = flash.system.Worker.current.createMessageChannel( worker );
+			var input:MessageChannel = worker.createMessageChannel( Worker.current );
+			var output:MessageChannel = Worker.current.createMessageChannel( worker );
 
 			input.addEventListener( Event.CHANNEL_MESSAGE, function(event:Event):void {
 				var success:Function = _QUEUE.shift();
@@ -77,8 +77,8 @@ package by.blooddy.crypto.worker {
 		 * @private
 		 * Constructor
 		 */
-		public function Worker$Concurrent() {
-			if ( !instance && flash.system.Worker.isSupported ) {
+		public function Process$Concurrent() {
+			if ( !instance && Worker.isSupported ) {
 				super();
 			} else {
 				Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );

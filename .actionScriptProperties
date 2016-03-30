@@ -49,7 +49,7 @@
   </applications>
   <modules/>
   <workers>
-    <worker embed="true" path="src/by/blooddy/crypto/worker/BackgroundWorker.as"/>
+    <worker embed="true" path="src/by/blooddy/crypto/worker/BackgrounProcess.as"/>
   </workers>
   <buildCSSFiles/>
   <flashCatalyst validateFlashCatalystCompatibility="false"/>

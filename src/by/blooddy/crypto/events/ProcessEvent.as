@@ -4,8 +4,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package by.blooddy.crypto.worker {
+package by.blooddy.crypto.events {
 
+	import flash.events.ErrorEvent;
 	import flash.events.Event;
 	
 	/**
@@ -16,7 +17,7 @@ package by.blooddy.crypto.worker {
 	 * @langversion				3.0
 	 * @created					25.03.2016 1:17:56
 	 */
-	public class WorkerEvent extends Event {
+	public class ProcessEvent extends Event {
 
 		//--------------------------------------------------------------------------
 		//
@@ -24,9 +25,9 @@ package by.blooddy.crypto.worker {
 		//
 		//--------------------------------------------------------------------------
 		
-		public static const SUCCESS:String =	'success';
+		public static const COMPLETE:String =	Event.COMPLETE;
 
-		public static const FAULT:String =		'fault';
+		public static const ERROR:String =		ErrorEvent.ERROR;
 	
 		//--------------------------------------------------------------------------
 		//
@@ -35,12 +36,12 @@ package by.blooddy.crypto.worker {
 		//--------------------------------------------------------------------------
 		
 		/**
-		 * @param	result
 		 * @param	type
 		 * @param	bubbles
 		 * @param	cancelable
+		 * @param	data
 		 */
-		public function WorkerEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false, data:*=null) {
+		public function ProcessEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false, data:*=null) {
 			super( type, bubbles, cancelable );
 			this.data = data;
 		}
@@ -63,7 +64,7 @@ package by.blooddy.crypto.worker {
 		 * @private
 		 */
 		public override function clone():Event {
-			return new WorkerEvent( super.type, super.bubbles, super.cancelable, this.data );
+			return new ProcessEvent( super.type, super.bubbles, super.cancelable, this.data );
 		}
 		
 	}

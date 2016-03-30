@@ -14,7 +14,7 @@ package by.blooddy.crypto {
 	import avm2.intrinsics.memory.si32;
 	import avm2.intrinsics.memory.si8;
 	
-	import by.blooddy.crypto.worker.Worker;
+	import by.blooddy.crypto.process.Process;
 	
 	/**
 	 * Encodes and decodes binary data using
@@ -26,7 +26,7 @@ package by.blooddy.crypto {
 	 * @langversion				3.0
 	 * @created					07.03.2011 14:48:31
 	 */
-	public final class MD5 extends Worker {
+	public final class MD5 extends Process {
 
 		//--------------------------------------------------------------------------
 		//
