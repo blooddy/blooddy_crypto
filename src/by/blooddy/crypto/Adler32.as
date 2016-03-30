@@ -27,12 +27,6 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
-		[Embed( source="Adler32.swf", mimeType="application/octet-stream" )]
-		/**
-		 * @private
-		 */
-		private static const _WORKER_CLASS:Class;
-		
 		/**
 		 * @private
 		 */
@@ -95,6 +89,20 @@ package by.blooddy.crypto {
 			}
 		}
 		
+		CRYPTO::worker {
+			
+		//--------------------------------------------------------------------------
+		//
+		//  Class variables
+		//
+		//--------------------------------------------------------------------------
+		
+		[Embed( source="Adler32.swf", mimeType="application/octet-stream" )]
+		/**
+		 * @private
+		 */
+		private static const WorkerClass:Class;
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -102,7 +110,7 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 		
 		public function Adler32() {
-			super( _WORKER_CLASS );
+			super( WorkerClass );
 		}
 		
 		//--------------------------------------------------------------------------
@@ -113,6 +121,8 @@ package by.blooddy.crypto {
 		
 		public function hashBytes(bytes:ByteArray):void {
 			super.call( 'hashBytes', bytes );
+		}
+
 		}
 		
 	}

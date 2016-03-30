@@ -3,9 +3,24 @@
 
 	<compiler>
 
+		<define>
+			<name>CRYPTO::worker</name>
+			<value>false</value>
+		</define>
+
 		<debug>false</debug>
 		<compress>true</compress>
+		<incremental>false</incremental>
+		<verbose-stacktraces>false</verbose-stacktraces>
+
+		<keep-as3-metadata></keep-as3-metadata>
 
 	</compiler>
+
+	<benchmark>false</benchmark>
+	<warnings>false</warnings>
+
+	<raw-metadata><![CDATA[
+	]]></raw-metadata>
 
 </flex-config>

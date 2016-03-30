@@ -3,6 +3,11 @@
 
 	<compiler>
 
+		<define>
+			<name>CRYPTO::worker</name>
+			<value>true</value>
+		</define>
+
 		<debug>true</debug>
 		<optimize>true</optimize>
 		<show-actionscript-warnings>false</show-actionscript-warnings>

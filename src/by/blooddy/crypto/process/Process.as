@@ -15,7 +15,6 @@ package by.blooddy.crypto.process {
 	[Event( type="by.blooddy.crypto.events.ProcessEvent", name="error" )]
 	
 	/**
-	 * @private
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 11.4
@@ -24,6 +23,8 @@ package by.blooddy.crypto.process {
 	 */
 	public class Process extends EventDispatcher {
 
+		CRYPTO::worker {
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Class variables
@@ -85,6 +86,7 @@ package by.blooddy.crypto.process {
 		//--------------------------------------------------------------------------
 		
 		/**
+		 * @internal
 		 * @param	method
 		 * @param	args
 		 */
@@ -120,6 +122,8 @@ package by.blooddy.crypto.process {
 			} else {
 				throw error;
 			}
+		}
+
 		}
 		
 	}

@@ -34,12 +34,6 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
-		[Embed( source="SHA1.swf", mimeType="application/octet-stream" )]
-		/**
-		 * @private
-		 */
-		private static const _WORKER_CLASS:Class;
-		
 		/**
 		 * @private
 		 */
@@ -336,6 +330,20 @@ package by.blooddy.crypto {
 			
 		}
 		
+		CRYPTO::worker {
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Class variables
+		//
+		//--------------------------------------------------------------------------
+		
+		[Embed( source="SHA1.swf", mimeType="application/octet-stream" )]
+		/**
+		 * @private
+		 */
+		private static const WorkerClass:Class;
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -343,7 +351,7 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 		
 		public function SHA1() {
-			super( _WORKER_CLASS );
+			super( WorkerClass );
 		}
 		
 		//--------------------------------------------------------------------------
@@ -362,6 +370,8 @@ package by.blooddy.crypto {
 		
 		public function digest(bytes:ByteArray):void {
 			super.call( 'digest', bytes );
+		}
+		
 		}
 		
 	}

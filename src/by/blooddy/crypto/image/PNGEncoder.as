@@ -42,12 +42,6 @@ package by.blooddy.crypto.image {
 		//
 		//--------------------------------------------------------------------------
 		
-		[Embed( source="PNGEncoder.swf", mimeType="application/octet-stream" )]
-		/**
-		 * @private
-		 */
-		private static const _WORKER_CLASS:Class;
-		
 		/**
 		 * @private
 		 */
@@ -227,6 +221,20 @@ package by.blooddy.crypto.image {
 			
 		}
 		
+		CRYPTO::worker {
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Class variables
+		//
+		//--------------------------------------------------------------------------
+		
+		[Embed( source="PNGEncoder.swf", mimeType="application/octet-stream" )]
+		/**
+		 * @private
+		 */
+		private static const WorkerClass:Class;
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -235,7 +243,7 @@ package by.blooddy.crypto.image {
 
 		public function PNGEncoder() {
 			if ( ( this as Object ).constructor == PNG24Encoder || ( this as Object ).constructor == PNG8Encoder ) {
-				super( _WORKER_CLASS );
+				super( WorkerClass );
 			} else {
 				Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
 			}
@@ -263,6 +271,8 @@ package by.blooddy.crypto.image {
 			
 			super.call( 'encodeBytes', bytes, width, height, filter );
 			
+		}
+		
 		}
 		
 	}

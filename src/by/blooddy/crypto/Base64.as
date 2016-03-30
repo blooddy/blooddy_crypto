@@ -32,12 +32,6 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
-		[Embed( source="Base64.swf", mimeType="application/octet-stream" )]
-		/**
-		 * @private
-		 */
-		private static const _WORKER_CLASS:Class;
-		
 		/**
 		 * @private
 		 */
@@ -320,6 +314,20 @@ package by.blooddy.crypto {
 			return result;
 		}
 		
+		CRYPTO::worker {
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Class variables
+		//
+		//--------------------------------------------------------------------------
+		
+		[Embed( source="Base64.swf", mimeType="application/octet-stream" )]
+		/**
+		 * @private
+		 */
+		private static const WorkerClass:Class;
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -327,7 +335,7 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 		
 		public function Base64() {
-			super( _WORKER_CLASS );
+			super( WorkerClass );
 		}
 		
 		//--------------------------------------------------------------------------
@@ -343,7 +351,9 @@ package by.blooddy.crypto {
 		public function decode(str:String):void {
 			super.call( 'decode', str );
 		}
-			
+		
+		}
+		
 	}
 	
 }
