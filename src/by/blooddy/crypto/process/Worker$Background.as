@@ -10,10 +10,12 @@ package by.blooddy.crypto.process {
 	import flash.events.Event;
 	import flash.system.ApplicationDomain;
 	import flash.system.MessageChannel;
+	import flash.system.MessageChannelState;
 	import flash.system.Worker;
+	import flash.system.WorkerState;
 	
 	[ExcludeClass]
-	[SWF( width="1", height="1", frameRate="1", scriptTimeLimit="-1", scriptRecursionLimit="10000", pageTitle="blooddy_crypto" )]
+	[SWF( width="1", height="1", frameRate="1", scriptTimeLimit="-1", scriptRecursionLimit="-1" )]
 	/**
 	 * @private
 	 * @author					BlooDHounD
@@ -51,6 +53,8 @@ package by.blooddy.crypto.process {
 		 */
 		private static function process():void {
 			
+			if ( output.state != MessageChannelState.OPEN ) return;
+
 			var data:Object;
 			var target:Object;
 			var result:Object;

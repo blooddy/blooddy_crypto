@@ -8,9 +8,12 @@ package by.blooddy.crypto.process {
 
 	import flash.events.Event;
 	import flash.system.MessageChannel;
+	import flash.system.MessageChannelState;
 	import flash.system.Worker;
 	import flash.system.WorkerDomain;
 	import flash.utils.ByteArray;
+	import flash.utils.clearTimeout;
+	import flash.utils.setTimeout;
 	
 	[ExcludeClass]
 	/**
@@ -41,21 +44,15 @@ package by.blooddy.crypto.process {
 		//--------------------------------------------------------------------------
 		
 		public function Worker$(bytes:ByteArray) {
+			if ( bytes && bytes.length ) {
 
-			super();
-
-			this.worker = WorkerDomain.current.createWorker( bytes );
-			
-			this.input = this.worker.createMessageChannel( Worker.current );
-			this.output = Worker.current.createMessageChannel( this.worker );
-			
-			this.worker.setSharedProperty( 'output', this.input );
-			this.worker.setSharedProperty( 'input', this.output );
-			
-			this.worker.start();
-			
-			this.input.addEventListener( Event.CHANNEL_MESSAGE, this.handler_input_message );
-
+				super();
+				
+				this.bytes = bytes;
+				
+			} else {
+				Error.throwError( TypeError, 2007, 'bytes' );
+			}
 		}
 		
 		//--------------------------------------------------------------------------
@@ -63,6 +60,16 @@ package by.blooddy.crypto.process {
 		//  Variables
 		//
 		//--------------------------------------------------------------------------
+		
+		/**
+		 * @private
+		 */
+		private var bytes:ByteArray;
+		
+		/**
+		 * @private
+		 */
+		private var timeout:uint;
 		
 		/**
 		 * @private
@@ -90,9 +97,68 @@ package by.blooddy.crypto.process {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * @param	data		данные, которые мы передаём в worker
+		 * @param	callback	
+		 */
 		public function send(data:Object, callback:Function=null):void {
+
+			clearTimeout( this.timeout );
+			
 			this.queue.push( callback );
+
+			if ( !this.output ) {
+				this.start();
+			}
+			
 			this.output.send( data );
+
+		}
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Private methods
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * @private
+		 */
+		private function start():void {
+			
+			this.worker = WorkerDomain.current.createWorker( this.bytes );
+			
+			this.input = this.worker.createMessageChannel( Worker.current );
+			this.output = Worker.current.createMessageChannel( this.worker );
+			
+			this.worker.setSharedProperty( 'output', this.input );
+			this.worker.setSharedProperty( 'input', this.output );
+			
+			this.worker.start();
+			
+			this.input.addEventListener( Event.CHANNEL_MESSAGE, this.handler_input_message );
+
+		}
+		
+		/**
+		 * @private
+		 */
+		private function stop():void {
+			
+			this.input.removeEventListener( Event.CHANNEL_MESSAGE, this.handler_input_message );
+			
+			this.input.close();
+			this.output.close();
+			
+			this.worker.setSharedProperty( 'output', null );
+			this.worker.setSharedProperty( 'input', null );
+			
+			this.worker.terminate();
+			
+			this.input = null;
+			this.output = null;
+			this.worker = null;
+			
 		}
 		
 		//--------------------------------------------------------------------------
@@ -105,8 +171,15 @@ package by.blooddy.crypto.process {
 		 * @private
 		 */
 		private function handler_input_message(event:Event):void {
+
 			var result:Object = this.input.receive( true );
+
 			this.queue.shift()( result );
+
+			if ( this.queue.length <= 0 ) {
+				this.timeout = setTimeout( this.stop, 5 * 1e3 );
+			}
+
 		}
 		
 	}
