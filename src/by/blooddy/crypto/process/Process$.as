@@ -17,7 +17,7 @@ package by.blooddy.crypto.process {
 	 */
 	internal interface Process$ {
 
-		function process(className:String, methodName:String, arguments:Array, success:Function, fault:Function):void;
+		function process(WorkerClass:Class, defenitionName:String, methodName:String, arguments:Array, success:Function, fault:Function):void;
 		
 	}
 

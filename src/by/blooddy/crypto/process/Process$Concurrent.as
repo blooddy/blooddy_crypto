@@ -6,7 +6,9 @@
 
 package by.blooddy.crypto.process {
 
+	import flash.system.Worker;
 	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
 	import flash.utils.getQualifiedClassName;
 
 	[ExcludeClass]
@@ -34,7 +36,7 @@ package by.blooddy.crypto.process {
 		/**
 		 * @private
 		 */
-		private static var _WORKER:Worker$;
+		private static const _HASH:Dictionary = new Dictionary( true );
 		
 		//--------------------------------------------------------------------------
 		//
@@ -63,21 +65,17 @@ package by.blooddy.crypto.process {
 		/**
 		 * @inheritDoc
 		 */
-		public function process(className:String, methodName:String, arguments:Array, success:Function, fault:Function):void {
+		public function process(WorkerClass:Class, defenitionName:String, methodName:String, arguments:Array, success:Function, fault:Function):void {
 			
-			if ( !_WORKER ) {
+			var worker:Worker$ = _HASH[ WorkerClass ];
+			if ( !worker ) {
 				
-				[Embed( source="Worker$Background.swf", mimeType="application/octet-stream" )]
-				const Worker$Background$SWF:Class;
-
-				_WORKER = new Worker$(
-					new Worker$Background$SWF() as ByteArray
-				);
+				_HASH[ WorkerClass ] = worker = new Worker$( new WorkerClass() as ByteArray );
 				
 			}
 			
-			_WORKER.send(
-				{ c: className, m: methodName, a: arguments },
+			worker.send(
+				{ d: defenitionName, m: methodName, a: arguments },
 				function(result:Object):void {
 					if ( result.fault ) fault( result.fault );
 					else if ( result.success ) success( result.success );

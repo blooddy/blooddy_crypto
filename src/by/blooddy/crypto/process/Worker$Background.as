@@ -8,11 +8,10 @@ package by.blooddy.crypto.process {
 
 	import flash.display.Sprite;
 	import flash.events.Event;
-	import flash.system.ApplicationDomain;
 	import flash.system.MessageChannel;
 	import flash.system.MessageChannelState;
 	import flash.system.Worker;
-	import flash.system.WorkerState;
+	import flash.utils.getDefinitionByName;
 	
 	[ExcludeClass]
 	[SWF( width="1", height="1", frameRate="1", scriptTimeLimit="-1", scriptRecursionLimit="-1" )]
@@ -32,14 +31,8 @@ package by.blooddy.crypto.process {
 		//
 		//--------------------------------------------------------------------------
 		
-		/**
-		 * @private
-		 */
 		private static const input:MessageChannel = Worker.current.getSharedProperty( 'input' )
 		
-		/**
-		 * @private
-		 */
 		private static const output:MessageChannel = Worker.current.getSharedProperty( 'output' )
 
 		//--------------------------------------------------------------------------
@@ -48,23 +41,19 @@ package by.blooddy.crypto.process {
 		//
 		//--------------------------------------------------------------------------
 		
-		/**
-		 * @private
-		 */
 		private static function process():void {
 			
 			if ( output.state != MessageChannelState.OPEN ) return;
 
-			var data:Object;
-			var target:Object;
+			var data:Object = input.receive( true );
+
+			var defenition:Object;
 			var result:Object;
-			
-			data = input.receive( true );
 			
 			try {
 				
-				target = ApplicationDomain.currentDomain.getDefinition( data.c );
-				result = { success: target[ data.m ].apply( target, data.a ) };
+				defenition = getDefinitionByName( data.d );
+				result = { success: defenition[ data.m ].apply( defenition, data.a ) };
 				
 			} catch ( e:Error ) {
 				

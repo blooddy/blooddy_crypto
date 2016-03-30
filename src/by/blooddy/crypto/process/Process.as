@@ -75,7 +75,11 @@ package by.blooddy.crypto.process {
 		 */
 		protected function call(method:String, ...arguments):void {
 
+			[Embed( source="Worker$Background.swf", mimeType="application/octet-stream" )]
+			const Worker$Background$SWF:Class;
+			
 			process.process(
+				Worker$Background$SWF,
 				getQualifiedClassName( this ), method, arguments,
 				this.complete, this.error
 			);
