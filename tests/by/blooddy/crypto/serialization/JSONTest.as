@@ -10,7 +10,7 @@ package by.blooddy.crypto.serialization {
 	import flash.utils.Dictionary;
 	import flash.xml.XMLDocument;
 	
-	import by.blooddy.crypto.worker.WorkerEvent;
+	import by.blooddy.crypto.events.ProcessEvent;
 	
 	import org.flexunit.Assert;
 	import org.flexunit.async.Async;
@@ -902,13 +902,13 @@ package by.blooddy.crypto.serialization {
 			
 			var json:by.blooddy.crypto.serialization.JSON = new blooddyJSON();
 			json.parse( '{"key1":[{"key2":5},67,"test",null],"key3":[true,false]}' );
-			json.addEventListener( WorkerEvent.SUCCESS, Async.asyncHandler( this, function(event:WorkerEvent, data:*):void {
+			json.addEventListener( ProcessEvent.COMPLETE, Async.asyncHandler( this, function(event:ProcessEvent, data:*):void {
 				Assert.assertTrue( equalsObjects(
 					event.data,
 					{"key1":[{"key2":5},67,"test",null],"key3":[true,false]}
 				) );
 			}, 1e3 ) );
-			Async.registerFailureEvent( this, json, WorkerEvent.FAULT );
+			Async.registerFailureEvent( this, json, ProcessEvent.ERROR );
 			
 		}
 		

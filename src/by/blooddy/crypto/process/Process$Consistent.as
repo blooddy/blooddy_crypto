@@ -4,7 +4,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package by.blooddy.crypto.worker {
+package by.blooddy.crypto.process {
 
 	import flash.system.ApplicationDomain;
 	import flash.utils.getQualifiedClassName;
@@ -19,7 +19,7 @@ package by.blooddy.crypto.worker {
 	 * @langversion				3.0
 	 * @created					25.03.2016 17:07:01
 	 */
-	internal final class Worker$Consistent implements Worker$ {
+	internal final class Process$Consistent implements Process$ {
 
 		//--------------------------------------------------------------------------
 		//
@@ -27,7 +27,7 @@ package by.blooddy.crypto.worker {
 		//
 		//--------------------------------------------------------------------------
 		
-		internal static const instance:Worker$Consistent = new Worker$Consistent();
+		internal static const instance:Process$Consistent = new Process$Consistent();
 		
 		//--------------------------------------------------------------------------
 		//
@@ -39,7 +39,7 @@ package by.blooddy.crypto.worker {
 		 * @private
 		 * Constructor
 		 */
-		public function Worker$Consistent() {
+		public function Process$Consistent() {
 			if ( !instance ) {
 				super();
 			} else {

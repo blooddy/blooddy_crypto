@@ -4,7 +4,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package by.blooddy.crypto.worker {
+package by.blooddy.crypto.process {
 
 	[ExcludeClass]
 	/**
@@ -15,7 +15,7 @@ package by.blooddy.crypto.worker {
 	 * @langversion				3.0
 	 * @created					25.03.2016 17:11:05
 	 */
-	internal interface Worker$ {
+	internal interface Process$ {
 
 		function process(className:String, methodName:String, arguments:Array, success:Function, fault:Function):void;
 		

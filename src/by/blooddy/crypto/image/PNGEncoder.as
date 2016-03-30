@@ -13,7 +13,7 @@ package by.blooddy.crypto.image {
 	import flash.utils.getQualifiedClassName;
 	
 	import by.blooddy.crypto.CRC32;
-	import by.blooddy.crypto.worker.Worker;
+	import by.blooddy.crypto.process.Process;
 
 	/**
 	 * Encodes image data using 
@@ -34,7 +34,7 @@ package by.blooddy.crypto.image {
 	 * @langversion				3.0
 	 * @created					05.07.2010 17:44:26
 	 */
-	public class PNGEncoder extends Worker {
+	public class PNGEncoder extends Process {
 
 		//--------------------------------------------------------------------------
 		//

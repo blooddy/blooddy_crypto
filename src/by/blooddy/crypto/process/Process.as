@@ -4,13 +4,15 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package by.blooddy.crypto.worker {
+package by.blooddy.crypto.process {
 
 	import flash.events.EventDispatcher;
 	import flash.utils.getQualifiedClassName;
 	
-	[Event( type="by.blooddy.crypto.worker.WorkerEvent", name="success" )]
-	[Event( type="by.blooddy.crypto.worker.WorkerEvent", name="fault" )]
+	import by.blooddy.crypto.events.ProcessEvent;
+	
+	[Event( type="by.blooddy.crypto.events.ProcessEvent", name="complete" )]
+	[Event( type="by.blooddy.crypto.events.ProcessEvent", name="error" )]
 	
 	/**
 	 * @private
@@ -20,7 +22,7 @@ package by.blooddy.crypto.worker {
 	 * @langversion				3.0
 	 * @created					24.03.2016 23:45:13
 	 */
-	public class Worker extends EventDispatcher {
+	public class Process extends EventDispatcher {
 
 		//--------------------------------------------------------------------------
 		//
@@ -31,12 +33,12 @@ package by.blooddy.crypto.worker {
 		/**
 		 * @private
 		 */
-		private static const worker:Worker$ = ( function():Worker$ {
+		private static const process:Process$ = ( function():Process$ {
 			var o:Object;
 			try {
-				o = Worker$Concurrent;
+				o = Process$Concurrent;
 			} catch ( e:Error ) {
-				o = Worker$Consistent;
+				o = Process$Consistent;
 			}
 			return o.internal::instance;
 		}() );
@@ -51,8 +53,8 @@ package by.blooddy.crypto.worker {
 		 * @private
 		 * Constructor
 		 */
-		public function Worker() {
-			if ( ( this as Object ).constructor != Worker ) {
+		public function Process() {
+			if ( ( this as Object ).constructor != Process ) {
 				super();
 			} else {
 				Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
@@ -70,9 +72,9 @@ package by.blooddy.crypto.worker {
 		 * @param	args
 		 */
 		protected function call(method:String, ...arguments):void {
-			worker.process(
+			process.process(
 				getQualifiedClassName( this ), method, arguments,
-				this.success, this.fail
+				this.complete, this.error
 			);
 		}
 
@@ -85,15 +87,19 @@ package by.blooddy.crypto.worker {
 		/**
 		 * @private
 		 */
-		private function success(result:*):void {
-			super.dispatchEvent( new WorkerEvent( WorkerEvent.SUCCESS, false, false, result ) );
+		private function complete(result:*):void {
+			super.dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE, false, false, result ) );
 		}
 		
 		/**
 		 * @private
 		 */
-		private function fail(e:*):void {
-			super.dispatchEvent( new WorkerEvent( WorkerEvent.FAULT, false, false, e ) );
+		private function error(error:*):void {
+			if ( super.hasEventListener( ProcessEvent.ERROR ) ) {
+				super.dispatchEvent( new ProcessEvent( ProcessEvent.ERROR, false, false, error ) );
+			} else {
+				throw error;
+			}
 		}
 		
 	}

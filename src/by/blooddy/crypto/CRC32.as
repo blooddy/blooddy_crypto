@@ -13,7 +13,7 @@ package by.blooddy.crypto {
 	import avm2.intrinsics.memory.li8;
 	import avm2.intrinsics.memory.si32;
 	
-	import by.blooddy.crypto.worker.Worker;
+	import by.blooddy.crypto.process.Process;
 
 	/**
 	 * Generates a <a href="http://www.mathpages.com/home/kmath458.htm">CRC hash
@@ -25,7 +25,7 @@ package by.blooddy.crypto {
 	 * @langversion				3.0
 	 * @created					28.01.2011 20:07:33
 	 */
-	public final class CRC32 extends Worker {
+	public final class CRC32 extends Process {
 
 		//--------------------------------------------------------------------------
 		//

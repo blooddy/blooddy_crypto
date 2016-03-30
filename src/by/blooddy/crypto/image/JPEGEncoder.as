@@ -12,7 +12,7 @@ package by.blooddy.crypto.image {
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
 	
-	import by.blooddy.crypto.worker.Worker;
+	import by.blooddy.crypto.process.Process;
 	
 	/**
 	 * Encodes image data using
@@ -23,7 +23,7 @@ package by.blooddy.crypto.image {
 	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 */
-	public final class JPEGEncoder extends Worker {
+	public final class JPEGEncoder extends Process {
 		
 		//--------------------------------------------------------------------------
 		//

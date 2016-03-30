@@ -11,7 +11,7 @@ package by.blooddy.crypto {
 	
 	import avm2.intrinsics.memory.li8;
 	
-	import by.blooddy.crypto.worker.Worker;
+	import by.blooddy.crypto.process.Process;
 
 	/**
 	 * @author					BlooDHounD
@@ -19,7 +19,7 @@ package by.blooddy.crypto {
 	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 */
-	public final class Adler32 extends Worker {
+	public final class Adler32 extends Process {
 
 		//--------------------------------------------------------------------------
 		//
