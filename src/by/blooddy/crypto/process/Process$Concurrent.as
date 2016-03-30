@@ -6,10 +6,6 @@
 
 package by.blooddy.crypto.process {
 
-	import flash.events.Event;
-	import flash.system.MessageChannel;
-	import flash.system.Worker;
-	import flash.system.WorkerDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
 
@@ -38,29 +34,19 @@ package by.blooddy.crypto.process {
 		//
 		//--------------------------------------------------------------------------
 
-		private static const _QUEUE:Vector.<Function> = new Vector.<Function>();
+		[Embed( source="Worker$Background.swf", mimeType="application/octet-stream" )]
+		/**
+		 * @private
+		 */
+		private static const Worker$Background$SWF:Class;
 
-		[Embed( source="BackgroundProcess.swf", mimeType="application/octet-stream" )]
-		private static const BackgroundWorkerSWF:Class;
+		/**
+		 * @private
+		 */
+		private static const _WORKER:Worker$ = new Worker$(
+			new Worker$Background$SWF() as ByteArray
+		);
 
-		private static const _WORKER:Worker = WorkerDomain.current.createWorker( new BackgroundWorkerSWF() as ByteArray );
-		
-		private static const _INPUT:MessageChannel = _WORKER.createMessageChannel( Worker.current );
-		private static const _OUTPUT:MessageChannel = Worker.current.createMessageChannel( _WORKER );
-		
-		_INPUT.addEventListener( Event.CHANNEL_MESSAGE, function(event:Event):void {
-			var success:Function = _QUEUE.shift();
-			var fault:Function = _QUEUE.shift();
-			var result:Object = _INPUT.receive( true );
-			if ( result.fault ) fault( result.fault );
-			else if ( result.success ) success( result.success );
-		} );
-		
-		_WORKER.setSharedProperty( 'output', _INPUT );
-		_WORKER.setSharedProperty( 'input', _OUTPUT );
-			
-		_WORKER.start();
-				
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -72,7 +58,7 @@ package by.blooddy.crypto.process {
 		 * Constructor
 		 */
 		public function Process$Concurrent() {
-			if ( !instance && Worker.isSupported ) {
+			if ( !instance && Worker$.isSupported ) {
 				super();
 			} else {
 				Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
@@ -90,10 +76,14 @@ package by.blooddy.crypto.process {
 		 */
 		public function process(className:String, methodName:String, arguments:Array, success:Function, fault:Function):void {
 			
-			_QUEUE.push( success, fault );
-
-			_OUTPUT.send( { c: className, m: methodName, a: arguments } );
-
+			_WORKER.send(
+				{ c: className, m: methodName, a: arguments },
+				function(result:Object):void {
+					if ( result.fault ) fault( result.fault );
+					else if ( result.success ) success( result.success );
+				}
+			);
+			
 		}
 		
 	}

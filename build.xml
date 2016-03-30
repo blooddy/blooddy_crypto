@@ -8,44 +8,44 @@
 	
 	<taskdef resource="flexTasks.tasks" classpath="${flex.sdk}/ant/lib/flexTasks.jar" />
 
-	<target name="tmp.process">
+	<target name="tmp.worker">
 
-		<property name="process.path" value="${basedir}/src/by/blooddy/crypto/process" />
-		<property name="process.name" value="BackgroundProcess" />
+		<property name="worker.path" value="${basedir}/src/by/blooddy/crypto/process" />
+		<property name="worker.name" value="Worker$Background" />
 
 		<copy
-			file="${process.path}/${process.name}.swf"
-			tofile="${process.path}/${process.name}.tmp.swf"
+			file="${worker.path}/${worker.name}.swf"
+			tofile="${worker.path}/${worker.name}.tmp.swf"
 		/>
 
 	</target>
 
-	<target name="untmp.process">
+	<target name="untmp.worker">
 	
-		<property name="process.path" value="${basedir}/src/by/blooddy/crypto/process" />
-		<property name="process.name" value="BackgroundProcess" />
+		<property name="worker.path" value="${basedir}/src/by/blooddy/crypto/process" />
+		<property name="worker.name" value="Worker$Background" />
 
 		<move
-			file="${process.path}/${process.name}.tmp.swf"
-			toFile="${process.path}/${process.name}.swf"
+			file="${worker.path}/${worker.name}.tmp.swf"
+			toFile="${worker.path}/${worker.name}.swf"
 		/>
 	
 	</target>
 
-	<target name="compile.process" description="Compile Process">
+	<target name="compile.worker" description="Compile Worker">
 
-		<property name="process.path" value="${basedir}/src/by/blooddy/crypto/process" />
-		<property name="process.name" value="BackgroundProcess" />
+		<property name="worker.path" value="${basedir}/src/by/blooddy/crypto/process" />
+		<property name="worker.name" value="Worker$Background" />
 
 		<mxmlc failonerror="true"
-			file="${process.path}/${process.name}.as"
-			output="${process.path}/${process.name}.swf"
+			file="${worker.path}/${worker.name}.as"
+			output="${worker.path}/${worker.name}.swf"
 			swf-version="17"
 		>
 
 			<load-config filename="${flex.sdk}/frameworks/air-config.xml" />
 			<load-config filename="${basedir}/build.config.xml" />
-			<load-config filename="${basedir}/build.config.process.xml" />
+			<load-config filename="${basedir}/build.config.worker.xml" />
 
 			<source-path path-element="${basedir}/src" />
  
@@ -61,14 +61,12 @@
 			<includes symbol="by.blooddy.crypto.image.JPEGEncoder" />
 
 			<externs symbol="by.blooddy.crypto.process.Process$Concurrent" />
-			<externs symbol="by.blooddy.crypto.process.ProcessEvent" />
-			<externs symbol="by.blooddy.crypto.process.BackgroundProcessSWF" />
  
 		</mxmlc>
 
 	</target>
 
-	<target name="compile.library" depends="compile.process" description="Compile Library">
+	<target name="compile.library" depends="compile.worker" description="Compile Library">
 
 		<compc failonerror="true"
 			output="${basedir}/bin/blooddy_crypto.swc"
@@ -87,9 +85,9 @@
 
 
 	<target name="compile">
-		<antcall target="tmp.process" />
+		<antcall target="tmp.worker" />
 		<antcall target="compile.library" />
-		<antcall target="untmp.process" />
+		<antcall target="untmp.worker" />
 	</target>
 
 </project>
