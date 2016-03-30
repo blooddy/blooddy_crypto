@@ -34,19 +34,8 @@ package by.blooddy.crypto.process {
 		//
 		//--------------------------------------------------------------------------
 
-		[Embed( source="Worker$Background.swf", mimeType="application/octet-stream" )]
-		/**
-		 * @private
-		 */
-		private static const Worker$Background$SWF:Class;
-
-		/**
-		 * @private
-		 */
-		private static const _WORKER:Worker$ = new Worker$(
-			new Worker$Background$SWF() as ByteArray
-		);
-
+		private static var _WORKER:Worker$;
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -75,6 +64,17 @@ package by.blooddy.crypto.process {
 		 * @inheritDoc
 		 */
 		public function process(className:String, methodName:String, arguments:Array, success:Function, fault:Function):void {
+			
+			if ( !_WORKER ) {
+				
+				[Embed( source="Worker$Background.swf", mimeType="application/octet-stream" )]
+				const Worker$Background$SWF:Class;
+
+				_WORKER = new Worker$(
+					new Worker$Background$SWF() as ByteArray
+				);
+				
+			}
 			
 			_WORKER.send(
 				{ c: className, m: methodName, a: arguments },

@@ -26,25 +26,6 @@ package by.blooddy.crypto.process {
 
 		//--------------------------------------------------------------------------
 		//
-		//  Class variables
-		//
-		//--------------------------------------------------------------------------
-
-		/**
-		 * @private
-		 */
-		private static const process:Process$ = ( function():Process$ {
-			var o:Object;
-			try {
-				o = Process$Concurrent;
-			} catch ( e:Error ) {
-				o = Process$Consistent;
-			}
-			return o.internal::instance;
-		}() );
-		
-		//--------------------------------------------------------------------------
-		//
 		//  Constructor
 		//
 		//--------------------------------------------------------------------------
@@ -72,10 +53,19 @@ package by.blooddy.crypto.process {
 		 * @param	args
 		 */
 		protected function call(method:String, ...arguments):void {
-			process.process(
+
+			var o:Object;
+			try {
+				o = Process$Concurrent;
+			} catch ( e:Error ) {
+				o = Process$Consistent;
+			}
+
+			( o.internal::instance as Process$ ).process(
 				getQualifiedClassName( this ), method, arguments,
 				this.complete, this.error
 			);
+
 		}
 
 		//--------------------------------------------------------------------------
