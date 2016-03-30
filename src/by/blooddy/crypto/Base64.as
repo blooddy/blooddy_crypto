@@ -8,11 +8,12 @@ package by.blooddy.crypto {
 	
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
-	import flash.utils.getQualifiedClassName;
 	
 	import avm2.intrinsics.memory.li8;
 	import avm2.intrinsics.memory.si16;
 	import avm2.intrinsics.memory.si8;
+	
+	import by.blooddy.crypto.process.Process;
 	
 	/**
 	 * Encodes and decodes binary data using
@@ -23,14 +24,20 @@ package by.blooddy.crypto {
 	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 */
-	public final class Base64 {
+	public final class Base64 extends Process {
 
 		//--------------------------------------------------------------------------
 		//
 		//  Class variables
 		//
 		//--------------------------------------------------------------------------
-
+		
+		[Embed( source="Base64.swf", mimeType="application/octet-stream" )]
+		/**
+		 * @private
+		 */
+		private static const _WORKER_CLASS:Class;
+		
 		/**
 		 * @private
 		 */
@@ -319,14 +326,24 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
-		/**
-		 * @private
-		 * Constructor
-		 */
 		public function Base64() {
-			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
+			super( _WORKER_CLASS );
 		}
 		
+		//--------------------------------------------------------------------------
+		//
+		//  Methods
+		//
+		//--------------------------------------------------------------------------
+		
+		public function encode(bytes:ByteArray, newLines:uint=0):void {
+			super.call( 'encode', bytes, newLines );
+		}
+		
+		public function decode(str:String):void {
+			super.call( 'decode', str );
+		}
+			
 	}
 	
 }
