@@ -23,10 +23,13 @@ package by.blooddy.crypto.process {
 
 		//--------------------------------------------------------------------------
 		//
-		//  Class constants
+		//  Class variables
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * @private
+		 */
 		internal static const instance:Process$Consistent = new Process$Consistent();
 		
 		//--------------------------------------------------------------------------
@@ -56,12 +59,12 @@ package by.blooddy.crypto.process {
 		/**
 		 * @inheritDoc
 		 */
-		public function process(className:String, methodName:String, args:Array, success:Function, fault:Function):void {
+		public function process(WorkerClass:Class, defenitionName:String, methodName:String, args:Array, success:Function, fault:Function):void {
 			setTimeout( function():void {
 				try {
 
-					var target:Object = ApplicationDomain.currentDomain.getDefinition( className );
-					success( target[ methodName ].apply( target, args ) );
+					var defenition:Object = ApplicationDomain.currentDomain.getDefinition( defenitionName );
+					success( defenition[ methodName ].apply( defenition, args ) );
 
 				} catch ( e:Error ) {
 

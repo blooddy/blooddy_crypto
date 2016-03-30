@@ -29,15 +29,32 @@ package by.blooddy.crypto {
 
 		//--------------------------------------------------------------------------
 		//
+		//  Class initializaion
+		//
+		//--------------------------------------------------------------------------
+		
+		SHA224; SHA256;
+		
+		//--------------------------------------------------------------------------
+		//
 		//  Class variables
 		//
 		//--------------------------------------------------------------------------
+		
+		[Embed( source="SHA2.swf", mimeType="application/octet-stream" )]
+		/**
+		 * @private
+		 */
+		private static const _WORKER_CLASS:Class;
 		
 		/**
 		 * @private
 		 */
 		private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
 		
+		/**
+		 * @private
+		 */
 		private static const _K:ByteArray = ( function():ByteArray {
 			
 			var tmp:ByteArray = _DOMAIN.domainMemory;
@@ -327,7 +344,7 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 		
 		public function SHA2() {
-			super();
+			super( _WORKER_CLASS );
 		}
 		
 		//--------------------------------------------------------------------------

@@ -34,6 +34,12 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
+		[Embed( source="MD5.swf", mimeType="application/octet-stream" )]
+		/**
+		 * @private
+		 */
+		private static const _WORKER_CLASS:Class;
+		
 		/**
 		 * @private
 		 */
@@ -578,7 +584,7 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 		
 		public function MD5() {
-			super();
+			super( _WORKER_CLASS );
 		}
 		
 		//--------------------------------------------------------------------------

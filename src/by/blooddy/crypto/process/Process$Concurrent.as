@@ -6,11 +6,9 @@
 
 package by.blooddy.crypto.process {
 
-	import flash.events.Event;
-	import flash.system.MessageChannel;
 	import flash.system.Worker;
-	import flash.system.WorkerDomain;
 	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
 	import flash.utils.getQualifiedClassName;
 
 	[ExcludeClass]
@@ -26,41 +24,20 @@ package by.blooddy.crypto.process {
 
 		//--------------------------------------------------------------------------
 		//
-		//  Class constants
-		//
-		//--------------------------------------------------------------------------
-		
-		internal static const instance:Process$Concurrent = new Process$Concurrent();
-		
-		//--------------------------------------------------------------------------
-		//
 		//  Class variables
 		//
 		//--------------------------------------------------------------------------
-
-		private static const _QUEUE:Vector.<Function> = new Vector.<Function>();
-
-		[Embed( source="BackgroundProcess.swf", mimeType="application/octet-stream" )]
-		private static const BackgroundWorkerSWF:Class;
-
-		private static const _WORKER:Worker = WorkerDomain.current.createWorker( new BackgroundWorkerSWF() as ByteArray );
 		
-		private static const _INPUT:MessageChannel = _WORKER.createMessageChannel( Worker.current );
-		private static const _OUTPUT:MessageChannel = Worker.current.createMessageChannel( _WORKER );
+		/**
+		 * @private
+		 */
+		internal static const instance:Process$Concurrent = new Process$Concurrent();
 		
-		_INPUT.addEventListener( Event.CHANNEL_MESSAGE, function(event:Event):void {
-			var success:Function = _QUEUE.shift();
-			var fault:Function = _QUEUE.shift();
-			var result:Object = _INPUT.receive( true );
-			if ( result.fault ) fault( result.fault );
-			else if ( result.success ) success( result.success );
-		} );
+		/**
+		 * @private
+		 */
+		private static const _HASH:Dictionary = new Dictionary( true );
 		
-		_WORKER.setSharedProperty( 'output', _INPUT );
-		_WORKER.setSharedProperty( 'input', _OUTPUT );
-			
-		_WORKER.start();
-				
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -72,7 +49,7 @@ package by.blooddy.crypto.process {
 		 * Constructor
 		 */
 		public function Process$Concurrent() {
-			if ( !instance && Worker.isSupported ) {
+			if ( !instance && Worker$.isSupported ) {
 				super();
 			} else {
 				Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
@@ -88,12 +65,23 @@ package by.blooddy.crypto.process {
 		/**
 		 * @inheritDoc
 		 */
-		public function process(className:String, methodName:String, arguments:Array, success:Function, fault:Function):void {
+		public function process(WorkerClass:Class, defenitionName:String, methodName:String, arguments:Array, success:Function, fault:Function):void {
 			
-			_QUEUE.push( success, fault );
-
-			_OUTPUT.send( { c: className, m: methodName, a: arguments } );
-
+			var worker:Worker$ = _HASH[ WorkerClass ];
+			if ( !worker ) {
+				
+				_HASH[ WorkerClass ] = worker = new Worker$( new WorkerClass() as ByteArray );
+				
+			}
+			
+			worker.send(
+				{ d: defenitionName, m: methodName, a: arguments },
+				function(result:Object):void {
+					if ( result.fault ) fault( result.fault );
+					else if ( result.success ) success( result.success );
+				}
+			);
+			
 		}
 		
 	}

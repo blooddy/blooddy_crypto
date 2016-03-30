@@ -3,93 +3,206 @@
 
 	<property file="build.properties" />
 	
+	<property name="srcdir" value="${basedir}/src" />
+	
 	<property name="AIR_SDK_HOME" value="${flex.sdk}" />
     <property name="FLEX_HOME" value="${flex.sdk}" />
 	
 	<taskdef resource="flexTasks.tasks" classpath="${flex.sdk}/ant/lib/flexTasks.jar" />
 
-	<target name="tmp.process">
-
-		<property name="process.path" value="${basedir}/src/by/blooddy/crypto/process" />
-		<property name="process.name" value="BackgroundProcess" />
+	<target name="tmp.worker">
 
 		<copy
-			file="${process.path}/${process.name}.swf"
-			tofile="${process.path}/${process.name}.tmp.swf"
+			file="${srcdir}/${worker.path}/${worker.name}.swf"
+			tofile="${srcdir}/${worker.path}/${worker.name}.tmp.swf"
 		/>
 
 	</target>
 
-	<target name="untmp.process">
+	<target name="untmp.worker">
 	
-		<property name="process.path" value="${basedir}/src/by/blooddy/crypto/process" />
-		<property name="process.name" value="BackgroundProcess" />
-
 		<move
-			file="${process.path}/${process.name}.tmp.swf"
-			toFile="${process.path}/${process.name}.swf"
+			file="${srcdir}/${worker.path}/${worker.name}.tmp.swf"
+			toFile="${srcdir}/${worker.path}/${worker.name}.swf"
 		/>
 	
 	</target>
 
-	<target name="compile.process" description="Compile Process">
-
-		<property name="process.path" value="${basedir}/src/by/blooddy/crypto/process" />
-		<property name="process.name" value="BackgroundProcess" />
+	<target name="compile.worker" description="Compile Worker">
 
 		<mxmlc failonerror="true"
-			file="${process.path}/${process.name}.as"
-			output="${process.path}/${process.name}.swf"
+			file="${srcdir}/by/blooddy/crypto/process/Worker$Background.as"
+			output="${srcdir}/${worker.path}/${worker.name}.swf"
 			swf-version="17"
 		>
 
 			<load-config filename="${flex.sdk}/frameworks/air-config.xml" />
 			<load-config filename="${basedir}/build.config.xml" />
-			<load-config filename="${basedir}/build.config.process.xml" />
+			<load-config filename="${basedir}/build.config.worker.xml" />
 
-			<source-path path-element="${basedir}/src" />
+			<source-path path-element="${srcdir}" />
  
-			<includes symbol="by.blooddy.crypto.Adler32" />
-			<includes symbol="by.blooddy.crypto.Base64" />
-			<includes symbol="by.blooddy.crypto.CRC32" />
-			<includes symbol="by.blooddy.crypto.MD5" />
-			<includes symbol="by.blooddy.crypto.SHA1" />
-			<includes symbol="by.blooddy.crypto.SHA224" />
-			<includes symbol="by.blooddy.crypto.SHA256" />
-			<includes symbol="by.blooddy.crypto.serialization.JSON" />
-			<includes symbol="by.blooddy.crypto.image.PNGEncoder" />
-			<includes symbol="by.blooddy.crypto.image.JPEGEncoder" />
+			<includes symbol="${worker.package}.${worker.name}" />
 
 			<externs symbol="by.blooddy.crypto.process.Process$Concurrent" />
-			<externs symbol="by.blooddy.crypto.process.ProcessEvent" />
-			<externs symbol="by.blooddy.crypto.process.BackgroundProcessSWF" />
+			<externs symbol="by.blooddy.crypto.process.Worker$" />
  
 		</mxmlc>
 
 	</target>
 
-	<target name="compile.library" depends="compile.process" description="Compile Library">
+	<target name="compile.library" description="Compile Library">
 
 		<compc failonerror="true"
 			output="${basedir}/bin/blooddy_crypto.swc"
 			swf-version="10"
-			include-classes="by.blooddy.crypto.Adler32 by.blooddy.crypto.Base64 by.blooddy.crypto.CRC32 by.blooddy.crypto.MD5 by.blooddy.crypto.SHA1 by.blooddy.crypto.SHA224 by.blooddy.crypto.SHA256 by.blooddy.crypto.serialization.JSON by.blooddy.crypto.image.PNGEncoder by.blooddy.crypto.image.JPEGEncoder"
+			include-classes="by.blooddy.crypto.Adler32 by.blooddy.crypto.Base64 by.blooddy.crypto.CRC32 by.blooddy.crypto.MD5 by.blooddy.crypto.SHA1 by.blooddy.crypto.SHA2 by.blooddy.crypto.serialization.JSON by.blooddy.crypto.image.PNGEncoder by.blooddy.crypto.image.JPEGEncoder"
 		>
 
 			<load-config filename="${flex.sdk}/frameworks/air-config.xml" />
 			<load-config filename="${basedir}/build.config.xml" />
 
-			<source-path path-element="${basedir}/src" />
+			<source-path path-element="${srcdir}" />
 
 		</compc>
 
 	</target>
-
-
+<!--
+	<property name="worker.path" value="${srcdir}/by/blooddy/crypto/process" />
+	<property name="worker.name" value="Worker$Background" />
+-->
+	
 	<target name="compile">
-		<antcall target="tmp.process" />
-		<antcall target="compile.library" />
-		<antcall target="untmp.process" />
+		<sequential>
+			<!-- tmp.worker -->
+			<parallel>
+				<antcall target="tmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.name" value="Adler32" />
+				</antcall>
+				<antcall target="tmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.name" value="Base64" />
+				</antcall>
+				<antcall target="tmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.name" value="CRC32" />
+				</antcall>
+				<antcall target="tmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.name" value="MD5" />
+				</antcall>
+				<antcall target="tmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.name" value="SHA1" />
+				</antcall>
+				<antcall target="tmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.name" value="SHA2" />
+				</antcall>
+				<antcall target="tmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto/serialization" />
+					<param name="worker.name" value="JSON" />
+				</antcall>
+				<antcall target="tmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto/image" />
+					<param name="worker.name" value="PNGEncoder" />
+				</antcall>
+				<antcall target="tmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto/image" />
+					<param name="worker.name" value="JPEGEncoder" />
+				</antcall>
+			</parallel>
+			<!-- compile.worker -->
+			<parallel failonany="true" threadcount="3">
+				<antcall target="compile.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.package" value="by.blooddy.crypto" />
+					<param name="worker.name" value="Adler32" />
+				</antcall>
+				<antcall target="compile.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.package" value="by.blooddy.crypto" />
+					<param name="worker.name" value="Base64" />
+				</antcall>
+				<antcall target="compile.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.package" value="by.blooddy.crypto" />
+					<param name="worker.name" value="CRC32" />
+				</antcall>
+				<antcall target="compile.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.package" value="by.blooddy.crypto" />
+					<param name="worker.name" value="MD5" />
+				</antcall>
+				<antcall target="compile.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.package" value="by.blooddy.crypto" />
+					<param name="worker.name" value="SHA1" />
+				</antcall>
+				<antcall target="compile.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.package" value="by.blooddy.crypto" />
+					<param name="worker.name" value="SHA2" />
+				</antcall>
+				<antcall target="compile.worker">
+					<param name="worker.path" value="by/blooddy/crypto/serialization" />
+					<param name="worker.package" value="by.blooddy.crypto.serialization" />
+					<param name="worker.name" value="JSON" />
+				</antcall>
+				<antcall target="compile.worker">
+					<param name="worker.path" value="by/blooddy/crypto/image" />
+					<param name="worker.package" value="by.blooddy.crypto.image" />
+					<param name="worker.name" value="PNGEncoder" />
+				</antcall>
+				<antcall target="compile.worker">
+					<param name="worker.path" value="by/blooddy/crypto/image" />
+					<param name="worker.package" value="by.blooddy.crypto.image" />
+					<param name="worker.name" value="JPEGEncoder" />
+				</antcall>
+			</parallel>
+			<!-- compile.library -->
+			<antcall target="compile.library" />
+			<!-- untmp.worker -->
+			<parallel>
+				<antcall target="untmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.name" value="Adler32" />
+				</antcall>
+				<antcall target="untmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.name" value="Base64" />
+				</antcall>
+				<antcall target="untmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.name" value="CRC32" />
+				</antcall>
+				<antcall target="untmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.name" value="MD5" />
+				</antcall>
+				<antcall target="untmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.name" value="SHA1" />
+				</antcall>
+				<antcall target="untmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.name" value="SHA2" />
+				</antcall>
+				<antcall target="untmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto/serialization" />
+					<param name="worker.name" value="JSON" />
+				</antcall>
+				<antcall target="untmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto/image" />
+					<param name="worker.name" value="PNGEncoder" />
+				</antcall>
+				<antcall target="untmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto/image" />
+					<param name="worker.name" value="JPEGEncoder" />
+				</antcall>
+			</parallel>
+		</sequential>
 	</target>
 
 </project>
