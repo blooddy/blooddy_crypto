@@ -82,6 +82,10 @@
 				</antcall>
 				<antcall target="tmp.worker">
 					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.name" value="Base64" />
+				</antcall>
+				<antcall target="tmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
 					<param name="worker.name" value="CRC32" />
 				</antcall>
 				<antcall target="tmp.worker">
@@ -115,6 +119,11 @@
 					<param name="worker.path" value="by/blooddy/crypto" />
 					<param name="worker.package" value="by.blooddy.crypto" />
 					<param name="worker.name" value="Adler32" />
+				</antcall>
+				<antcall target="compile.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.package" value="by.blooddy.crypto" />
+					<param name="worker.name" value="Base64" />
 				</antcall>
 				<antcall target="compile.worker">
 					<param name="worker.path" value="by/blooddy/crypto" />
@@ -159,6 +168,10 @@
 				<antcall target="untmp.worker">
 					<param name="worker.path" value="by/blooddy/crypto" />
 					<param name="worker.name" value="Adler32" />
+				</antcall>
+				<antcall target="untmp.worker">
+					<param name="worker.path" value="by/blooddy/crypto" />
+					<param name="worker.name" value="Base64" />
 				</antcall>
 				<antcall target="untmp.worker">
 					<param name="worker.path" value="by/blooddy/crypto" />
