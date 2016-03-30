@@ -11,8 +11,8 @@ package by.blooddy.crypto.process {
 	
 	import by.blooddy.crypto.events.ProcessEvent;
 	
-	[Event( type="by.blooddy.crypto.events.ProcessEvent", name="success" )]
-	[Event( type="by.blooddy.crypto.events.ProcessEvent", name="fault" )]
+	[Event( type="by.blooddy.crypto.events.ProcessEvent", name="complete" )]
+	[Event( type="by.blooddy.crypto.events.ProcessEvent", name="error" )]
 	
 	/**
 	 * @private
@@ -74,7 +74,7 @@ package by.blooddy.crypto.process {
 		protected function call(method:String, ...arguments):void {
 			process.process(
 				getQualifiedClassName( this ), method, arguments,
-				this.success, this.fail
+				this.complete, this.error
 			);
 		}
 
@@ -87,18 +87,18 @@ package by.blooddy.crypto.process {
 		/**
 		 * @private
 		 */
-		private function success(result:*):void {
+		private function complete(result:*):void {
 			super.dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE, false, false, result ) );
 		}
 		
 		/**
 		 * @private
 		 */
-		private function fail(e:*):void {
+		private function error(error:*):void {
 			if ( super.hasEventListener( ProcessEvent.ERROR ) ) {
-				super.dispatchEvent( new ProcessEvent( ProcessEvent.ERROR, false, false, e ) );
+				super.dispatchEvent( new ProcessEvent( ProcessEvent.ERROR, false, false, error ) );
 			} else {
-				throw e; 
+				throw error;
 			}
 		}
 		
