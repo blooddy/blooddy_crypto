@@ -8,6 +8,7 @@ package by.blooddy.crypto.process {
 
 	import flash.events.EventDispatcher;
 	import flash.utils.getQualifiedClassName;
+	
 	import by.blooddy.crypto.events.ProcessEvent;
 	
 	[Event( type="by.blooddy.crypto.events.ProcessEvent", name="success" )]
@@ -94,7 +95,11 @@ package by.blooddy.crypto.process {
 		 * @private
 		 */
 		private function fail(e:*):void {
-			super.dispatchEvent( new ProcessEvent( ProcessEvent.ERROR, false, false, e ) );
+			if ( super.hasEventListener( ProcessEvent.ERROR ) ) {
+				super.dispatchEvent( new ProcessEvent( ProcessEvent.ERROR, false, false, e ) );
+			} else {
+				throw e; 
+			}
 		}
 		
 	}
