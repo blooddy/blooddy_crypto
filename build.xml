@@ -41,7 +41,7 @@
 			<load-config filename="${basedir}/build.config.worker.xml" />
 
 			<source-path path-element="${srcdir}" />
- 
+
 			<includes symbol="${worker.package}.${worker.name}" />
 
 			<externs symbol="by.blooddy.crypto.process.Process$Concurrent" />
@@ -67,13 +67,11 @@
 		</compc>
 
 	</target>
-<!--
-	<property name="worker.path" value="${srcdir}/by/blooddy/crypto/process" />
-	<property name="worker.name" value="Worker$Background" />
--->
 	
-	<target name="compile">
+	<target name="compile" description="Compile Project">
+
 		<sequential>
+
 			<!-- tmp.worker -->
 			<parallel>
 				<antcall target="tmp.worker">
@@ -113,8 +111,24 @@
 					<param name="worker.name" value="JPEGEncoder" />
 				</antcall>
 			</parallel>
+
 			<!-- compile.worker -->
 			<parallel failonany="true" threadcount="3">
+				<antcall target="compile.worker">
+					<param name="worker.path" value="by/blooddy/crypto/serialization" />
+					<param name="worker.package" value="by.blooddy.crypto.serialization" />
+					<param name="worker.name" value="JSON" />
+				</antcall>
+				<antcall target="compile.worker">
+					<param name="worker.path" value="by/blooddy/crypto/image" />
+					<param name="worker.package" value="by.blooddy.crypto.image" />
+					<param name="worker.name" value="PNGEncoder" />
+				</antcall>
+				<antcall target="compile.worker">
+					<param name="worker.path" value="by/blooddy/crypto/image" />
+					<param name="worker.package" value="by.blooddy.crypto.image" />
+					<param name="worker.name" value="JPEGEncoder" />
+				</antcall>
 				<antcall target="compile.worker">
 					<param name="worker.path" value="by/blooddy/crypto" />
 					<param name="worker.package" value="by.blooddy.crypto" />
@@ -145,24 +159,11 @@
 					<param name="worker.package" value="by.blooddy.crypto" />
 					<param name="worker.name" value="SHA2" />
 				</antcall>
-				<antcall target="compile.worker">
-					<param name="worker.path" value="by/blooddy/crypto/serialization" />
-					<param name="worker.package" value="by.blooddy.crypto.serialization" />
-					<param name="worker.name" value="JSON" />
-				</antcall>
-				<antcall target="compile.worker">
-					<param name="worker.path" value="by/blooddy/crypto/image" />
-					<param name="worker.package" value="by.blooddy.crypto.image" />
-					<param name="worker.name" value="PNGEncoder" />
-				</antcall>
-				<antcall target="compile.worker">
-					<param name="worker.path" value="by/blooddy/crypto/image" />
-					<param name="worker.package" value="by.blooddy.crypto.image" />
-					<param name="worker.name" value="JPEGEncoder" />
-				</antcall>
 			</parallel>
+
 			<!-- compile.library -->
 			<antcall target="compile.library" />
+
 			<!-- untmp.worker -->
 			<parallel>
 				<antcall target="untmp.worker">
@@ -202,7 +203,9 @@
 					<param name="worker.name" value="JPEGEncoder" />
 				</antcall>
 			</parallel>
+
 		</sequential>
+
 	</target>
 
 </project>

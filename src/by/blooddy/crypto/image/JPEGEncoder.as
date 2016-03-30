@@ -31,12 +31,6 @@ package by.blooddy.crypto.image {
 		//
 		//--------------------------------------------------------------------------
 		
-		[Embed( source="JPEGEncoder.swf", mimeType="application/octet-stream" )]
-		/**
-		 * @private
-		 */
-		private static const _WORKER_CLASS:Class;
-		
 		/**
 		 * @private
 		 */
@@ -252,6 +246,20 @@ package by.blooddy.crypto.image {
 			
 		}
 		
+		CRYPTO::worker {
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Class variables
+		//
+		//--------------------------------------------------------------------------
+		
+		[Embed( source="JPEGEncoder.swf", mimeType="application/octet-stream" )]
+		/**
+		 * @private
+		 */
+		private static const WorkerClass:Class;
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -259,7 +267,7 @@ package by.blooddy.crypto.image {
 		//--------------------------------------------------------------------------
 		
 		public function JPEGEncoder() {
-			super( _WORKER_CLASS );
+			super( WorkerClass );
 		}
 		
 		//--------------------------------------------------------------------------
@@ -284,6 +292,8 @@ package by.blooddy.crypto.image {
 			
 			super.call( 'encodeBytes', bytes, width, height, quality );
 			
+		}
+		
 		}
 		
 	}

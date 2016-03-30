@@ -26,18 +26,6 @@ package by.blooddy.crypto.serialization {
 
 		//--------------------------------------------------------------------------
 		//
-		//  Class variables
-		//
-		//--------------------------------------------------------------------------
-		
-		[Embed( source="JSON.swf", mimeType="application/octet-stream" )]
-		/**
-		 * @private
-		 */
-		private static const _WORKER_CLASS:Class;
-		
-		//--------------------------------------------------------------------------
-		//
 		//  Class methods
 		//
 		//--------------------------------------------------------------------------
@@ -108,6 +96,20 @@ package by.blooddy.crypto.serialization {
 			: decode
 		);
 		
+		CRYPTO::worker {
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Class variables
+		//
+		//--------------------------------------------------------------------------
+		
+		[Embed( source="JSON.swf", mimeType="application/octet-stream" )]
+		/**
+		 * @private
+		 */
+		private static const WorkerClass:Class;
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -115,7 +117,7 @@ package by.blooddy.crypto.serialization {
 		//--------------------------------------------------------------------------
 		
 		public function JSON() {
-			super( _WORKER_CLASS );
+			super( WorkerClass );
 		}
 		
 		//--------------------------------------------------------------------------
@@ -130,6 +132,8 @@ package by.blooddy.crypto.serialization {
 		
 		public function parse(value:String):* {
 			super.call( 'parse', value );
+		}
+		
 		}
 		
 	}
