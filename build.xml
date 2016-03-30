@@ -61,6 +61,7 @@
 			<includes symbol="by.blooddy.crypto.image.JPEGEncoder" />
 
 			<externs symbol="by.blooddy.crypto.process.Process$Concurrent" />
+			<externs symbol="by.blooddy.crypto.process.Worker$" />
  
 		</mxmlc>
 
