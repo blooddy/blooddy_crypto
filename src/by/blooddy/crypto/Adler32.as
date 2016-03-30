@@ -27,6 +27,12 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
+		[Embed( source="Adler32.swf", mimeType="application/octet-stream" )]
+		/**
+		 * @private
+		 */
+		private static const _WORKER_CLASS:Class;
+		
 		/**
 		 * @private
 		 */
@@ -96,7 +102,7 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 		
 		public function Adler32() {
-			super();
+			super( _WORKER_CLASS );
 		}
 		
 		//--------------------------------------------------------------------------

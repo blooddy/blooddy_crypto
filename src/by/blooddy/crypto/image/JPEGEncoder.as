@@ -31,6 +31,12 @@ package by.blooddy.crypto.image {
 		//
 		//--------------------------------------------------------------------------
 		
+		[Embed( source="JPEGEncoder.swf", mimeType="application/octet-stream" )]
+		/**
+		 * @private
+		 */
+		private static const _WORKER_CLASS:Class;
+		
 		/**
 		 * @private
 		 */
@@ -253,7 +259,7 @@ package by.blooddy.crypto.image {
 		//--------------------------------------------------------------------------
 		
 		public function JPEGEncoder() {
-			super();
+			super( _WORKER_CLASS );
 		}
 		
 		//--------------------------------------------------------------------------

@@ -41,7 +41,13 @@ package by.blooddy.crypto.image {
 		//  Class variables
 		//
 		//--------------------------------------------------------------------------
-
+		
+		[Embed( source="PNGEncoder.swf", mimeType="application/octet-stream" )]
+		/**
+		 * @private
+		 */
+		private static const _WORKER_CLASS:Class;
+		
 		/**
 		 * @private
 		 */
@@ -229,7 +235,7 @@ package by.blooddy.crypto.image {
 
 		public function PNGEncoder() {
 			if ( ( this as Object ).constructor == PNG24Encoder || ( this as Object ).constructor == PNG8Encoder ) {
-				super();
+				super( _WORKER_CLASS );
 			} else {
 				Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
 			}

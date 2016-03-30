@@ -55,14 +55,29 @@ package by.blooddy.crypto.process {
 		 * @private
 		 * Constructor
 		 */
-		public function Process() {
-			if ( ( this as Object ).constructor != Process ) {
-				super();
-			} else {
+		public function Process(WorkerClass:Class) {
+			if ( ( this as Object ).constructor == Process ) {
 				Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
+			} else {
+				super();
+				if ( !WorkerClass ) {
+					Error.throwError( TypeError, 2007, 'WorkerClass' );
+				}
+				this.WorkerClass = WorkerClass;
 			}
 		}
 
+		//--------------------------------------------------------------------------
+		//
+		//  Variables
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * @private
+		 */
+		private var WorkerClass:Class;
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Protected methods
@@ -75,11 +90,8 @@ package by.blooddy.crypto.process {
 		 */
 		protected function call(method:String, ...arguments):void {
 
-			[Embed( source="Worker$Background.swf", mimeType="application/octet-stream" )]
-			const Worker$Background$SWF:Class;
-			
 			process.process(
-				Worker$Background$SWF,
+				WorkerClass,
 				getQualifiedClassName( this ), method, arguments,
 				this.complete, this.error
 			);
