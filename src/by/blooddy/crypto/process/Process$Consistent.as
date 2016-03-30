@@ -23,10 +23,13 @@ package by.blooddy.crypto.process {
 
 		//--------------------------------------------------------------------------
 		//
-		//  Class constants
+		//  Class variables
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * @private
+		 */
 		internal static const instance:Process$Consistent = new Process$Consistent();
 		
 		//--------------------------------------------------------------------------

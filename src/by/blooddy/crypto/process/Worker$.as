@@ -43,6 +43,10 @@ package by.blooddy.crypto.process {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * @private
+		 * Constructor
+		 */
 		public function Worker$(bytes:ByteArray) {
 			if ( bytes && bytes.length ) {
 
@@ -69,7 +73,7 @@ package by.blooddy.crypto.process {
 		/**
 		 * @private
 		 */
-		private var timeout:uint;
+		private var idle:uint;
 		
 		/**
 		 * @private
@@ -103,7 +107,7 @@ package by.blooddy.crypto.process {
 		 */
 		public function send(data:Object, callback:Function=null):void {
 
-			clearTimeout( this.timeout );
+			clearTimeout( this.idle );
 			
 			this.queue.push( callback );
 
@@ -177,7 +181,7 @@ package by.blooddy.crypto.process {
 			this.queue.shift()( result );
 
 			if ( this.queue.length <= 0 ) {
-				this.timeout = setTimeout( this.stop, 5 * 1e3 );
+				this.idle = setTimeout( this.stop, 5 * 1e3 );
 			}
 
 		}

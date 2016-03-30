@@ -22,18 +22,18 @@ package by.blooddy.crypto.process {
 
 		//--------------------------------------------------------------------------
 		//
-		//  Class constants
-		//
-		//--------------------------------------------------------------------------
-		
-		internal static const instance:Process$Concurrent = new Process$Concurrent();
-		
-		//--------------------------------------------------------------------------
-		//
 		//  Class variables
 		//
 		//--------------------------------------------------------------------------
-
+		
+		/**
+		 * @private
+		 */
+		internal static const instance:Process$Concurrent = new Process$Concurrent();
+		
+		/**
+		 * @private
+		 */
 		private static var _WORKER:Worker$;
 		
 		//--------------------------------------------------------------------------
