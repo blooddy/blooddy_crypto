@@ -39,34 +39,28 @@ package by.blooddy.crypto.process {
 		//--------------------------------------------------------------------------
 
 		private static const _QUEUE:Vector.<Function> = new Vector.<Function>();
-		
-		private static const _CHANNEL:MessageChannel = ( function():MessageChannel {
-			
-			[Embed( source="BackgroundProcess.swf", mimeType="application/octet-stream" )]
-			var BackgroundWorkerSWF:Class;
-			
-			var worker:Worker = WorkerDomain.current.createWorker( new BackgroundWorkerSWF() as ByteArray );
-			
-			var input:MessageChannel = worker.createMessageChannel( Worker.current );
-			var output:MessageChannel = Worker.current.createMessageChannel( worker );
 
-			input.addEventListener( Event.CHANNEL_MESSAGE, function(event:Event):void {
-				var success:Function = _QUEUE.shift();
-				var fault:Function = _QUEUE.shift();
-				var result:Object = input.receive( true );
-				if ( result.fault ) fault( result.fault );
-				else if ( result.success ) success( result.success );
-			} );
-			
-			worker.setSharedProperty( 'output', input );
-			worker.setSharedProperty( 'input', output );
-				
-			worker.start();
-				
-			return output;
-			
-		}() );
+		[Embed( source="BackgroundProcess.swf", mimeType="application/octet-stream" )]
+		private static const BackgroundWorkerSWF:Class;
+
+		private static const _WORKER:Worker = WorkerDomain.current.createWorker( new BackgroundWorkerSWF() as ByteArray );
 		
+		private static const _INPUT:MessageChannel = _WORKER.createMessageChannel( Worker.current );
+		private static const _OUTPUT:MessageChannel = Worker.current.createMessageChannel( _WORKER );
+		
+		_INPUT.addEventListener( Event.CHANNEL_MESSAGE, function(event:Event):void {
+			var success:Function = _QUEUE.shift();
+			var fault:Function = _QUEUE.shift();
+			var result:Object = _INPUT.receive( true );
+			if ( result.fault ) fault( result.fault );
+			else if ( result.success ) success( result.success );
+		} );
+		
+		_WORKER.setSharedProperty( 'output', _INPUT );
+		_WORKER.setSharedProperty( 'input', _OUTPUT );
+			
+		_WORKER.start();
+				
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -98,7 +92,7 @@ package by.blooddy.crypto.process {
 			
 			_QUEUE.push( success, fault );
 
-			_CHANNEL.send( { c: className, m: methodName, a: arguments } );
+			_OUTPUT.send( { c: className, m: methodName, a: arguments } );
 
 		}
 		

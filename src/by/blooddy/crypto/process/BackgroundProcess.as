@@ -29,47 +29,42 @@ package by.blooddy.crypto.process {
 		//
 		//--------------------------------------------------------------------------
 		
-		private static const _CHANNEL:MessageChannel = ( function():MessageChannel {
-			
-			var worker:Worker = Worker.current;
-			
-			var input:MessageChannel = worker.getSharedProperty( 'input' );
-			var output:MessageChannel = worker.getSharedProperty( 'output' );
-
-			input.addEventListener( Event.CHANNEL_MESSAGE, function(event:Event):void {
-				process();
-			} );
-			
-			if ( input.messageAvailable ) {
-				process();
-			}
-			
-			function process():void {
-				
-				var data:Object = input.receive( true );
-				
-				try {
-					
-					var target:Object = ApplicationDomain.currentDomain.getDefinition( data.c );
-					
-					output.send( {
-						success: target[ data.m ].apply( target, data.a )
-					} );
-					
-				} catch ( e:Error ) {
-					
-					output.send( {
-						fault: e
-					} );
-					
-				}
-
-			}
-			
-			return output;
-			
-		}() );
+		private static const _INPUT:MessageChannel = Worker.current.getSharedProperty( 'input' )
 		
+		private static const _OUTPUT:MessageChannel = Worker.current.getSharedProperty( 'output' )
+
+		_INPUT.addEventListener( Event.CHANNEL_MESSAGE, function(event:Event):void {
+			while ( _INPUT.messageAvailable ) {
+				process();
+			}
+		} );
+		
+		while ( _INPUT.messageAvailable ) {
+			process();
+		}
+		
+		private static function process():void {
+			
+			var data:Object = _INPUT.receive( true );
+			
+			try {
+				
+				var target:Object = ApplicationDomain.currentDomain.getDefinition( data.c );
+				
+				_OUTPUT.send( {
+					success: target[ data.m ].apply( target, data.a )
+				} );
+				
+			} catch ( e:Error ) {
+				
+				_OUTPUT.send( {
+					fault: e
+				} );
+				
+			}
+			
+		}
+
 	}
 	
 }
