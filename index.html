@@ -28,7 +28,44 @@
 
     <div class="container">
       <section id="main_content">
-        <p><a href="http://www.blooddy.by">http://www.blooddy.by</a></p>
+        <h1>
+<a id="bloddy_crypto" class="anchor" href="#bloddy_crypto" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><a href="http://www.blooddy.by">BLODDY_CRYPTO</a>
+</h1>
+
+<p><a href="https://github.com/blooddy/blooddy_crypto/releases/latest"><img src="https://img.shields.io/badge/download-ZIP-yellow.svg" alt="Download"></a> <a href="https://github.com/blooddy/blooddy_crypto/releases/latest"><img src="https://img.shields.io/github/release/blooddy/blooddy_crypto.svg?label=version" alt="Last Release"></a> <img src="https://img.shields.io/github/license/blooddy/blooddy_crypto.svg" alt="Licence"></p>
+
+<p>ActionScript library for processing binary data.</p>
+
+<h2>
+<a id="description" class="anchor" href="#description" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Description</h2>
+
+<p>This library contains <a href="http://en.wikipedia.org/wiki/Md5">MD5</a>, <a href="http://en.wikipedia.org/wiki/SHA-1">SHA-1</a>, <a href="http://en.wikipedia.org/wiki/SHA-2">SHA-2</a> ( 224 и 256 ), <a href="http://en.wikipedia.org/wiki/Base64">Base64</a>, <a href="http://en.wikipedia.org/wiki/Crc32">CRC32</a> algorithms, <a href="http://en.wikipedia.org/wiki/JSON">JSON</a> encoder &amp; decoder as well as <a href="http://en.wikipedia.org/wiki/Portable_Network_Graphics">PNG</a> and <a href="http://en.wikipedia.org/wiki/JPEG">JPEG</a> encoders.</p>
+
+<h2>
+<a id="examples" class="anchor" href="#examples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Examples</h2>
+
+<h6>
+<a id="sync" class="anchor" href="#sync" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Sync</h6>
+
+<div class="highlight highlight-source-actionscript-3"><pre><span class="pl-k">import <span class="pl-c1">by.blooddy.crypto.MD5</span>;</span>
+<span class="pl-k">var</span> <span class="pl-c1">result</span><span class="pl-k">:</span><span class="pl-c1">String</span> <span class="pl-k">=</span> <span class="pl-c1">MD5</span><span class="pl-k">.</span>hash( <span class="pl-s">'text'</span> )<span class="pl-k">;</span></pre></div>
+
+<h6>
+<a id="async" class="anchor" href="#async" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Async</h6>
+
+<div class="highlight highlight-source-actionscript-3"><pre><span class="pl-k">import <span class="pl-c1">by.blooddy.crypto.MD5</span>;</span>
+<span class="pl-k">import <span class="pl-c1">by.blooddy.crypto.events.ProcessEvent</span>;</span>
+
+<span class="pl-k">var</span> md5<span class="pl-k">:</span><span class="pl-c1">MD5</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">MD5</span>()<span class="pl-k">;</span>
+md5<span class="pl-k">.</span>hash( <span class="pl-s">'text'</span> )<span class="pl-k">;</span>
+md5<span class="pl-k">.</span><span class="pl-c1">addEventListener</span>( ProcessEvent<span class="pl-k">.</span><span class="pl-c1">COMPLETE</span>, <span class="pl-k">function</span>(event<span class="pl-k">:</span>ProcessEvent)<span class="pl-k">:</span><span class="pl-k">void</span> {
+  <span class="pl-k">var</span> result:String = event.data;
+  trace( result ); <span class="pl-c">// async result</span>
+} )<span class="pl-k">;</span>
+md5<span class="pl-k">.</span><span class="pl-c1">addEventListener</span>( ProcessEvent<span class="pl-k">.</span><span class="pl-c1">ERROR</span>, <span class="pl-k">function</span>(event<span class="pl-k">:</span>ProcessEvent)<span class="pl-k">:</span><span class="pl-k">void</span> {
+  <span class="pl-k">var</span> error:Error = event.data;
+    trace( error ); <span class="pl-c">// async error</span>
+} )<span class="pl-k">;</span></pre></div>
       </section>
     </div>
 
