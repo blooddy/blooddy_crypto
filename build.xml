@@ -4,29 +4,12 @@
 	<property file="build.properties" />
 	
 	<property name="srcdir" value="${basedir}/src" />
+	<property name="swfdir" value="${basedir}/swf" />
 	
 	<property name="AIR_SDK_HOME" value="${flex.sdk}" />
     <property name="FLEX_HOME" value="${flex.sdk}" />
 	
 	<taskdef resource="flexTasks.tasks" classpath="${flex.sdk}/ant/lib/flexTasks.jar" />
-
-	<target name="tmp.worker">
-
-		<copy
-			file="${srcdir}/${worker.path}/${worker.name}.swf"
-			tofile="${srcdir}/${worker.path}/${worker.name}.tmp.swf"
-		/>
-
-	</target>
-
-	<target name="untmp.worker">
-	
-		<move
-			file="${srcdir}/${worker.path}/${worker.name}.tmp.swf"
-			toFile="${srcdir}/${worker.path}/${worker.name}.swf"
-		/>
-	
-	</target>
 
 	<target name="compile.worker" description="Compile Worker">
 
@@ -41,6 +24,7 @@
 			<load-config filename="${basedir}/build.config.worker.xml" />
 
 			<source-path path-element="${srcdir}" />
+			<!--source-path path-element="${swfdir}" /-->
 
 			<includes symbol="${worker.package}.${worker.name}" />
 
@@ -51,6 +35,12 @@
 
 	</target>
 
+	<target name="delete.worker" description="Compile Worker">
+		
+		<delete file="${srcdir}/${worker.path}/${worker.name}.swf" />
+		
+	</target>
+	
 	<target name="compile.library" description="Compile Library">
 
 		<compc failonerror="true"
@@ -71,46 +61,6 @@
 	<target name="compile" description="Compile Project">
 
 		<sequential>
-
-			<!-- tmp.worker -->
-			<parallel>
-				<antcall target="tmp.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.name" value="Adler32" />
-				</antcall>
-				<antcall target="tmp.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.name" value="Base64" />
-				</antcall>
-				<antcall target="tmp.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.name" value="CRC32" />
-				</antcall>
-				<antcall target="tmp.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.name" value="MD5" />
-				</antcall>
-				<antcall target="tmp.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.name" value="SHA1" />
-				</antcall>
-				<antcall target="tmp.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.name" value="SHA2" />
-				</antcall>
-				<antcall target="tmp.worker">
-					<param name="worker.path" value="by/blooddy/crypto/serialization" />
-					<param name="worker.name" value="JSON" />
-				</antcall>
-				<antcall target="tmp.worker">
-					<param name="worker.path" value="by/blooddy/crypto/image" />
-					<param name="worker.name" value="PNGEncoder" />
-				</antcall>
-				<antcall target="tmp.worker">
-					<param name="worker.path" value="by/blooddy/crypto/image" />
-					<param name="worker.name" value="JPEGEncoder" />
-				</antcall>
-			</parallel>
 
 			<!-- compile.worker -->
 			<parallel failonany="true" threadcount="3">
@@ -164,41 +114,41 @@
 			<!-- compile.library -->
 			<antcall target="compile.library" />
 
-			<!-- untmp.worker -->
-			<parallel>
-				<antcall target="untmp.worker">
+			<!-- delete.worker -->
+			<parallel failonany="true">
+				<antcall target="delete.worker">
 					<param name="worker.path" value="by/blooddy/crypto" />
 					<param name="worker.name" value="Adler32" />
 				</antcall>
-				<antcall target="untmp.worker">
+				<antcall target="delete.worker">
 					<param name="worker.path" value="by/blooddy/crypto" />
 					<param name="worker.name" value="Base64" />
 				</antcall>
-				<antcall target="untmp.worker">
+				<antcall target="delete.worker">
 					<param name="worker.path" value="by/blooddy/crypto" />
 					<param name="worker.name" value="CRC32" />
 				</antcall>
-				<antcall target="untmp.worker">
+				<antcall target="delete.worker">
 					<param name="worker.path" value="by/blooddy/crypto" />
 					<param name="worker.name" value="MD5" />
 				</antcall>
-				<antcall target="untmp.worker">
+				<antcall target="delete.worker">
 					<param name="worker.path" value="by/blooddy/crypto" />
 					<param name="worker.name" value="SHA1" />
 				</antcall>
-				<antcall target="untmp.worker">
+				<antcall target="delete.worker">
 					<param name="worker.path" value="by/blooddy/crypto" />
 					<param name="worker.name" value="SHA2" />
 				</antcall>
-				<antcall target="untmp.worker">
+				<antcall target="delete.worker">
 					<param name="worker.path" value="by/blooddy/crypto/serialization" />
 					<param name="worker.name" value="JSON" />
 				</antcall>
-				<antcall target="untmp.worker">
+				<antcall target="delete.worker">
 					<param name="worker.path" value="by/blooddy/crypto/image" />
 					<param name="worker.name" value="PNGEncoder" />
 				</antcall>
-				<antcall target="untmp.worker">
+				<antcall target="delete.worker">
 					<param name="worker.path" value="by/blooddy/crypto/image" />
 					<param name="worker.name" value="JPEGEncoder" />
 				</antcall>

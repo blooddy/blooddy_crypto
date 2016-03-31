@@ -7,6 +7,7 @@
 package by.blooddy.crypto.process {
 
 	import flash.events.EventDispatcher;
+	import flash.utils.getQualifiedClassName;
 	
 	import by.blooddy.crypto.events.ProcessEvent;
 	
