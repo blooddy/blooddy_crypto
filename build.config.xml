@@ -16,11 +16,25 @@
 
 	<target-player>21</target-player>
 
-	<metadata>
-		<title>blooddy_crypto</title>
-		<publisher>BlooDHounD</publisher>
-		<creator>BlooDHounD</creator>
-		<description>http://www.blooddy.by</description>
-	</metadata>
+	<raw-metadata><![CDATA[
+		<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+		    <rdf:Description
+		    	xmlns:dc="http://purl.org/dc/elements/1.1"
+				xmln:asc="http://ns.adobe.com/asc/2012"
+				xmlns:l="http://purl.org/rss/1.0/modules/link/"
+		   	>
+				<dc:format>application/x-shockwave-flash</dc:format>
+				<asc:compiler name="ActionScript Compiler" version="2.0.0" />
+				<dc:title>blooddy_crypto</dc:title>
+				<dc:description>ActionScript library for processing binary data. http://www.blooddy.by</dc:description>
+				<dc:publisher>BlooDHounD</dc:publisher>
+				<dc:creator>BlooDHounD</dc:creator>
+				<l:link
+					l:rel="http://purl.org/rss/1.0/modules/link/#source"
+					rdf:resource="http://www.blooddy.by"
+				/>
+		</rdf:Description>
+		</rdf:RDF>
+	]]></raw-metadata>
 
 </flex-config>
