@@ -4,14 +4,31 @@
 	<property file="build.properties" />
 	
 	<property name="srcdir" value="${basedir}/src" />
-	<property name="swfdir" value="${basedir}/swf" />
 	
 	<property name="AIR_SDK_HOME" value="${flex.sdk}" />
     <property name="FLEX_HOME" value="${flex.sdk}" />
 	
 	<taskdef resource="flexTasks.tasks" classpath="${flex.sdk}/ant/lib/flexTasks.jar" />
 
-	<target name="compile.worker" description="Compile Worker">
+	<filelist id="workers.files" dir="${srcdir}">
+		<file name="by/blooddy/crypto/Adler32.swf" />
+		<file name="by/blooddy/crypto/Base64.swf" />
+		<file name="by/blooddy/crypto/CRC32.swf" />
+		<file name="by/blooddy/crypto/MD5.swf" />
+		<file name="by/blooddy/crypto/SHA1.swf" />
+		<file name="by/blooddy/crypto/SHA2.swf" />
+		<file name="by/blooddy/crypto/serialization/JSON.swf" />
+		<file name="by/blooddy/crypto/image/JPEGEncoder.swf" />
+		<file name="by/blooddy/crypto/image/PNGEncoder.swf" />
+	</filelist>
+	
+	<target name="workers.delete">
+		<delete>
+			<filelist refid="workers.files" />
+		</delete>
+	</target>
+	
+	<target name="worker.compile">
 
 		<mxmlc failonerror="true"
 			file="${srcdir}/by/blooddy/crypto/process/Worker$Background.as"
@@ -24,7 +41,6 @@
 			<load-config filename="${basedir}/build.config.worker.xml" />
 
 			<source-path path-element="${srcdir}" />
-			<!--source-path path-element="${swfdir}" /-->
 
 			<includes symbol="${worker.package}.${worker.name}" />
 
@@ -35,13 +51,57 @@
 
 	</target>
 
-	<target name="delete.worker" description="Compile Worker">
-		
-		<delete file="${srcdir}/${worker.path}/${worker.name}.swf" />
-		
+	<target name="workers.compile" depends="workers.delete">
+		<parallel failonany="true">
+			<antcall target="worker.compile">
+				<param name="worker.path" value="by/blooddy/crypto/serialization" />
+				<param name="worker.package" value="by.blooddy.crypto.serialization" />
+				<param name="worker.name" value="JSON" />
+			</antcall>
+			<antcall target="worker.compile">
+				<param name="worker.path" value="by/blooddy/crypto/image" />
+				<param name="worker.package" value="by.blooddy.crypto.image" />
+				<param name="worker.name" value="PNGEncoder" />
+			</antcall>
+			<antcall target="worker.compile">
+				<param name="worker.path" value="by/blooddy/crypto/image" />
+				<param name="worker.package" value="by.blooddy.crypto.image" />
+				<param name="worker.name" value="JPEGEncoder" />
+			</antcall>
+			<antcall target="worker.compile">
+				<param name="worker.path" value="by/blooddy/crypto" />
+				<param name="worker.package" value="by.blooddy.crypto" />
+				<param name="worker.name" value="Adler32" />
+			</antcall>
+			<antcall target="worker.compile">
+				<param name="worker.path" value="by/blooddy/crypto" />
+				<param name="worker.package" value="by.blooddy.crypto" />
+				<param name="worker.name" value="Base64" />
+			</antcall>
+			<antcall target="worker.compile">
+				<param name="worker.path" value="by/blooddy/crypto" />
+				<param name="worker.package" value="by.blooddy.crypto" />
+				<param name="worker.name" value="CRC32" />
+			</antcall>
+			<antcall target="worker.compile">
+				<param name="worker.path" value="by/blooddy/crypto" />
+				<param name="worker.package" value="by.blooddy.crypto" />
+				<param name="worker.name" value="MD5" />
+			</antcall>
+			<antcall target="worker.compile">
+				<param name="worker.path" value="by/blooddy/crypto" />
+				<param name="worker.package" value="by.blooddy.crypto" />
+				<param name="worker.name" value="SHA1" />
+			</antcall>
+			<antcall target="worker.compile">
+				<param name="worker.path" value="by/blooddy/crypto" />
+				<param name="worker.package" value="by.blooddy.crypto" />
+				<param name="worker.name" value="SHA2" />
+			</antcall>
+		</parallel>
 	</target>
 	
-	<target name="compile.library" description="Compile Library">
+	<target name="library.compile" depends="workers.compile">
 
 		<compc failonerror="true"
 			output="${basedir}/bin/blooddy_crypto.swc"
@@ -58,103 +118,16 @@
 
 	</target>
 	
+	<target name="workers.touch">
+		<touch millis="0">
+			<filelist refid="workers.files" />
+		</touch>
+	</target>
+	
 	<target name="compile" description="Compile Project">
 
-		<sequential>
-
-			<!-- compile.worker -->
-			<parallel failonany="true" threadcount="3">
-				<antcall target="compile.worker">
-					<param name="worker.path" value="by/blooddy/crypto/serialization" />
-					<param name="worker.package" value="by.blooddy.crypto.serialization" />
-					<param name="worker.name" value="JSON" />
-				</antcall>
-				<antcall target="compile.worker">
-					<param name="worker.path" value="by/blooddy/crypto/image" />
-					<param name="worker.package" value="by.blooddy.crypto.image" />
-					<param name="worker.name" value="PNGEncoder" />
-				</antcall>
-				<antcall target="compile.worker">
-					<param name="worker.path" value="by/blooddy/crypto/image" />
-					<param name="worker.package" value="by.blooddy.crypto.image" />
-					<param name="worker.name" value="JPEGEncoder" />
-				</antcall>
-				<antcall target="compile.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.package" value="by.blooddy.crypto" />
-					<param name="worker.name" value="Adler32" />
-				</antcall>
-				<antcall target="compile.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.package" value="by.blooddy.crypto" />
-					<param name="worker.name" value="Base64" />
-				</antcall>
-				<antcall target="compile.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.package" value="by.blooddy.crypto" />
-					<param name="worker.name" value="CRC32" />
-				</antcall>
-				<antcall target="compile.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.package" value="by.blooddy.crypto" />
-					<param name="worker.name" value="MD5" />
-				</antcall>
-				<antcall target="compile.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.package" value="by.blooddy.crypto" />
-					<param name="worker.name" value="SHA1" />
-				</antcall>
-				<antcall target="compile.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.package" value="by.blooddy.crypto" />
-					<param name="worker.name" value="SHA2" />
-				</antcall>
-			</parallel>
-
-			<!-- compile.library -->
-			<antcall target="compile.library" />
-
-			<!-- delete.worker -->
-			<parallel failonany="true">
-				<antcall target="delete.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.name" value="Adler32" />
-				</antcall>
-				<antcall target="delete.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.name" value="Base64" />
-				</antcall>
-				<antcall target="delete.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.name" value="CRC32" />
-				</antcall>
-				<antcall target="delete.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.name" value="MD5" />
-				</antcall>
-				<antcall target="delete.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.name" value="SHA1" />
-				</antcall>
-				<antcall target="delete.worker">
-					<param name="worker.path" value="by/blooddy/crypto" />
-					<param name="worker.name" value="SHA2" />
-				</antcall>
-				<antcall target="delete.worker">
-					<param name="worker.path" value="by/blooddy/crypto/serialization" />
-					<param name="worker.name" value="JSON" />
-				</antcall>
-				<antcall target="delete.worker">
-					<param name="worker.path" value="by/blooddy/crypto/image" />
-					<param name="worker.name" value="PNGEncoder" />
-				</antcall>
-				<antcall target="delete.worker">
-					<param name="worker.path" value="by/blooddy/crypto/image" />
-					<param name="worker.name" value="JPEGEncoder" />
-				</antcall>
-			</parallel>
-
-		</sequential>
+		<antcall target="library.compile" />
+		<antcall target="workers.touch" />
 
 	</target>
 

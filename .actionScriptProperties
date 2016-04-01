@@ -3,7 +3,6 @@
   <compiler additionalCompilerArguments="-load-config+=../build.config.xml" autoRSLOrdering="true" copyDependentFiles="false" fteInMXComponents="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="false" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="10.1.0" useApolloConfig="false" useDebugRSLSwfs="true" useFlashSDK="true" verifyDigests="true" warn="true">
     <compilerSourcePath>
       <compilerSourcePathEntry kind="1" linkType="1" path="tests"/>
-      <compilerSourcePathEntry kind="1" linkType="1" path="swf"/>
     </compilerSourcePath>
     <libraryPath defaultLinkType="0">
       <libraryPathEntry kind="4" path="">
