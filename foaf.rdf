@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<rdf:RDF
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:ya="http://blogs.yandex.ru/schema/foaf"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
+	<foaf:Person>
+
+		<foaf:name>
+			<rdf:Alt>
+				<rdf:li xml:lang="ru">Николай Рыжий</rdf:li>
+				<rdf:li xml:lang="en">Nick Ryzhy</rdf:li>
+			</rdf:Alt>
+		</foaf:name>
+		<foaf:firstName>
+			<rdf:Alt>
+				<rdf:li xml:lang="ru">Николай</rdf:li>
+				<rdf:li xml:lang="en">Nick</rdf:li>
+			</rdf:Alt>
+		</foaf:firstName>
+		<foaf:lastName>
+			<rdf:Alt>
+				<rdf:li xml:lang="ru">Рыжий</rdf:li>
+				<rdf:li xml:lang="en">Ryzhy</rdf:li>
+			</rdf:Alt>
+		</foaf:lastName>
+		<foaf:nick>
+			<rdf:Bag>
+				<rdf:li>blooddy</rdf:li>
+				<rdf:li>BlooDHounD</rdf:li>
+			</rdf:Bag>
+		</foaf:nick>
+		<foaf:gender>male</foaf:gender>
+		<foaf:birthday>1984-10-19</foaf:birthday>
+		<foaf:mbox>blooddy@tut.by</foaf:mbox>
+		<foaf:openid>http://www.google.com/profiles/mryzhy</foaf:openid>
+		<foaf:homepage>
+			<rdf:Bag>
+				<rdf:li rdf:resource="http://www.blooddy.by" />
+				<rdf:li rdf:resource="http://www.google.com/profiles/mryzhy" />
+				<rdf:li rdf:resource="http://blooddy.moikrug.ru" />
+				<rdf:li rdf:resource="http://www.flasher.ru/forum/member.php?u=24652" />
+				<rdf:li rdf:resource="http://otvety.google.ru/otvety/user?userid=03691585047761191262" />
+				<rdf:li rdf:resource="http://www.lastfm.ru/user/blooddy_666" />
+				<rdf:li rdf:resource="http://www.vkontakte.ru/blooddy" />
+				<rdf:li rdf:resource="http://www.facebook.com/blooddy" />
+				<rdf:li rdf:resource="http://http://bloodhound.habrahabr.ru" />
+				<rdf:li rdf:resource="http://mirtesen.ru/people/534379984" />
+				<rdf:li rdf:resource="http://ru.wikipedia.org/wiki/user:blooddy" />
+				<rdf:li rdf:resource="http://www.geni.com/profile/index/6000000003744795120" />
+			</rdf:Bag>
+		</foaf:homepage>
+		<foaf:weblog>
+			<rdf:Bag>
+				<rdf:li rdf:resource="http://juick.com/blooddy/" />
+				<rdf:li rdf:resource="http://twitter.com/mryzhy" />
+				<rdf:li rdf:resource="http://www.flasher.ru/forum/blog.php?u=24652" />
+			</rdf:Bag>
+		</foaf:weblog>
+		<foaf:img>
+			<rdf:Bag>
+				<rdf:li rdf:resource="https://avatars2.githubusercontent.com/u/423362?v=3&amp;s=460" />
+			</rdf:Bag>
+		</foaf:img>
+		<foaf:interest>
+			<rdf:Bag>
+				<rdf:li>ActionScript</rdf:li>
+				<rdf:li>Flash</rdf:li>
+				<rdf:li>AS3</rdf:li>
+				<rdf:li>avm2</rdf:li>
+			</rdf:Bag>
+		</foaf:interest>
+		<foaf:knows rdf:parseType="Collection">
+			<foaf:Person>
+				<foaf:nick>etc</foaf:nick>
+				<foaf:weblog rdf:resource="http://etcs.ru/" />
+			</foaf:Person>
+			<foaf:Person>
+				<foaf:nick>iNils</foaf:nick>
+				<foaf:homepage rdf:resource="http://inils.ru/" />
+			</foaf:Person>
+			<foaf:Person>
+				<foaf:nick>valyard</foaf:nick>
+				<foaf:homepage rdf:resource="http://va.lent.in/" />
+			</foaf:Person>
+		</foaf:knows>
+
+		<ya:firstNode xml:lang="ru">Николай</ya:firstNode>
+		<ya:middleName xml:lang="ru">Николаевич</ya:middleName>
+		<ya:secondName xml:lang="ru">Рыжий</ya:secondName>
+		<ya:country xml:lang="ru" dc:title="Беларусь" rdf:resource="http://maps.yandex.ru/?text=Беларусь"/>
+		<ya:city xml:lang="ru" dc:title="Борисов" rdf:resource="http://maps.yandex.ru/?text=Беларусь,Борисов" />
+		<ya:blogActivity>
+			<ya:Posts>
+				<ya:feed dc:type="application/rss+xml" rdf:resource="http://feeds.feedburner.com/blooddy/en"/>
+			</ya:Posts>
+		</ya:blogActivity>
+
+	</foaf:Person>
+</rdf:RDF>
