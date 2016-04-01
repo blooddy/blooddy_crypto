@@ -52,16 +52,18 @@
 	</target>
 
 	<target name="workers.compile" depends="workers.delete">
+		<parallel failonany="true"><!-- сперва зависимые друг от друга -->
+			<antcall target="worker.compile">
+				<param name="worker.path" value="by/blooddy/crypto/image" />
+				<param name="worker.package" value="by.blooddy.crypto.image" />
+				<param name="worker.name" value="PNGEncoder" />
+			</antcall>
+		</parallel>
 		<parallel failonany="true">
 			<antcall target="worker.compile">
 				<param name="worker.path" value="by/blooddy/crypto/serialization" />
 				<param name="worker.package" value="by.blooddy.crypto.serialization" />
 				<param name="worker.name" value="JSON" />
-			</antcall>
-			<antcall target="worker.compile">
-				<param name="worker.path" value="by/blooddy/crypto/image" />
-				<param name="worker.package" value="by.blooddy.crypto.image" />
-				<param name="worker.name" value="PNGEncoder" />
 			</antcall>
 			<antcall target="worker.compile">
 				<param name="worker.path" value="by/blooddy/crypto/image" />
