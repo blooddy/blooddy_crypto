@@ -12,7 +12,9 @@ package by.blooddy.crypto.process {
 
 	[ExcludeClass]
 	/**
-	 * @private
+	 * @internal
+	 * Timer implementation.
+	 * 
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 10.1
@@ -28,7 +30,7 @@ package by.blooddy.crypto.process {
 		//--------------------------------------------------------------------------
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		internal static const instance:Process$Consistent = new Process$Consistent();
 		
@@ -40,7 +42,6 @@ package by.blooddy.crypto.process {
 		
 		/**
 		 * @private
-		 * Constructor
 		 */
 		public function Process$Consistent() {
 			if ( !instance ) {
