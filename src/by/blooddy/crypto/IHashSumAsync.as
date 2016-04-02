@@ -10,7 +10,7 @@ package by.blooddy.crypto {
 	import flash.utils.ByteArray;
 	
 	/**
-	 * @eventType	by.blooddy.crypto.events.ProcessEvent#COMPLETE
+	 * Dispatched when success.
 	 * 
 	 * <table>
 	 * 	<tr><th>Property<th><th>Value</th></tr>
@@ -20,11 +20,13 @@ package by.blooddy.crypto {
 	 * 	<tr><td>target</td><td>The object that reporting process result.</td></tr>
 	 * 	<tr><td>data</td><td>Result.</td></tr>
 	 * </table>
+	 * 
+	 * @eventType	by.blooddy.crypto.events.ProcessEvent.COMPLETE
 	 */
 	[Event( type="by.blooddy.crypto.events.ProcessEvent", name="complete" )]
 
 	/**
-	 * @eventType	by.blooddy.crypto.events.ProcessEvent#ERROR
+	 * Dispatched when fault.
 	 * 
 	 * <table>
 	 * 	<tr><th>Property<th><th>Value</th></tr>
@@ -34,6 +36,8 @@ package by.blooddy.crypto {
 	 * 	<tr><td>target</td><td>The object that reporting process error.</td></tr>
 	 * 	<tr><td>data</td><td>Error.</td></tr>
 	 * </table>
+	 * 
+	 * @eventType	by.blooddy.crypto.events.ProcessEvent.ERROR
 	 */
 	[Event( type="by.blooddy.crypto.events.ProcessEvent", name="error" )]
 	
