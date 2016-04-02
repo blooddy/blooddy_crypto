@@ -17,7 +17,8 @@ package by.blooddy.crypto.process {
 	
 	[ExcludeClass]
 	/**
-	 * @private
+	 * @internal
+	 * 
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 11.4
@@ -33,6 +34,7 @@ package by.blooddy.crypto.process {
 		//--------------------------------------------------------------------------
 		
 		/**
+		 * @internal
 		 * @copy	flash.system.Worker.isSupported
 		 */
 		public static const isSupported:Boolean = Worker.isSupported;
@@ -44,8 +46,10 @@ package by.blooddy.crypto.process {
 		//--------------------------------------------------------------------------
 		
 		/**
-		 * @private
+		 * @internal
 		 * Constructor
+		 * 
+		 * @param	bytes	Worker <code>ByteArray</code>
 		 */
 		public function Worker$(bytes:ByteArray) {
 			if ( bytes && bytes.length ) {
@@ -102,10 +106,10 @@ package by.blooddy.crypto.process {
 		//--------------------------------------------------------------------------
 		
 		/**
-		 * @param	data		данные, которые мы передаём в worker
-		 * @param	callback	
+		 * @param	data		data
+		 * @param	callback	callback
 		 */
-		public function send(data:Object, callback:Function=null):void {
+		internal function send(data:Object, callback:Function=null):void {
 
 			clearTimeout( this.idle );
 			
