@@ -16,8 +16,9 @@ package by.blooddy.crypto {
 	import by.blooddy.crypto.process.Process;
 	
 	/**
-	 * Encodes and decodes binary data using
-	 * <a herf="http://www.faqs.org/rfcs/rfc4648.html">Base64</a> encoding algorithm.
+	 * Encodes and decodes binary data using Base64 encoding algorithm.
+	 * 
+	 * @see		http://www.faqs.org/rfcs/rfc4648.html	RFC
 	 *
 	 * @author					BlooDHounD
 	 * @version					3.0
@@ -60,19 +61,24 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 
+		/**
+		 * @param	str		Base64 string.
+		 * 
+		 * @return			<code>true</code> if <code>str</code> is valid Base64 string.
+		 */
 		public static function isValid(str:String):Boolean {
 			return /^[A-Za-z\d\+\/\s\v\b]*[=\s\v\b]*$/.test( str );
 		}
 
 		/**
-		 * Encodes the <code>bytes</code> while conditionally inserting line breaks.
+		 * Encodes the <code>ByteArray</code> using Base64 encoding algorithm.
 		 *
-		 * @param	bytes			The data to be encoded.
+		 * @param	bytes			The <code>ByteArray</code> to be encoded.
 		 *
-		 * @param	insertNewLines	If <code>true</code> passed, the resulting
+		 * @param	insertNewLines	If <code>insertNewLines &gt; 0</code> passed, the resulting
 		 * 							string will contain line breaks.
 		 *
-		 * @return					The data encoded.
+		 * @return					The encoded Base64 string data.
 		 */
 		public static function encode(bytes:ByteArray, newLines:uint=0):String {
 
@@ -111,25 +117,17 @@ package by.blooddy.crypto {
 
 			do {
 				
-//				c =	Memory.getUI8( ++i ) << 16 |
-//					Memory.getUI8( ++i ) << 8  |
-//					Memory.getUI8( ++i )       ;
 				c =	li8( ++i ) << 16 |
 					li8( ++i ) << 8  |
 					li8( ++i )       ;
 
 				// TODO: speed test: setI8 x4 vs setI32
-//				Memory.setI8( ++j, Memory.getUI8(   c >>> 18          ) );
 				si8( li8(   c >>> 18          ), ++j );
-//				Memory.setI8( ++j, Memory.getUI8( ( c >>> 12 ) & 0x3F ) );
 				si8( li8( ( c >>> 12 ) & 0x3F ), ++j );
-//				Memory.setI8( ++j, Memory.getUI8( ( c >>> 6  ) & 0x3F ) );
 				si8( li8( ( c >>> 6  ) & 0x3F ), ++j );
-//				Memory.setI8( ++j, Memory.getUI8(   c          & 0x3F ) );
 				si8( li8(   c          & 0x3F ), ++j );
 
 				if ( insertNewLines && i % newLines == 0 ) {
-//					Memory.setI16( ++j, 0x0A0D );
 					si16( 0x0A0D, ++j );
 					++j;
 				}
@@ -138,28 +136,17 @@ package by.blooddy.crypto {
 
 			if ( rest ) {
 				if ( rest == 1 ) {
-//					c = Memory.getUI8( ++i );
 					c = li8( ++i );
-//					Memory.setI8( ++j, Memory.getUI8(   c >>> 2       ) );
 					si8( li8(   c >>> 2       ), ++j );
-//					Memory.setI8( ++j, Memory.getUI8( ( c & 3 ) <<  4 ) );
 					si8( li8( ( c & 3 ) <<  4 ), ++j );
-//					Memory.setI8( ++j, 61 );
 					si8( 61, ++j );
-//					Memory.setI8( ++j, 61 );
 					si8( 61, ++j );
 				} else {
-//					c =	( Memory.getUI8( ++i ) << 8 )	|
-//						  Memory.getUI8( ++i )			;
 					c =	( li8( ++i ) << 8 )	|
 						  li8( ++i )		;
-//					Memory.setI8( ++j, Memory.getUI8(   c >>> 10          ) );
 					si8( li8(   c >>> 10          ), ++j );
-//					Memory.setI8( ++j, Memory.getUI8( ( c >>>  4 ) & 0x3F ) );
 					si8( li8( ( c >>>  4 ) & 0x3F ), ++j );
-//					Memory.setI8( ++j, Memory.getUI8( ( c & 15 ) << 2     ) );
 					si8( li8( ( c & 15 ) << 2     ), ++j );
-//					Memory.setI8( ++j, 61 )
 					si8( 61, ++j );
 				}
 			}
@@ -172,15 +159,13 @@ package by.blooddy.crypto {
 		}
 
 		/**
-		 * Decodes the <code>source</code> string previously encoded using Base64
-		 * algorithm.
+		 * Decodes the <code>String</code> previously encoded using Base64 algorithm.
 		 *
 		 * @param	str				The string containing encoded data.
 		 *
-		 * @return					The array of bytes obtained by decoding the <code>source</code>
-		 * 							string.
+		 * @return					The <code>ByteArray</code> obtained by decoding the <code>str</code>.
 		 *
-		 * @throws	VerifyError		string is not valid
+		 * @throws	VerifyError		If <code>str</code> is not valid Base64 string.
 		 */
 		public static function decode(str:String):ByteArray {
 
@@ -208,11 +193,9 @@ package by.blooddy.crypto {
 
 			do {
 
-//				a = Memory.getUI8( Memory.getUI8( ++i ) );
 				a = li8( li8( ++i ) );
 				if ( a >= 0x40 ) {
 					while ( a == 0x43 ) { // пропускаем пробелы
-//						a = Memory.getUI8( Memory.getUI8( ++i ) );
 						a = li8( li8( ++i ) );
 					}
 					if ( a == 0x41 ) { // наткнулись на pad
@@ -224,11 +207,9 @@ package by.blooddy.crypto {
 					}
 				}
 
-//				b = Memory.getUI8( Memory.getUI8( ++i ) );
 				b = li8( li8( ++i ) );
 				if ( b >= 0x40 ) {
 					while ( b == 0x43 ) { // пропускаем пробелы
-//						b = Memory.getUI8( Memory.getUI8( ++i ) );
 						b = li8( li8( ++i ) );
 					}
 					if ( b == 0x41 ) { // наткнулись на pad
@@ -240,11 +221,9 @@ package by.blooddy.crypto {
 					}
 				}
 
-//				c = Memory.getUI8( Memory.getUI8( ++i ) );
 				c = li8( li8( ++i ) );
 				if ( c >= 0x40 ) {
 					while ( c == 0x43 ) { // пропускаем пробелы
-//						c = Memory.getUI8( Memory.getUI8( ++i ) );
 						c = li8( li8( ++i ) );
 					}
 					if ( c == 0x41 ) { // наткнулись на pad
@@ -256,11 +235,9 @@ package by.blooddy.crypto {
 					}
 				}
 
-//				d = Memory.getUI8( Memory.getUI8( ++i ) );
 				d = li8( li8( ++i ) );
 				if ( d >= 0x40 ) {
 					while ( d == 0x43 ) { // пропускаем пробелы
-//						d = Memory.getUI8( Memory.getUI8( ++i ) );
 						d = li8( li8( ++i ) );
 					}
 					if ( d == 0x41 ) { // наткнулись на pad
@@ -271,18 +248,14 @@ package by.blooddy.crypto {
 					}
 				}
 
-//				Memory.setI8( ++j, ( a << 2 ) | ( b >> 4 ) );
 				si8( ( a << 2 ) | ( b >> 4 ), ++j );
-//				Memory.setI8( ++j, ( b << 4 ) | ( c >> 2 ) );
 				si8( ( b << 4 ) | ( c >> 2 ), ++j );
-//				Memory.setI8( ++j, ( c << 6 ) |   d        );
 				si8( ( c << 6 ) |   d       , ++j );
 
 			} while ( true );
 
 			while ( i < bytesLength ) {
 				// что-то помимо
-//				if ( !( Memory.getUI8( Memory.getUI8( ++i ) & 0x41 ) ) ) {
 				if ( !( li8( li8( ++i ) & 0x41 ) ) ) {
 					_DOMAIN.domainMemory = tmp;
 					Error.throwError( VerifyError, 1509 );
@@ -290,13 +263,10 @@ package by.blooddy.crypto {
 			}
 
 			if ( a != 0x41 && b != 0x41 ) {
-//				Memory.setI8( ++j, ( a << 2 ) | ( b >> 4 ) );
 				si8( ( a << 2 ) | ( b >> 4 ), ++j );
 				if ( c != 0x41 ) {
-//					Memory.setI8( ++j, ( b << 4 ) | ( c >> 2 ) );
 					si8( ( b << 4 ) | ( c >> 2 ), ++j );
 					if ( d != 0x41 ) {
-//						Memory.setI8( ++j, ( c << 6 ) | d );
 						si8( ( c << 6 ) | d, ++j );
 					}
 				}
@@ -334,6 +304,9 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * Creates Base64 object.
+		 */
 		public function Base64() {
 			super( WorkerClass );
 		}
@@ -344,10 +317,27 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * Asynchronously encodes the <code>ByteArray</code> using Base64 encoding algorithm.
+		 *
+		 * @param	bytes			The <code>ByteArray</code> to be encoded.
+		 *
+		 * @param	insertNewLines	If <code>insertNewLines &gt; 0</code> passed, the resulting
+		 * 							string will contain line breaks.
+		 *
+		 * @return					The encoded Base64 string data.
+		 */
 		public function encode(bytes:ByteArray, newLines:uint=0):void {
 			super.call( 'encode', bytes, newLines );
 		}
 		
+		/**
+		 * Asynchronously decodes the <code>String</code> previously encoded using Base64 algorithm.
+		 *
+		 * @param	str				The string containing encoded data.
+		 *
+		 * @return					The <code>ByteArray</code> obtained by decoding the <code>str</code>.
+		 */
 		public function decode(str:String):void {
 			super.call( 'decode', str );
 		}
