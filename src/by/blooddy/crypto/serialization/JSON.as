@@ -132,11 +132,11 @@ package by.blooddy.crypto.serialization {
 		/**
 		 * Asynchronously returns a <code>String</code>,
 		 * in JSON format, that represents an ActionScript value.
-		 *  
+		 * 
+		 * Dispatched JSON string in <code>ProcessEvent</code>.
+		 * 
 		 * @param	value	The ActionScript value to be converted
 		 * 					into a JSON string
-		 * 
-		 * @return			JSON string
 		 */
 		public function stringify(value:*):void {
 			super.call( 'stringify', value );
@@ -146,9 +146,9 @@ package by.blooddy.crypto.serialization {
 		 * Asynchronously accepts a JSON-formatted String and returns
 		 * an ActionScript Object that represents that value.
 		 * 
-		 * @param	value	The JSON string to be parsed
+		 * Dispatched ActionScript Object in <code>ProcessEvent</code>.
 		 * 
-		 * @return			ActionScript Object
+		 * @param	value	The JSON string to be parsed
 		 */
 		public function parse(value:String):void {
 			super.call( 'parse', value );
