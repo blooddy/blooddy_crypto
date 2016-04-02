@@ -83,16 +83,6 @@ package by.blooddy.crypto {
 		 */
 		function hashBytes(bytes:ByteArray):void;
 		
-		/**
-		 * Asynchronously performs checksum algorithm on a <code>ByteArray</code>.
-		 * Dispatched <code>ByteArray</code> result in <code>ProcessEvent</code>.
-		 *
-		 * @param	bytes	The <code>ByteArray</code> data to hash.
-		 * 
-		 * @see				by.blooddy.crypto.ICheckSum#digest()
-		 */
-		function digest(bytes:ByteArray):void;
-		
 		}
 		
 	}

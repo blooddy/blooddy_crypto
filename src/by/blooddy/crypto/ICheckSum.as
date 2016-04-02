@@ -37,7 +37,7 @@ package by.blooddy.crypto {
 		 * 
 		 * @see				by.blooddy.crypto.ICheckSumAsync#hash()
 		 */
-		function hash(str:String):String;
+		function hash(str:String):uint;
 		
 		/**
 		 * Performs checksum algorithm on a <code>ByteArray</code>.
@@ -48,18 +48,7 @@ package by.blooddy.crypto {
 		 * 
 		 * @see				by.blooddy.crypto.ICheckSumAsync#hashBytes()
 		 */
-		function hashBytes(bytes:ByteArray):String;
-		
-		/**
-		 * Performs checksum algorithm on a <code>ByteArray</code>.
-		 *
-		 * @param	bytes	The <code>ByteArray</code> data to hash.
-		 * 
-		 * @return			A <code>ByteArray</code> containing the hash value of <code>bytes</code>.
-		 * 
-		 * @see				by.blooddy.crypto.ICheckSumAsync#digest()
-		 */
-		function digest(bytes:ByteArray):ByteArray;
+		function hashBytes(bytes:ByteArray):uint;
 		
 	}
 	
