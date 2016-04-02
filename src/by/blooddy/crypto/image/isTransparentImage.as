@@ -11,13 +11,14 @@ package by.blooddy.crypto.image {
 	
 	[Exclude( kind="method", name="isTransparent" )]
 	/**
+	 * @internal
 	 * Углубленный способ проверки прозрачности. флаг прозрачности может стоять,
 	 * но картинка может быть не прозрачна. немного теряем в скорости на прозрачных
 	 * картинках, зато выйигрываем с установленным флагом в ~5 раз.
 	 *
-	 * @param	image	картинка на проверку
+	 * @param	image			Image
 	 *
-	 * @return			прозрачна или нет?
+	 * @return					Is transparent.
 	 * 
 	 * @author					BlooDHounD
 	 * @version					1.0
