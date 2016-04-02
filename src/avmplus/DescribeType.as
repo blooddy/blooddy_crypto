@@ -11,6 +11,8 @@ package avmplus {
 
 	[ExcludeClass]
 	/**
+	 * Object describer.
+	 * 
 	 * @author					BlooDHounD
 	 * @version					2.0
 	 * @playerversion			Flash 10.1
@@ -41,6 +43,19 @@ package avmplus {
 														HIDE_NSURI_METHODS |
 														HIDE_OBJECT;
 
+		/**
+		 * Produces an <code>Object</code> that describes the ActionScript object named
+		 * as the parameter of the method. This method implements the programming concept
+		 * of reflection for the ActionScript language. 
+		 * 
+		 * @param	o		The object for which a type description is desired.
+		 * 					Any ActionScript value may be passed to this method
+		 * 					including all available ActionScript types, object
+		 * 					instances, primitive types such as uint, and
+		 * 					class objects.
+		 * 
+		 * @param	flags	Filtering properties.
+		 */
 		public static const get:Function = ( function():Function {
 			var result:Function;
 			try {

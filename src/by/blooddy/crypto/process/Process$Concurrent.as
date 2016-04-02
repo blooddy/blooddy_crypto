@@ -6,14 +6,15 @@
 
 package by.blooddy.crypto.process {
 
-	import flash.system.Worker;
 	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
 	import flash.utils.getQualifiedClassName;
 
 	[ExcludeClass]
 	/**
-	 * @private
+	 * @internal
+	 * Worker implementation.
+	 * 
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 11.4
@@ -29,7 +30,7 @@ package by.blooddy.crypto.process {
 		//--------------------------------------------------------------------------
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		internal static const instance:Process$Concurrent = new Process$Concurrent();
 		
@@ -46,7 +47,6 @@ package by.blooddy.crypto.process {
 		
 		/**
 		 * @private
-		 * Constructor
 		 */
 		public function Process$Concurrent() {
 			if ( !instance && Worker$.isSupported ) {

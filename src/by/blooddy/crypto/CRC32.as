@@ -16,8 +16,9 @@ package by.blooddy.crypto {
 	import by.blooddy.crypto.process.Process;
 
 	/**
-	 * Generates a <a href="http://www.mathpages.com/home/kmath458.htm">CRC hash
-	 * (Cyclic Redundancy Check)</a>.
+	 * Generates a CRC-32 (Cyclic Redundancy Check) checksum.
+	 * 
+	 * @see		http://www.faqs.org/rfcs/rfc1952.html	RFC
 	 *
 	 * @author					BlooDHounD
 	 * @version					1.0
@@ -62,7 +63,6 @@ package by.blooddy.crypto {
 						c >>>= 1;
 					}
 				}
-//				Memory.setI32( i << 2, c );
 				si32( c, i << 2 );
 			}
 			
@@ -81,6 +81,13 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 
 		[Deprecated( replacement="hashBytes" )]
+		/**
+		 * Generates a polinominal code checksum represented as unsigned integer.
+		 *
+		 * @param	bytes	The data to be hashed.
+		 *
+		 * @return			The resluting checksum.
+		 */
 		public static function hash(bytes:ByteArray):uint {
 			return hashBytes( bytes );
 		}
@@ -109,7 +116,6 @@ package by.blooddy.crypto {
 				var c:int = -1;
 				var i:int = 1024;
 				do {
-//					c = Memory.getI32( ( ( ( c ^ Memory.getUI8( i ) ) & 0xFF ) << 2 ) ) ^ ( c >>> 8 );
 					c = li32( ( ( ( c ^ li8( i ) ) & 0xFF ) << 2 ) ) ^ ( c >>> 8 );
 				} while ( ++i < len );
 
@@ -144,6 +150,9 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 
+		/**
+		 * Creates a CRC32 object.
+		 */
 		public function CRC32() {
 			super( WorkerClass );
 		}
@@ -154,6 +163,9 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * @inheritDoc
+		 */
 		public function hashBytes(bytes:ByteArray):void {
 			super.call( 'hashBytes', bytes );
 		}

@@ -14,6 +14,8 @@ package by.blooddy.crypto.serialization {
 
 	[ExcludeClass]
 	/**
+	 * Object property describer.
+	 * 
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 10.1
@@ -39,6 +41,11 @@ package by.blooddy.crypto.serialization {
 		//
 		//--------------------------------------------------------------------------
 
+		/**
+		 * @param	o	<code>Object</code> to describe.
+		 * 
+		 * @return		Vector of <code>o</code> properties names.
+		 */
 		public static function getPropertyNames(o:Object):Vector.<String> {
 
 			if ( typeof o != 'object' || !o ) Error.throwError( TypeError, 2007, 'o' );

@@ -11,10 +11,41 @@ package by.blooddy.crypto.process {
 	
 	import by.blooddy.crypto.events.ProcessEvent;
 	
+	/**
+	 * Dispatched when success.
+	 * 
+	 * <table>
+	 *     <tr><th>Property</th><th>Value</th></tr>
+	 *     <tr><td>bubbles</td><td><code>false</code></td></tr>
+	 *     <tr><td>cancelable</td><td><code>false</code>; there is no default behavior to cancel.</td></tr>
+	 *     <tr><td>currentTarget</td><td>The object that is actively processing the Event object with an event listener.</td></tr>
+	 *     <tr><td>target</td><td>The object that reporting process result.</td></tr>
+	 *     <tr><td>data</td><td>Result.</td></tr>
+	 * </table>
+	 * 
+	 * @eventType    by.blooddy.crypto.events.ProcessEvent.COMPLETE
+	 */
 	[Event( type="by.blooddy.crypto.events.ProcessEvent", name="complete" )]
+
+	/**
+	 * Dispatched when fault.
+	 * 
+	 * <table>
+	 *     <tr><th>Property</th><th>Value</th></tr>
+	 *     <tr><td>bubbles</td><td><code>false</code></td></tr>
+	 *     <tr><td>cancelable</td><td><code>false</code>; there is no default behavior to cancel.</td></tr>
+	 *     <tr><td>currentTarget</td><td>The object that is actively processing the Event object with an event listener.</td></tr>
+	 *     <tr><td>target</td><td>The object that reporting process error.</td></tr>
+	 *     <tr><td>data</td><td>Error.</td></tr>
+	 * </table>
+	 * 
+	 * @eventType    by.blooddy.crypto.events.ProcessEvent.ERROR
+	 */
 	[Event( type="by.blooddy.crypto.events.ProcessEvent", name="error" )]
 	
 	/**
+	 * The class for asynchronous algorithms working.
+	 * 
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 11.4
@@ -53,8 +84,9 @@ package by.blooddy.crypto.process {
 		//--------------------------------------------------------------------------
 		
 		/**
-		 * @private
+		 * @internal
 		 * Constructor
+		 * @param	 WorkerClass	worker class
 		 */
 		public function Process(WorkerClass:Class) {
 			if ( ( this as Object ).constructor == Process ) {
@@ -87,14 +119,14 @@ package by.blooddy.crypto.process {
 		
 		/**
 		 * @internal
-		 * @param	method
-		 * @param	args
+		 * @param	methodName	method name
+		 * @param	arguments	arguments
 		 */
-		protected function call(method:String, ...arguments):void {
+		protected function call(methodName:String, ...arguments):void {
 
 			process.process(
 				WorkerClass,
-				getQualifiedClassName( this ), method, arguments,
+				getQualifiedClassName( this ), methodName, arguments,
 				this.complete, this.error
 			);
 

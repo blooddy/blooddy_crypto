@@ -14,8 +14,10 @@ package by.blooddy.crypto.image {
 	import by.blooddy.crypto.image.palette.SourcePalette;
 
 	/**
-	 * Encodes image data using 8 bits of color information per pixel.
+	 * Encodes image data using PNG-8 compression method.
 	 *
+	 * @see https://www.w3.org/Graphics/PNG/	W3C
+	 * 
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 10.1
@@ -45,11 +47,8 @@ package by.blooddy.crypto.image {
 		 *
 		 * @return					The sequence of bytes containing the encoded image.
 		 *
-		 * @throws	ArgumentError	No such filter.
-		 *
 		 * @see 					by.blooddy.crypto.image.PNGFilter
 		 * @see 					by.blooddy.crypto.image.palette.IPalette
-		 * @see 					by.blooddy.crypto.image.palette.MedianCutPalette
 		 */
 		public static function encode(image:BitmapData, filter:uint=0, palette:IPalette=null):ByteArray {
 			
@@ -84,10 +83,7 @@ package by.blooddy.crypto.image {
 		 * 
 		 * @return					The sequence of bytes containing the encoded image.
 		 * 
-		 * @throws	ArgumentError	No such filter.
-		 * 
 		 * @see						by.blooddy.crypto.image.PNGFilter
-		 * @see						#encode()
 		 */
 		public static function encodeBytes(bytes:ByteArray, width:uint, height:uint, filter:uint=0, palette:IPalette=null):ByteArray {
 			
@@ -148,7 +144,7 @@ package by.blooddy.crypto.image {
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static function writePLTE(mem:ByteArray, plte:ByteArray):void {
 			
@@ -164,7 +160,7 @@ package by.blooddy.crypto.image {
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static function writeTRNS(mem:ByteArray, trns:ByteArray):void {
 			
@@ -177,6 +173,19 @@ package by.blooddy.crypto.image {
 			
 			chunk.length = 0;
 
+		}
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Constructor
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * Creates a PNG8Encoder object.
+		 */
+		public function PNG8Encoder() {
+			super();
 		}
 		
 	}

@@ -11,8 +11,10 @@ package by.blooddy.crypto.image {
 	import flash.utils.ByteArray;
 
 	/**
-	 * Encodes image data using 24 bits of color information per pixel.
+	 * Encodes image data using PNG-24 compression algorithm.
 	 *
+	 * @see https://www.w3.org/Graphics/PNG/	W3C
+	 * 
 	 * @author					BlooDHounD
 	 * @version					2.0
 	 * @playerversion			Flash 10.1
@@ -37,7 +39,7 @@ package by.blooddy.crypto.image {
 		 * 							Use the constants provided in
 		 * 							<code>by.blooddy.crypto.image.PNGFilter</code> class.
 		 *
-		 * @return					a <code>ByteArray</code> containing the PNG encoded image data.
+		 * @return					A <code>ByteArray</code> containing the PNG encoded image data.
 		 *
 		 * @throws	ArgumentError	No such filter.
 		 *
@@ -73,7 +75,6 @@ package by.blooddy.crypto.image {
 		 * @throws	ArgumentError	No such filter.
 		 * 
 		 * @see						by.blooddy.crypto.image.PNGFilter
-		 * @see						#encode()
 		 */
 		public static function encodeBytes(bytes:ByteArray, width:uint, height:uint, filter:uint=0):ByteArray {
 			
@@ -126,6 +127,19 @@ package by.blooddy.crypto.image {
 			
 			return result;
 			
+		}
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Constructor
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * Creates a PNG24Encoder object.
+		 */
+		public function PNG24Encoder() {
+			super();
 		}
 		
 	}

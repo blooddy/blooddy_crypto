@@ -15,9 +15,10 @@ package by.blooddy.crypto.image {
 	import by.blooddy.crypto.process.Process;
 	
 	/**
-	 * Encodes image data using
-	 * <a href="http://www.w3.org/Graphics/JPEG/itu-t81.pdf">JPEG</a> compression method.
+	 * Encodes image data using JPEG compression algorithm.
 	 *
+	 * @see http://www.w3.org/Graphics/JPEG/		W3C
+	 * 
 	 * @author					BlooDHounD
 	 * @version					2.0
 	 * @playerversion			Flash 10.1
@@ -74,14 +75,12 @@ package by.blooddy.crypto.image {
 		 * Used <code>flash.display.BitmapData.encode</code>, if posible.
 		 *
 		 * @param	bytes		The <code>ByteArray</code> to be encoded.
-		 * @param	width		
-		 * @param	height		
+		 * @param	width		Image width
+		 * @param	height		Image height
 		 *
 		 * @param	quality		The compression level, possible values are 1 through 100 inclusive.
 		 *
 		 * @return 				a <code>ByteArray</code> representing the JPEG encoded image data.
-		 *
-		 * @see					#encode()
 		 */
 		public static function encodeBytes(bytes:ByteArray, width:uint, height:uint, quality:uint=60):ByteArray {
 			
@@ -143,7 +142,7 @@ package by.blooddy.crypto.image {
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static function writeAPP0(mem:ByteArray):void {
 			
@@ -159,7 +158,7 @@ package by.blooddy.crypto.image {
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static function writeAPP1(mem:ByteArray, text:String):void {
 			
@@ -186,7 +185,7 @@ package by.blooddy.crypto.image {
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static function writeDQT(mem:ByteArray, table:ByteArray):void {
 			
@@ -197,7 +196,7 @@ package by.blooddy.crypto.image {
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static function writeSOF0(mem:ByteArray, width:int, height:int):void {
 			
@@ -220,7 +219,7 @@ package by.blooddy.crypto.image {
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static function writeDHT(mem:ByteArray, table:ByteArray):void {
 			
@@ -231,7 +230,7 @@ package by.blooddy.crypto.image {
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static function writeSOS(mem:ByteArray):void {
 			
@@ -266,6 +265,9 @@ package by.blooddy.crypto.image {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * Creates a JPEGEncoder object.
+		 */
 		public function JPEGEncoder() {
 			super( WorkerClass );
 		}
@@ -276,6 +278,15 @@ package by.blooddy.crypto.image {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * Asynchronously creates a JPEG image from the specified <code>BitmapData</code>.
+		 * 
+		 * Dispatched sequence of bytes in <code>ProcessEvent</code>.
+		 *
+		 * @param	image		The <code>BitmapData</code> to be encoded.
+		 *
+		 * @param	quality		The compression level, possible values are 1 through 100 inclusive.
+		 */
 		public function encode(image:BitmapData, quality:uint=60):void {
 			
 			if ( image == null ) Error.throwError( TypeError, 2007, 'image' );
@@ -285,6 +296,17 @@ package by.blooddy.crypto.image {
 			
 		}
 		
+		/**
+		 * Asynchronously creates a JPEG image from the specified <code>ByteArray</code>.
+		 * 
+		 * Dispatched sequence of bytes in <code>ProcessEvent</code>.
+		 *
+		 * @param	bytes		The <code>ByteArray</code> to be encoded.
+		 * @param	width		Image width
+		 * @param	height		Image height
+		 *
+		 * @param	quality		The compression level, possible values are 1 through 100 inclusive.
+		 */
 		public function encodeBytes(bytes:ByteArray, width:uint, height:uint, quality:uint=60):void {
 			
 			if ( bytes == null ) Error.throwError( TypeError, 2007, 'bytes' );
@@ -698,7 +720,7 @@ internal final class JPEGTable$ {
 	//--------------------------------------------------------------------------
 	
 	/**
-	 * @see	#createQuantTable()
+	 * @see	#getQuantTable()
 	 */
 	private static const _QUANTS:Vector.<ByteArray> = new Vector.<ByteArray>( 100, true );
 	
@@ -815,23 +837,21 @@ internal final class JPEGTable$ {
 	//--------------------------------------------------------------------------
 	
 	/**
-	 * @see	#createZigZagTable()
-	 * @see	#createHuffmanTable()
-	 * @see	#createCategoryTable()
+	 * @see	#getJPEGTable()
 	 */
 	private static var _TABLE:ByteArray;
 	
 	/**
 	 * <table>
-	 *	<tr><th>     0</th><td>ZigZag					</td><td>			</td></tr>
-	 *	<tr><th>    64</th><td>HuffmanTable				</td><td>			</td></tr>
-	 *	<tr><th>  2058</th><td>CategoryTable			</td><td>			</td></tr>
-	 *	<tr><th>198663</th><td>							</td><td>			</td></tr>
+	 *	<tr><th>     0</th><td>ZigZag					</td></tr>
+	 *	<tr><th>    64</th><td>HuffmanTable				</td></tr>
+	 *	<tr><th>  2058</th><td>CategoryTable			</td></tr>
+	 *	<tr><th>198663</th><td>							</td></tr>
 	 * </table>
 	 * 
-	 * @see	#createZigZagTable()
-	 * @see	#createHuffmanTable()
-	 * @see	#createCategoryTable()
+	 * @see	#generateZigZagTable()
+	 * @see	#generateHuffmanTable()
+	 * @see	#generateCategoryTable()
 	 */
 	internal static function getJPEGTable():ByteArray {
 		
@@ -845,7 +865,7 @@ internal final class JPEGTable$ {
 			_DOMAIN.domainMemory = _TABLE;
 			
 			generateZigZagTable();
-			createHuffmanTable();
+			generateHuffmanTable();
 			generateCategoryTable();
 
 			_DOMAIN.domainMemory = tmp;
@@ -887,7 +907,7 @@ internal final class JPEGTable$ {
 	 *	<tr><th>1994</th><td>							</td><td>			</td></tr>
 	 * </table>
 	 */
-	private static function createHuffmanTable():void {
+	private static function generateHuffmanTable():void {
 		
 		var mem:ByteArray = _DOMAIN.domainMemory;
 		

@@ -8,6 +8,7 @@ package by.blooddy.crypto {
 
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
+	import flash.utils.getQualifiedClassName;
 	
 	import avm2.intrinsics.memory.li32;
 	import avm2.intrinsics.memory.li8;
@@ -16,26 +17,19 @@ package by.blooddy.crypto {
 	
 	import by.blooddy.crypto.process.Process;
 
-	[ExcludeClass]
 	/**
-	 * @private
+	 * Encodes and decodes binary data using SHA-2 (Secure Hash Algorithm) algorithm.
+	 * 
+	 * @see		http://www.faqs.org/rfcs/rfc4634.html	RFC
+	 * 
 	 * @author					BlooDHounD
 	 * @version					2.0
 	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 * @created					21.03.2016 16:47:48
 	 */
-	internal class SHA2 extends Process {
+	public class SHA2 extends Process {
 
-		//--------------------------------------------------------------------------
-		//
-		//  Class initializaion
-		//
-		//--------------------------------------------------------------------------
-		
-		SHA224;
-		SHA256;
-		
 		//--------------------------------------------------------------------------
 		//
 		//  Class variables
@@ -90,7 +84,13 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 		
 		/**
-		 * @private
+		 * @internal
+		 * Performs SHA-2 hash algorithm on a <code>String</code>.
+		 *
+		 * @param	str		The <code>String</code> to hash.
+		 * @param	H		The hash constants.
+		 *
+		 * @return			A <code>String</code> containing the hash value of <code>str</code>.
 		 */
 		protected static function $hash(str:String, H:Vector.<int>):String {
 			
@@ -104,7 +104,13 @@ package by.blooddy.crypto {
 		}
 
 		/**
-		 * @private
+		 * @internal
+		 * Performs SHA-2 hash algorithm on a <code>ByteArray</code>.
+		 *
+		 * @param	bytes	The <code>ByteArray</code> data to hash.
+		 * @param	H		The hash constants.
+		 *
+		 * @return			A <code>String</code> containing the hash value of <code>bytes</code>.
 		 */
 		protected static function $hashBytes(bytes:ByteArray, H:Vector.<int>):String {
 			
@@ -139,7 +145,13 @@ package by.blooddy.crypto {
 		}
 		
 		/**
-		 * @private
+		 * @internal
+		 * Performs SHA-2 hash algorithm on a <code>ByteArray</code>.
+		 *
+		 * @param	bytes	The <code>ByteArray</code> data to hash.
+		 * @param	H		The hash constants.
+		 *
+		 * @return			A <code>ByteArray</code> containing the hash value of <code>bytes</code>.
 		 */
 		protected static function $digest(bytes:ByteArray, H:Vector.<int>):ByteArray {
 			
@@ -189,7 +201,7 @@ package by.blooddy.crypto {
 			var t2:int = 0;
 
 			var w:int = 0;
-			var t:uint = 0;
+			var t:int = 0;
 
 			i = 512;
 			do {
@@ -205,7 +217,7 @@ package by.blooddy.crypto {
 
 				t = 0;
 				
-				//phase( a, b, c, d, e, f, g, h, i, t, 16 );
+				// phase( a, b, c, d, e, f, g, h, i, t, 16 );
 				do {
 
 					w = li8( i + t     ) << 24 |
@@ -236,7 +248,7 @@ package by.blooddy.crypto {
 
 				} while ( t < 64 );
 				
-				//phase( a, b, c, d, e, f, g, h, i, t, 64 );
+				// phase( a, b, c, d, e, f, g, h, i, t, 64 );
 				do {
 
 					t1 = li32( t - 2 * 4 );
@@ -270,7 +282,7 @@ package by.blooddy.crypto {
 
 				} while ( t < 256 );
 				
-				//Add this chunk's hash to result so far:
+				// Add this chunk's hash to result so far:
 				h0 += a;
 				h1 += b;
 				h2 += c;
@@ -352,8 +364,16 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * @internal
+		 * Creates a SHA2 object.
+		 */
 		public function SHA2() {
-			super( WorkerClass );
+			if ( ( this as Object ).constructor == SHA224 || ( this as Object ).constructor == SHA256 ) {
+				super( WorkerClass );
+			} else {
+				Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) ); 
+			}
 		}
 		
 		//--------------------------------------------------------------------------
@@ -362,14 +382,23 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * @inheritDoc
+		 */
 		public function hash(str:String):void {
 			super.call( 'hash', str );
 		}
 		
+		/**
+		 * @inheritDoc
+		 */
 		public function hashBytes(bytes:ByteArray):void {
 			super.call( 'hashBytes', bytes );
 		}
 		
+		/**
+		 * @inheritDoc
+		 */
 		public function digest(bytes:ByteArray):void {
 			super.call( 'digest', bytes );
 		}
