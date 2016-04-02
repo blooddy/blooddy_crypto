@@ -17,8 +17,9 @@ package by.blooddy.crypto {
 	import by.blooddy.crypto.process.Process;
 
 	/**
-	 * Encodes and decodes binary data using 
-	 * <a herf="http://www.faqs.org/rfcs/rfc3174.html">SHA-1 (Secure Hash Algorithm)</a> algorithm.
+	 * Encodes and decodes binary data using SHA-1 (Secure Hash Algorithm) algorithm.
+	 * 
+	 * @see		http://www.faqs.org/rfcs/rfc3174.html	RFC
 	 * 
 	 * @author					BlooDHounD
 	 * @version					3.0
@@ -46,13 +47,11 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 		
 		/**
-		 * Performs SHA-1 hash algorithm on a String.
+		 * Performs SHA-1 hash algorithm on a <code>String</code>.
 		 *
-		 * @param	str		The string to hash.
+		 * @param	str		The <code>String</code> to hash.
 		 *
-		 * @return			A string containing the hash value of <code>source</code>.
-		 *
-		 * @keyword			sha1.hash, hash
+		 * @return			A <code>String</code> containing the hash value of <code>str</code>.
 		 */
 		public static function hash(str:String):String {
 			
@@ -68,11 +67,9 @@ package by.blooddy.crypto {
 		/**
 		 * Performs SHA-1 hash algorithm on a <code>ByteArray</code>.
 		 *
-		 * @param	data	The <code>ByteArray</code> data to hash.
+		 * @param	bytes	The <code>ByteArray</code> data to hash.
 		 *
-		 * @return			A string containing the hash value of data.
-		 *
-		 * @keyword			sha1.hashBytes, hashBytes
+		 * @return			A <code>String</code> containing the hash value of <code>bytes</code>.
 		 */
 		public static function hashBytes(bytes:ByteArray):String {
 			
@@ -109,11 +106,9 @@ package by.blooddy.crypto {
 		/**
 		 * Performs SHA-1 hash algorithm on a <code>ByteArray</code>.
 		 *
-		 * @param	data	The <code>ByteArray</code> data to hash.
+		 * @param	bytes	The <code>ByteArray</code> data to hash.
 		 *
-		 * @return			A <code>ByteArray</code> containing the hash value of data.
-		 *
-		 * @keyword			sha1.digest, digest
+		 * @return			A <code>ByteArray</code> containing the hash value of <code>bytes</code>.
 		 */
 		public static function digest(bytes:ByteArray):ByteArray {
 
@@ -133,19 +128,18 @@ package by.blooddy.crypto {
 			
 			_DOMAIN.domainMemory = mem;
 			
-//			Memory.setI32( 80 * 4 + ( ( i >>> 5 ) << 2 ), Memory.getI32( 80 * 4 + ( ( i >>> 5 ) << 2 ) ) | ( 0x80 << ( i % 32 ) ) );
 			si32( li32( 80 * 4 + ( ( i >>> 5 ) << 2 ) ) | ( 0x80 << ( i % 32 ) ), 80 * 4 + ( ( i >>> 5 ) << 2 ) );
-//			Memory.setBI32( bytesLength, i );
+
 			si8( i >> 24, bytesLength     );
 			si8( i >> 16, bytesLength + 1 );
 			si8( i >>  8, bytesLength + 2 );
 			si8( i      , bytesLength + 3 );
 
-			var h0:int = 1732584193;//0x67452301;
-			var h1:int = -271733879;//0xEFCDAB89;
-			var h2:int = -1732584194;//0x98BADCFE;
-			var h3:int = 271733878;//0x10325476;
-			var h4:int = -1009589776;//0xC3D2E1F0;
+			var h0:int = 1732584193; //0x67452301;
+			var h1:int = -271733879; //0xEFCDAB89;
+			var h2:int = -1732584194; //0x98BADCFE;
+			var h3:int = 271733878; //0x10325476;
+			var h4:int = -1009589776; //0xC3D2E1F0;
 
 			var a:int = 0;
 			var b:int = 0;
@@ -167,7 +161,7 @@ package by.blooddy.crypto {
 				
 				t = 0;
 				
-//				phase( a, b, c, d, e, i, t, 16 );
+				// phase( a, b, c, d, e, i, t, 16 );
 				do {
 					
 					w =	( li8( i + t     ) << 24 ) |
@@ -189,7 +183,7 @@ package by.blooddy.crypto {
 					
 				} while ( t < 16 * 4 );
 
-//				phase( a, b, c, d, e, i, t, 20 );
+				// phase( a, b, c, d, e, i, t, 20 );
 				do {
 					
 					w = li32( t -  3 * 4 ) ^
@@ -215,7 +209,7 @@ package by.blooddy.crypto {
 				
 				
 				
-//				phase( a, b, c, d, e, i, t, 40 );
+				// phase( a, b, c, d, e, i, t, 40 );
 				do {
 					
 					w = li32( t -  3 * 4 ) ^
@@ -239,7 +233,7 @@ package by.blooddy.crypto {
 					
 				} while ( t < 40 * 4 );
 				
-//				phase( a, b, c, d, e, i, t, 60 );
+				// phase( a, b, c, d, e, i, t, 60 );
 				do {
 					
 					w = li32( t -  3 * 4 ) ^
@@ -263,7 +257,7 @@ package by.blooddy.crypto {
 					
 				} while ( t < 60 * 4 );
 				
-//				phase( a, b, c, d, e, i, t, 80 );
+				// phase( a, b, c, d, e, i, t, 80 );
 				do {
 					
 					w = li32( t -  3 * 4 ) ^
@@ -350,6 +344,9 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * Creates a SHA1 object.
+		 */
 		public function SHA1() {
 			super( WorkerClass );
 		}
@@ -360,14 +357,23 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * @inheritDoc
+		 */
 		public function hash(str:String):void {
 			super.call( 'hash', str );
 		}
 		
+		/**
+		 * @inheritDoc
+		 */
 		public function hashBytes(bytes:ByteArray):void {
 			super.call( 'hashBytes', bytes );
 		}
 		
+		/**
+		 * @inheritDoc
+		 */
 		public function digest(bytes:ByteArray):void {
 			super.call( 'digest', bytes );
 		}
