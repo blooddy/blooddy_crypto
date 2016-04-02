@@ -16,12 +16,11 @@ package by.blooddy.crypto.image {
 	import by.blooddy.crypto.process.Process;
 
 	/**
-	 * Encodes image data using 
-	 * <a href="http://www.w3.org/TR/PNG-Compression.html">PNG</a> compression 
-	 * algorithm. This class may use 
+	 * Encodes image data using PNG compression algorithm. this class may use 
 	 * different compression techniques provided in <code>PNG8Encoder</code> and
 	 * <code>PNG24Encoder</code>.
-	 * 
+	 *
+	 * @see https://www.w3.org/Graphics/PNG/	W3C
 	 * @see	by.blooddy.crypto.image.PNG8Encoder
 	 * @see	by.blooddy.crypto.image.PNG24Encoder
 	 * @see	by.blooddy.crypto.image.palette.IPalette
@@ -71,8 +70,6 @@ package by.blooddy.crypto.image {
 		 * 
 		 * @return					The sequence of bytes containing the encoded image.
 		 * 
-		 * @throws	ArgumentError	No such filter.
-		 * 
 		 * @see						by.blooddy.crypto.image.PNGFilter
 		 * @see						flash.display.BitmapData#encode()
 		 */
@@ -104,10 +101,7 @@ package by.blooddy.crypto.image {
 		 * 
 		 * @return					The sequence of bytes containing the encoded image.
 		 * 
-		 * @throws	ArgumentError	No such filter.
-		 * 
 		 * @see						by.blooddy.crypto.image.PNGFilter
-		 * @see						#encode()
 		 */
 		public static function encodeBytes(bytes:ByteArray, width:uint, height:uint, filter:uint=0):ByteArray {
 			
@@ -132,7 +126,7 @@ package by.blooddy.crypto.image {
 		//--------------------------------------------------------------------------
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		protected static function writeSignature(mem:ByteArray):void {
 			mem.writeUnsignedInt( 0x89504e47 );
@@ -140,7 +134,7 @@ package by.blooddy.crypto.image {
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		protected static function writeChunk(mem:ByteArray, chunk:ByteArray):void {
 			mem.writeUnsignedInt( chunk.length - 4 );
@@ -149,7 +143,7 @@ package by.blooddy.crypto.image {
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		protected static function writeIHDR(mem:ByteArray, width:uint, height:uint, bits:uint, colors:uint):void {
 
@@ -171,7 +165,7 @@ package by.blooddy.crypto.image {
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		protected static function writeIDAT(mem:ByteArray, data:ByteArray):void {
 			
@@ -189,7 +183,7 @@ package by.blooddy.crypto.image {
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		protected static function writeTEXT(mem:ByteArray, keyword:String, text:String):void {
 			
@@ -207,7 +201,7 @@ package by.blooddy.crypto.image {
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		protected static function writeIEND(mem:ByteArray):void {
 			
@@ -241,6 +235,10 @@ package by.blooddy.crypto.image {
 		//
 		//--------------------------------------------------------------------------
 
+		/**
+		 * @internal
+		 * Creates a PNGEncoder object.
+		 */
 		public function PNGEncoder() {
 			if ( ( this as Object ).constructor == PNG24Encoder || ( this as Object ).constructor == PNG8Encoder ) {
 				super( WorkerClass );
@@ -254,7 +252,18 @@ package by.blooddy.crypto.image {
 		//  Methods
 		//
 		//--------------------------------------------------------------------------
-		
+
+		/**
+		 * Asynchronously creates a PNG-encoded byte sequence from the specified <code>BitmapData</code>.
+		 * 
+		 * Dispatched sequence of bytes in <code>ProcessEvent</code>.
+		 * 
+		 * @param	image			The <code>BitmapData</code> of the image you wish to encode.
+		 * 
+		 * @param	filter			The encoding algorithm you wish to apply while encoding.
+		 * 							Use the constants provided in 
+		 * 							<code>by.blooddy.crypto.image.PNGFilter</code> class.
+		 */
 		public function encode(image:BitmapData, filter:uint=0):void {
 
 			if ( image == null ) Error.throwError( TypeError, 2007, 'image' );
@@ -264,6 +273,19 @@ package by.blooddy.crypto.image {
 			
 		}
 		
+		/**
+		 * Asynchronously creates a PNG-encoded byte sequence from the specified <code>ByteArray</code>.
+		 * 
+		 * Dispatched sequence of bytes in <code>ProcessEvent</code>.
+		 * 
+		 * @param	bytes			The <code>ByteArray</code> to be encoded.
+		 * @param	width			Image width.
+		 * @param	height			Image height.
+		 * 
+		 * @param	filter			The encoding algorithm you wish to apply while encoding.
+		 * 							Use the constants provided in 
+		 * 							<code>by.blooddy.crypto.image.PNGFilter</code> class.
+		 */
 		public function encodeBytes(bytes:ByteArray, width:uint, height:uint, filter:uint=0):void {
 			
 			if ( bytes == null ) Error.throwError( TypeError, 2007, 'bytes' );

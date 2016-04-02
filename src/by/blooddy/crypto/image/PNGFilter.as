@@ -9,11 +9,13 @@ package by.blooddy.crypto.image {
 	import flash.utils.getQualifiedClassName;
 
 	/**
-	 * This is an enumerator class containing filter constants as defined in 
-	 * <a href="http://www.w3.org/TR/PNG-Filters.html">PNG-Filter specification</a>.
+	 * This is an enumerator class containing filter constants as defined 
+	 * in PNG-Filter specification.
 	 * 
-	 * @see						by.blooddy.crypto.image.PNG8Encoder
-	 * @see						by.blooddy.crypto.image.PNG24Encoder
+	 * @see https://www.w3.org/Graphics/PNG/    W3C
+	 * @see by.blooddy.crypto.image.PNGEncoder
+	 * @see by.blooddy.crypto.image.PNG8Encoder
+	 * @see by.blooddy.crypto.image.PNG24Encoder
 	 * 
 	 * @author					BlooDHounD
 	 * @version					1.0
