@@ -14,6 +14,10 @@ package by.blooddy.crypto {
 	import by.blooddy.crypto.process.Process;
 
 	/**
+	 * Generates a Adler-32 checksum.
+	 * 
+	 * @see		http://www.faqs.org/rfcs/rfc1950.html	RFC
+	 *
 	 * @author					BlooDHounD
 	 * @version					2.0
 	 * @playerversion			Flash 10.1
@@ -39,10 +43,24 @@ package by.blooddy.crypto {
 		//--------------------------------------------------------------------------
 		
 		[Deprecated( replacement="hashBytes" )]
+		/**
+		 * Generates a polinominal code checksum represented as unsigned integer.
+		 *
+		 * @param	bytes	The <code>ByteArray</code> to be hashed.
+		 *
+		 * @return			The resluting checksum.
+		 */
 		public static function hash(bytes:ByteArray):uint {
 			return hashBytes( bytes );
 		}
 		
+		/**
+		 * Generates a polinominal code checksum represented as unsigned integer.
+		 *
+		 * @param	bytes	The <code>ByteArray</code> to be hashed.
+		 *
+		 * @return			The resluting checksum.
+		 */
 		public static function hashBytes(bytes:ByteArray):uint {
 			if ( bytes && bytes.length > 0 ) {
 
@@ -109,6 +127,9 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * Creates Adler32 object.
+		 */
 		public function Adler32() {
 			super( WorkerClass );
 		}
@@ -119,6 +140,9 @@ package by.blooddy.crypto {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * @inheritDoc
+		 */
 		public function hashBytes(bytes:ByteArray):void {
 			super.call( 'hashBytes', bytes );
 		}
