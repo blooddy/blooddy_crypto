@@ -7,11 +7,11 @@
 	<buildSpec>
 		<buildCommand>
 			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
-			<triggers>full,incremental,</triggers>
+			<triggers>auto,full,incremental,</triggers>
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/com.adobe.flexbuilder.project.flexbuilder.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/by.blooddy.crypto.project.flexbuilder.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>
@@ -21,7 +21,7 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/by.blooddy.crypto.project.flexbuilder.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/com.adobe.flexbuilder.project.flexbuilder.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>

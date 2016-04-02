@@ -120,7 +120,7 @@
 
 	</target>
 	
-	<target name="workers.touch">
+	<target name="workers.touch" depends="workers.delete">
 		<touch millis="0">
 			<filelist refid="workers.files" />
 		</touch>
