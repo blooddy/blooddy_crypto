@@ -16,7 +16,9 @@ package by.blooddy.crypto.process {
 	[ExcludeClass]
 	[SWF( width="1", height="1", frameRate="1", scriptTimeLimit="-1", scriptRecursionLimit="-1" )]
 	/**
-	 * @private
+	 * @internal
+	 * Internal worker class.
+	 * 
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 11.4
@@ -31,8 +33,14 @@ package by.blooddy.crypto.process {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * @private
+		 */
 		private static const input:MessageChannel = Worker.current.getSharedProperty( 'input' )
 		
+		/**
+		 * @private
+		 */
 		private static const output:MessageChannel = Worker.current.getSharedProperty( 'output' )
 
 		//--------------------------------------------------------------------------
@@ -41,6 +49,9 @@ package by.blooddy.crypto.process {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * @private
+		 */
 		private static function process():void {
 			
 			if ( output.state != MessageChannelState.OPEN ) return;
@@ -71,6 +82,9 @@ package by.blooddy.crypto.process {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * @private
+		 */
 		input.addEventListener( Event.CHANNEL_MESSAGE, function(event:Event):void {
 
 			while ( input.messageAvailable ) {
@@ -79,6 +93,9 @@ package by.blooddy.crypto.process {
 
 		} );
 		
+		/**
+		 * @private
+		 */
 		while ( input.messageAvailable ) {
 			process();
 		}
