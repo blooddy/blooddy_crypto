@@ -13,7 +13,7 @@ package by.blooddy.crypto {
 	 * 
 	 * @see		https://en.wikipedia.org/wiki/Hashsum
 	 * @see		by.blooddy.crypto.IHashSumAsync
-	 *  
+	 * 
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 10.1
@@ -30,31 +30,34 @@ package by.blooddy.crypto {
 		
 		/**
 		 * Performs hash algorithm on a <code>String</code>.
-		 * Dispatched result in <code>ProcessEvent</code>.
 		 *
-		 * @param	str		The string to hash.
+		 * @param	str		The <code>String</code> to hash.
 		 *
-		 * @return			A string containing the hash value of <code>str</code>.
+		 * @return			A <code>String</code> containing the hash value of <code>str</code>.
+		 * 
+		 * @see				by.blooddy.crypto.IHashSumAsync#hash()
 		 */
 		function hash(str:String):String;
 		
 		/**
-		 * Asynchronously performs hash algorithm on a <code>ByteArray</code>.
-		 * Dispatched result in <code>ProcessEvent</code>.
+		 * Performs hash algorithm on a <code>ByteArray</code>.
 		 *
 		 * @param	bytes	The <code>ByteArray</code> data to hash.
 		 *
-		 * @return			A string containing the hash value of <code>bytes</code>.
+		 * @return			A <code>String</code> containing the hash value of <code>bytes</code>.
+		 * 
+		 * @see				by.blooddy.crypto.IHashSumAsync#hashBytes()
 		 */
 		function hashBytes(bytes:ByteArray):String;
 		
 		/**
-		 * Asynchronously performs hash algorithm on a <code>ByteArray</code>.
-		 * Dispatched <code>ByteArray</code> result in <code>ProcessEvent</code>.
+		 * Performs hash algorithm on a <code>ByteArray</code>.
 		 *
 		 * @param	bytes	The <code>ByteArray</code> data to hash.
 		 * 
 		 * @return			A <code>ByteArray</code> containing the hash value of <code>bytes</code>.
+		 * 
+		 * @see				by.blooddy.crypto.IHashSumAsync#digest()
 		 */
 		function digest(bytes:ByteArray):ByteArray;
 		

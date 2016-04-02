@@ -55,6 +55,8 @@ package by.blooddy.crypto {
 	 */
 	public interface IHashSumAsync extends IEventDispatcher {
 		
+		CRYPTO::worker {
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Methods
@@ -65,7 +67,9 @@ package by.blooddy.crypto {
 		 * Asynchronously performs hash algorithm on a <code>String</code>.
 		 * Dispatched result in <code>ProcessEvent</code>.
 		 *
-		 * @param	str		The string to hash.
+		 * @param	str		The <code>String</code> to hash.
+		 * 
+		 * @see				by.blooddy.crypto.IHashSum#hash()
 		 */
 		function hash(str:String):void;
 		
@@ -74,6 +78,8 @@ package by.blooddy.crypto {
 		 * Dispatched result in <code>ProcessEvent</code>.
 		 *
 		 * @param	bytes	The <code>ByteArray</code> data to hash.
+		 * 
+		 * @see				by.blooddy.crypto.IHashSum#hashBytes()
 		 */
 		function hashBytes(bytes:ByteArray):void;
 		
@@ -82,8 +88,12 @@ package by.blooddy.crypto {
 		 * Dispatched <code>ByteArray</code> result in <code>ProcessEvent</code>.
 		 *
 		 * @param	bytes	The <code>ByteArray</code> data to hash.
+		 * 
+		 * @see				by.blooddy.crypto.IHashSum#digest()
 		 */
 		function digest(bytes:ByteArray):void;
+		
+		}
 		
 	}
 	
