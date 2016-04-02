@@ -9,7 +9,7 @@
 		</define>
 
 		<debug>false</debug>
-		<compress>true</compress>
+		<compress>false</compress>
 		<incremental>false</incremental>
 		<verbose-stacktraces>false</verbose-stacktraces>
 

@@ -10,9 +10,10 @@
 
 		<debug>true</debug>
 		<optimize>true</optimize>
-		<show-actionscript-warnings>false</show-actionscript-warnings>
 
 	</compiler>
+
+	<warnings>false</warnings>
 
 	<target-player>21</target-player>
 
