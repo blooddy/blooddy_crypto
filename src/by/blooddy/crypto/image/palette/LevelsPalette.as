@@ -7,13 +7,15 @@
 package by.blooddy.crypto.image.palette {
 
 	/**
+	 * This class provides a palette that can be used in <code>PNGEncoder</code>.
+	 * 
+	 * @see						http://en.wikipedia.org/wiki/List_of_palettes#RGB_arrangements
+	 * 
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 * @created					25.09.2010 0:22:29
-	 * 
-	 * @see						http://en.wikipedia.org/wiki/List_of_palettes#RGB_arrangements
 	 */
 	public class LevelsPalette implements IPalette {
 
@@ -24,14 +26,17 @@ package by.blooddy.crypto.image.palette {
 		//--------------------------------------------------------------------------
 
 		/**
-		 * Creates new <code>LevelsPalette</code>.
+		 * Creates a LevelsPalette object.
 		 * 
-		 * @param	rLevel
-		 * @param	gLevel
-		 * @param	bLevel
-		 * @param	transparent
+		 * @param	rLevel		Red level.
+		 * @param	gLevel		Green level.
+		 * @param	bLevel		Blue level.
+		 * @param	transparent	Is transparent.
 		 * 
-		 * @throws	RangeError
+		 * @throws	TypeError	The <code>image</code> parameter must 
+		 * 						not be <code>null</code>.
+		 * 
+		 * @throws	RangeError	The number of colors is out of bounds.
 		 */
 		public function LevelsPalette(rLevel:uint=8, gLevel:uint=8, bLevel:uint=4, transparent:Boolean=false) {
 

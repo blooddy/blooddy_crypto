@@ -20,13 +20,13 @@ package by.blooddy.crypto.image.palette {
 	/**
 	 * This class provides a palette that can be used in <code>PNGEncoder</code>.
 	 * 
+	 * @see						http://en.wikipedia.org/wiki/Color_quantization
+	 * 
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 * @created					04.07.2010 1:48:54
-	 * 
-	 * @see						http://en.wikipedia.org/wiki/Color_quantization
 	 */
 	public class MedianCutPalette implements IPalette {
 
@@ -48,7 +48,7 @@ package by.blooddy.crypto.image.palette {
 		//--------------------------------------------------------------------------
 
 		/**
-		 * Creates new <code>MedianCutPalette</code>.
+		 * Creates a MedianCutPalette object.
 		 * 
 		 * @param	image		The source image to use when creating the palette.
 		 * 

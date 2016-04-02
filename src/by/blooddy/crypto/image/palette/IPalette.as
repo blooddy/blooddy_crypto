@@ -7,7 +7,7 @@
 package by.blooddy.crypto.image.palette {
 
 	/**
-	 * The base interface for creating color palletes to be used in PNG8 encoders.
+	 * The base interface for creating color palletes to be used in <code>PNG8Encoder</code>.
 	 * 
 	 * @see						by.blooddy.crypto.image.PNG8Encoder
 	 * 

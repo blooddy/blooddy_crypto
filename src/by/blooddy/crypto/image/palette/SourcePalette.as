@@ -9,7 +9,8 @@ package by.blooddy.crypto.image.palette {
 	import flash.display.BitmapData;
 	
 	/**
-	 * @private
+	 * This class provides a palette that can be used in <code>PNGEncoder</code>.
+	 * 
 	 * @author					BlooDHounD
 	 * @version					1.0
 	 * @playerversion			Flash 10.1
@@ -25,7 +26,7 @@ package by.blooddy.crypto.image.palette {
 		//--------------------------------------------------------------------------
 		
 		/**
-		 * Creates new <code>SourcePalette</code>.
+		 * Creates a SourcePalette object.
 		 * 
 		 * @param	image		The source image to use when creating the palette.
 		 * 
