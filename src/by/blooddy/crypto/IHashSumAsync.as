@@ -65,7 +65,7 @@ package by.blooddy.crypto {
 		
 		/**
 		 * Asynchronously performs hash algorithm on a <code>String</code>.
-		 * Dispatched result in <code>ProcessEvent</code>.
+		 * Dispatched <code>String</code> result in <code>ProcessEvent</code>.
 		 *
 		 * @param	str		The <code>String</code> to hash.
 		 * 
@@ -75,7 +75,7 @@ package by.blooddy.crypto {
 		
 		/**
 		 * Asynchronously performs hash algorithm on a <code>ByteArray</code>.
-		 * Dispatched result in <code>ProcessEvent</code>.
+		 * Dispatched <code>String</code> result in <code>ProcessEvent</code>.
 		 *
 		 * @param	bytes	The <code>ByteArray</code> data to hash.
 		 * 

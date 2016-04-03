@@ -33,7 +33,7 @@ package by.blooddy.crypto {
 		 *
 		 * @param	str		The <code>String</code> to checksum.
 		 *
-		 * @return			A <code>String</code> containing the hash value of <code>str</code>.
+		 * @return			A <code>uint</code> containing the checksum value of <code>str</code>.
 		 * 
 		 * @see				by.blooddy.crypto.ICheckSumAsync#hash()
 		 */
@@ -44,7 +44,7 @@ package by.blooddy.crypto {
 		 *
 		 * @param	bytes	The <code>ByteArray</code> data to hash.
 		 *
-		 * @return			A <code>String</code> containing the hash value of <code>bytes</code>.
+		 * @return			A <code>uint</code> containing the checksum value of <code>bytes</code>.
 		 * 
 		 * @see				by.blooddy.crypto.ICheckSumAsync#hashBytes()
 		 */
