@@ -141,7 +141,6 @@
 				<file name="catalog.xml" />
 				<file name="library.swf" />
 			</filelist>
-
 		</zip>
 
 		<delete>
@@ -169,8 +168,23 @@
 	
 	</target>
 
-	<target name="compile" description="Compile Project">
+	<target name="build.release" description="Compile Release Project">
+	
 		<antcall target="compile.release" />
+
+		<zip destfile="${output}/blooddy_crypto_v0.0.0.zip">
+			<filelist dir="${output}">
+				<file name="blooddy_crypto.swc" />
+			</filelist>
+			<filelist dir="${basedir}">
+				<file name="LICENSE.md" />
+			</filelist>
+		</zip>
+	
+	</target>
+	
+	<target name="compile" description="Compile Project">
+		<antcall target="build.release" />
 	</target>
 
 </project>
