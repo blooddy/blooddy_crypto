@@ -1,6 +1,6 @@
 [BLODDY_CRYPTO](http://www.blooddy.by)
 ======================================
-[![Wiki](https://img.shields.io/badge/source-GitHub-red.svg)](https://github.com/blooddy/blooddy_crypto/wiki)
+[![Wiki](https://img.shields.io/badge/wiki-GitHub-red.svg)](https://github.com/blooddy/blooddy_crypto/wiki)
 [![Download](https://img.shields.io/badge/download-ZIP-yellow.svg)](https://github.com/blooddy/blooddy_crypto/releases/latest)
 [![Last Release](https://img.shields.io/github/release/blooddy/blooddy_crypto.svg?label=version)](https://github.com/blooddy/blooddy_crypto/releases)
 [![Licence](https://img.shields.io/github/license/blooddy/blooddy_crypto.svg)](LICENSE.md)
