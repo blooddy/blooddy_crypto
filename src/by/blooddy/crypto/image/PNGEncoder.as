@@ -16,7 +16,7 @@ package by.blooddy.crypto.image {
 	import by.blooddy.crypto.process.Process;
 
 	/**
-	 * Encodes image data using PNG compression algorithm. this class may use 
+	 * Encodes image data using PNG compression algorithm. This class may use 
 	 * different compression techniques provided in <code>PNG8Encoder</code> and
 	 * <code>PNG24Encoder</code>.
 	 *
@@ -89,7 +89,7 @@ package by.blooddy.crypto.image {
 		}
 
 		/**
-		 * Creates a PNG-encoded byte sequence from the specified <code>ByteArray</code>.
+		 * 	
 		 * 
 		 * @param	bytes			The <code>ByteArray</code> to be encoded.
 		 * @param	width			Image width.
@@ -236,15 +236,18 @@ package by.blooddy.crypto.image {
 		//--------------------------------------------------------------------------
 
 		/**
-		 * @internal
 		 * Creates a PNGEncoder object.
 		 */
 		public function PNGEncoder() {
-			if ( ( this as Object ).constructor == PNG24Encoder || ( this as Object ).constructor == PNG8Encoder ) {
+			
+			var c:Class = ( this as Object ).constructor;
+			
+			if ( c == PNGEncoder || c == PNG24Encoder || c == PNG8Encoder ) {
 				super( WorkerClass );
 			} else {
 				Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
 			}
+
 		}
 
 		//--------------------------------------------------------------------------

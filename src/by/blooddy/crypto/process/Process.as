@@ -48,7 +48,7 @@ package by.blooddy.crypto.process {
 	 * 
 	 * @author					BlooDHounD
 	 * @version					1.0
-	 * @playerversion			Flash 11.4
+	 * @playerversion			Flash 10.1
 	 * @langversion				3.0
 	 * @created					24.03.2016 23:45:13
 	 */

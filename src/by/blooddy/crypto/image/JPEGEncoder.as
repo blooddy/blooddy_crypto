@@ -72,8 +72,6 @@ package by.blooddy.crypto.image {
 		/**
 		 * Creates a JPEG image from the specified <code>ByteArray</code>.
 		 * 
-		 * Used <code>flash.display.BitmapData.encode</code>, if posible.
-		 *
 		 * @param	bytes		The <code>ByteArray</code> to be encoded.
 		 * @param	width		Image width
 		 * @param	height		Image height
