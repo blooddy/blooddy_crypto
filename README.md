@@ -1,7 +1,9 @@
 [BLODDY_CRYPTO](http://www.blooddy.by)
-================
+======================================
+[![Wiki](https://img.shields.io/badge/source-GitHub-red.svg)](https://github.com/blooddy/blooddy_crypto/wiki)
 [![Download](https://img.shields.io/badge/download-ZIP-yellow.svg)](https://github.com/blooddy/blooddy_crypto/releases/latest)
 [![Last Release](https://img.shields.io/github/release/blooddy/blooddy_crypto.svg?label=version)](https://github.com/blooddy/blooddy_crypto/releases)
+[![Licence](https://img.shields.io/github/license/blooddy/blooddy_crypto.svg)](LICENSE.md)
 [![Licence](https://img.shields.io/github/license/blooddy/blooddy_crypto.svg)](LICENSE.md)
 
 ActionScript library for processing binary data.
@@ -27,11 +29,11 @@ import by.blooddy.crypto.events.ProcessEvent;
 var md5:MD5 = new MD5();
 md5.hash( 'text' );
 md5.addEventListener( ProcessEvent.COMPLETE, function(event:ProcessEvent):void {
-  var result:String = event.data;
-  trace( result ); // async result
+	var result:String = event.data;
+	trace( result ); // async result
 } );
 md5.addEventListener( ProcessEvent.ERROR, function(event:ProcessEvent):void {
-  var error:Error = event.data;
+	var error:Error = event.data;
 	trace( error ); // async error
 } );
 ```
