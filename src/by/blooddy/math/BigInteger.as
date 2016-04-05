@@ -469,10 +469,7 @@ package by.blooddy.math {
 		 */
 		public function abs():BigInteger {
 			if ( this._sign < 0 ) {
-				var result:BigInteger = new BigInteger();
-				result._sign = 1;
-				result._value = this._value;
-				return result;
+				return this.negate();
 			} else {
 				return this;
 			}
@@ -482,7 +479,10 @@ package by.blooddy.math {
 		 * @return		-this
 		 */
 		public function negate():BigInteger {
-			throw new IllegalOperationError();
+			var result:BigInteger = new BigInteger();
+			result._sign *= -1;
+			result._value = this._value;
+			return result;
 		}
 		
 		/**
