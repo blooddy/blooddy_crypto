@@ -242,7 +242,19 @@ package by.blooddy.math {
 		//--------------------------------------------------------------------------
 		
 		public function toNumber():Number {
-			throw new IllegalOperationError();
+			if ( this._value ) {
+				var result:Number = 0;
+
+				var k:Number = 1;
+				while( this._value.bytesAvailable ) {
+					result += this._value.readUnsignedInt() * k;
+					k *= 0xFFFFFFFF;
+				}
+
+				return result;
+			} else {
+				return 0;
+			}
 		}
 		
 		public function toString(radix:uint=10):String {
@@ -254,7 +266,6 @@ package by.blooddy.math {
 		public function toByteArray(endian:String=Endian.LITTLE_ENDIAN):ByteArray {
 			throw new IllegalOperationError();
 		}
-		
 
 		//--------------------------------------------------------------------------
 		//  Bits
