@@ -215,6 +215,18 @@ package by.blooddy.math {
 			}
 		}
 		
+		/**
+		 * @private
+		 */
+		private static function _inc(bytes:ByteArray):void {
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function _dec(bytes:ByteArray):void {
+		}
+
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
@@ -566,14 +578,66 @@ package by.blooddy.math {
 		 * @return		this + 1
 		 */
 		public function inc():BigInteger {
-			throw new IllegalOperationError();
+			if ( this._value ) {
+				
+				var bytes:ByteArray = new ByteArray();
+				bytes.writeBytes( this._value );
+				
+				if ( this._sign < 0 ) {
+					
+					_dec( bytes );
+					
+					if ( this._value.length <= 0 ) {
+						return ZERO;
+					}
+					
+				} else {
+					
+					_inc( bytes );
+					
+				}
+				
+				var result:BigInteger = new BigInteger();
+				result._sign = this._sign;
+				result._value = bytes;
+				return result;
+				
+			} else {
+				return ONE;
+			}
 		}
 
 		/**
 		 * @return		this - 1
 		 */
 		public function dec():BigInteger {
-			throw new IllegalOperationError();
+			if ( this._value ) {
+				
+				var bytes:ByteArray = new ByteArray();
+				bytes.writeBytes( this._value );
+				
+				if ( this._sign < 0 ) {
+					
+					_inc( bytes );
+					
+					if ( bytes.length <= 0 ) {
+						return ZERO;
+					}
+					
+				} else {
+					
+					_dec( bytes );
+					
+				}
+
+				var result:BigInteger = new BigInteger();
+				result._sign = this._sign;
+				result._value = bytes;
+				return result;
+
+			} else {
+				return NEGATIVE_ONE;
+			}
 		}
 
 		/**
