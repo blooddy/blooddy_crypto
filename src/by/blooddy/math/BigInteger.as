@@ -219,12 +219,32 @@ package by.blooddy.math {
 		 * @private
 		 */
 		private static function _inc(bytes:ByteArray):void {
+			var i:int = 0;
+			while ( bytes[ i ] == 0xFF ) {
+				bytes[ i++ ] = 0;
+			}
+			if ( i >= bytes.length ) {
+				bytes.position = bytes.length;
+				bytes.writeInt( 0 );
+			}
+			++bytes[ i ];
 		}
 		
 		/**
 		 * @private
 		 */
 		private static function _dec(bytes:ByteArray):void {
+			var i:int = 0;
+			while ( bytes[ i ] == 0 ) {
+				bytes[ i++ ] = 0xFF;
+			}
+			--bytes[ i ];
+			if ( i + 4 >= bytes.length ) {
+				i = bytes.length;
+				if ( !bytes[ i - 1 ] && !bytes[ i - 2 ] && !bytes[ i - 3 ] && !bytes[ i - 4 ] ) {
+					bytes.length -= 4;
+				}
+			}
 		}
 
 		//--------------------------------------------------------------------------
