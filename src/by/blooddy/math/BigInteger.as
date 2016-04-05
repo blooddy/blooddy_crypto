@@ -54,6 +54,11 @@ package by.blooddy.math {
 		/**
 		 * @private
 		 */
+		private static const _TMP:ByteArray = new ByteArray();
+		
+		/**
+		 * @private
+		 */
 		private static const _PATTERNS:Vector.<RegExp> = ( function():Vector.<RegExp> {
 
 			var result:Vector.<RegExp> = new Vector.<RegExp>( 37, true );
@@ -493,7 +498,49 @@ package by.blooddy.math {
 		 * @return		this > v ? 1 : ( v > this ? -1 : 0 )
 		 */
 		public function compare(v:BigInteger):int {
-			throw new IllegalOperationError();
+			
+			var c1:int = this._sign;
+			var c2:int = v._sign;
+			
+			if ( c1 > c2 ) return 1;
+			else if ( c1 < c2 ) return -1;
+			else if ( !c1 ) return 0;
+			else {
+				
+				c1 = this._value.length;
+				c2 = v._value.length;
+
+				if ( c1 > c2 ) return 1;
+				else if ( c2 < c1 ) return -1;
+				else {
+					
+					var tmp:ByteArray = _DOMAIN.domainMemory;
+					
+					var mem:ByteArray = _TMP;
+					
+					mem.writeBytes( this._value );
+					mem.writeBytes( v._value );
+					
+					if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+					
+					_DOMAIN.domainMemory = mem;
+					
+					// TODO:
+					var result:int;
+					throw new IllegalOperationError();
+					
+					_DOMAIN.domainMemory = tmp;
+					
+					mem.length = 0;
+					
+					return result;
+					
+				}
+
+			}
+			
+			return 0;
+			
 		}
 		
 		/**
