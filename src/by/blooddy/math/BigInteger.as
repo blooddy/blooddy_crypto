@@ -281,6 +281,10 @@ package by.blooddy.math {
 		//
 		//--------------------------------------------------------------------------
 		
+		public function valueOf():Number {
+			return this.toNumber();
+		}
+		
 		public function toNumber():Number {
 			if ( this._value ) {
 				var result:Number = 0;
