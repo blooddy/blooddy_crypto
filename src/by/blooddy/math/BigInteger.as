@@ -43,6 +43,12 @@ package by.blooddy.math {
 			throw new IllegalOperationError();
 		}
 		
+		public static function fromNumber(value:Number):BigInteger {
+			var result:BigInteger = new BigInteger();
+			setNumber( result, value );
+			return result;
+		}
+
 		public static function fromString(value:String, radix:uint=16):BigInteger {
 			if ( radix < 2 || radix > 36 ) Error.throwError( RangeError, 1003, radix );
 			var result:BigInteger = new BigInteger();
@@ -54,6 +60,43 @@ package by.blooddy.math {
 		}
 		
 		public static function fromByteArray(value:ByteArray, negative:Boolean=false):BigInteger {
+			throw new IllegalOperationError();
+		}
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Private class methods
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * @private
+		 */
+		private static function setNumber(target:BigInteger, value:Number):void {
+			if ( value <= uint.MAX_VALUE && value >= int.MIN_VALUE ) {
+				if ( value < 0 ) {
+					value = int( value );
+					if ( value ) {
+						target._negative = true;
+						target._value = new ByteArray();
+						target._value.writeInt( -value );
+					}
+				} else if ( value ) {
+					value = uint( value );
+					if ( value ) {
+						target._value = new ByteArray();
+						target._value.writeUnsignedInt( value );
+					}
+				}
+			} else {
+				setString( target, value.toString( 16 ), 16 );
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function setString(target:BigInteger, value:String, radix:uint=10):void {
 			throw new IllegalOperationError();
 		}
 		
