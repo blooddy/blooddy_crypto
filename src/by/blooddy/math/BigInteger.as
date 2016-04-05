@@ -114,13 +114,14 @@ package by.blooddy.math {
 				if ( value < 0 ) {
 					value = int( value );
 					if ( value ) {
-						target._negative = true;
+						target._sign = -1;
 						target._value = new ByteArray();
 						target._value.writeInt( -value );
 					}
 				} else if ( value ) {
 					value = uint( value );
 					if ( value ) {
+						target._sign = 1;
 						target._value = new ByteArray();
 						target._value.writeUnsignedInt( value );
 					}
@@ -180,7 +181,7 @@ package by.blooddy.math {
 						bytes.length = i;
 
 						target._value = bytes;
-						target._negative = m[ 0 ];
+						target._sign = m[ 1 ] ? -1 : 1;
 
 					}
 					
@@ -221,25 +222,19 @@ package by.blooddy.math {
 		//--------------------------------------------------------------------------
 
 		/**
-		 * @private
-		 */
-		private var _negative:Boolean = false;
-		
-		/**
 		 * @return		this < 0 ? true : false;
 		 */
 		public function get negative():Boolean {
-			return this._negative;
+			return this._sign < 0;
 		}
 
+		private var _sign:int = 0;
+		
 		/**
 		 * @return		this ? ( this < 0 ? -1: 1 ) : 0; 
 		 */
 		public function get sign():int {
-			return ( this._value
-				? ( this._negative ? -1 : 1 )
-				: 0
-			);
+			return this._sign;
 		}
 		
 		//--------------------------------------------------------------------------
