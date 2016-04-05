@@ -465,6 +465,20 @@ package by.blooddy.math {
 		//--------------------------------------------------------------------------
 		
 		/**
+		 * @return		Math.abs( this )
+		 */
+		public function abs():BigInteger {
+			if ( this._sign < 0 ) {
+				var result:BigInteger = new BigInteger();
+				result._sign = 1;
+				result._value = this._value;
+				return result;
+			} else {
+				return this;
+			}
+		}
+		
+		/**
 		 * @return		-this
 		 */
 		public function negate():BigInteger {
