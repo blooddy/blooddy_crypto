@@ -35,13 +35,49 @@ package by.blooddy.math {
 
 		//--------------------------------------------------------------------------
 		//
+		//  Class variables
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
+		 * @private
+		 */
+		private static const _PATTERNS:Vector.<RegExp> = ( function():Vector.<RegExp> {
+
+			var result:Vector.<RegExp> = new Vector.<RegExp>( 37, true );
+			
+			var i:int = 2;
+			for ( ; i <= 9; ++i ) {
+				result[ i ] = new RegExp( '^\\s*(-)?([0-' + ( i - 1 ) + ']+)\\s*$' );
+			}
+			result[ i++ ] = /^\s*(-)?(\d+)(?:\.\d+)?\s*$/;
+			result[ i++ ] = /^\s*(-)?([\da]+)\s*$/i;
+			for ( ; i <= 15; ++i ) {
+				result[ i ] = new RegExp( '^\\s*(-)?([\\da-' + ( i - 1 ).toString( i ) + ']+)\\s*$', 'i' );
+			}
+			result[ i++ ] = /^\s*(-)?(?:0x)?([\da-f]+)\s*$/i;
+			for ( ; i <= 36; ++i ) {
+				result[ i ] = new RegExp( '^\\s*(-)?([\\da-' + ( i - 1 ).toString( i ) + ']+)\\s*$', 'i' );
+			}
+			
+			return result;
+
+		}() );
+		
+		//--------------------------------------------------------------------------
+		//
 		//  Class methods
 		//
 		//--------------------------------------------------------------------------
 		
 		public static function valueOf(...arguments):BigInteger {
-			throw new IllegalOperationError();
+//			throw new IllegalOperationError();
+			return null;
 		}
+		
+		//--------------------------------------------------------------------------
+		//  From
+		//--------------------------------------------------------------------------
 		
 		public static function fromNumber(value:Number):BigInteger {
 			var result:BigInteger = new BigInteger();
@@ -52,7 +88,8 @@ package by.blooddy.math {
 		public static function fromString(value:String, radix:uint=16):BigInteger {
 			if ( radix < 2 || radix > 36 ) Error.throwError( RangeError, 1003, radix );
 			var result:BigInteger = new BigInteger();
-			throw new IllegalOperationError();
+			setString( result, value, radix );
+			return result;
 		}
 		
 		public static function fromVector(value:Vector.<uint>, negative:Boolean=false):BigInteger {
@@ -96,8 +133,60 @@ package by.blooddy.math {
 		/**
 		 * @private
 		 */
-		private static function setString(target:BigInteger, value:String, radix:uint=10):void {
-			throw new IllegalOperationError();
+		private static function setString(target:BigInteger, value:String, radix:uint):void {
+			if ( value ) {
+
+				var m:Array = value.match( _PATTERNS[ radix ] );
+				if ( !m ) throw new ArgumentError();
+				if ( m[ 2 ] != 0 ) {
+
+					var bytes:ByteArray = new ByteArray();
+					
+					var i:int = value.length;
+					
+					var c:int = 1;
+					var k:int = 0;
+					do {
+						c *= radix;
+						++k;
+					} while ( c < 0xFFFF );
+					
+					c = 0;
+					while ( ( i -= k ) >= 0 ) {
+						c += parseInt( value.substr( i, k ), radix );
+						bytes.writeShort( c );
+						c >>>= 16;
+					}
+					
+					k += i;
+					if ( k ) c += parseInt( value.substr( 0, k ), radix );
+					if ( c ) bytes.writeShort( c );
+					
+					if ( bytes.length & 3 ) {
+						bytes.writeShort( 0 );
+					}
+					
+					i = bytes.length;
+					do {
+						--i;
+					} while ( i > 0 && !bytes[ i ] );
+					
+					if ( i & 3 ) {
+						i += 4 - ( i & 3 );
+					}
+					
+					if ( i > 0 ) {
+
+						bytes.length = i;
+
+						target._value = bytes;
+						target._negative = m[ 0 ];
+
+					}
+					
+				}
+				
+			}
 		}
 		
 		//--------------------------------------------------------------------------
