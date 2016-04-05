@@ -25,13 +25,13 @@ package by.blooddy.math {
 		//
 		//--------------------------------------------------------------------------
 		
-		public static const NEGATIVE_ONE:BigInteger = valueOf( -1 );
+		public static const NEGATIVE_ONE:BigInteger = new BigInteger( -1 );
 		
-		public static const ZERO:BigInteger = valueOf( 0 );
+		public static const ZERO:BigInteger = new BigInteger( 0 );
 
-		public static const ONE:BigInteger = valueOf( 1 );
+		public static const ONE:BigInteger = new BigInteger( 1 );
 
-		public static const TEN:BigInteger = valueOf( 10 );
+		public static const TEN:BigInteger = new BigInteger( 10 );
 
 		//--------------------------------------------------------------------------
 		//
@@ -70,15 +70,6 @@ package by.blooddy.math {
 		//
 		//--------------------------------------------------------------------------
 		
-		public static function valueOf(...arguments):BigInteger {
-//			throw new IllegalOperationError();
-			return null;
-		}
-		
-		//--------------------------------------------------------------------------
-		//  From
-		//--------------------------------------------------------------------------
-		
 		public static function fromNumber(value:Number):BigInteger {
 			var result:BigInteger = new BigInteger();
 			setNumber( result, value );
@@ -90,14 +81,6 @@ package by.blooddy.math {
 			var result:BigInteger = new BigInteger();
 			setString( result, value, radix );
 			return result;
-		}
-		
-		public static function fromVector(value:Vector.<uint>, negative:Boolean=false):BigInteger {
-			throw new IllegalOperationError();
-		}
-		
-		public static function fromByteArray(value:ByteArray, negative:Boolean=false):BigInteger {
-			throw new IllegalOperationError();
 		}
 		
 		//--------------------------------------------------------------------------
@@ -201,7 +184,22 @@ package by.blooddy.math {
 		 * @throws	ArgumentError
 		 */
 		public function BigInteger(...arguments) {
+
 			super();
+			
+			if ( arguments.length > 0 ) {
+				switch ( typeof arguments[ 0 ] ) {
+					case 'number':
+						setNumber( this, arguments[ 0 ] );
+						break;
+					case 'string':
+						setString( this, arguments[ 0 ], arguments[ 1 ] );
+						break;
+					default:
+						throw new ArgumentError();
+				}
+			}
+			
 		}
 		
 		//--------------------------------------------------------------------------
