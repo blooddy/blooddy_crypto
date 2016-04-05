@@ -17,6 +17,9 @@ package by.blooddy.math {
 	import avm2.intrinsics.memory.si16;
 	import avm2.intrinsics.memory.si8;
 	
+	import by.blooddy.math.utils.BigIntegerBlock;
+	import by.blooddy.utils.MemoryBlock;
+	
 	/**
 	 * @author					BlooDHounD
 	 * @version					1.0
@@ -500,17 +503,17 @@ package by.blooddy.math {
 		public function compare(v:BigInteger):int {
 			
 			var c1:int = this._sign;
-			var c2:int = v._sign;
+			var c2:int =    v._sign;
 			
-			if ( c1 > c2 ) return 1;
+			     if ( c1 > c2 ) return 1;
 			else if ( c1 < c2 ) return -1;
 			else if ( !c1 ) return 0;
 			else {
 				
 				c1 = this._value.length;
-				c2 = v._value.length;
+				c2 =    v._value.length;
 
-				if ( c1 > c2 ) return 1;
+				     if ( c1 > c2 ) return 1;
 				else if ( c2 < c1 ) return -1;
 				else {
 					
@@ -519,15 +522,17 @@ package by.blooddy.math {
 					var mem:ByteArray = _TMP;
 					
 					mem.writeBytes( this._value );
-					mem.writeBytes( v._value );
+					mem.writeBytes(    v._value );
 					
 					if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 					
 					_DOMAIN.domainMemory = mem;
 					
-					// TODO:
-					var result:int;
-					throw new IllegalOperationError();
+					var result:int = (
+						new BigIntegerBlock(               0, this._value.length )
+					).compare(
+						new BigIntegerBlock( v._value.length, this._value.length )
+					);
 					
 					_DOMAIN.domainMemory = tmp;
 					
