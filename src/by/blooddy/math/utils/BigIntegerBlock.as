@@ -7,6 +7,7 @@
 package by.blooddy.math.utils {
 
 	import flash.system.ApplicationDomain;
+	import flash.utils.getQualifiedClassName;
 	
 	import avm2.intrinsics.memory.li32;
 	
@@ -19,7 +20,7 @@ package by.blooddy.math.utils {
 	 * @langversion				3.0
 	 * @created					21.01.2011 14:11:39
 	 */
-	public class BigIntegerBlock extends MemoryBlock {
+	public class BigIntegerBlock {
 		
 		//--------------------------------------------------------------------------
 		//
@@ -38,17 +39,20 @@ package by.blooddy.math.utils {
 		//
 		//--------------------------------------------------------------------------
 		
-		public function compare(v:BigIntegerBlock):int {
+		/**
+		 * @return	v1 > v2 ? 1 : ( v2 > v1 ? -1 : 0 )
+		 */
+		public static function compare(v1:MemoryBlock, v2:MemoryBlock):int {
 
-			var c1:int = this.len;
-			var c2:int =    v.len;
+			var c1:int = v1.len;
+			var c2:int = v2.len;
 
 			if ( c1 > c2 ) return 1;
 			else if ( c2 > c1 ) return -1;
 			else {
 				
-				var p1:int = this.pos;
-				var p2:int =    v.pos;
+				var p1:int = v1.pos;
+				var p2:int = v2.pos;
 				
 				var i:int = c1;
 				do {
@@ -69,23 +73,32 @@ package by.blooddy.math.utils {
 			
 		}
 		
+		/**
+		 * @return		v1 + v2
+		 */
+		public static function add(v1:MemoryBlock, v2:MemoryBlock, result:int=-1):MemoryBlock {
+			return null;
+		}
+		
+		/**
+		 * @return		v1 - v2
+		 */
+		public static function sub(v1:MemoryBlock, v2:MemoryBlock, result:int=-1):MemoryBlock {
+			return null;
+		}
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Private methods
 		//
 		//--------------------------------------------------------------------------
 		
-		//--------------------------------------------------------------------------
-		//
-		//  Constructor
-		//
-		//--------------------------------------------------------------------------
-		
 		/**
+		 * @private
 		 * Constructor
 		 */
-		public function BigIntegerBlock(pos:uint, len:uint) {
-			super( pos, len );
+		public function BigIntegerBlock() {
+			Error.throwError( ArgumentError, 2012, getQualifiedClassName( this ) );
 		}
 		
 	}

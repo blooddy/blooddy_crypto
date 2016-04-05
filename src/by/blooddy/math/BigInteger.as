@@ -7,6 +7,7 @@
 package by.blooddy.math {
 
 	import flash.errors.IllegalOperationError;
+	import flash.errors.MemoryError;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
@@ -560,15 +561,14 @@ package by.blooddy.math {
 					
 					_DOMAIN.domainMemory = mem;
 					
-					var result:int = (
-						new BigIntegerBlock(               0, this._value.length )
-					).compare(
-						new BigIntegerBlock( v._value.length, this._value.length )
+					var result:int = BigIntegerBlock.compare(
+						new MemoryBlock( 0, this._value.length ),
+						new MemoryBlock( v._value.length, this._value.length )
 					);
 					
 					_DOMAIN.domainMemory = tmp;
 					
-					mem.length = 0;
+					_TMP.length = 0;
 					
 					return result;
 					
@@ -664,7 +664,70 @@ package by.blooddy.math {
 		 * @return		this + v
 		 */
 		public function add(v:BigInteger):BigInteger {
-			throw new IllegalOperationError();
+			     if ( !this._value ) return v;
+			else if (     v._value ) return this;
+			else {
+
+				var l1:int = this._value.length;
+				var l2:int =    v._value.length;
+				
+				var tmp:ByteArray = _DOMAIN.domainMemory;
+
+				var mem:ByteArray = _TMP;
+				
+				mem.writeBytes( this._value );
+				mem.writeBytes(    v._value );
+				
+				mem.length += l1 + l2 + Math.max( l1, l2 ) + 4;
+				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+				
+				var v1:MemoryBlock = new MemoryBlock(  0, l1 );
+				var v2:MemoryBlock = new MemoryBlock( l1, l2 );
+				var vr:MemoryBlock;
+
+				var result:BigInteger;
+				
+				if ( this._sign == v._sign ) {
+					
+					vr = BigIntegerBlock.add( v1, v2, l1 + l2 );
+					
+					result = new BigInteger();
+					result._sign = this._sign;
+					result._value = new ByteArray();
+					result._value.endian = Endian.LITTLE_ENDIAN;
+					
+					mem.position = vr.pos;
+					mem.readBytes( result._value, vr.pos, vr.len );
+					
+				} else {
+					
+					var c:int = BigIntegerBlock.compare( v1, v2 );
+					if ( c == 0 ) {
+						result = ZERO;
+					} else {
+						
+						result = new BigInteger();
+						result._value = new ByteArray();
+						result._value.endian = Endian.LITTLE_ENDIAN;
+						
+						if ( c > 0 ) {
+							vr = BigIntegerBlock.sub( v1, v2, l1 + l2 );
+						} else {
+							vr = BigIntegerBlock.sub( v2, v1, l1 + l2 );
+						}
+						
+						mem.position = vr.pos;
+						mem.readBytes( result._value, vr.pos, vr.len );
+
+					}
+					
+				}
+
+				_TMP.length = 0;
+				
+				return result;
+				
+			}
 		}
 		
 		/**
