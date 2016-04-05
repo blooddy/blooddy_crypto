@@ -7,8 +7,15 @@
 package by.blooddy.math {
 
 	import flash.errors.IllegalOperationError;
+	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
+	
+	import avm2.intrinsics.memory.li16;
+	import avm2.intrinsics.memory.li32;
+	import avm2.intrinsics.memory.li8;
+	import avm2.intrinsics.memory.si16;
+	import avm2.intrinsics.memory.si8;
 	
 	/**
 	 * @author					BlooDHounD
@@ -38,6 +45,11 @@ package by.blooddy.math {
 		//  Class variables
 		//
 		//--------------------------------------------------------------------------
+		
+		/**
+		 * @private
+		 */
+		private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
 		
 		/**
 		 * @private
@@ -99,6 +111,7 @@ package by.blooddy.math {
 					if ( value ) {
 						target._sign = -1;
 						target._value = new ByteArray();
+						target._value.endian = Endian.LITTLE_ENDIAN;
 						target._value.writeInt( -value );
 					}
 				} else if ( value ) {
@@ -106,6 +119,7 @@ package by.blooddy.math {
 					if ( value ) {
 						target._sign = 1;
 						target._value = new ByteArray();
+						target._value.endian = Endian.LITTLE_ENDIAN;
 						target._value.writeUnsignedInt( value );
 					}
 				}
@@ -124,46 +138,66 @@ package by.blooddy.math {
 				if ( !m ) throw new ArgumentError();
 				if ( m[ 2 ] != 0 ) {
 
-					var bytes:ByteArray = new ByteArray();
-					
-					var i:int = value.length;
-					
-					var c:int = 1;
-					var k:int = 0;
-					do {
-						c *= radix;
-						++k;
-					} while ( c < 0xFFFF );
-					
-					c = 0;
-					while ( ( i -= k ) >= 0 ) {
-						c += parseInt( value.substr( i, k ), radix );
-						bytes.writeShort( c );
-						c >>>= 16;
-					}
-					
-					k += i;
-					if ( k ) c += parseInt( value.substr( 0, k ), radix );
-					if ( c ) bytes.writeShort( c );
-					
-					if ( bytes.length & 3 ) {
-						bytes.writeShort( 0 );
-					}
-					
-					i = bytes.length;
-					do {
-						--i;
-					} while ( i > 0 && !bytes[ i ] );
-					
-					if ( i & 3 ) {
-						i += 4 - ( i & 3 );
-					}
-					
-					if ( i > 0 ) {
+					var tmp:ByteArray = _DOMAIN.domainMemory;
 
-						bytes.length = i;
+					var len:int = value.length;
 
-						target._value = bytes;
+					var i:int = Math.ceil( len / ( ( Math.LN2 / Math.log( radix ) ) * 8 ) );
+					if ( i & 3 ) i += 4 - ( i & 3 );
+
+					var mem:ByteArray = new ByteArray();
+					mem.length = Math.max( i, ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH );
+					
+					_DOMAIN.domainMemory = mem;
+					
+					var c:int = 0;
+					
+					var r:int;
+					var l:int;
+					var j:int;
+					
+					i = 0;
+					while ( i < len ) {
+						
+						c = parseInt( value.charAt( i ), radix );
+						
+						r = 0;
+						l = j;
+						j = 0;
+						
+						while ( j < l ) {
+							r += li16( j ) * radix;
+							c += r & 0xFFFF;
+							si16( c, j );
+							r >>>= 16;
+							c >>>= 16;
+							j += 2;
+						}
+
+						while ( c > 0 || r > 0 ) {
+							c += r;
+							si16( c, j );
+							r >>>= 16;
+							c >>>= 16;
+							j += 2;
+						}
+
+						++i;
+
+					}
+
+					if ( j & 3 ) j += 2;
+
+					while ( !li32( j - 4 ) ) j -= 4;
+
+					_DOMAIN.domainMemory = tmp;
+					
+					if ( j > 0 ) {
+
+						mem.endian = Endian.LITTLE_ENDIAN;
+						mem.length = j;
+
+						target._value = mem;
 						target._sign = m[ 1 ] ? -1 : 1;
 
 					}
@@ -195,6 +229,12 @@ package by.blooddy.math {
 					case 'string':
 						setString( this, arguments[ 0 ], arguments[ 1 ] );
 						break;
+					case 'object':
+						if ( arguments[ 0 ] is BigInteger ) {
+							this._sign = ( arguments[ 0 ] as BigInteger )._sign;
+							this._value = ( arguments[ 0 ] as BigInteger )._value;
+							break;
+						}
 					default:
 						throw new ArgumentError();
 				}
@@ -246,6 +286,8 @@ package by.blooddy.math {
 				var result:Number = 0;
 
 				var k:Number = 1;
+
+				this._value.position = 0;
 				while( this._value.bytesAvailable ) {
 					result += this._value.readUnsignedInt() * k;
 					k *= 0xFFFFFFFF;
@@ -259,14 +301,80 @@ package by.blooddy.math {
 		
 		public function toString(radix:uint=10):String {
 			if ( radix < 2 || radix > 36 ) Error.throwError( RangeError, 1003, radix );
-			var result:BigInteger = new BigInteger();
-			throw new IllegalOperationError();
+			if ( this._value ) {
+				
+				var tmp:ByteArray = _DOMAIN.domainMemory;
+
+				var pos:int = Math.ceil( this._value.length * ( ( Math.LN2 / Math.log( radix ) ) * 8 ) );
+				
+				var mem:ByteArray = new ByteArray();
+				mem.position = pos;
+				mem.writeBytes( this._value );
+
+				var k:int = mem.length;
+
+				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+				
+				_DOMAIN.domainMemory = mem;
+
+				var i:int = 0;
+				var v:int = 0;
+				var c:int = 0;
+				
+				var r:int = 0;
+				var l:int = 0;
+				var j:int = pos;
+				
+				do {
+					
+					v = li32( k -= 4 );
+
+					i = 0;
+					while ( i < 8 ) {
+						c = v >>> 28;
+						r = 0;
+						l = j;
+						j = pos;
+						while ( j > l ) {
+							--j;
+							r += li8( j ) << 4;
+							c += r % radix;
+							si8( c % radix, j );
+							r /= radix;
+							c /= radix;
+						}
+						while ( c > 0 || r > 0 ) {
+							--j;
+							c += r % radix;
+							si8( c % radix, j );
+							r /= radix;
+							c /= radix;
+						}
+						v <<= 4;
+						++i;
+					}
+					
+				} while ( k > pos );
+
+				mem.position = pos;
+				mem.writeUTFBytes( '0123456789abcdefghijklmnopqrstuvwxyz' );
+				
+				i = pos;
+				do {
+					--i;
+					si8( li8( pos + li8( i ) ), i );
+				} while ( i > j );
+				
+				_DOMAIN.domainMemory = tmp;
+
+				mem.position = j;
+				return mem.readUTFBytes( pos - j );
+
+			} else {
+				return '0';
+			}
 		}
 		
-		public function toByteArray(endian:String=Endian.LITTLE_ENDIAN):ByteArray {
-			throw new IllegalOperationError();
-		}
-
 		//--------------------------------------------------------------------------
 		//  Bits
 		//--------------------------------------------------------------------------
@@ -357,7 +465,7 @@ package by.blooddy.math {
 		//--------------------------------------------------------------------------
 		
 		/**
-		 * @return		-this;
+		 * @return		-this
 		 */
 		public function negate():BigInteger {
 			throw new IllegalOperationError();
