@@ -119,17 +119,17 @@ package by.blooddy.math {
 					value = int( value );
 					if ( value ) {
 						target._sign = -1;
-						target._value = new ByteArray();
-						target._value.endian = Endian.LITTLE_ENDIAN;
-						target._value.writeInt( -value );
+						target._bytes = new ByteArray();
+						target._bytes.endian = Endian.LITTLE_ENDIAN;
+						target._bytes.writeInt( -value );
 					}
 				} else if ( value ) {
 					value = uint( value );
 					if ( value ) {
 						target._sign = 1;
-						target._value = new ByteArray();
-						target._value.endian = Endian.LITTLE_ENDIAN;
-						target._value.writeUnsignedInt( value );
+						target._bytes = new ByteArray();
+						target._bytes.endian = Endian.LITTLE_ENDIAN;
+						target._bytes.writeUnsignedInt( value );
 					}
 				}
 			} else {
@@ -206,7 +206,7 @@ package by.blooddy.math {
 						mem.endian = Endian.LITTLE_ENDIAN;
 						mem.length = j;
 
-						target._value = mem;
+						target._bytes = mem;
 						target._sign = m[ 1 ] ? -1 : 1;
 
 					}
@@ -273,7 +273,7 @@ package by.blooddy.math {
 					case 'object':
 						if ( arguments[ 0 ] is BigInteger ) {
 							this._sign = ( arguments[ 0 ] as BigInteger )._sign;
-							this._value = ( arguments[ 0 ] as BigInteger )._value;
+							this._bytes = ( arguments[ 0 ] as BigInteger )._bytes;
 							break;
 						}
 					default:
@@ -292,7 +292,7 @@ package by.blooddy.math {
 		/**
 		 * @private
 		 */
-		private var _value:ByteArray;
+		private var _bytes:ByteArray;
 		
 		//--------------------------------------------------------------------------
 		//
@@ -327,14 +327,14 @@ package by.blooddy.math {
 		}
 		
 		public function toNumber():Number {
-			if ( this._value ) {
+			if ( this._bytes ) {
 				var result:Number = 0;
 
 				var k:Number = 1;
 
-				this._value.position = 0;
-				while( this._value.bytesAvailable ) {
-					result += this._value.readUnsignedInt() * k;
+				this._bytes.position = 0;
+				while( this._bytes.bytesAvailable ) {
+					result += this._bytes.readUnsignedInt() * k;
 					k *= 0xFFFFFFFF;
 				}
 
@@ -346,15 +346,15 @@ package by.blooddy.math {
 		
 		public function toString(radix:uint=10):String {
 			if ( radix < 2 || radix > 36 ) Error.throwError( RangeError, 1003, radix );
-			if ( this._value ) {
+			if ( this._bytes ) {
 				
 				var tmp:ByteArray = _DOMAIN.domainMemory;
 
-				var pos:int = Math.ceil( this._value.length * ( ( Math.LN2 / Math.log( radix ) ) * 8 ) );
+				var pos:int = Math.ceil( this._bytes.length * ( ( Math.LN2 / Math.log( radix ) ) * 8 ) );
 				
 				var mem:ByteArray = new ByteArray();
 				mem.position = pos;
-				mem.writeBytes( this._value );
+				mem.writeBytes( this._bytes );
 
 				var k:int = mem.length;
 
@@ -526,7 +526,7 @@ package by.blooddy.math {
 		public function negate():BigInteger {
 			var result:BigInteger = new BigInteger();
 			result._sign *= -1;
-			result._value = this._value;
+			result._bytes = this._bytes;
 			return result;
 		}
 		
@@ -543,8 +543,8 @@ package by.blooddy.math {
 			else if ( !c1 ) return 0;
 			else {
 				
-				c1 = this._value.length;
-				c2 =    v._value.length;
+				c1 = this._bytes.length;
+				c2 =    v._bytes.length;
 
 				     if ( c1 > c2 ) return 1;
 				else if ( c2 < c1 ) return -1;
@@ -554,16 +554,16 @@ package by.blooddy.math {
 					
 					var mem:ByteArray = _TMP;
 					
-					mem.writeBytes( this._value );
-					mem.writeBytes(    v._value );
+					mem.writeBytes( this._bytes );
+					mem.writeBytes(    v._bytes );
 					
 					if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 					
 					_DOMAIN.domainMemory = mem;
 					
 					var result:int = BigIntegerBlock.compare(
-						new MemoryBlock( 0, this._value.length ),
-						new MemoryBlock( v._value.length, this._value.length )
+						new MemoryBlock( 0, this._bytes.length ),
+						new MemoryBlock( v._bytes.length, this._bytes.length )
 					);
 					
 					_DOMAIN.domainMemory = tmp;
@@ -598,16 +598,16 @@ package by.blooddy.math {
 		 * @return		this + 1
 		 */
 		public function inc():BigInteger {
-			if ( this._value ) {
+			if ( this._bytes ) {
 				
 				var bytes:ByteArray = new ByteArray();
-				bytes.writeBytes( this._value );
+				bytes.writeBytes( this._bytes );
 				
 				if ( this._sign < 0 ) {
 					
 					_dec( bytes );
 					
-					if ( this._value.length <= 0 ) {
+					if ( this._bytes.length <= 0 ) {
 						return ZERO;
 					}
 					
@@ -619,7 +619,7 @@ package by.blooddy.math {
 				
 				var result:BigInteger = new BigInteger();
 				result._sign = this._sign;
-				result._value = bytes;
+				result._bytes = bytes;
 				return result;
 				
 			} else {
@@ -631,10 +631,10 @@ package by.blooddy.math {
 		 * @return		this - 1
 		 */
 		public function dec():BigInteger {
-			if ( this._value ) {
+			if ( this._bytes ) {
 				
 				var bytes:ByteArray = new ByteArray();
-				bytes.writeBytes( this._value );
+				bytes.writeBytes( this._bytes );
 				
 				if ( this._sign < 0 ) {
 					
@@ -652,7 +652,7 @@ package by.blooddy.math {
 
 				var result:BigInteger = new BigInteger();
 				result._sign = this._sign;
-				result._value = bytes;
+				result._bytes = bytes;
 				return result;
 
 			} else {
@@ -664,19 +664,19 @@ package by.blooddy.math {
 		 * @return		this + v
 		 */
 		public function add(v:BigInteger):BigInteger {
-			     if ( !this._value ) return v;
-			else if ( !   v._value ) return this;
+			     if ( !this._bytes ) return v;
+			else if ( !   v._bytes ) return this;
 			else {
 
-				var l1:int = this._value.length;
-				var l2:int =    v._value.length;
+				var l1:int = this._bytes.length;
+				var l2:int =    v._bytes.length;
 				
 				var tmp:ByteArray = _DOMAIN.domainMemory;
 
 				var mem:ByteArray = _TMP;
 				
-				mem.writeBytes( this._value );
-				mem.writeBytes(    v._value );
+				mem.writeBytes( this._bytes );
+				mem.writeBytes(    v._bytes );
 				
 				mem.length += l1 + l2 + Math.max( l1, l2 ) + 4;
 				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
@@ -693,11 +693,11 @@ package by.blooddy.math {
 					
 					result = new BigInteger();
 					result._sign = this._sign;
-					result._value = new ByteArray();
-					result._value.endian = Endian.LITTLE_ENDIAN;
+					result._bytes = new ByteArray();
+					result._bytes.endian = Endian.LITTLE_ENDIAN;
 					
 					mem.position = vr.pos;
-					mem.readBytes( result._value, vr.pos, vr.len );
+					mem.readBytes( result._bytes, vr.pos, vr.len );
 					
 				} else {
 					
@@ -707,8 +707,8 @@ package by.blooddy.math {
 					} else {
 						
 						result = new BigInteger();
-						result._value = new ByteArray();
-						result._value.endian = Endian.LITTLE_ENDIAN;
+						result._bytes = new ByteArray();
+						result._bytes.endian = Endian.LITTLE_ENDIAN;
 						
 						if ( c > 0 ) {
 							vr = BigIntegerBlock.sub( v1, v2, l1 + l2 );
@@ -717,7 +717,7 @@ package by.blooddy.math {
 						}
 						
 						mem.position = vr.pos;
-						mem.readBytes( result._value, vr.pos, vr.len );
+						mem.readBytes( result._bytes, vr.pos, vr.len );
 
 					}
 					
