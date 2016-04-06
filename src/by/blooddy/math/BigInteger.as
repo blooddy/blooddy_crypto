@@ -665,7 +665,7 @@ package by.blooddy.math {
 		 */
 		public function add(v:BigInteger):BigInteger {
 			     if ( !this._value ) return v;
-			else if (     v._value ) return this;
+			else if ( !   v._value ) return this;
 			else {
 
 				var l1:int = this._value.length;
@@ -734,7 +734,7 @@ package by.blooddy.math {
 		 * @return		this - v
 		 */
 		public function sub(v:BigInteger):BigInteger {
-			throw new IllegalOperationError();
+			return this.add( v.negate() );
 		}
 
 		/**
