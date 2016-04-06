@@ -6,10 +6,12 @@
 
 package by.blooddy.math.utils {
 
+	import flash.errors.IllegalOperationError;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
 	
+	import avm2.intrinsics.memory.li16;
 	import avm2.intrinsics.memory.li32;
 	import avm2.intrinsics.memory.si32;
 	import avm2.intrinsics.memory.sxi8;
@@ -213,9 +215,85 @@ package by.blooddy.math.utils {
 		 * @throws		ArgumentError	m == 0
 		 */
 		public static function mod(v:MemoryBlock, m:MemoryBlock, pos:int=-1):MemoryBlock {
-			return null;
+			
+			var l1:int = v.len;
+			var l2:int = m.len;
+			
+			if ( l2 == 0 ) {
+				throw new ArgumentError();
+			} else if ( l2 > l1 ) {
+				return v;
+			} else {
+				
+				var p1:int = v.pos;
+				var p2:int = m.pos;
+				
+				var c1:uint;
+				var c2:uint;
+				
+				if ( l1 == 4 ) { // первое число короткое
+
+					c2 = li32( p2 );
+					if ( c2 == 1 ) {
+						return new MemoryBlock( 0, 0 );
+					} else {
+						c1 = li32( p1 );
+						if ( c1 == c2 ) {
+							return v;
+						} else {
+							c1 %= c2;
+							if ( c1 == 0 ) {
+								return new MemoryBlock( 0, 0 );
+							} else {
+								si32( pos, c1 );
+								return new MemoryBlock( pos, 4 );
+							}
+						}
+					}
+
+				} else if ( l2 == 4 && li16( p2 + 2 ) == 0 ) { // второе число короткое
+				
+					c2 = li16( p2 ) & 0xFFFF;
+					if ( c2 == 1 ) {
+						return new MemoryBlock( 0, 0 );
+					} else {
+						c1 = mod$s( v, c2 );
+						if ( c1 == 0 ) {
+							return new MemoryBlock( 0, 0 );
+						} else {
+							si32( pos, c1 );
+							return new MemoryBlock( pos, 4 );
+						}
+					}
+					
+				} else {
+					
+					return mod$b( v, m, pos );
+					
+				}
+
+			}
+			
 		}
 		
+		/**
+		 * @internal
+		 * @return		v % m;
+		 * @throws		ArgumentError	m == 0
+		 */
+		private static function mod$s(v:MemoryBlock, m:uint):uint {
+			throw new IllegalOperationError();
+		}
+		
+		/**
+		 * @internal
+		 * @return		v % m;
+		 * @throws		ArgumentError	m == 0
+		 */
+		private static function mod$b(v:MemoryBlock, m:MemoryBlock, pos:int=-1):MemoryBlock {
+			throw new IllegalOperationError();
+		}
+
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
