@@ -145,6 +145,7 @@ package by.blooddy.math.utils {
 		
 		/**
 		 * @return		v1 - v2
+		 * @throws		ArgumentError	v2 > v1
 		 */
 		public static function sub(v1:MemoryBlock, v2:MemoryBlock, pos:int=-1):MemoryBlock {
 
@@ -205,6 +206,14 @@ package by.blooddy.math.utils {
 				
 			}
 
+		}
+		
+		/**
+		 * @return		v % m;
+		 * @throws		ArgumentError	m == 0
+		 */
+		public static function mod(v:MemoryBlock, m:MemoryBlock, pos:int=-1):MemoryBlock {
+			return null;
 		}
 		
 		//--------------------------------------------------------------------------

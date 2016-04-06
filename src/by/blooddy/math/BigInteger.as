@@ -7,7 +7,6 @@
 package by.blooddy.math {
 
 	import flash.errors.IllegalOperationError;
-	import flash.errors.MemoryError;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
@@ -203,7 +202,6 @@ package by.blooddy.math {
 					
 					if ( j > 0 ) {
 
-						mem.endian = Endian.LITTLE_ENDIAN;
 						mem.length = j;
 
 						target._bytes = mem;
@@ -693,11 +691,7 @@ package by.blooddy.math {
 					
 					result = new BigInteger();
 					result._sign = this._sign;
-					result._bytes = new ByteArray();
-					result._bytes.endian = Endian.LITTLE_ENDIAN;
-					
-					mem.position = vr.pos;
-					mem.readBytes( result._bytes, vr.pos, vr.len );
+					result._bytes = vr.get();
 					
 				} else {
 					
@@ -707,17 +701,14 @@ package by.blooddy.math {
 					} else {
 						
 						result = new BigInteger();
-						result._bytes = new ByteArray();
-						result._bytes.endian = Endian.LITTLE_ENDIAN;
-						
 						if ( c > 0 ) {
 							vr = BigIntegerBlock.sub( v1, v2, l1 + l2 );
+							result._sign = this._sign;
 						} else {
 							vr = BigIntegerBlock.sub( v2, v1, l1 + l2 );
+							result._sign = v._sign;
 						}
-						
-						mem.position = vr.pos;
-						mem.readBytes( result._bytes, vr.pos, vr.len );
+						result._bytes = vr.get();
 
 					}
 					
@@ -742,7 +733,47 @@ package by.blooddy.math {
 		 * @throws		ArgumentError	m == 0
 		 */
 		public function mod(m:BigInteger):BigInteger {
-			throw new IllegalOperationError();
+			     if ( !   m._bytes ) throw new ArgumentError();
+			else if ( !this._bytes ) return ZERO;
+			else {
+				
+				var l1:int = this._bytes.length;
+				var l2:int =    m._bytes.length;
+				
+				var tmp:ByteArray = _DOMAIN.domainMemory;
+				
+				var mem:ByteArray = _TMP;
+				
+				mem.writeBytes( this._bytes );
+				mem.writeBytes(    m._bytes );
+				
+				mem.length += l1 * 3 + ( l2 << 1 ) + 8;
+				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+				
+				var vr:MemoryBlock = BigIntegerBlock.mod(
+					new MemoryBlock(  0, l1 ),
+					new MemoryBlock( l1, l2 ),
+					l1 + l2
+				);
+
+				var result:BigInteger;
+				if ( vr.len ) {
+
+					result = new BigInteger();
+					result._sign = this._sign;
+					result._bytes = vr.get();
+
+				} else {
+				
+					result = ZERO;
+				
+				}
+				
+				_TMP.length = 0;
+				
+				return result;
+				
+			}
 		}
 		
 		/**
