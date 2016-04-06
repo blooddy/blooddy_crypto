@@ -282,7 +282,14 @@ package by.blooddy.math.utils {
 		 * @throws		ArgumentError	m == 0
 		 */
 		private static function mod$s(v:MemoryBlock, m:uint):uint {
-			throw new IllegalOperationError();
+			var c:int = 0;
+			var p:int = v.pos;
+			var i:int = v.len;
+			do {
+				i -= 2;
+				c = ( li16( p + i ) | ( c << 16 ) ) % m;
+			} while ( i > 0 );
+			return c;
 		}
 		
 		/**
