@@ -13,6 +13,7 @@ package by.blooddy.math.utils {
 	
 	import avm2.intrinsics.memory.li16;
 	import avm2.intrinsics.memory.li32;
+	import avm2.intrinsics.memory.si16;
 	import avm2.intrinsics.memory.si32;
 	import avm2.intrinsics.memory.sxi8;
 	
@@ -84,8 +85,6 @@ package by.blooddy.math.utils {
 		 */
 		public static function add(v1:MemoryBlock, v2:MemoryBlock, pos:int=-1):MemoryBlock {
 
-			if ( pos < 0 ) pos = Math.max( v1.pos, v2.pos ) + Math.max( v1.len, v2.len );
-			
 			var l1:int = v1.len;
 			var l2:int = v2.len;
 
@@ -96,6 +95,8 @@ package by.blooddy.math.utils {
 				var p1:int = v1.pos;
 				var p2:int = v2.pos;
 
+				if ( pos < 0 ) pos = Math.max( p1, p2 ) + Math.max( l1, l2 );
+				
 				var i:int;
 				var t:Number;
 
@@ -151,8 +152,6 @@ package by.blooddy.math.utils {
 		 */
 		public static function sub(v1:MemoryBlock, v2:MemoryBlock, pos:int=-1):MemoryBlock {
 
-			if ( pos < 0 ) pos = Math.max( v1.pos, v2.pos ) + Math.max( v1.len, v2.len );
-
 			var l1:uint = v1.len;
 			var l2:uint = v2.len;
 
@@ -163,6 +162,8 @@ package by.blooddy.math.utils {
 				var p1:int = v1.pos;
 				var p2:int = v2.pos;
 
+				if ( pos < 0 ) pos = Math.max( p1, p2 ) + Math.max( l1, l2 );
+				
 				var i:int = 0;
 				var t:Number = 0;
 				
@@ -210,6 +211,14 @@ package by.blooddy.math.utils {
 
 		}
 		
+		private static function mul$s(v1:MemoryBlock, v2:uint, pos:int):MemoryBlock {
+			throw new IllegalOperationError();
+		}
+		
+		private static function div$s(v1:MemoryBlock, v2:uint, pos:int):MemoryBlock {
+			throw new IllegalOperationError();
+		}
+		
 		/**
 		 * @return		v % m;
 		 * @throws		ArgumentError	m == 0
@@ -228,6 +237,8 @@ package by.blooddy.math.utils {
 				var p1:int = v.pos;
 				var p2:int = m.pos;
 				
+				if ( pos < 0 ) pos = Math.max( p1, p2 ) + Math.max( l1, l2 );
+
 				var c1:uint;
 				var c2:uint;
 				
@@ -297,8 +308,154 @@ package by.blooddy.math.utils {
 		 * @return		v % m;
 		 * @throws		ArgumentError	m == 0
 		 */
-		private static function mod$b(v:MemoryBlock, m:MemoryBlock, pos:int=-1):MemoryBlock {
-			throw new IllegalOperationError();
+		private static function mod$b(v:MemoryBlock, m:MemoryBlock, pos:int):MemoryBlock {
+			
+			var p1:int = v.pos;
+			var p2:int = m.pos;
+			var l1:int = v.len;
+			var l2:int = m.len;
+			
+			var scale:int = li16( p2 + l2 - 2 ) & 0xFFFF;
+			if ( !scale ) scale = li16( p2 + l2 - 4 ) & 0xFFFF;
+			scale = 0x10000 / ( scale + 1 ); // коэффициент нормализации
+			
+			var d:MemoryBlock;
+			var k:uint;
+			if ( scale > 1 ) {
+				// Нормализация
+				d = mul$s( v, scale, pos );
+				p1 = d.pos;
+				l1 = d.len;
+				pos = p1 + l1;
+				si16( 0, pos );
+				pos += 2;
+				d = mul$s( m, scale, pos );
+				p2 = d.pos;
+				l2 = d.len;
+				pos = p2 + l2;
+			} else {
+				var mem:ByteArray = _DOMAIN.domainMemory;
+				mem.position = p1;
+				mem.readBytes( mem, pos, l1 );
+				p1 = pos;
+				pos += l1;
+				si16( 0, pos );
+				pos += 2;
+			}
+			
+			while ( li16( p1 + l1 - 2 ) == 0 ) l1 -= 2;
+			while ( li16( p2 + l2 - 2 ) == 0 ) l2 -= 2;
+			
+			var t1:uint, t2:uint, t3:int;
+			var qGuess:int;				// догадка для частного и соответствующий остаток
+			var borrow:int, carry:int;	// переносы
+			
+			var c2:uint = li16( p2 + l2 - 2 ) & 0xFFFF;
+			var c4:uint = li16( p2 + l2 - 4 ) & 0xFFFF;
+			
+			// Главный цикл шагов деления. Каждая итерация дает очередную цифру частного.
+			var j:int = l1 - l2;	// i – индекс текущей цифры v1
+			var i:int = l1;			// j - текущий сдвиг v2 относительно v1, используемый при вычитании,
+			//     по совместительству - индекс очередной цифры частного.
+			do {
+				t1 = li32( p1 + i - 2 )
+				t2 = c2;
+				
+				qGuess = t1 / t2;
+				k = t1 % t2;
+				
+				// Пока не будут выполнены условия (2) уменьшать частное.
+				while ( k < 0x10000 ) {
+					t2 = c4 * qGuess;
+					t1 = ( k << 16 ) + ( li16( p1 + i - 4 ) & 0xFFFF );
+					if ( ( t2 > t1 ) || ( qGuess == 0x10000 ) ) {
+						// условия не выполнены, уменьшить qGuess
+						// и досчитать новый остаток
+						--qGuess;
+						k += c2;
+					} else {
+						break;
+					}
+				}
+				
+				if ( qGuess ) {
+					
+					carry = 0;
+					borrow = 0;
+					
+					// Теперь qGuess - правильное частное или на единицу больше q
+					// Вычесть делитель v2, умноженный на qGuess из делимого v1,
+					// начиная с позиции vJ+i
+					k = 0;
+					do {
+						// получить в t1 цифру произведения v2*qGuess
+						t1 = ( li16( p2 + k ) & 0xFFFF ) * qGuess + carry;
+						carry = t1 >>> 16;
+						t1 -= carry << 16;
+						// Сразу же вычесть из v1
+						t3 = ( li16( p1 + k + j ) & 0xFFFF ) - t1 + borrow;
+						if ( t3 < 0 ) {
+							si16( t3 + 0x10000, p1 + k + j );
+							borrow = -1;
+						} else {
+							si16( t3, p1 + k + j );
+							borrow = 0;
+						}
+						k += 2;
+					} while ( k < l2 );
+					
+					if ( carry || borrow ) {
+						// возможно, умноженое на qGuess число v2 удлинилось.
+						// Если это так, то после умножения остался
+						// неиспользованный перенос carry. Вычесть и его тоже.
+						t3 = ( li16( p1 + k + j ) & 0xFFFF ) - carry + borrow;
+						if ( t3 < 0 ) {
+							si16( t3 + 0x10000, p1 + k + j );
+							borrow = -1;
+						} else {
+							si16( t3, p1 + k + j );
+							borrow = 0;
+						}
+					}
+					
+					// Прошло ли вычитание нормально ?
+					if ( borrow ) { // Нет, последний перенос при вычитании borrow = -1,
+						// добавить одно, вычтенное сверх необходимого v2 к v1
+						carry = 0;
+						k = 0;
+						do {
+							t1 = ( li16( p1 + k + j ) & 0xFFFF ) + ( li16( p2 + k ) & 0xFFFF ) + carry;
+							if ( t1 >= 0x10000 ) {
+								si16( t1 - 0x10000, p1 + k + j );
+								carry = 1;
+							} else {
+								si16( t1, p1 + k + j );
+								carry = 0;
+							}
+							k += 2;
+						} while ( k < l2 );
+						si16( ( li16( p1 + k + j ) & 0xFFFF ) + carry - 0x10000, p1 + k + j );
+					}
+					
+				}
+				
+				j -= 2;
+				i -= 2;
+				
+			} while ( j >= 0 );
+			
+			if ( l1 & 3 ) l1 += 2;
+			
+			while ( l1 > 0 && li32( p1 + l1 - 4 ) == 0 ) {
+				l1 -= 4;
+			}
+
+			if ( scale > 1 && l1 > 0 ) {
+				return div$s( new MemoryBlock( p1, l1), scale, p1 + l1 );
+			} else {
+				return new MemoryBlock( p1, l1 );
+			}
+			
 		}
 
 		//--------------------------------------------------------------------------
