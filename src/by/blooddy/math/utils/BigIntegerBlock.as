@@ -7,12 +7,16 @@
 package by.blooddy.math.utils {
 
 	import flash.system.ApplicationDomain;
+	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
 	
 	import avm2.intrinsics.memory.li32;
+	import avm2.intrinsics.memory.si32;
+	import avm2.intrinsics.memory.sxi8;
 	
 	import by.blooddy.utils.MemoryBlock;
 	
+	[ExcludeClass]
 	/**
 	 * @author					BlooDHounD
 	 * @version					1.0
@@ -76,20 +80,136 @@ package by.blooddy.math.utils {
 		/**
 		 * @return		v1 + v2
 		 */
-		public static function add(v1:MemoryBlock, v2:MemoryBlock, result:int=-1):MemoryBlock {
-			return null;
+		public static function add(v1:MemoryBlock, v2:MemoryBlock, pos:int=-1):MemoryBlock {
+
+			if ( pos < 0 ) pos = Math.max( v1.pos, v2.pos ) + Math.max( v1.len, v2.len );
+			
+			var l1:int = v1.len;
+			var l2:int = v2.len;
+
+			     if ( !l1 ) return v2;
+			else if ( !l2 ) return v1;
+			else {
+
+				var p1:int = v1.pos;
+				var p2:int = v2.pos;
+
+				var i:int;
+				var t:Number;
+
+				if ( l2 > l1 ) { // меняем местами
+					t = p1; p1 = p2; p2 = t;
+					t = l1; l1 = l2; l2 = t;
+				}
+
+				i = 0;
+				t = 0;
+				
+				do { // прибавляем к первому по 4 байтика от второго
+					t += uint( li32( p1 + i ) );
+					si32( t, pos + i );
+					t = ( t > 0xFFFFFFFF ? 1 : 0 );
+					i += 4;
+				} while ( i < l2 );
+				
+				while ( t > 0 && i < l1 ) { // прибавляем к первому остаток
+					t += uint( li32( p1 + i ) ) + uint( li32( p2 + i ) );
+					si32( t, pos + i );
+					t = ( t > 0xFFFFFFFF ? 1 : 0 );
+					i += 4;
+				}
+				
+				if ( t > 0 ) { // если остался остаток, то первое число закончилось
+					
+					si32( 1, pos + i );
+					i += 4;
+					
+				} else if ( i < l1 ) { // копируем остаток первого числа
+
+					if ( l1 == i + 4 ) {
+						si32( li32( p1 + i ), pos + i );
+					} else {
+						var mem:ByteArray = _DOMAIN.domainMemory;
+						mem.position = p1 + i;
+						mem.readBytes( mem, pos + i, l1 - i );
+					}
+					i = l1;
+				
+				}
+			
+				return new MemoryBlock( pos, i );
+				
+			}
+
 		}
 		
 		/**
 		 * @return		v1 - v2
 		 */
-		public static function sub(v1:MemoryBlock, v2:MemoryBlock, result:int=-1):MemoryBlock {
-			return null;
+		public static function sub(v1:MemoryBlock, v2:MemoryBlock, pos:int=-1):MemoryBlock {
+
+			if ( pos < 0 ) pos = Math.max( v1.pos, v2.pos ) + Math.max( v1.len, v2.len );
+
+			var l1:uint = v1.len;
+			var l2:uint = v2.len;
+
+			     if ( !l2 ) return v1;
+			else if (  l2 < l1 ) throw new ArgumentError();
+			else {
+				
+				var p1:int = v1.pos;
+				var p2:int = v2.pos;
+
+				var i:int = 0;
+				var t:Number = 0;
+				
+				do {
+					t += uint( li32( p1 + i ) ) - uint( li32( p2 - i ) );
+					if ( t < 0 ) {
+						si32( 0x100000000 + t, pos + i )
+						t = -1;
+					} else {
+						si32( t, pos + i )
+						t = 0;
+					}
+					i += 4;
+				} while ( i < l2 );
+				
+				if ( t < 0 ) {
+					if ( i < l1 ) {
+						do {
+							t = li32( p1 + i );
+							si32( pos + i, -1 );
+							i += 4;
+						} while( t == 0 );
+					} else { // второе число оказалось больше первого
+						throw new ArgumentError();
+					}
+				}
+				
+				if ( i < l1 ) { // копируем остаток первого числа
+					if ( l1 + 4 == i ) {
+						si32( pos, li32( p1 + i ) );
+					} else {
+						var mem:ByteArray = _DOMAIN.domainMemory;
+						mem.position = p1 + i;
+						mem.readBytes( mem, pos + i, l1 - i );
+					}
+				} else {
+					while ( i > 0 && li32( pos + i - 4 ) == 0 ) {
+						i -= 4;
+					}
+				}
+				
+				return new MemoryBlock( pos, i );
+				
+			}
+
 		}
 		
 		//--------------------------------------------------------------------------
 		//
-		//  Private methods
+		//  Constructor
 		//
 		//--------------------------------------------------------------------------
 		

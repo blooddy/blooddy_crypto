@@ -40,12 +40,12 @@ package by.blooddy.utils {
 		/**
 		 * Block position
 		 */
-		public var pos:uint;
+		public var pos:int;
 		
 		/**
 		 * Block length
 		 */
-		public var len:uint;
+		public var len:int;
 		
 		//--------------------------------------------------------------------------
 		//
