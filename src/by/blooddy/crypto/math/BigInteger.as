@@ -604,7 +604,7 @@ package by.blooddy.crypto.math {
 					
 					_dec( bytes );
 					
-					if ( this._bytes.length <= 0 ) {
+					if ( bytes.length <= 0 ) {
 						return ZERO;
 					}
 					
