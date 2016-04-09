@@ -109,16 +109,16 @@ package by.blooddy.crypto.math {
 				t = 0;
 				
 				do { // прибавляем к первому по 4 байтика от второго
-					t += uint( li32( p1 + i ) );
+					t += uint( li32( p1 + i ) ) + uint( li32( p2 + i ) );
 					si32( t, pos + i );
-					t = ( t > 0xFFFFFFFF ? 1 : 0 );
+					t = ( t >= 0x100000000 ? 1 : 0 );
 					i += 4;
 				} while ( i < l2 );
 				
 				while ( t > 0 && i < l1 ) { // прибавляем к первому остаток
-					t += uint( li32( p1 + i ) ) + uint( li32( p2 + i ) );
+					t += uint( li32( p1 + i ) );
 					si32( t, pos + i );
-					t = ( t > 0xFFFFFFFF ? 1 : 0 );
+					t = ( t >= 0x100000000 ? 1 : 0 );
 					i += 4;
 				}
 				
@@ -156,7 +156,7 @@ package by.blooddy.crypto.math {
 			var l2:uint = v2.len;
 
 			     if ( !l2 ) return v1;
-			else if (  l2 < l1 ) throw new ArgumentError();
+			else if (  l2 > l1 ) throw new ArgumentError();
 			else {
 				
 				var p1:int = v1.pos;
@@ -168,9 +168,9 @@ package by.blooddy.crypto.math {
 				var t:Number = 0;
 				
 				do {
-					t += uint( li32( p1 + i ) ) - uint( li32( p2 - i ) );
+					t += uint( li32( p1 + i ) ) - uint( li32( p2 + i ) );
 					if ( t < 0 ) {
-						si32( 0x100000000 + t, pos + i )
+						si32( t + 0x100000000, pos + i )
 						t = -1;
 					} else {
 						si32( t, pos + i )
@@ -181,24 +181,26 @@ package by.blooddy.crypto.math {
 				
 				if ( t < 0 ) {
 					if ( i < l1 ) {
-						do {
-							t = li32( p1 + i );
-							si32( pos + i, -1 );
+						while ( ( t = li32( p1 + i ) ) == 0 ) {
+							si32( -1, pos + i );
 							i += 4;
-						} while( t == 0 );
+						}
+						si32( t - 1, pos + i );
+						i += 4;
 					} else { // второе число оказалось больше первого
 						throw new ArgumentError();
 					}
 				}
 				
 				if ( i < l1 ) { // копируем остаток первого числа
-					if ( l1 + 4 == i ) {
-						si32( pos, li32( p1 + i ) );
+					if ( l1 - i == 4 ) {
+						si32( li32( p1 + i ), pos + i );
 					} else {
 						var mem:ByteArray = _DOMAIN.domainMemory;
 						mem.position = p1 + i;
 						mem.readBytes( mem, pos + i, l1 - i );
 					}
+					i = l1;
 				} else {
 					while ( i > 0 && li32( pos + i - 4 ) == 0 ) {
 						i -= 4;

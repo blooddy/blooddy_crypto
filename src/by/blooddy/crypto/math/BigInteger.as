@@ -678,6 +678,8 @@ package by.blooddy.crypto.math {
 				mem.length += l1 + l2 + Math.max( l1, l2 ) + 4;
 				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 				
+				_DOMAIN.domainMemory = mem;
+				
 				var v1:MemoryBlock = new MemoryBlock(  0, l1 );
 				var v2:MemoryBlock = new MemoryBlock( l1, l2 );
 				var vr:MemoryBlock;
@@ -713,6 +715,8 @@ package by.blooddy.crypto.math {
 					
 				}
 
+				_DOMAIN.domainMemory = tmp;
+				
 				_TMP.length = 0;
 				
 				return result;
