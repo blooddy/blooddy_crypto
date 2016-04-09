@@ -13,6 +13,7 @@ package by.blooddy.crypto.math {
 	
 	import avm2.intrinsics.memory.li16;
 	import avm2.intrinsics.memory.li32;
+	import avm2.intrinsics.memory.li8;
 	import avm2.intrinsics.memory.si16;
 	import avm2.intrinsics.memory.si32;
 	import avm2.intrinsics.memory.sxi8;
@@ -269,8 +270,28 @@ package by.blooddy.crypto.math {
 			
 		}
 
+		/**
+		 * @internal
+		 * @return		v1 % v2;
+		 */
 		private static function mul$s(p1:int, l1:int, v2:int, pos:int):MemoryBlock {
-			return new MemoryBlock( 0, 0 );
+			
+			var i:int = 0;
+			var t:uint = 0;
+			
+			do {
+				t += li16( p1 + i ) * v2;
+				si16( t, pos + i );
+				t >>>= 16;
+				i += 2;
+			} while ( i < l1 );
+			
+			if ( t > 0 ) {
+				si32( t, pos + i );
+				i += 4;
+			}
+			
+			return new MemoryBlock( pos, i );
 		}
 		
 		private static function mul$b(p1:int, l1:int, p2:int, l2:int, pos:int):MemoryBlock {
