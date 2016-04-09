@@ -101,6 +101,30 @@ package by.blooddy.crypto.math {
 			);
 		}
 		
+		//----------------------------------
+		//  decrement
+		//----------------------------------
+		
+		public static var $dec:Array = [
+			[ '-FFFFFFFF122FFFFFFFF', '-FFFFFFFF12300000000' ],
+			[ '-122FFFFFFFF', '-12300000000' ],
+			[ '-122', '-123' ],
+			[ '0', '-1' ],
+			[ '1', '0' ],
+			[ '123', '122' ],
+			[ '12300000000', '122FFFFFFFF' ],
+			[ 'FFFFFFFF12300000000', 'FFFFFFFF122FFFFFFFF' ],
+			[ '100000000', 'FFFFFFFF' ]
+		];
+		
+		[Test( order="15", dataProvider="$dec" )]
+		public function dec(v:String, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v, 16 ).dec();
+			Assert.assertEquals(
+				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+			);
+		}
+		
 	}
 	
 }
