@@ -255,13 +255,13 @@ package by.blooddy.crypto.math {
 							c1 = uint( li16( p2 ) );
 						}
 
-						return mul$s( new MemoryBlock( p1, l1 ), c1, pos );
+						return mul$s( p1, l1, c1, pos );
 
 					}
 
 				} else {
 					
-					return mul$b( v1, v2, pos );
+					return mul$b( v1.pos, v1.len, v2.pos, v2.len, pos );
 					
 				}
 
@@ -269,15 +269,15 @@ package by.blooddy.crypto.math {
 			
 		}
 
-		private static function mul$s(v1:MemoryBlock, v2:uint, pos:int):MemoryBlock {
+		private static function mul$s(p1:int, l1:int, v2:int, pos:int):MemoryBlock {
 			return new MemoryBlock( 0, 0 );
 		}
 		
-		private static function mul$b(v1:MemoryBlock, v2:MemoryBlock, pos:int):MemoryBlock {
+		private static function mul$b(p1:int, l1:int, p2:int, l2:int, pos:int):MemoryBlock {
 			return new MemoryBlock( 0, 0 );
 		}
 		
-		private static function div$s(v1:MemoryBlock, v2:uint, pos:int):MemoryBlock {
+		private static function div$s(p1:int, l1:int, v2:int, pos:int):MemoryBlock {
 			return new MemoryBlock( 0, 0 );
 		}
 		
@@ -339,7 +339,7 @@ package by.blooddy.crypto.math {
 					
 				} else {
 					
-					return mod$b( v, m, pos );
+					return mod$b( v.pos, v.len, m.pos, m.len, pos );
 					
 				}
 
@@ -368,12 +368,7 @@ package by.blooddy.crypto.math {
 		 * @return		v % m;
 		 * @throws		ArgumentError	m == 0
 		 */
-		private static function mod$b(v:MemoryBlock, m:MemoryBlock, pos:int):MemoryBlock {
-			
-			var p1:int = v.pos;
-			var p2:int = m.pos;
-			var l1:int = v.len;
-			var l2:int = m.len;
+		private static function mod$b(p1:int, l1:int, p2:int, l2:int, pos:int):MemoryBlock {
 			
 			var scale:int = li16( p2 + l2 - 2 ) & 0xFFFF;
 			if ( !scale ) scale = li16( p2 + l2 - 4 ) & 0xFFFF;
@@ -383,13 +378,13 @@ package by.blooddy.crypto.math {
 			var k:uint;
 			if ( scale > 1 ) {
 				// Нормализация
-				d = mul$s( v, scale, pos );
+				d = mul$s( p1, l1, scale, pos );
 				p1 = d.pos;
 				l1 = d.len;
 				pos = p1 + l1;
 				si16( 0, pos );
 				pos += 2;
-				d = mul$s( m, scale, pos );
+				d = mul$s( p2, l2, scale, pos );
 				p2 = d.pos;
 				l2 = d.len;
 				pos = p2 + l2;
@@ -511,7 +506,7 @@ package by.blooddy.crypto.math {
 			}
 
 			if ( scale > 1 && l1 > 0 ) {
-				return div$s( new MemoryBlock( p1, l1), scale, p1 + l1 );
+				return div$s( p1, l1, scale, p1 + l1 );
 			} else {
 				return new MemoryBlock( p1, l1 );
 			}
