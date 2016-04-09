@@ -51,6 +51,33 @@ package by.blooddy.crypto.math {
 			);
 		}
 
+		//----------------------------------
+		//  compare
+		//----------------------------------
+		
+		public static var $compare:Array = [
+			[ '-123', '-123', 0 ],
+			[ '-123', '0', -1 ],
+			[ '-123', '123', -1 ],
+			[ '0', '-123', 1 ],
+			[ '0', '0', 0 ],
+			[ '0', '123', -1 ],
+			[ '123', '-123', 1 ],
+			[ '123', '0', 1 ],
+			[ '123', '123', 0 ],
+			[ '987654321', '123456789', 1 ],
+			[ '123456789', '987654321', -1 ],
+			[ '987654321', '987654321', 0 ]
+		];
+		
+		[Test( dataProvider="$compare" )]
+		public function compare(v1:String, v2:String, result:int):void {
+			var R:int = BigInteger.fromString( v1, 16 ).compare( BigInteger.fromString( v2, 16 ) );
+			Assert.assertEquals(
+				R, result
+			);
+		}
+		
 	}
 	
 }
