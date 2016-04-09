@@ -125,6 +125,37 @@ package by.blooddy.crypto.math {
 			);
 		}
 		
+		//----------------------------------
+		//  add
+		//----------------------------------
+		
+		public static var $add:Array = [
+			[ '0', '123', '123' ],
+			[ '123', '0', '123' ],
+			[ '123456', '123', '123579' ],
+			[ '654321', '11111234567812345678ffffffffffffffff', '111112345678123456790000000000654320' ],
+			[ '654321', 'ffffffffffffffff', '10000000000654320' ],
+			[ '0', '-123', '-123' ],
+			[ '-123', '0', '-123' ],
+			[ '-123456', '-123', '-123579' ],
+			[ '-654321', '-11111234567812345678ffffffffffffffff', '-111112345678123456790000000000654320' ],
+			[ '-654321', '-ffffffffffffffff', '-10000000000654320' ],
+			[ '123456', '-123', '123333' ],
+			[ '654321', '-11111234567812345678ffffffffffffffff', '-11111234567812345678ffffffffff9abcde' ],
+			[ '654321', '-ffffffffffffffff', '-ffffffffff9abcde' ],
+			[ '-123456', '123', '-123333' ],
+			[ '-654321', '11111234567812345678ffffffffffffffff', '11111234567812345678ffffffffff9abcde' ],
+			[ '-654321', 'ffffffffffffffff', 'ffffffffff9abcde' ]
+		];
+		
+		[Test( order="14", dataProvider="$add" )]
+		public function add(v1:String, v2:String, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v1, 16 ).add( BigInteger.fromString( v2, 16 ) );
+			Assert.assertEquals(
+				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+			);
+		}
+		
 	}
 	
 }
