@@ -93,7 +93,7 @@ package by.blooddy.crypto.math {
 			[ '123456780000000F', '1234567800000010' ]
 		];
 		
-		[Test( order="13", dataProvider="$inc" )]
+		[Test( dataProvider="$inc" )]
 		public function inc(v:String, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v, 16 ).inc();
 			Assert.assertEquals(
@@ -117,7 +117,7 @@ package by.blooddy.crypto.math {
 			[ '100000000', 'FFFFFFFF' ]
 		];
 		
-		[Test( order="15", dataProvider="$dec" )]
+		[Test( dataProvider="$dec" )]
 		public function dec(v:String, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v, 16 ).dec();
 			Assert.assertEquals(
@@ -148,9 +148,42 @@ package by.blooddy.crypto.math {
 			[ '-654321', 'ffffffffffffffff', 'ffffffffff9abcde' ]
 		];
 		
-		[Test( order="14", dataProvider="$add" )]
+		[Test( dataProvider="$add" )]
 		public function add(v1:String, v2:String, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v1, 16 ).add( BigInteger.fromString( v2, 16 ) );
+			Assert.assertEquals(
+				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  sub
+		//----------------------------------
+		
+		public static var $sub:Array = [
+			[ '123', '0', '123' ],
+			[ '123', '123', '0' ],
+			[ '123', '12', '111' ],
+			[ 'ff0000000000000123', 'ffff', 'feffffffffffff0124' ],
+			[ 'ff0000000000000123', '122', 'ff0000000000000001' ],
+			[ 'ff00000123', '122', 'ff00000001' ],
+			[ '-123', '0', '-123' ],
+			[ '-123', '-123', '0' ],
+			[ '-123', '-12', '-111' ],
+			[ '-ff0000000000000123', '-ffff', '-feffffffffffff0124' ],
+			[ '-ff0000000000000123', '-122', '-ff0000000000000001' ],
+			[ '-ff00000123', '-122', '-ff00000001' ],
+			[ 'ff0000000000000123', '-ffff', 'ff0000000000010122' ],
+			[ 'ff0000000000000123', '-122', 'ff0000000000000245' ],
+			[ 'ff00000123', '-122', 'ff00000245' ],
+			[ '-ff0000000000000123', 'ffff', '-ff0000000000010122' ],
+			[ '-ff0000000000000123', '122', '-ff0000000000000245' ],
+			[ '-ff00000123', '122', '-ff00000245' ]
+		];
+		
+		[Test( dataProvider="$sub" )]
+		public function sub(v1:String, v2:String, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v1, 16 ).sub( BigInteger.fromString( v2, 16 ) );
 			Assert.assertEquals(
 				R.toString( 16 ).toLowerCase(), result.toLowerCase()
 			);
