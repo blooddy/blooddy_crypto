@@ -4,7 +4,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package by.blooddy.math {
+package by.blooddy.crypto.math {
 
 	import flash.errors.IllegalOperationError;
 	import flash.system.ApplicationDomain;
@@ -17,7 +17,6 @@ package by.blooddy.math {
 	import avm2.intrinsics.memory.si16;
 	import avm2.intrinsics.memory.si8;
 	
-	import by.blooddy.math.utils.BigIntegerBlock;
 	import by.blooddy.utils.MemoryBlock;
 	
 	/**
@@ -523,7 +522,7 @@ package by.blooddy.math {
 		 */
 		public function negate():BigInteger {
 			var result:BigInteger = new BigInteger();
-			result._sign *= -1;
+			result._sign = -this._sign;
 			result._bytes = this._bytes;
 			return result;
 		}

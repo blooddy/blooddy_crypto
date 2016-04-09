@@ -4,7 +4,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package by.blooddy.math.utils {
+package by.blooddy.crypto.math {
 
 	import flash.errors.IllegalOperationError;
 	import flash.system.ApplicationDomain;
