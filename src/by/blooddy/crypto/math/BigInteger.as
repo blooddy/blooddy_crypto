@@ -410,7 +410,7 @@ package by.blooddy.crypto.math {
 				_DOMAIN.domainMemory = tmp;
 
 				mem.position = j;
-				return mem.readUTFBytes( pos - j );
+				return ( this._sign < 0 ? '-' : '' ) + mem.readUTFBytes( pos - j );
 
 			} else {
 				return '0';
