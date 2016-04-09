@@ -637,13 +637,13 @@ package by.blooddy.crypto.math {
 					
 					_inc( bytes );
 					
-					if ( bytes.length <= 0 ) {
-						return ZERO;
-					}
-					
 				} else {
 					
 					_dec( bytes );
+					
+					if ( bytes.length <= 0 ) {
+						return ZERO;
+					}
 					
 				}
 
