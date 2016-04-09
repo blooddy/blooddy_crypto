@@ -732,6 +732,47 @@ package by.blooddy.crypto.math {
 		}
 
 		/**
+		 * @return		this * v
+		 */
+		public function mul(v:BigInteger):BigInteger {
+			if ( !this._bytes || !v._bytes ) return ZERO;
+			else {
+				
+				var l1:int = this._bytes.length;
+				var l2:int =    v._bytes.length;
+				
+				var tmp:ByteArray = _DOMAIN.domainMemory;
+				
+				var mem:ByteArray = _TMP;
+				mem.length = ( ( l1 + l2 ) << 1 ) + 4;
+				
+				mem.writeBytes( this._bytes );
+				mem.writeBytes(    v._bytes );
+				
+				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+
+				_DOMAIN.domainMemory = mem;
+				
+				var vr:MemoryBlock = BigIntegerBlock.mul(
+					new MemoryBlock( 0, l1 ),
+					new MemoryBlock( l1, l2 ),
+					l1 + l2
+				);
+				
+				var result:BigInteger = new BigInteger();
+				result._sign = this._sign * v._sign;
+				result._bytes = vr.get();
+
+				_DOMAIN.domainMemory = tmp;
+
+				_TMP.length = 0;
+				
+				return result;
+				
+			}
+		}
+		
+		/**
 		 * @return		this % m;
 		 * @throws		ArgumentError	m == 0
 		 */

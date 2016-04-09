@@ -45,9 +45,9 @@ package by.blooddy.crypto.math {
 		
 		[Test( dataProvider="$negate" )]
 		public function negate(v:String, result:String):void {
-			var R:BigInteger = BigInteger.fromString( v, 16 ).negate();
+			var R:String = BigInteger.fromString( v, 16 ).negate().toString( 16 );
 			Assert.assertEquals(
-				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+				R.toLowerCase(), result.toLowerCase()
 			);
 		}
 
@@ -79,7 +79,7 @@ package by.blooddy.crypto.math {
 		}
 		
 		//----------------------------------
-		//  increment
+		//  inc
 		//----------------------------------
 		
 		public static var $inc:Array = [
@@ -95,14 +95,14 @@ package by.blooddy.crypto.math {
 		
 		[Test( dataProvider="$inc" )]
 		public function inc(v:String, result:String):void {
-			var R:BigInteger = BigInteger.fromString( v, 16 ).inc();
+			var R:String = BigInteger.fromString( v, 16 ).inc().toString( 16 );
 			Assert.assertEquals(
-				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+				R.toLowerCase(), result.toLowerCase()
 			);
 		}
 		
 		//----------------------------------
-		//  decrement
+		//  dec
 		//----------------------------------
 		
 		public static var $dec:Array = [
@@ -119,9 +119,9 @@ package by.blooddy.crypto.math {
 		
 		[Test( dataProvider="$dec" )]
 		public function dec(v:String, result:String):void {
-			var R:BigInteger = BigInteger.fromString( v, 16 ).dec();
+			var R:String = BigInteger.fromString( v, 16 ).dec().toString( 16 );
 			Assert.assertEquals(
-				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+				R.toLowerCase(), result.toLowerCase()
 			);
 		}
 		
@@ -150,9 +150,9 @@ package by.blooddy.crypto.math {
 		
 		[Test( dataProvider="$add" )]
 		public function add(v1:String, v2:String, result:String):void {
-			var R:BigInteger = BigInteger.fromString( v1, 16 ).add( BigInteger.fromString( v2, 16 ) );
+			var R:String = BigInteger.fromString( v1, 16 ).add( BigInteger.fromString( v2, 16 ) ).toString( 16 );
 			Assert.assertEquals(
-				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+				R.toLowerCase(), result.toLowerCase()
 			);
 		}
 		
@@ -183,9 +183,80 @@ package by.blooddy.crypto.math {
 		
 		[Test( dataProvider="$sub" )]
 		public function sub(v1:String, v2:String, result:String):void {
-			var R:BigInteger = BigInteger.fromString( v1, 16 ).sub( BigInteger.fromString( v2, 16 ) );
+			var R:String = BigInteger.fromString( v1, 16 ).sub( BigInteger.fromString( v2, 16 ) ).toString( 16 );
 			Assert.assertEquals(
-				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  mul
+		//----------------------------------
+		
+		public static var $mul:Array = [
+			[ '0', '123', '0' ],
+			[ '123', '0', '0' ],
+			[ '1', '123456', '123456' ],
+			[ '123456', '1', '123456' ],
+			[ '400000000', '100', '40000000000' ],
+			[ '400000000', '3', 'c00000000' ],
+			[ '3', '400000000', 'c00000000' ],
+			[ '1f24d95a0cab448dcbf43f323159f4fc74b', '80000000000000', 'f926cad0655a246e5fa1f9918acfa7e3a580000000000000' ],
+			[ '123', '12', '1476' ],
+			[ '123f77ffffff6', '13', '15ab5e7fffff42' ],
+			[ '13', '123f77ffffff6', '15ab5e7fffff42' ],
+			[ 'ffff0000', '11110000', '1110eeef00000000' ],
+			[ 'ffff1111', '11110000', '1110f01243210000' ],
+			[ '6ffffff77f321', '123f77ffffff6', '7fbc47f64d5901167855080b6' ],
+			[ 'ffffffffffffffffffffffffffffffff', 'ffffffffffffffffffffffffffffffff', 'fffffffffffffffffffffffffffffffe00000000000000000000000000000001' ],
+			[ '0', '-123', '0' ],
+			[ '-123', '0', '0' ],
+			[ '-1', '-123456', '123456' ],
+			[ '-123456', '-1', '123456' ],
+			[ '-400000000', '-100', '40000000000' ],
+			[ '-400000000', '-3', 'c00000000' ],
+			[ '-3', '-400000000', 'c00000000' ],
+			[ '-1f24d95a0cab448dcbf43f323159f4fc74b', '-80000000000000', 'f926cad0655a246e5fa1f9918acfa7e3a580000000000000' ],
+			[ '-123', '-12', '1476' ],
+			[ '-123f77ffffff6', '-13', '15ab5e7fffff42' ],
+			[ '-13', '-123f77ffffff6', '15ab5e7fffff42' ],
+			[ '-ffff0000', '-11110000', '1110eeef00000000' ],
+			[ '-ffff1111', '-11110000', '1110f01243210000' ],
+			[ '-6ffffff77f321', '-123f77ffffff6', '7fbc47f64d5901167855080b6' ],
+			[ '-ffffffffffffffffffffffffffffffff', '-ffffffffffffffffffffffffffffffff', 'fffffffffffffffffffffffffffffffe00000000000000000000000000000001' ],
+			[ '1', '-123456', '-123456' ],
+			[ '123456', '-1', '-123456' ],
+			[ '400000000', '-100', '-40000000000' ],
+			[ '400000000', '-3', '-c00000000' ],
+			[ '3', '-400000000', '-c00000000' ],
+			[ '1f24d95a0cab448dcbf43f323159f4fc74b', '-80000000000000', '-f926cad0655a246e5fa1f9918acfa7e3a580000000000000' ],
+			[ '123', '-12', '-1476' ],
+			[ '123f77ffffff6', '-13', '-15ab5e7fffff42' ],
+			[ '13', '-123f77ffffff6', '-15ab5e7fffff42' ],
+			[ 'ffff0000', '-11110000', '-1110eeef00000000' ],
+			[ 'ffff1111', '-11110000', '-1110f01243210000' ],
+			[ '6ffffff77f321', '-123f77ffffff6', '-7fbc47f64d5901167855080b6' ],
+			[ 'ffffffffffffffffffffffffffffffff', '-ffffffffffffffffffffffffffffffff', '-fffffffffffffffffffffffffffffffe00000000000000000000000000000001' ],
+			[ '-1', '123456', '-123456' ],
+			[ '-123456', '1', '-123456' ],
+			[ '-400000000', '100', '-40000000000' ],
+			[ '-400000000', '3', '-c00000000' ],
+			[ '-3', '400000000', '-c00000000' ],
+			[ '-1f24d95a0cab448dcbf43f323159f4fc74b', '80000000000000', '-f926cad0655a246e5fa1f9918acfa7e3a580000000000000' ],
+			[ '-123', '12', '-1476' ],
+			[ '-123f77ffffff6', '13', '-15ab5e7fffff42' ],
+			[ '-13', '123f77ffffff6', '-15ab5e7fffff42' ],
+			[ '-ffff0000', '11110000', '-1110eeef00000000' ],
+			[ '-ffff1111', '11110000', '-1110f01243210000' ],
+			[ '-6ffffff77f321', '123f77ffffff6', '-7fbc47f64d5901167855080b6' ],
+			[ '-ffffffffffffffffffffffffffffffff', 'ffffffffffffffffffffffffffffffff', '-fffffffffffffffffffffffffffffffe00000000000000000000000000000001' ]
+		];
+		
+		[Test( dataProvider="$mul" )]
+		public function mul(v1:String, v2:String, result:String):void {
+			var R:String = BigInteger.fromString( v1, 16 ).mul( BigInteger.fromString( v2, 16 ) ).toString( 16 );
+			Assert.assertEquals(
+				R.toLowerCase(), result.toLowerCase()
 			);
 		}
 		

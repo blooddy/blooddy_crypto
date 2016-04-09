@@ -54,7 +54,7 @@ package by.blooddy.crypto.math {
 			var c1:int = v1.len;
 			var c2:int = v2.len;
 
-			if ( c1 > c2 ) return 1;
+			     if ( c1 > c2 ) return  1;
 			else if ( c2 > c1 ) return -1;
 			else {
 				
@@ -88,8 +88,8 @@ package by.blooddy.crypto.math {
 			var l1:int = v1.len;
 			var l2:int = v2.len;
 
-			     if ( !l1 ) return v2;
-			else if ( !l2 ) return v1;
+			     if ( l1 == 0 ) return v2;
+			else if ( l2 == 0 ) return v1;
 			else {
 
 				var p1:int = v1.pos;
@@ -155,8 +155,8 @@ package by.blooddy.crypto.math {
 			var l1:uint = v1.len;
 			var l2:uint = v2.len;
 
-			     if ( !l2 ) return v1;
-			else if (  l2 > l1 ) throw new ArgumentError();
+			     if ( l2 == 0 ) return v1;
+			else if ( l2 > l1 ) throw new ArgumentError();
 			else {
 				
 				var p1:int = v1.pos;
@@ -213,12 +213,72 @@ package by.blooddy.crypto.math {
 
 		}
 		
+		/**
+		 * @return		v1 * v2
+		 */
+		public static function mul(v1:MemoryBlock, v2:MemoryBlock, pos:uint):MemoryBlock {
+			
+			var l1:uint = v1.len;
+			var l2:uint = v2.len;
+
+			     if ( l1 == 0 ) return v1;
+			else if ( l2 == 0 ) return v2;
+			else {
+				
+				var c1:int, c2:int;
+				
+				var p1:int = v1.pos;
+				var p2:int = v2.pos;
+				
+				if ( pos < 0 ) pos = Math.max( p1, p2 ) + Math.max( l1, l2 );
+				
+				var i:int = 0;
+				var t:Number = 0;
+				
+				if ( l1 == 4 && li16( p1 + 2 ) == 0 ) l1 = 2;
+				if ( l2 == 4 && li16( p2 + 2 ) == 0 ) l2 = 2;
+				
+				if ( l1 == 2 || l2 == 2 ) {
+
+					if ( l1 == 2 && l2 == 2 ) { // оба числа короткие
+
+						si32( li16( p1 ) * li16( p2 ), pos );
+						return new MemoryBlock( pos, 4 );
+
+					} else {
+
+						if ( l1 == 2 ) {
+							c1 = uint( li16( p1 ) );
+							p1 = p2;
+							l1 = l2;
+						} else {
+							c1 = uint( li16( p2 ) );
+						}
+
+						return mul$s( new MemoryBlock( p1, l1 ), c1, pos );
+
+					}
+
+				} else {
+					
+					return mul$b( v1, v2, pos );
+					
+				}
+
+			}
+			
+		}
+
 		private static function mul$s(v1:MemoryBlock, v2:uint, pos:int):MemoryBlock {
-			throw new IllegalOperationError();
+			return new MemoryBlock( 0, 0 );
+		}
+		
+		private static function mul$b(v1:MemoryBlock, v2:MemoryBlock, pos:int):MemoryBlock {
+			return new MemoryBlock( 0, 0 );
 		}
 		
 		private static function div$s(v1:MemoryBlock, v2:uint, pos:int):MemoryBlock {
-			throw new IllegalOperationError();
+			return new MemoryBlock( 0, 0 );
 		}
 		
 		/**
@@ -230,11 +290,9 @@ package by.blooddy.crypto.math {
 			var l1:int = v.len;
 			var l2:int = m.len;
 			
-			if ( l2 == 0 ) {
-				throw new ArgumentError();
-			} else if ( l2 > l1 ) {
-				return v;
-			} else {
+			     if ( l2 == 0 ) throw new ArgumentError();
+			else if ( l2 > l1 ) return v;
+			else {
 				
 				var p1:int = v.pos;
 				var p2:int = m.pos;
