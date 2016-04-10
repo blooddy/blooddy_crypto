@@ -392,12 +392,32 @@ package by.blooddy.crypto.math {
 		
 		[Test( dataProvider="$getBitLength" )]
 		public function getBitLength(v:String, result:uint):void {
-			var R:uint = BigInteger.fromString( v, 16 ).getBitLength();
+			var R:uint = BigInteger.fromString( v, 16 ).bitLength;
 			Assert.assertEquals(
 				R, result
 			);
 		}
 
+		//----------------------------------
+		//  testBit
+		//----------------------------------
+		
+		public static var $testBit:Array = [
+			[ '0', 1, false ],
+			[ '123', 40, false ],
+			[ '123F77F1F3F5F', 32, true ],
+			[ '123F77F1F3F5F', 31, false ],
+			[ '100000', 20, true ]
+		];
+		
+		[Test( order="1", dataProvider="$testBit" )]
+		public function testBit(v:String, n:uint, result:Boolean):void {
+			var R:Boolean = BigInteger.fromString( v ).testBit( n );
+			Assert.assertEquals(
+				R, result
+			);
+		}
+		
 	}
 	
 }

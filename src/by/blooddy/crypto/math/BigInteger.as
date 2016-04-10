@@ -443,11 +443,7 @@ package by.blooddy.crypto.math {
 				var len:int = this._bytes.length;
 				this._bytes.endian = Endian.LITTLE_ENDIAN;
 				this._bytes.position = len - 4;
-				var result:uint = ( this._bytes.position << 3 ) + _getBitLengthInt( this._bytes.readInt() );
-				if ( this._sign < 0 ) {
-					throw new IllegalOperationError();
-				}
-				return result;
+				return ( this._bytes.position << 3 ) + _getBitLengthInt( this._bytes.readInt() );
 			} else {
 				return 0;
 			}
@@ -510,6 +506,23 @@ package by.blooddy.crypto.math {
 		 * @return		this & ( 1 << n ) != 0
 		 */
 		public function testBit(n:uint):Boolean {
+			if ( this._bytes ) {
+				var s:int = n >>> 3;
+				if ( s >= this._bytes.length ) { // бит находится за пределами числа
+					return this._sign < 0;
+				} else {
+					s = this._bytes[ s ];
+					return ( s & ( 1 << ( n & 7 ) ) ) != 0;
+				}
+			} else {
+				return false;
+			}
+		}
+		
+		/**
+		 * @return		this ^ ( 1 << n )
+		 */
+		public function flipBit(n:uint):BigInteger {
 			throw new IllegalOperationError();
 		}
 		
@@ -527,13 +540,6 @@ package by.blooddy.crypto.math {
 			throw new IllegalOperationError();
 		}
 		
-		/**
-		 * @return		this ^ ( 1 << n )
-		 */
-		public function flipBit(n:uint):BigInteger {
-			throw new IllegalOperationError();
-		}
-
 		/**
 		 * @return		~this
 		 */
