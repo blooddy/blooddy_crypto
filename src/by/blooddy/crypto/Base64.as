@@ -319,7 +319,7 @@ package by.blooddy.crypto {
 		
 		/**
 		 * Asynchronously encodes the <code>ByteArray</code> using Base64 encoding algorithm.
-		 * Dispatched `String` result in <code>ProcessEvent</code>.
+		 * Dispatched <code>String</code> result in <code>ProcessEvent</code>.
 		 *
 		 * @param	bytes			The <code>ByteArray</code> to be encoded.
 		 *
