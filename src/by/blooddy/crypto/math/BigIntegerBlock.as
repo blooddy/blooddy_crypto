@@ -432,7 +432,12 @@ package by.blooddy.crypto.math {
 				} else {
 
 					if ( l2 == 4 && li16( p2 + 2 ) == 0 ) { // второе число короткое
-						return div$s( p1, l1, li16( p2 ) & 0xFFFF, pos );
+						c2 = li16( p2 ) & 0xFFFF;
+						if ( c2 == 1 ) {
+							return v;
+						} else {
+							return div$s( p1, l1, c2, pos );
+						}
 					} else {
 						return div$b( p1, l1, p2, l2, pos );
 					}
@@ -447,7 +452,23 @@ package by.blooddy.crypto.math {
 		 * @return		v1 / v2
 		 */
 		private static function div$s(p1:int, l1:int, v2:int, pos:int):MemoryBlock {
-			return new MemoryBlock( pos, 0 );
+			
+			var c:int = 0;
+			var i:int = l1;
+
+			do {
+				i -= 2;
+				c |= li16( p1 + i ) & 0xFFFF;
+				si16( c / v2, pos + i );
+				c = ( c % v2 ) << 16;
+			} while ( i > 0 );
+	
+			while ( l1 > 0 && li32( pos + l1 - 4 ) == 0 ) {
+				l1 -= 4;
+			}
+
+			return new MemoryBlock( pos, l1 );
+
 		}
 		
 		/**
