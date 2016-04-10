@@ -350,6 +350,33 @@ package by.blooddy.crypto.math {
 			);
 		}
 
+		//----------------------------------
+		//  pow
+		//----------------------------------
+		
+		public static var $pow:Array = [
+			[ '123', 0x0, '1' ],
+			[ '0', 0x5, '0' ],
+			[ '123', 0x1, '123' ],
+			[ '123', 0x41, '10304172a4351fa752179292cd2b73911b68e75b3b0016f3c17cd6bc645b8938c2e8c3d82c4ecab4f0da6a3f5707948149db3ddd98090dea8dccbebf441af13a76a023' ],
+			[ 'fffff', 0x6, 'ffffa0000efffec0000effffa00001' ],
+			[ '3', 0xff, '11f1b08e87ec42c5d83c3218fc83c41dcfd9f4428f4f92af1aaa80aa46162b1f71e981273601f4ad1dd4709b5aca650265a6ab' ],
+			[ 'f00', 0x4d, '1c744e6621724dba25aea0207a6c11c8a22b3801df5b01f8658653f5f67a653a1c09c70576cf0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000' ],
+			[ '-123', 0x1, '-123' ],
+			[ '-123', 0x41, '-10304172a4351fa752179292cd2b73911b68e75b3b0016f3c17cd6bc645b8938c2e8c3d82c4ecab4f0da6a3f5707948149db3ddd98090dea8dccbebf441af13a76a023' ],
+			[ '-fffff', 0x6, 'ffffa0000efffec0000effffa00001' ],
+			[ '-3', 0xff, '-11f1b08e87ec42c5d83c3218fc83c41dcfd9f4428f4f92af1aaa80aa46162b1f71e981273601f4ad1dd4709b5aca650265a6ab' ],
+			[ '-f00', 0x4d, '-1c744e6621724dba25aea0207a6c11c8a22b3801df5b01f8658653f5f67a653a1c09c70576cf0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000' ]
+		];
+		
+		[Test( dataProvider="$pow" )]
+		public function pow(v:String, e:uint, result:String):void {
+			var R:String = BigInteger.fromString( v, 16 ).pow( e ).toString( 16 );
+			Assert.assertEquals(
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
 	}
 	
 }
