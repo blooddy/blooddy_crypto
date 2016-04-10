@@ -15,7 +15,6 @@ package by.blooddy.crypto.math {
 	import avm2.intrinsics.memory.si16;
 	import avm2.intrinsics.memory.si32;
 	
-	import by.blooddy.math.utils.BigUint;
 	import by.blooddy.utils.MemoryBlock;
 	
 	[ExcludeClass]
@@ -389,8 +388,8 @@ package by.blooddy.crypto.math {
 		 */
 		public static function div(v:MemoryBlock, m:MemoryBlock, pos:int=-1):MemoryBlock {
 
-			var l1:uint = v.len;
-			var l2:uint = m.len;
+			var l1:int = v.len;
+			var l2:int = m.len;
 
 			if ( l2 == 0 ) {
 				throw new ArgumentError();
@@ -408,7 +407,7 @@ package by.blooddy.crypto.math {
 
 				if ( l1 == 4 ) { // оба числа короткие
 
-					c2 = uint( li32( p2 ) );
+					c2 = li32( p2 );
 					if ( c2 == 1 ) {
 						return v;
 					} else {
@@ -476,7 +475,158 @@ package by.blooddy.crypto.math {
 		 * @return		v1 / v2
 		 */
 		private static function div$b(p1:int, l1:int, p2:int, l2:int, pos:int):MemoryBlock {
-			return new MemoryBlock( pos, 0 );
+
+			var scale:int = li16( p2 + l2 - 2 ) & 0xFFFF;
+			if ( !scale ) scale = li16( p2 + l2 - 4 ) & 0xFFFF;
+			scale = 0x10000 / ( scale + 1 ); // коэффициент нормализации
+			
+			var d:MemoryBlock;
+			var len:int;
+			var k:int;
+			if ( scale > 1 ) {
+				// Нормализация
+				d = mul$s( p1, l1, scale, pos );
+				p1 = d.pos;
+				l1 = d.len;
+				pos = p1 + l1;
+				si16( 0, pos );
+				pos += 2;
+				d = mul$s( p2, l2, scale, pos );
+				p2 = d.pos;
+				l2 = d.len;
+				pos = p2 + l2;
+			} else {
+				var mem:ByteArray = _DOMAIN.domainMemory;
+				mem.position = p1;
+				mem.readBytes( mem, pos, l1 );
+				p1 = pos;
+				pos += l1;
+				si16( 0, pos );
+				pos += 2;
+			}
+			
+			while ( li16( p1 + l1 - 2 ) == 0 ) l1 -= 2;
+			while ( li16( p2 + l2 - 2 ) == 0 ) l2 -= 2;
+			
+			len = l1 - l2;
+			
+			// резервируем запасной разряд
+			si32( 0, pos + len );
+			
+			var t1:uint, t2:int, t3:int;
+			var qGuess:int;				// догадка для частного и соответствующий остаток
+			var borrow:int, carry:int;	// переносы
+			
+			var c2:int = li16( p2 + l2 - 2 ) & 0xFFFF;
+			var c4:int = li16( p2 + l2 - 4 ) & 0xFFFF;
+			
+			// Главный цикл шагов деления. Каждая итерация дает очередную цифру частного.
+			var j:int = len;	// i – индекс текущей цифры v1
+			var i:int = l1;		// j - текущий сдвиг v2 относительно v1, используемый при вычитании,
+			                    //     по совместительству - индекс очередной цифры частного.
+			do {
+
+				t1 = li32( p1 + i - 2 );
+				t2 = c2;
+				
+				qGuess = t1 / t2;
+				k = t1 % t2;
+				
+				// Пока не будут выполнены условия (2) уменьшать частное.
+				while ( k < 0x10000 ) {
+					t2 = c4 * qGuess;
+					t1 = ( k << 16 ) + ( li16( p1 + i - 4 ) & 0xFFFF );
+					if ( ( t2 > t1 ) || ( qGuess == 0x10000 ) ) {
+						// условия не выполнены, уменьшить qGuess
+						// и досчитать новый остаток
+						--qGuess;
+						k += c2;
+					} else {
+						break;
+					}
+				}
+				
+				if ( qGuess ) {
+					
+					carry = 0;
+					borrow = 0;
+					
+					// Теперь qGuess - правильное частное или на единицу больше q
+					// Вычесть делитель v2, умноженный на qGuess из делимого v1,
+					// начиная с позиции vJ+i
+					k = 0;
+					do {
+						// получить в t1 цифру произведения v2*qGuess
+						t1 = ( li16( p2 + k ) & 0xFFFF ) * qGuess + carry;
+						carry = t1 >>> 16;
+						t1 -= carry << 16;
+						// Сразу же вычесть из v1
+						t3 = ( li16( p1 + k + j ) & 0xFFFF ) - t1 + borrow;
+						if ( t3 < 0 ) {
+							si16( t3 + 0x10000, p1 + k + j )
+							borrow = -1;
+						} else {
+							si16( t3, p1 + k + j )
+							borrow = 0;
+						}
+						k += 2;
+					} while ( k < l2 );
+					
+					if ( carry || borrow ) {
+						// возможно, умноженое на qGuess число v2 удлинилось.
+						// Если это так, то после умножения остался
+						// неиспользованный перенос carry. Вычесть и его тоже.
+						t3 = ( li16( p1 + k + j ) & 0xFFFF ) - carry + borrow;
+						if ( t3 < 0 ) {
+							si16( t3 + 0x10000, p1 + k + j );
+							borrow = -1;
+						} else {
+							si16( t3, p1 + k + j );
+							borrow = 0;
+						}
+					}
+					
+					// Прошло ли вычитание нормально ?
+					if ( borrow ) { // Нет, последний перенос при вычитании borrow = -1,
+						// значит, qGuess на единицу больше истинного частного
+						si16( qGuess - 1, pos + j );
+						// добавить одно, вычтенное сверх необходимого v2 к v1
+						carry = 0;
+						k = 0;
+						do {
+							t1 = ( li16( p1 + k + j ) & 0xFFFF ) + ( li16( p2 + k ) & 0xFFFF ) + carry;
+							if ( t1 >= 0x10000 ) {
+								si16( t1 - 0x10000, p1 + k + j );
+								carry = 1;
+							} else {
+								si16( t1, p1 + k + j );
+								carry = 0;
+							}
+							k += 2;
+						} while ( k < l2 );
+						si16( ( li16( p1 + k + j ) & 0xFFFF ) + carry - 0x10000, p1 + k + j );
+					} else { // Да, частное угадано правильно
+						si16( qGuess, pos + j );
+					}
+					
+				} else { // частное равно 0
+					si16( 0, pos + j );
+				}
+				
+				j -= 2;
+				i -= 2;
+				
+			} while ( j >= 0 );
+			
+			len += 2;
+			if ( len & 3 ) len += 2;
+			
+			while ( l1 > 0 && li32( pos + len - 4 ) == 0 ) {
+				len -= 4;
+			}
+			
+			return new MemoryBlock( pos, len );
+
 		}
 
 		/**

@@ -327,9 +327,6 @@ package by.blooddy.crypto.math {
 		
 		[Test( dataProvider="$divAndMod" )]
 		public function div(v:String, m:String, result:String, rest:String):void {
-			if ( m == '1' ) {
-				trace( m );
-			}
 			var R:String = BigInteger.fromString( v, 16 ).div( BigInteger.fromString( m, 16 ) ).toString( 16 );
 			Assert.assertEquals(
 				R.toLowerCase(), result.toLowerCase()
