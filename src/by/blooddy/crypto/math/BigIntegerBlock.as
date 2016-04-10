@@ -394,7 +394,7 @@ package by.blooddy.crypto.math {
 			if ( l2 == 0 ) {
 				throw new ArgumentError();
 			} else if ( l2 > l1 ) {
-				return new MemoryBlock( 0, 0 );
+				return new MemoryBlock();
 			} else {
 
 				var p1:int = v.pos;
@@ -416,11 +416,11 @@ package by.blooddy.crypto.math {
 							si32( 1, pos );
 							return new MemoryBlock( pos, 4 );
 						} else if ( c2 > c1 ) {
-							return new MemoryBlock( pos, 0 );
+							return new MemoryBlock();
 						} else {
 							c1 /= c2;
 							if ( c1 == 0 ) {
-								return new MemoryBlock( pos, 0 );
+								return new MemoryBlock();
 							} else {
 								si32( c1, pos );
 								return new MemoryBlock( pos, 4 );
@@ -650,21 +650,23 @@ package by.blooddy.crypto.math {
 				var c1:uint;
 				var c2:uint;
 				
-				if ( l1 == 4 ) { // первое число короткое
+				if ( l1 == 4 ) { // оба числа короткие
 
 					c2 = li32( p2 );
 					if ( c2 == 1 ) {
-						return new MemoryBlock( 0, 0 );
+						return new MemoryBlock();
 					} else {
 						c1 = li32( p1 );
 						if ( c1 == c2 ) {
+							return new MemoryBlock();
+						} else if ( c2 > c1 ) {
 							return v;
 						} else {
 							c1 %= c2;
 							if ( c1 == 0 ) {
-								return new MemoryBlock( 0, 0 );
+								return new MemoryBlock();
 							} else {
-								si32( pos, c1 );
+								si32( c1, pos );
 								return new MemoryBlock( pos, 4 );
 							}
 						}
@@ -674,13 +676,13 @@ package by.blooddy.crypto.math {
 				
 					c2 = li16( p2 ) & 0xFFFF;
 					if ( c2 == 1 ) {
-						return new MemoryBlock( 0, 0 );
+						return new MemoryBlock();
 					} else {
-						c1 = mod$s( v, c2 );
+						c1 = mod$s( v.pos, v.len, c2 );
 						if ( c1 == 0 ) {
-							return new MemoryBlock( 0, 0 );
+							return new MemoryBlock();
 						} else {
-							si32( pos, c1 );
+							si32( c1, pos );
 							return new MemoryBlock( pos, 4 );
 						}
 					}
@@ -698,15 +700,13 @@ package by.blooddy.crypto.math {
 		/**
 		 * @internal
 		 * @return		v % m;
-		 * @throws		ArgumentError	m == 0
 		 */
-		private static function mod$s(v:MemoryBlock, m:uint):uint {
+		private static function mod$s(p1:int, l1:int, m:int):int {
 			var c:int = 0;
-			var p:int = v.pos;
-			var i:int = v.len;
+			var i:int = l1;
 			do {
 				i -= 2;
-				c = ( li16( p + i ) | ( c << 16 ) ) % m;
+				c = ( ( li16( p1 + i ) & 0xFFFF ) | ( c << 16 ) ) % m;
 			} while ( i > 0 );
 			return c;
 		}
@@ -714,7 +714,6 @@ package by.blooddy.crypto.math {
 		/**
 		 * @internal
 		 * @return		v % m;
-		 * @throws		ArgumentError	m == 0
 		 */
 		private static function mod$b(p1:int, l1:int, p2:int, l2:int, pos:int):MemoryBlock {
 			
@@ -759,7 +758,7 @@ package by.blooddy.crypto.math {
 			// Главный цикл шагов деления. Каждая итерация дает очередную цифру частного.
 			var j:int = l1 - l2;	// i – индекс текущей цифры v1
 			var i:int = l1;			// j - текущий сдвиг v2 относительно v1, используемый при вычитании,
-			//     по совместительству - индекс очередной цифры частного.
+									//     по совместительству - индекс очередной цифры частного.
 			do {
 				t1 = li32( p1 + i - 2 )
 				t2 = c2;

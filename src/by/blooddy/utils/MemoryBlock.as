@@ -25,7 +25,7 @@ package by.blooddy.utils {
 		/**
 		 * Constructor
 		 */
-		public function MemoryBlock(pos:uint, len:uint) {
+		public function MemoryBlock(pos:int=0, len:int=0) {
 			super();
 			this.pos = pos;
 			this.len = len;

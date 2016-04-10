@@ -678,8 +678,8 @@ package by.blooddy.crypto.math {
 				
 				mem.writeBytes( this._bytes );
 				mem.writeBytes(    v._bytes );
-				
 				mem.length += l1 + l2 + Math.max( l1, l2 ) + 4;
+
 				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 				
 				_DOMAIN.domainMemory = mem;
@@ -850,8 +850,8 @@ package by.blooddy.crypto.math {
 				
 				mem.writeBytes( this._bytes );
 				mem.writeBytes(    m._bytes );
-				
-				mem.length += l1 * 3 + ( l2 << 1 ) + 8;
+				mem.length += ( l1 << 1 ) + l2 + 8;
+
 				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 				
 				_DOMAIN.domainMemory = mem;
@@ -890,7 +890,11 @@ package by.blooddy.crypto.math {
 		 * @throws		ArgumentError	m == 0
 		 */
 		public function divAndMod(m:BigInteger):Vector.<BigInteger> {
-			throw new IllegalOperationError();
+			     if (    !m._bytes ) throw new ArgumentError();
+			else if ( !this._bytes ) return new <BigInteger>[ ZERO, ZERO ];
+			else {
+				throw new IllegalOperationError();
+			}
 		}
 
 		/**

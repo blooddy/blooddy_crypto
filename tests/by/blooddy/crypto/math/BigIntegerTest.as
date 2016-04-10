@@ -333,6 +333,14 @@ package by.blooddy.crypto.math {
 			);
 		}
 		
+		[Test( dataProvider="$divAndMod" )]
+		public function mod(v:String, m:String, result:String, rest:String):void {
+			var R:String = BigInteger.fromString( v, 16 ).mod( BigInteger.fromString( m, 16 ) ).toString( 16 );
+			Assert.assertEquals(
+				R.toLowerCase(), rest.toLowerCase()
+			);
+		}
+
 	}
 	
 }
