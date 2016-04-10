@@ -245,11 +245,11 @@ package by.blooddy.crypto.math {
 					} else {
 
 						if ( l1 == 2 ) {
-							c1 = ( li16( p1 ) & 0xFFFF );
+							c1 = li16( p1 ) & 0xFFFF;
 							p1 = p2;
 							l1 = l2;
 						} else {
-							c1 = ( li16( p2 ) & 0xFFFF );
+							c1 = li16( p2 ) & 0xFFFF;
 						}
 
 						return mul$s( p1, l1, c1, pos );
@@ -438,7 +438,7 @@ package by.blooddy.crypto.math {
 							return div$s( p1, l1, c2, pos );
 						}
 					} else {
-						return div$b( p1, l1, p2, l2, pos );
+						return divAndMod$b( p1, l1, p2, l2, pos, 1 )[ 0 ];
 					}
 
 				}
@@ -470,165 +470,6 @@ package by.blooddy.crypto.math {
 
 		}
 		
-		/**
-		 * @internal
-		 * @return		v1 / v2
-		 */
-		private static function div$b(p1:int, l1:int, p2:int, l2:int, pos:int):MemoryBlock {
-
-			var scale:int = li16( p2 + l2 - 2 ) & 0xFFFF;
-			if ( !scale ) scale = li16( p2 + l2 - 4 ) & 0xFFFF;
-			scale = 0x10000 / ( scale + 1 ); // коэффициент нормализации
-			
-			var d:MemoryBlock;
-			var len:int;
-			var k:int;
-			if ( scale > 1 ) {
-				// Нормализация
-				d = mul$s( p1, l1, scale, pos );
-				p1 = d.pos;
-				l1 = d.len;
-				pos = p1 + l1;
-				si16( 0, pos );
-				pos += 2;
-				d = mul$s( p2, l2, scale, pos );
-				p2 = d.pos;
-				l2 = d.len;
-				pos = p2 + l2;
-			} else {
-				var mem:ByteArray = _DOMAIN.domainMemory;
-				mem.position = p1;
-				mem.readBytes( mem, pos, l1 );
-				p1 = pos;
-				pos += l1;
-				si16( 0, pos );
-				pos += 2;
-			}
-			
-			while ( li16( p1 + l1 - 2 ) == 0 ) l1 -= 2;
-			while ( li16( p2 + l2 - 2 ) == 0 ) l2 -= 2;
-			
-			len = l1 - l2;
-			
-			// резервируем запасной разряд
-			si32( 0, pos + len );
-			
-			var t1:uint, t2:int, t3:int;
-			var qGuess:int;				// догадка для частного и соответствующий остаток
-			var borrow:int, carry:int;	// переносы
-			
-			var c2:int = li16( p2 + l2 - 2 ) & 0xFFFF;
-			var c4:int = li16( p2 + l2 - 4 ) & 0xFFFF;
-			
-			// Главный цикл шагов деления. Каждая итерация дает очередную цифру частного.
-			var j:int = len;	// i – индекс текущей цифры v1
-			var i:int = l1;		// j - текущий сдвиг v2 относительно v1, используемый при вычитании,
-			                    //     по совместительству - индекс очередной цифры частного.
-			do {
-
-				t1 = li32( p1 + i - 2 );
-				t2 = c2;
-				
-				qGuess = t1 / t2;
-				k = t1 % t2;
-				
-				// Пока не будут выполнены условия (2) уменьшать частное.
-				while ( k < 0x10000 ) {
-					t2 = c4 * qGuess;
-					t1 = ( k << 16 ) + ( li16( p1 + i - 4 ) & 0xFFFF );
-					if ( ( t2 > t1 ) || ( qGuess == 0x10000 ) ) {
-						// условия не выполнены, уменьшить qGuess
-						// и досчитать новый остаток
-						--qGuess;
-						k += c2;
-					} else {
-						break;
-					}
-				}
-				
-				if ( qGuess ) {
-					
-					carry = 0;
-					borrow = 0;
-					
-					// Теперь qGuess - правильное частное или на единицу больше q
-					// Вычесть делитель v2, умноженный на qGuess из делимого v1,
-					// начиная с позиции vJ+i
-					k = 0;
-					do {
-						// получить в t1 цифру произведения v2*qGuess
-						t1 = ( li16( p2 + k ) & 0xFFFF ) * qGuess + carry;
-						carry = t1 >>> 16;
-						t1 -= carry << 16;
-						// Сразу же вычесть из v1
-						t3 = ( li16( p1 + k + j ) & 0xFFFF ) - t1 + borrow;
-						if ( t3 < 0 ) {
-							si16( t3 + 0x10000, p1 + k + j )
-							borrow = -1;
-						} else {
-							si16( t3, p1 + k + j )
-							borrow = 0;
-						}
-						k += 2;
-					} while ( k < l2 );
-					
-					if ( carry || borrow ) {
-						// возможно, умноженое на qGuess число v2 удлинилось.
-						// Если это так, то после умножения остался
-						// неиспользованный перенос carry. Вычесть и его тоже.
-						t3 = ( li16( p1 + k + j ) & 0xFFFF ) - carry + borrow;
-						if ( t3 < 0 ) {
-							si16( t3 + 0x10000, p1 + k + j );
-							borrow = -1;
-						} else {
-							si16( t3, p1 + k + j );
-							borrow = 0;
-						}
-					}
-					
-					// Прошло ли вычитание нормально ?
-					if ( borrow ) { // Нет, последний перенос при вычитании borrow = -1,
-						// значит, qGuess на единицу больше истинного частного
-						si16( qGuess - 1, pos + j );
-						// добавить одно, вычтенное сверх необходимого v2 к v1
-						carry = 0;
-						k = 0;
-						do {
-							t1 = ( li16( p1 + k + j ) & 0xFFFF ) + ( li16( p2 + k ) & 0xFFFF ) + carry;
-							if ( t1 >= 0x10000 ) {
-								si16( t1 - 0x10000, p1 + k + j );
-								carry = 1;
-							} else {
-								si16( t1, p1 + k + j );
-								carry = 0;
-							}
-							k += 2;
-						} while ( k < l2 );
-						si16( ( li16( p1 + k + j ) & 0xFFFF ) + carry - 0x10000, p1 + k + j );
-					} else { // Да, частное угадано правильно
-						si16( qGuess, pos + j );
-					}
-					
-				} else { // частное равно 0
-					si16( 0, pos + j );
-				}
-				
-				j -= 2;
-				i -= 2;
-				
-			} while ( j >= 0 );
-			
-			len += 2;
-			if ( len & 3 ) len += 2;
-			
-			while ( l1 > 0 && li32( pos + len - 4 ) == 0 ) {
-				len -= 4;
-			}
-			
-			return new MemoryBlock( pos, len );
-
-		}
-
 		/**
 		 * @return		v % m;
 		 * @throws		ArgumentError	m == 0
@@ -689,7 +530,7 @@ package by.blooddy.crypto.math {
 					
 				} else {
 					
-					return mod$b( v.pos, v.len, m.pos, m.len, pos );
+					return divAndMod$b( v.pos, v.len, m.pos, m.len, pos, 2 )[ 1 ];
 					
 				}
 
@@ -711,156 +552,6 @@ package by.blooddy.crypto.math {
 			return c;
 		}
 		
-		/**
-		 * @internal
-		 * @return		v % m;
-		 */
-		private static function mod$b(p1:int, l1:int, p2:int, l2:int, pos:int):MemoryBlock {
-			
-			var scale:int = li16( p2 + l2 - 2 ) & 0xFFFF;
-			if ( !scale ) scale = li16( p2 + l2 - 4 ) & 0xFFFF;
-			scale = 0x10000 / ( scale + 1 ); // коэффициент нормализации
-			
-			var d:MemoryBlock;
-			var k:uint;
-			if ( scale > 1 ) {
-				// Нормализация
-				d = mul$s( p1, l1, scale, pos );
-				p1 = d.pos;
-				l1 = d.len;
-				pos = p1 + l1;
-				si16( 0, pos );
-				pos += 2;
-				d = mul$s( p2, l2, scale, pos );
-				p2 = d.pos;
-				l2 = d.len;
-				pos = p2 + l2;
-			} else {
-				var mem:ByteArray = _DOMAIN.domainMemory;
-				mem.position = p1;
-				mem.readBytes( mem, pos, l1 );
-				p1 = pos;
-				pos += l1;
-				si16( 0, pos );
-				pos += 2;
-			}
-			
-			while ( li16( p1 + l1 - 2 ) == 0 ) l1 -= 2;
-			while ( li16( p2 + l2 - 2 ) == 0 ) l2 -= 2;
-			
-			var t1:uint, t2:uint, t3:int;
-			var qGuess:int;				// догадка для частного и соответствующий остаток
-			var borrow:int, carry:int;	// переносы
-			
-			var c2:uint = li16( p2 + l2 - 2 ) & 0xFFFF;
-			var c4:uint = li16( p2 + l2 - 4 ) & 0xFFFF;
-			
-			// Главный цикл шагов деления. Каждая итерация дает очередную цифру частного.
-			var j:int = l1 - l2;	// i – индекс текущей цифры v1
-			var i:int = l1;			// j - текущий сдвиг v2 относительно v1, используемый при вычитании,
-									//     по совместительству - индекс очередной цифры частного.
-			do {
-
-				t1 = li32( p1 + i - 2 )
-				t2 = c2;
-				
-				qGuess = t1 / t2;
-				k = t1 % t2;
-				
-				// Пока не будут выполнены условия (2) уменьшать частное.
-				while ( k < 0x10000 ) {
-					t2 = c4 * qGuess;
-					t1 = ( k << 16 ) + ( li16( p1 + i - 4 ) & 0xFFFF );
-					if ( ( t2 > t1 ) || ( qGuess == 0x10000 ) ) {
-						// условия не выполнены, уменьшить qGuess
-						// и досчитать новый остаток
-						--qGuess;
-						k += c2;
-					} else {
-						break;
-					}
-				}
-				
-				if ( qGuess ) {
-					
-					carry = 0;
-					borrow = 0;
-					
-					// Теперь qGuess - правильное частное или на единицу больше q
-					// Вычесть делитель v2, умноженный на qGuess из делимого v1,
-					// начиная с позиции vJ+i
-					k = 0;
-					do {
-						// получить в t1 цифру произведения v2*qGuess
-						t1 = ( li16( p2 + k ) & 0xFFFF ) * qGuess + carry;
-						carry = t1 >>> 16;
-						t1 -= carry << 16;
-						// Сразу же вычесть из v1
-						t3 = ( li16( p1 + k + j ) & 0xFFFF ) - t1 + borrow;
-						if ( t3 < 0 ) {
-							si16( t3 + 0x10000, p1 + k + j );
-							borrow = -1;
-						} else {
-							si16( t3, p1 + k + j );
-							borrow = 0;
-						}
-						k += 2;
-					} while ( k < l2 );
-					
-					if ( carry || borrow ) {
-						// возможно, умноженое на qGuess число v2 удлинилось.
-						// Если это так, то после умножения остался
-						// неиспользованный перенос carry. Вычесть и его тоже.
-						t3 = ( li16( p1 + k + j ) & 0xFFFF ) - carry + borrow;
-						if ( t3 < 0 ) {
-							si16( t3 + 0x10000, p1 + k + j );
-							borrow = -1;
-						} else {
-							si16( t3, p1 + k + j );
-							borrow = 0;
-						}
-					}
-					
-					// Прошло ли вычитание нормально ?
-					if ( borrow ) { // Нет, последний перенос при вычитании borrow = -1,
-						// добавить одно, вычтенное сверх необходимого v2 к v1
-						carry = 0;
-						k = 0;
-						do {
-							t1 = ( li16( p1 + k + j ) & 0xFFFF ) + ( li16( p2 + k ) & 0xFFFF ) + carry;
-							if ( t1 >= 0x10000 ) {
-								si16( t1 - 0x10000, p1 + k + j );
-								carry = 1;
-							} else {
-								si16( t1, p1 + k + j );
-								carry = 0;
-							}
-							k += 2;
-						} while ( k < l2 );
-						si16( ( li16( p1 + k + j ) & 0xFFFF ) + carry - 0x10000, p1 + k + j );
-					}
-					
-				}
-				
-				j -= 2;
-				i -= 2;
-				
-			} while ( j >= 0 );
-			
-			if ( l1 & 3 ) l1 += 2;
-			
-			while ( l1 > 0 && li32( p1 + l1 - 4 ) == 0 ) {
-				l1 -= 4;
-			}
-
-			if ( scale > 1 && l1 > 0 ) {
-				return div$s( p1, l1, scale, p1 + l1 );
-			} else {
-				return new MemoryBlock( p1, l1 );
-			}
-			
-		}
-
 		/**
 		 * @return		[ v / m, v % m ]
 		 * @throws		ArgumentError	m == 0
@@ -918,7 +609,7 @@ package by.blooddy.crypto.math {
 						return divAndMod$s( p1, l1, c2, pos );
 					}
 				} else {
-					return divAndMod$b( p1, l1, p2, l2, pos );
+					return divAndMod$b( p1, l1, p2, l2, pos, 3 );
 				}
 			}
 		}
@@ -961,14 +652,16 @@ package by.blooddy.crypto.math {
 		 * @internal
 		 * @reutrn		[ v1 / v2, v1 % v2 ]
 		 */
-		private static function divAndMod$b(p1:int, l1:int, p2:int, l2:int, pos:int):Vector.<MemoryBlock> {
+		private static function divAndMod$b(p1:int, l1:int, p2:int, l2:int, pos:int, flag:int):Vector.<MemoryBlock> {
 
-			var scale:uint = li16( p2 + l2 - 2 ) & 0xFFFF;
+			var scale:int = li16( p2 + l2 - 2 ) & 0xFFFF;
 			if ( !scale ) scale = li16( p2 + l2 - 4 ) & 0xFFFF;
 			scale = 0x10000 / ( scale + 1 ); // коэффициент нормализации
 			
 			var d:MemoryBlock;
-			var k:uint;
+			var r:MemoryBlock;
+
+			var k:int;
 			if ( scale > 1 ) {
 				// Нормализация
 				d = mul$s( p1, l1, scale, pos );
@@ -999,12 +692,12 @@ package by.blooddy.crypto.math {
 			// резервируем запасной разряд
 			si32( 0, pos + len );
 			
-			var t1:uint, t2:uint, t3:int;
+			var t1:uint, t2:int, t3:int;
 			var qGuess:int;				// догадка для частного и соответствующий остаток
 			var borrow:int, carry:int;	// переносы
 			
-			var c2:uint = li16( p2 + l2 - 2 ) & 0xFFFF;
-			var c4:uint = li16( p2 + l2 - 4 ) & 0xFFFF;
+			var c2:int = li16( p2 + l2 - 2 ) & 0xFFFF;
+			var c4:int = li16( p2 + l2 - 4 ) & 0xFFFF;
 			
 			// Главный цикл шагов деления. Каждая итерация дает очередную цифру частного.
 			var j:int = len;	// i – индекс текущей цифры v1
@@ -1104,26 +797,29 @@ package by.blooddy.crypto.math {
 				
 			} while ( j >= 0 );
 			
-			if ( l1 & 3 ) l1 += 2;
-
-			while ( l1 > 0 && li32( p1 + l1 - 4 ) == 0 ) {
-				l1 -= 4;
+			if ( flag & 1 ) {
+				len += 2;
+				if ( len & 3 ) len += 2;
+				while ( len > 0 && li32( pos + len - 4 ) == 0 ) {
+					len -= 4;
+				}
+				d = new MemoryBlock( pos, len );
+				pos += len;
 			}
 
-			len += 2;
-			if ( len & 3 ) len += 2;
-			while ( len > 0 && li32( pos + len - 4 ) == 0 ) {
-				len -= 4;
+			if ( flag & 2 ) {
+				if ( l1 & 3 ) l1 += 2;
+				while ( l1 > 0 && li32( p1 + l1 - 4 ) == 0 ) {
+					l1 -= 4;
+				}
+				if ( scale > 1 && l1 > 0 ) {
+					r = div$s( p1, l1, scale, pos );
+				} else {
+					r = new MemoryBlock( p1, l1 );
+				}
 			}
-
-			d = new MemoryBlock( pos, len );
 			
-			pos += len;
-			if ( scale > 1 && l1 > 0 ) {
-				return new <MemoryBlock>[ d, div$s( p1, l1, scale, pos ) ];
-			} else {
-				return new <MemoryBlock>[ d, new MemoryBlock( p1, l1 ) ];
-			}
+			return new <MemoryBlock>[ d, r ];
 
 		}
 		
