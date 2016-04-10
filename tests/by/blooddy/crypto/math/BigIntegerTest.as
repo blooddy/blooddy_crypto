@@ -410,11 +410,30 @@ package by.blooddy.crypto.math {
 			[ '100000', 20, true ]
 		];
 		
-		[Test( order="1", dataProvider="$testBit" )]
+		[Test( dataProvider="$testBit" )]
 		public function testBit(v:String, n:uint, result:Boolean):void {
 			var R:Boolean = BigInteger.fromString( v ).testBit( n );
 			Assert.assertEquals(
 				R, result
+			);
+		}
+		
+		//----------------------------------
+		//  flipBit
+		//----------------------------------
+		
+		public static var $flipBit:Array = [
+			[ '00000000', 8, ( 0x00000000 ^ ( 1 << 8 ) ).toString( 16 ) ],
+			[ '00000100', 8, ( 0x00000100 ^ ( 1 << 8 ) ).toString( 16 ) ],
+			[ '00800000', 11, ( 0x00800000 ^ ( 1 << 11 ) ).toString( 16 ) ],
+			[ '00000800', 27, ( 0x00000800 ^ ( 1 << 27 ) ).toString( 16 ) ],
+		];
+		
+		[Test( dataProvider="$flipBit" )]
+		public function flipBit(v:String, n:uint, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v, 16 ).flipBit( n );
+			Assert.assertEquals(
+				R.toString( 16 ).toLowerCase(), result.toLowerCase()
 			);
 		}
 		

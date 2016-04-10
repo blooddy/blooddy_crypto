@@ -523,7 +523,37 @@ package by.blooddy.crypto.math {
 		 * @return		this ^ ( 1 << n )
 		 */
 		public function flipBit(n:uint):BigInteger {
-			throw new IllegalOperationError();
+
+			var bytes:ByteArray = new ByteArray();
+			bytes.length = s + 4 - ( s & 3 ); // заполняем ноликами
+
+			var s:uint = n >>> 3;
+			var k:uint = 1 << ( n & 7 );
+
+			if ( this._bytes ) {
+
+				bytes.writeBytes( this._bytes );
+				bytes[ s ] ^= k;
+				bytes.position -= 4;
+				while ( bytes.length > 0 && bytes.readInt() == 0 ) {
+					bytes.length -= 4;
+					bytes.position -= 4;
+				}
+				if ( bytes.length == 0 ) {
+					bytes = null;
+				}
+
+			} else {
+
+				bytes[ s ] = k;
+
+			}
+
+			var result:BigInteger = new BigInteger();
+			result._sign = this._sign;
+			result._bytes = bytes;
+			return result;
+
 		}
 		
 		/**
