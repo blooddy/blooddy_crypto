@@ -524,11 +524,11 @@ package by.blooddy.crypto.math {
 		 */
 		public function flipBit(n:uint):BigInteger {
 
-			var bytes:ByteArray = new ByteArray();
-			bytes.length = s + 4 - ( s & 3 ); // заполняем ноликами
-
 			var s:uint = n >>> 3;
 			var k:uint = 1 << ( n & 7 );
+			
+			var bytes:ByteArray = new ByteArray();
+			bytes.length = s + 4 - ( s & 3 ); // заполняем ноликами
 
 			if ( this._bytes ) {
 
@@ -560,7 +560,11 @@ package by.blooddy.crypto.math {
 		 * @return		this | ( 1 << n )
 		 */
 		public function setBit(n:uint):BigInteger {
-			throw new IllegalOperationError();
+			if ( this.testBit( n ) ) {
+				return this;
+			} else {
+				return this.flipBit( n );
+			}
 		}
 
 		/**

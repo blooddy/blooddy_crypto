@@ -437,6 +437,24 @@ package by.blooddy.crypto.math {
 			);
 		}
 		
+		//----------------------------------
+		//  setBit
+		//----------------------------------
+		
+		public static var $setBit:Array = [
+			[ '987654321', 9, '987654321' ],
+			[ 'FFFFFFFF111111', 256, '100000000000000000000000000000000000000000000000000FFFFFFFF111111' ],
+			[ '12345678', 2, '1234567C' ],
+		];
+		
+		[Test( dataProvider="$setBit" )]
+		public function setBit(v:String, n:uint, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v, 16 ).setBit( n );
+			Assert.assertEquals(
+				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+			);
+		}
+		
 	}
 	
 }
