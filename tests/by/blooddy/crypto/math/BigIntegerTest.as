@@ -377,6 +377,27 @@ package by.blooddy.crypto.math {
 			);
 		}
 		
+		//----------------------------------
+		//  testBit
+		//----------------------------------
+		
+		public static var $getBitLength:Array = [
+			[ '0', 0 ],
+			[ 'FF', 8 ],
+			[ '123', 9 ],
+			[ 'FF00123', 28 ],
+			[ '123F77F1F3F5F', 49 ],
+			[ 'FF00000000', 40 ]
+		];
+		
+		[Test( dataProvider="$getBitLength" )]
+		public function getBitLength(v:String, result:uint):void {
+			var R:uint = BigInteger.fromString( v, 16 ).getBitLength();
+			Assert.assertEquals(
+				R, result
+			);
+		}
+
 	}
 	
 }

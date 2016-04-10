@@ -304,6 +304,9 @@ package by.blooddy.crypto.math {
 			return this._sign < 0;
 		}
 
+		/**
+		 * @private
+		 */
 		private var _sign:int = 0;
 		
 		/**
@@ -319,10 +322,16 @@ package by.blooddy.crypto.math {
 		//
 		//--------------------------------------------------------------------------
 		
+		/**
+		 * @private
+		 */
 		public function valueOf():Number {
 			return this.toNumber();
 		}
 		
+		/**
+		 * @return		
+		 */
 		public function toNumber():Number {
 			if ( this._bytes ) {
 				var result:Number = 0;
@@ -341,6 +350,10 @@ package by.blooddy.crypto.math {
 			}
 		}
 		
+		/**
+		 * @param	radix	
+		 * @return			
+		 */
 		public function toString(radix:uint=10):String {
 			if ( radix < 2 || radix > 36 ) Error.throwError( RangeError, 1003, radix );
 			if ( this._bytes ) {
@@ -425,8 +438,72 @@ package by.blooddy.crypto.math {
 		//  Bits
 		//--------------------------------------------------------------------------
 		
-		public function getBitLength():uint {
-			throw new IllegalOperationError();
+		public function get bitLength():uint {
+			if ( this._bytes ) {
+				var len:int = this._bytes.length;
+				this._bytes.endian = Endian.LITTLE_ENDIAN;
+				this._bytes.position = len - 4;
+				var result:uint = ( this._bytes.position << 3 ) + _getBitLengthInt( this._bytes.readInt() );
+				if ( this._sign < 0 ) {
+					throw new IllegalOperationError();
+				}
+				return result;
+			} else {
+				return 0;
+			}
+		}
+		
+		/**
+		 * @private
+		 */
+		private static function _getBitLengthInt(v:uint):uint {
+			// Binary search
+			return	( v < 0x00008000
+				?	( v < 0x00000080
+					?	( v < 0x00000008
+						?	( v < 0x00000002
+							?	( v < 0x00000001 ?  0 :  1 )
+							:	( v < 0x00000004 ?  2 :  3 )
+						)
+						:	( v < 0x00000020
+							?	( v < 0x00000010 ?  4 :  5 )
+							:	( v < 0x00000040 ?  6 :  7 )
+						)
+					)
+					:	( v < 0x00000800
+						?	( v < 0x00000200
+							?	( v < 0x00000100 ?  8 :  9 )
+							:	( v < 0x00000400 ? 10 : 11 )
+						)
+						:	( v < 0x00002000
+							?	( v < 0x00001000 ? 12 : 13 )
+							:	( v < 0x00004000 ? 14 : 15 )
+						)
+					)
+				)
+				:	( v < 0x00800000
+					?	( v < 0x00080000
+						?	( v < 0x00020000
+							?	( v < 0x00010000 ? 16 : 17 )
+							:	( v < 0x00040000 ? 18 : 19 )
+						)
+						:	( v < 0x00200000
+							?	( v < 0x00100000 ? 20 : 21 )
+							:	( v < 0x00400000 ? 22 : 23 )
+						)
+					)
+					:	( v < 0x08000000
+						?	( v < 0x02000000
+							?	( v < 0x01000000 ? 24 : 25 )
+							:	( v < 0x04000000 ? 26 : 27 )
+						)
+						:	( v < 0x20000000
+							?	( v < 0x10000000 ? 28 : 29 )
+							:	( v < 0x40000000 ? 30 : ( v < 0x80000000 ? 31 : 32 ) )
+						)
+					)
+				)
+			);
 		}
 		
 		/**
@@ -1012,7 +1089,7 @@ package by.blooddy.crypto.math {
 		public function isProbablePrime(certainty:int):Boolean {
 			throw new IllegalOperationError();
 		}
-		
+
 	}
 	
 }
