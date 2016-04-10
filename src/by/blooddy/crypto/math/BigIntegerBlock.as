@@ -6,17 +6,14 @@
 
 package by.blooddy.crypto.math {
 
-	import flash.errors.IllegalOperationError;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
 	
 	import avm2.intrinsics.memory.li16;
 	import avm2.intrinsics.memory.li32;
-	import avm2.intrinsics.memory.li8;
 	import avm2.intrinsics.memory.si16;
 	import avm2.intrinsics.memory.si32;
-	import avm2.intrinsics.memory.sxi8;
 	
 	import by.blooddy.utils.MemoryBlock;
 	
@@ -234,7 +231,6 @@ package by.blooddy.crypto.math {
 				if ( pos < 0 ) pos = Math.max( p1, p2 ) + Math.max( l1, l2 );
 				
 				var i:int = 0;
-				var t:Number = 0;
 				
 				if ( l1 == 4 && li16( p1 + 2 ) == 0 ) l1 = 2;
 				if ( l2 == 4 && li16( p2 + 2 ) == 0 ) l2 = 2;
@@ -249,11 +245,11 @@ package by.blooddy.crypto.math {
 					} else {
 
 						if ( l1 == 2 ) {
-							c1 = uint( li16( p1 ) );
+							c1 = ( li16( p1 ) & 0xFFFF );
 							p1 = p2;
 							l1 = l2;
 						} else {
-							c1 = uint( li16( p2 ) );
+							c1 = ( li16( p2 ) & 0xFFFF );
 						}
 
 						return mul$s( p1, l1, c1, pos );
@@ -272,32 +268,124 @@ package by.blooddy.crypto.math {
 
 		/**
 		 * @internal
-		 * @return		v1 % v2;
+		 * @return		v1 * v2;
 		 */
 		private static function mul$s(p1:int, l1:int, v2:int, pos:int):MemoryBlock {
 			
-			var i:int = 0;
+			if ( v2 == 1 ) {
+					
+				return new MemoryBlock( p1, l1 );
+					
+			} else {
+
+				var i:int = 0;
+				var t:uint = 0;
+				
+				do {
+					t += li16( p1 + i ) * v2;
+					si16( t, pos + i );
+					t >>>= 16;
+					i += 2;
+				} while ( i < l1 );
+				
+				if ( t > 0 ) {
+					si32( t, pos + i );
+					i += 4;
+				}
+				
+				return new MemoryBlock( pos, i );
+				
+			}
+
+		}
+		
+		/**
+		 * @internal
+		 * @return		v1 * v2;
+		 */
+		private static function mul$b(p1:int, l1:int, p2:int, l2:int, pos:int):MemoryBlock {
+			
 			var t:uint = 0;
-			
-			do {
-				t += li16( p1 + i ) * v2;
-				si16( t, pos + i );
-				t >>>= 16;
+
+			var c1:int = li16( p1 ) & 0xFFFF;
+			var c2:int = li16( p2 ) & 0xFFFF;
+
+			var i:int = 2;
+			var j:int = 2;
+	
+			if ( c1 && c2 ) {
+
+				t = c1 * c2;
+				si16( t, pos );
+				j = 2;
+
+				while ( j < l2 ) {
+					t = ( t >>> 16 ) + c1 * ( li16( p2 + j ) & 0xFFFF );
+					si16( t, pos + j );
+					j += 2;
+				}
+				si16( t >>> 16, pos + l2 );
+
+			} else {
+
+				if ( c1 ) i = 0;
+				else {
+					while ( i < l1 && li16( p1 + i ) == 0 ) {
+						i += 2;
+					}
+				}
+
+				if ( c2 ) j = 0;
+				else {
+					while ( j < l2 && li16( p2 + j ) == 0 ) {
+						j += 2;
+					}
+				}
+
+				if ( j > i ) {
+					t = p1; p1 = p2; p2 = t;
+					t = l1; l1 = l2; l2 = t;
+					t = c1; c1 = c2; c2 = t;
+					i = j;
+				}
+
+				zeroFill( pos, pos + l2 + i );
+
+			}
+
+			var len:int;
+			while ( i < l1 ) {
+				c1 = li16( p1 + i ) & 0xFFFF;
+				if ( c1 ) {
+					len = pos + i;
+					t = c2 * c1 + ( li16( len ) & 0xFFFF );
+					si16( t, len );
+					j = 2;
+					while ( j < l2 ) {
+						len = pos + i + j;
+						t = ( t >>> 16 ) + c1 * ( li16( p2 + j ) & 0xFFFF ) + ( li16( len ) & 0xFFFF );
+						si16( t, len );
+						j += 2;
+					}
+					si16( t >>> 16, pos + i + j );
+				} else {
+					si16( 0, pos + i + l2 );
+				}
 				i += 2;
-			} while ( i < l1 );
-			
-			if ( t > 0 ) {
-				si32( t, pos + i );
-				i += 4;
+			}
+
+			len = i + j;
+			while ( len > 0 && li32( pos + len - 4 ) == 0 ) {
+				len -= 4;
 			}
 			
-			return new MemoryBlock( pos, i );
+			return new MemoryBlock( pos, len );
 		}
-		
-		private static function mul$b(p1:int, l1:int, p2:int, l2:int, pos:int):MemoryBlock {
-			return new MemoryBlock( 0, 0 );
-		}
-		
+
+		/**
+		 * @internal
+		 * @return		v1 / v2
+		 */
 		private static function div$s(p1:int, l1:int, v2:int, pos:int):MemoryBlock {
 			return new MemoryBlock( 0, 0 );
 		}
@@ -534,6 +622,24 @@ package by.blooddy.crypto.math {
 			
 		}
 
+		/**
+		 * @private
+		 */
+		private static function zeroFill(pos:int, end:int):void {
+			si32( 0, pos );
+			var mem:ByteArray = _DOMAIN.domainMemory;
+			mem.position = pos + 4;
+			if ( mem.position < end ) {
+				si32( 0, mem.position );
+				mem.position += 4;
+				var i:uint = 8;
+				while ( mem.position < end ) {
+					mem.writeBytes( mem, pos, i );
+					i <<= 1;
+				}
+			}
+		}
+		
 		//--------------------------------------------------------------------------
 		//
 		//  Constructor
