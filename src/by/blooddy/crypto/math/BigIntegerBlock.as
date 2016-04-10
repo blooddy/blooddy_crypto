@@ -975,9 +975,9 @@ package by.blooddy.crypto.math {
 		 */
 		private static function zeroFill(pos:int, end:int):void {
 			si32( 0, pos );
-			var mem:ByteArray = _DOMAIN.domainMemory;
-			mem.position = pos + 4;
-			if ( mem.position < end ) {
+			if ( pos + 4 < end ) {
+				var mem:ByteArray = _DOMAIN.domainMemory;
+				mem.position = pos + 4;
 				si32( 0, mem.position );
 				mem.position += 4;
 				var i:uint = 8;
