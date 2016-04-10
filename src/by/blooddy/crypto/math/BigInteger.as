@@ -893,7 +893,51 @@ package by.blooddy.crypto.math {
 			     if (    !m._bytes ) throw new ArgumentError();
 			else if ( !this._bytes ) return new <BigInteger>[ ZERO, ZERO ];
 			else {
-				throw new IllegalOperationError();
+				
+				var l1:uint = this._bytes.length;
+				var l2:uint =    m._bytes.length;
+				
+				var tmp:ByteArray = _DOMAIN.domainMemory;
+				
+				var mem:ByteArray = _TMP;
+				
+				mem.writeBytes( this._bytes );
+				mem.writeBytes(    m._bytes );
+				mem.length += l1 * 3 + 8;
+				
+				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+				
+				_DOMAIN.domainMemory = mem;
+				
+				var vv:Vector.<MemoryBlock> = BigIntegerBlock.divAndMod(
+					new MemoryBlock(  0, l1 ),
+					new MemoryBlock( l1, l2 ),
+					l1 + l2
+				);
+				
+				_DOMAIN.domainMemory = tmp;
+
+				var result:Vector.<BigInteger> = new Vector.<BigInteger>( 2, true );
+				var v:BigInteger;
+				
+				v = new BigInteger();
+				v._sign = this._sign * m._sign;
+				v._bytes = new ByteArray();
+				v._bytes.writeBytes( mem, vv[ 0 ].pos, vv[ 0 ].len );
+
+				result[ 0 ] = v;
+				
+				v = new BigInteger();
+				v._sign = this._sign * m._sign;
+				v._bytes = new ByteArray();
+				v._bytes.writeBytes( mem, vv[ 1 ].pos, vv[ 1 ].len );
+
+				result[ 1 ] = v;
+				
+				mem.length = 0;
+				
+				return result;
+			
 			}
 		}
 

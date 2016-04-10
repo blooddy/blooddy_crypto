@@ -861,6 +861,90 @@ package by.blooddy.crypto.math {
 		}
 
 		/**
+		 * @return		[ v / m, v % m ]
+		 * @throws		ArgumentError	m == 0
+		 */
+		public static function divAndMod(v:MemoryBlock, m:MemoryBlock, pos:int=-1):Vector.<MemoryBlock> {
+
+			var l1:int = v.len;
+			var l2:int = m.len;
+
+			if ( l2 == 0 ) {
+				throw new ArgumentError();
+			} else if ( l1 == 0 ) {
+				return new <MemoryBlock>[ v, v ];
+			} else if ( l2 > l1 ) {
+				return new <MemoryBlock>[ new MemoryBlock(), v ];
+			} else {
+
+				var p1:int = v.pos;
+				var p2:int = m.pos;
+
+				if ( pos < 0 ) pos = Math.max( p1, p2 ) + Math.max( l1, l2 );
+
+				var c1:uint;
+				var c2:uint;
+
+				if ( l1 == 4 ) { // оба числа короткие
+					c2 = li32( p2 );
+					if ( c2 == 1 ) {
+						return new <MemoryBlock>[ v, new MemoryBlock() ];
+					} else {
+						c1 = li32( p1 );
+						if ( c1 == c2 ) {
+							si32( 1, pos );
+							return new <MemoryBlock>[ new MemoryBlock( pos, 4 ), new MemoryBlock() ];
+						} else if ( c2 > c1 ) {
+							return new <MemoryBlock>[ new MemoryBlock(), v ];
+						} else {
+							si32( c1 / c2, pos );
+							var d:MemoryBlock = new MemoryBlock( pos, 4 );
+							pos += 4;
+							c1 %= c2;
+							if ( c1 == 0 ) {
+								return new <MemoryBlock>[ d, new MemoryBlock() ];
+							} else {
+								si32( c1, pos );
+								return new <MemoryBlock>[ d, new MemoryBlock( pos, 4 ) ];
+							}
+						}
+					}
+				} else if ( l2 == 4 && li16( p2 + 2 ) == 0 ) { // второе число короткое
+					c2 = li16( p2 );
+					if ( c2 == 1 ) {
+						return new <MemoryBlock>[ v, new MemoryBlock() ];
+					} else {
+						return divAndMod$s( p1, l1, c2, pos );
+					}
+				} else {
+					return divAndMod$b( p1, l1, p2, l2, pos );
+				}
+			}
+		}
+		
+		/**
+		 * @internal
+		 * @reutrn		[ v1 / v2, v1 % v2 ]
+		 */
+		private static function divAndMod$s(p1:int, l1:int, v2:uint, pos:int):Vector.<MemoryBlock> {
+			return new <MemoryBlock>[ new MemoryBlock(), new MemoryBlock() ];
+		}
+		
+		/**
+		 * @internal
+		 * @reutrn		[ v1 / v2, v1 % v2 ]
+		 */
+		private static function divAndMod$b(p1:int, l1:int, p2:int, l2:int, pos:int):Vector.<MemoryBlock> {
+			return new <MemoryBlock>[ new MemoryBlock(), new MemoryBlock() ];
+		}
+		
+		//--------------------------------------------------------------------------
+		//
+		//  Private class methods
+		//
+		//--------------------------------------------------------------------------
+		
+		/**
 		 * @private
 		 */
 		private static function zeroFill(pos:int, end:int):void {

@@ -341,6 +341,15 @@ package by.blooddy.crypto.math {
 			);
 		}
 
+		[Test( dataProvider="$divAndMod" )]
+		public function divAndMod(v:String, m:String, result:String, rest:String):void {
+			var R:Vector.<BigInteger> = BigInteger.fromString( v, 16 ).divAndMod( BigInteger.fromString( m, 16 ) );
+			Assert.assertEquals(
+				[ R[ 0 ].toString( 16 ), R[ 1 ].toString( 16 ) ].join( ',' ).toString().toLowerCase(),
+				[ result, rest ].join( ',' ).toLowerCase()
+			);
+		}
+
 	}
 	
 }
