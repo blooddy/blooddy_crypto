@@ -383,6 +383,13 @@ package by.blooddy.crypto.math {
 		}
 
 		/**
+		 * @return		v * v
+		 */
+		private static function sqr$(p:int, l:int, pos:int):MemoryBlock {
+			return null;
+		}
+		
+		/**
 		 * @return		v / m
 		 * @throws		ArgumentError	m == 0
 		 */
@@ -823,6 +830,91 @@ package by.blooddy.crypto.math {
 
 		}
 		
+		/**
+		 * @return		pow( v, e )
+		 */
+		public static function pow(v:MemoryBlock, e:uint, pos:int=-1):MemoryBlock {
+			
+			var p:int = v.pos;
+			var l:int = v.len;
+			
+			if ( pos < 0 ) pos = p + l;
+			
+			if ( e == 0 ) {
+				si32( 1, pos );
+				return new MemoryBlock( pos, 4 );
+			} else if ( l == 0 || e == 1 ) {
+				return v;
+			} else {
+				
+				var c:uint = li32( p );
+				var r:uint = 1;
+
+				var d:MemoryBlock;
+
+				if ( l == 4 && c < 0x10000 ) { // исходное число достаточно коротко
+					do {
+						if ( e & 1 ) {
+							r *= c;
+						}
+						e >>>= 1;
+						c *= c;
+					} while ( e > 0 && c < 0x10000 );
+					if ( e > 0 ) { // если результат не достигнут, то запишим временные значения
+						si32( c, pos );
+						l = 4;
+						p = pos;
+						v = new MemoryBlock( pos, l );
+						pos += l;
+						if ( r >= 0x10000 ) { // запишим результат только если он привысит допустимый лимит
+							si32( r, pos );
+							d = new MemoryBlock( pos, 4 );
+							pos += 4;
+						}
+					}
+				}
+				// если временный результат короткий, используем сокращённый алгоритм пока он не удлиннится
+				while ( !d && e > 0 ) {
+					if ( e & 1 ) {
+						if ( r == 1 ) {
+							d = v;
+						} else {
+							d = mul$s( p, l, r, pos );
+							pos += d.len;
+						}
+					}
+					e >>>= 1;
+					if ( e > 0 ) {
+						v = sqr$( p, l, pos );
+						p = v.pos;
+						l = v.len;
+						pos = p + ( l << 1 );
+					}
+				}
+				if ( !d ) {
+					si32( r, pos );
+					d = new MemoryBlock( pos, 4 );
+					pos += 4;
+				}
+				// и результат и промежуточное значение очень длинные
+				while ( e > 0 ) {
+					if ( e & 1 ) {
+						d = mul$b( p, l, d.pos, d.len, pos );
+						pos = d.pos + d.len;
+					}
+					e >>>= 1;
+					if ( e > 0 ) {
+						v = sqr$( p, l, pos );
+						p = v.pos;
+						l = v.len;
+						pos = p + ( l << 1 );
+					}
+				}
+				return d;
+			}
+			
+		}
+
 		//--------------------------------------------------------------------------
 		//
 		//  Private class methods

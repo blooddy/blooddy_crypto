@@ -952,8 +952,43 @@ package by.blooddy.crypto.math {
 		/**
 		 * @return		pow( this, e )
 		 */
-		public function powInt(e:uint):BigInteger {
-			throw new IllegalOperationError();
+		public function pow(e:uint):BigInteger {
+			     if ( !this._bytes ) return ZERO;
+			else if ( e == 0 ) return ONE;
+			else if ( e == 1 ) return this;
+			else {
+				
+				var l1:int = this._bytes.length;
+				
+				var tmp:ByteArray = _DOMAIN.domainMemory;
+				
+				var mem:ByteArray = _TMP;
+				
+				mem.writeBytes( this._bytes );
+				mem.length += Math.pow( l1, e ) << 1;
+				
+				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+
+				_DOMAIN.domainMemory = mem;
+				
+				var vr:MemoryBlock = BigIntegerBlock.pow(
+					new MemoryBlock( 0, l1 ),
+					e,
+					l1
+				);
+				
+				_DOMAIN.domainMemory = tmp;
+				
+				var result:BigInteger = new BigInteger();
+				result._sign = ( e & 1 ? this._sign : 1 );
+				result._bytes = new ByteArray();
+				result._bytes.writeBytes( mem, vr.pos, vr.len );
+
+				mem.length = 0;
+				
+				return result;
+				
+			}
 		}
 		
 		/**
