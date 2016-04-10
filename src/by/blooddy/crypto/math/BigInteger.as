@@ -696,7 +696,8 @@ package by.blooddy.crypto.math {
 					
 					result = new BigInteger();
 					result._sign = this._sign;
-					result._bytes = vr.get();
+					result._bytes = new ByteArray();
+					result._bytes.writeBytes( mem, vr.pos, vr.len );
 					
 				} else {
 					
@@ -713,7 +714,8 @@ package by.blooddy.crypto.math {
 							vr = BigIntegerBlock.sub( v2, v1, l1 + l2 );
 							result._sign = v._sign;
 						}
-						result._bytes = vr.get();
+						result._bytes = new ByteArray();
+						result._bytes.writeBytes( mem, vr.pos, vr.len );
 
 					}
 					
@@ -763,11 +765,12 @@ package by.blooddy.crypto.math {
 					l1 + l2
 				);
 				
+				_DOMAIN.domainMemory = tmp;
+
 				var result:BigInteger = new BigInteger();
 				result._sign = this._sign * v._sign;
-				result._bytes = vr.get();
-
-				_DOMAIN.domainMemory = tmp;
+				result._bytes = new ByteArray();
+				result._bytes.writeBytes( mem, vr.pos, vr.len );
 
 				mem.length = 0;
 				
@@ -806,12 +809,15 @@ package by.blooddy.crypto.math {
 					l1 + l2
 				);
 				
+				_DOMAIN.domainMemory = tmp;
+				
 				var result:BigInteger;
 				if ( vr.len ) {
 
 					result = new BigInteger();
 					result._sign = this._sign * m._sign;
-					result._bytes = vr.get();
+					result._bytes = new ByteArray();
+					result._bytes.writeBytes( mem, vr.pos, vr.len );
 					
 				} else {
 					
@@ -819,8 +825,6 @@ package by.blooddy.crypto.math {
 					
 				}
 
-				_DOMAIN.domainMemory = tmp;
-				
 				mem.length = 0;
 				
 				return result;
@@ -850,18 +854,23 @@ package by.blooddy.crypto.math {
 				mem.length += l1 * 3 + ( l2 << 1 ) + 8;
 				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 				
+				_DOMAIN.domainMemory = mem;
+				
 				var vr:MemoryBlock = BigIntegerBlock.mod(
 					new MemoryBlock(  0, l1 ),
 					new MemoryBlock( l1, l2 ),
 					l1 + l2
 				);
 
+				_DOMAIN.domainMemory = tmp;
+				
 				var result:BigInteger;
 				if ( vr.len ) {
 
 					result = new BigInteger();
 					result._sign = this._sign;
-					result._bytes = vr.get();
+					result._bytes = new ByteArray();
+					result._bytes.writeBytes( mem, vr.pos, vr.len );
 
 				} else {
 				

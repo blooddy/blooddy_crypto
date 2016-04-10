@@ -5,9 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package by.blooddy.utils {
-	import flash.system.ApplicationDomain;
-	import flash.utils.ByteArray;
-	
+
 	[ExcludeClass]
 	/**
 	 * @author					BlooDHounD
@@ -17,17 +15,6 @@ package by.blooddy.utils {
 	 * @created					03.03.2011 13:24:51
 	 */
 	public class MemoryBlock {
-		
-		//--------------------------------------------------------------------------
-		//
-		//  Class variables
-		//
-		//--------------------------------------------------------------------------
-
-		/**
-		 * @private
-		 */
-		private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
 		
 		//--------------------------------------------------------------------------
 		//
@@ -65,12 +52,6 @@ package by.blooddy.utils {
 		//  Methods
 		//
 		//--------------------------------------------------------------------------
-		
-		public function get():ByteArray {
-			var bytes:ByteArray = new ByteArray();
-			bytes.writeBytes( _DOMAIN.domainMemory, this.pos, this.len );
-			return bytes;
-		}
 		
 		public function toString():String {
 			return '[' + pos + ',' + len + ']';
