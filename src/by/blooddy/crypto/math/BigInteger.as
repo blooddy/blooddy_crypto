@@ -349,7 +349,7 @@ package by.blooddy.crypto.math {
 
 				var pos:int = Math.ceil( this._bytes.length * ( ( Math.LN2 / Math.log( radix ) ) * 8 ) );
 				
-				var mem:ByteArray = new ByteArray();
+				var mem:ByteArray = _TMP;
 				mem.position = pos;
 				mem.writeBytes( this._bytes );
 
@@ -410,8 +410,12 @@ package by.blooddy.crypto.math {
 				_DOMAIN.domainMemory = tmp;
 
 				mem.position = j;
-				return ( this._sign < 0 ? '-' : '' ) + mem.readUTFBytes( pos - j );
+				var result:String = ( this._sign < 0 ? '-' : '' ) + mem.readUTFBytes( pos - j );
 
+				mem.length = 0;
+				
+				return result;
+				
 			} else {
 				return '0';
 			}
@@ -565,7 +569,7 @@ package by.blooddy.crypto.math {
 					
 					_DOMAIN.domainMemory = tmp;
 					
-					_TMP.length = 0;
+					mem.length = 0;
 					
 					return result;
 					
@@ -717,7 +721,7 @@ package by.blooddy.crypto.math {
 
 				_DOMAIN.domainMemory = tmp;
 				
-				_TMP.length = 0;
+				mem.length = 0;
 				
 				return result;
 				
@@ -744,10 +748,10 @@ package by.blooddy.crypto.math {
 				var tmp:ByteArray = _DOMAIN.domainMemory;
 				
 				var mem:ByteArray = _TMP;
-				mem.length = ( ( l1 + l2 ) << 1 ) + 4;
 				
 				mem.writeBytes( this._bytes );
 				mem.writeBytes(    v._bytes );
+				mem.length += l1 + l2 + 4;
 				
 				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 
@@ -765,7 +769,59 @@ package by.blooddy.crypto.math {
 
 				_DOMAIN.domainMemory = tmp;
 
-				_TMP.length = 0;
+				mem.length = 0;
+				
+				return result;
+				
+			}
+		}
+		
+		/**
+		 * @return		this / m
+		 * @throws		ArgumentError	m == 0
+		 */
+		public function div(m:BigInteger):BigInteger {
+			     if (    !m._bytes ) throw new ArgumentError();
+			else if ( !this._bytes ) return ZERO;
+			else {
+				
+				var l1:int = this._bytes.length;
+				var l2:int =    m._bytes.length;
+				
+				var tmp:ByteArray = _DOMAIN.domainMemory;
+				
+				var mem:ByteArray = _TMP;
+				
+				mem.writeBytes( this._bytes );
+				mem.writeBytes(    m._bytes );
+				mem.length += ( l1 << 1 ) + 8;
+				
+				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+				
+				_DOMAIN.domainMemory = mem;
+				
+				var vr:MemoryBlock = BigIntegerBlock.div(
+					new MemoryBlock( 0, l1 ),
+					new MemoryBlock( l1, l2 ),
+					l1 + l2
+				);
+				
+				var result:BigInteger;
+				if ( vr.len ) {
+
+					result = new BigInteger();
+					result._sign = this._sign * m._sign;
+					result._bytes = vr.get();
+					
+				} else {
+					
+					result = ZERO;
+					
+				}
+
+				_DOMAIN.domainMemory = tmp;
+				
+				mem.length = 0;
 				
 				return result;
 				
@@ -820,14 +876,6 @@ package by.blooddy.crypto.math {
 			}
 		}
 		
-		/**
-		 * @return		this / m
-		 * @throws		ArgumentError	m == 0
-		 */
-		public function div(m:BigInteger):BigInteger {
-			throw new IllegalOperationError();
-		}
-
 		/**
 		 * @return		[ this / m, this % m ]
 		 * @throws		ArgumentError	m == 0

@@ -15,6 +15,7 @@ package by.blooddy.crypto.math {
 	import avm2.intrinsics.memory.si16;
 	import avm2.intrinsics.memory.si32;
 	
+	import by.blooddy.math.utils.BigUint;
 	import by.blooddy.utils.MemoryBlock;
 	
 	[ExcludeClass]
@@ -214,7 +215,7 @@ package by.blooddy.crypto.math {
 		/**
 		 * @return		v1 * v2
 		 */
-		public static function mul(v1:MemoryBlock, v2:MemoryBlock, pos:uint):MemoryBlock {
+		public static function mul(v1:MemoryBlock, v2:MemoryBlock, pos:int=-1):MemoryBlock {
 			
 			var l1:uint = v1.len;
 			var l2:uint = v2.len;
@@ -383,13 +384,80 @@ package by.blooddy.crypto.math {
 		}
 
 		/**
+		 * @return		v / m
+		 * @throws		ArgumentError	m == 0
+		 */
+		public static function div(v:MemoryBlock, m:MemoryBlock, pos:int=-1):MemoryBlock {
+
+			var l1:uint = v.len;
+			var l2:uint = m.len;
+
+			if ( l2 == 0 ) {
+				throw new ArgumentError();
+			} else if ( l2 > l1 ) {
+				return new MemoryBlock( 0, 0 );
+			} else {
+
+				var p1:int = v.pos;
+				var p2:int = m.pos;
+				
+				if ( pos < 0 ) pos = Math.max( p1, p2 ) + Math.max( l1, l2 );
+				
+				var c1:uint;
+				var c2:uint;
+
+				if ( l1 == 4 ) { // оба числа короткие
+
+					c2 = uint( li32( p2 ) );
+					if ( c2 == 1 ) {
+						return v;
+					} else {
+						c1 = li16( p1 ) & 0xFFFF;
+						if ( c1 == c2 ) {
+							si32( 1, pos );
+							return new MemoryBlock( pos, 4 );
+						} else if ( c2 > c1 ) {
+							return new MemoryBlock( pos, 0 );
+						} else {
+							c1 /= c2;
+							if ( c1 == 0 ) {
+								return new MemoryBlock( pos, 0 );
+							} else {
+								si32( c1, pos );
+								return new MemoryBlock( pos, 4 );
+							}
+						}
+					}
+
+				} else {
+
+					if ( l2 == 4 && li16( p2 + 2 ) == 0 ) { // второе число короткое
+						return div$s( p1, l1, li16( p2 ) & 0xFFFF, pos );
+					} else {
+						return div$b( p1, l1, p2, l2, pos );
+					}
+
+				}
+
+			}
+		}
+		
+		/**
 		 * @internal
 		 * @return		v1 / v2
 		 */
 		private static function div$s(p1:int, l1:int, v2:int, pos:int):MemoryBlock {
-			return new MemoryBlock( 0, 0 );
+			return new MemoryBlock( pos, 0 );
 		}
 		
+		/**
+		 * @internal
+		 * @return		v1 / v2
+		 */
+		private static function div$b(p1:int, l1:int, p2:int, l2:int, pos:int):MemoryBlock {
+			return new MemoryBlock( pos, 0 );
+		}
+
 		/**
 		 * @return		v % m;
 		 * @throws		ArgumentError	m == 0
