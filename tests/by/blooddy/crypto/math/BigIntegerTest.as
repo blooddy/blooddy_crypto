@@ -426,7 +426,7 @@ package by.blooddy.crypto.math {
 			[ '00000000', 8, ( 0x00000000 ^ ( 1 << 8 ) ).toString( 16 ) ],
 			[ '00000100', 8, ( 0x00000100 ^ ( 1 << 8 ) ).toString( 16 ) ],
 			[ '00800000', 11, ( 0x00800000 ^ ( 1 << 11 ) ).toString( 16 ) ],
-			[ '00000800', 27, ( 0x00000800 ^ ( 1 << 27 ) ).toString( 16 ) ],
+			[ '00000800', 27, ( 0x00000800 ^ ( 1 << 27 ) ).toString( 16 ) ]
 		];
 		
 		[Test( dataProvider="$flipBit" )]
@@ -444,12 +444,30 @@ package by.blooddy.crypto.math {
 		public static var $setBit:Array = [
 			[ '987654321', 9, '987654321' ],
 			[ 'FFFFFFFF111111', 256, '100000000000000000000000000000000000000000000000000FFFFFFFF111111' ],
-			[ '12345678', 2, '1234567C' ],
+			[ '12345678', 2, '1234567C' ]
 		];
 		
 		[Test( dataProvider="$setBit" )]
 		public function setBit(v:String, n:uint, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v, 16 ).setBit( n );
+			Assert.assertEquals(
+				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  clearBit
+		//----------------------------------
+		
+		public static var $clearBit:Array = [
+			[ '0', 12, '0' ],
+			[ '123', 90, '123' ],
+			[ '123', 8, '23' ]
+		];
+		
+		[Test( order="3", dataProvider="$clearBit" )]
+		public function clearBit(v:String, n:uint, result:String):void {
+			var R:BigInteger = BigInteger.fromString( v, 16 ).clearBit( n );
 			Assert.assertEquals(
 				R.toString( 16 ).toLowerCase(), result.toLowerCase()
 			);

@@ -571,16 +571,13 @@ package by.blooddy.crypto.math {
 		 * @return		this & ~( 1 << n )
 		 */
 		public function clearBit(n:uint):BigInteger {
-			throw new IllegalOperationError();
+			if ( this.testBit( n ) ) {
+				return this.flipBit( n );
+			} else {
+				return this;
+			}
 		}
 		
-		/**
-		 * @return		~this
-		 */
-		public function not():BigInteger {
-			throw new IllegalOperationError();
-		}
-
 		/**
 		 * @return		this & v
 		 */
