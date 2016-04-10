@@ -927,7 +927,33 @@ package by.blooddy.crypto.math {
 		 * @reutrn		[ v1 / v2, v1 % v2 ]
 		 */
 		private static function divAndMod$s(p1:int, l1:int, v2:uint, pos:int):Vector.<MemoryBlock> {
-			return new <MemoryBlock>[ new MemoryBlock(), new MemoryBlock() ];
+
+			var c:int = 0;
+			var i:int = l1;
+			do {
+				i -= 2;
+				c = li16( p1 + i ) | ( c << 16 );
+				si16( c / v2, pos + i );
+				c %= v2;
+			} while ( i > 0 );
+
+			while ( l1 > 0 && li32( p1 + l1 - 4 ) == 0 ) {
+				l1 -= 4;
+			}
+
+			var d:MemoryBlock = new MemoryBlock( pos, l1 );
+
+			var r:MemoryBlock;
+			if ( c > 0 ) {
+				pos += l1;
+				si32( c, pos );
+				r = new MemoryBlock( pos, 4 );
+			} else {
+				r = new MemoryBlock();
+			}
+
+			return new <MemoryBlock>[ d, r ];
+			
 		}
 		
 		/**

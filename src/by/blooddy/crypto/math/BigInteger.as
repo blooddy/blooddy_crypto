@@ -920,17 +920,25 @@ package by.blooddy.crypto.math {
 				var result:Vector.<BigInteger> = new Vector.<BigInteger>( 2, true );
 				var v:BigInteger;
 				
-				v = new BigInteger();
-				v._sign = this._sign * m._sign;
-				v._bytes = new ByteArray();
-				v._bytes.writeBytes( mem, vv[ 0 ].pos, vv[ 0 ].len );
+				if ( vv[ 0 ].len ) {
+					v = new BigInteger();
+					v._sign = this._sign * m._sign;
+					v._bytes = new ByteArray();
+					v._bytes.writeBytes( mem, vv[ 0 ].pos, vv[ 0 ].len );
+				} else {
+					v = ZERO;
+				}
 
 				result[ 0 ] = v;
-				
-				v = new BigInteger();
-				v._sign = this._sign * m._sign;
-				v._bytes = new ByteArray();
-				v._bytes.writeBytes( mem, vv[ 1 ].pos, vv[ 1 ].len );
+
+				if ( vv[ 1 ].len ) {
+					v = new BigInteger();
+					v._sign = this._sign;
+					v._bytes = new ByteArray();
+					v._bytes.writeBytes( mem, vv[ 1 ].pos, vv[ 1 ].len );
+				} else {
+					v = ZERO;
+				}
 
 				result[ 1 ] = v;
 				
