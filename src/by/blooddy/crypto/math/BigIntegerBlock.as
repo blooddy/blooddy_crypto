@@ -386,7 +386,56 @@ package by.blooddy.crypto.math {
 		 * @return		v * v
 		 */
 		private static function sqr$(p:int, l:int, pos:int):MemoryBlock {
-			return null;
+
+			var c1:int = li16( p ) & 0xFFFF;
+			var t:uint;
+			var j:int;
+			var i:int = 2;
+			if ( c1 ) {
+				t = c1 * c1;
+				si16( t, pos );
+				j = 2;
+				while ( j < l ) {
+					t = ( t >>> 16 ) + c1 * ( li16( p + j ) & 0xFFFF );
+					si16( t, pos + j );
+					j += 2;
+				}
+				si16( t >>> 16, pos + j );
+			} else {
+				while ( i < l && li16( p + i ) == 0 ) {
+					i += 2;
+				}
+				zeroFill( pos, pos + l + i );
+			}
+			var len:int;
+			var c2:int;
+			while ( i < l ) {
+				c2 = li16( p + i ) & 0xFFFF;
+				if ( c2 ) {
+					len = pos + i;
+					t = c2 * c1 + ( li16( len ) & 0xFFFF );
+					si16( t, len );
+					j = 2;
+					while ( j < l ) {
+						len = pos + i + j;
+						t = ( t >>> 16 ) + c2 * ( li16( p + j ) & 0xFFFF ) + ( li16( len ) & 0xFFFF );
+						si16( t, len );
+						j += 2;
+					}
+					si16( t >>> 16, pos + i + j );
+				} else {
+					si16( 0, pos + i + l );
+				}
+				i += 2;
+			}
+
+			len = i << 1;
+			while ( len > 0 && li32( pos + len - 4 ) == 0 ) {
+				len -= 4;
+			}
+			
+			return new MemoryBlock( pos, len );
+			
 		}
 		
 		/**
