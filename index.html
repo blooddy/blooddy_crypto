@@ -36,6 +36,9 @@
 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+	<link rel="mask-icon" href="//assets-cdn.github.com/pinned-octocat.svg" color="#4078c0" />
+	<link rel="icon" type="image/x-icon" href="//assets-cdn.github.com/favicon.ico" />
+
 	<style type="text/css">/*<![CDATA[*/
 
 		* {
@@ -47,7 +50,7 @@
 		html,
 		body {
 			height: 100%;
-			background: #444 url( 'images/bg.png' ) center repeat-y;
+			background: #444 url( '@/bg.png' ) center repeat-y;
 			color: #CCC;
 			font: 14px Verdana, Geneva, sans-serif;
 		}
@@ -65,14 +68,28 @@
 
 		.content {
 			margin: 0 auto;
-			max-width: 640px;
+			width: 500px;
 			padding: 20px 0;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate( -50%, -50% );
 		}
 
 		.content > * {
 		}
 
-		header {
+		h1 {
+			display: inline-block;
+			font-size: 30px;
+			font-weight: bold;
+			height: 30px;
+			color: #fff;
+			margin: 0 0 30px 20px;
+			text-shadow: #222 1px 1px 4px;
+		}
+
+		main {
 			background-color: #333;
 			padding: 10px 20px 20px;
 			border: 1px solid #111;
@@ -82,77 +99,24 @@
 			text-align: left;
 		}
 
-		header > * {
+		main > * {
 			margin: 10px 0;
 		}
 
-		header h1 {
-			display: inline-block;
-			font-size: 25px;
-			font-weight: bold;
-			float: left;
-			height: 30px;
-			color: white;
-		}
-
-		header menu {
-			display: inline-block;
-			position: relative;
-			bottom: -7px;
-			float: right;
-			height: 30px;
-		}
-
-		header menu > li {
+		main menu > li {
 			list-style: none;
 			display: inline-block;
+			border: 1px solid #444;
+			border-radius: 4px;
+			border-bottom-color: #222;
+			border-right-color: #222;
+			height: 20px;
 		}
 
-		header hr {
-			clear: both;
+		main hr {
 			border: 1px solid #444;
 			border-top-color: #222;
 			border-left-color: #222;
-		}
-
-		head img {
-
-		}
-
-		header p {
-		}
-
-		main {
-			text-shadow: #000 1px 1px 4px;
-		}
-
-		main h5,
-		main h6 {
-			margin: 10px 20px;
-		}
-
-		h5 {
-			font-weight: bold;
-			font-size: 20px;
-			margin: 10px 0;
-		}
-
-		h6 {
-			font-weight: normal;
-			font-size: 18px;
-			margin: 10px 0;
-		}
-
-		pre {
-			font-size: 13px;
-			overflow: auto;
-			padding: 20px;
-			background-color: #444;
-			background-color: rgba( 68, 68, 68, 0.6 );
-			border: 1px solid #222;
-			border-top-color: #3A3A3A;
-			border-left-color: #2A2A2A;
-			border-radius: 8px;
 		}
 
 		footer > * {
@@ -167,26 +131,23 @@
 			float: right;
 		}
 
-		@media ( max-width: 640px ) {
+		@media ( max-width: 500px ) {
 
 			.content {
 				width: 100%;
+				border-left-width: 0;
+				border-right-width: 0;
 			}
 
-			header,
-			pre {
+			main {
 				border-radius: 0;
 			}
-
-
 		}
 
-		@media ( max-width: 580px ) {
+		@media ( max-width: 400px ) {
 
-			header h1,
-			header menu {
-				float: none;
-				display: block;
+			h1 {
+				font-size: 25px;
 			}
 
 		}
@@ -212,60 +173,35 @@
 
 <body>
 	<div class="content">
-		<header>
-
-			<h1>blooddy_crypto</h1>
+		<h1>blooddy_crypto.swc</h1>
+		<main>
 			<menu>
 				<li><a href="//github.com/blooddy/blooddy_crypto/releases/latest"><img src="https://img.shields.io/badge/download-zip-yellow.svg" alt="Download" /></a></li>
 				<li><a href="//github.com/blooddy/blooddy_crypto/releases"><img src="https://img.shields.io/github/release/blooddy/blooddy_crypto.svg?label=version" alt="Last Release" /></a></li>
-				<li><a href="//github.com/blooddy/blooddy_crypto"><img src="https://img.shields.io/badge/GitHub-source-red.svg" alt="Source" /></a></li>
+				<li><a href="//github.com/blooddy/blooddy_crypto"><img src="https://img.shields.io/badge/source-GitHub-red.svg" alt="Source" /></a></li>
+				<li><a href="//github.com/blooddy/blooddy_crypto/wiki"><img src="https://img.shields.io/badge/wiki-GitHub-red.svg" alt="Wiki" /></a></li>
 			</menu>
-
 			<hr />
-
-			<p>
-				ActionScript library for processing binary data.
-			</p>
-			<p>
-				This library contains <abbr title="Message Digest 5"><a href="//en.wikipedia.org/wiki/Md5">MD5</a></abbr>,
-				<abbr title="Secure Hash Algorithm"><a href="//en.wikipedia.org/wiki/SHA-1">SHA-1</a></abbr>,
-				<abbr title="Secure Hash Algorithm"><a href="//en.wikipedia.org/wiki/SHA-2">SHA-2</a></abbr> (&nbsp;224&nbsp;&amp;&nbsp;256&nbsp;),
-				<a href="//en.wikipedia.org/wiki/Base64">Base64</a>,
-				<abbr title="Cyclic Redundancy Check"><a href="//en.wikipedia.org/wiki/Crc32">CRC32</a></abbr>
-				algorithms,
-				<abbr title="JavaScript Object Notation"><a href="//en.wikipedia.org/wiki/JSON">JSON</a></abbr> encoder &amp; decoder
-				as well as <abbr title="Portable Network Graphics"><a href="//en.wikipedia.org/wiki/Portable_Network_Graphics">PNG</a></abbr>
-				and <abbr title="Joint Photographic Experts Group"><a href="//en.wikipedia.org/wiki/JPEG">JPEG</a></abbr> encoders.
-			</p>
-
-		</header>
-		<main>
-			<h5>Examples</h5>
 			<section>
-				<h6>Sync</h6>
-<pre><code class="actionscript">import by.blooddy.crypto.MD5;
-var result:String = MD5.hash( 'text' );</code></pre>
-			</section>
-			<section>
-				<h6>Async</h6>
-<pre><code class="actionscript">import by.blooddy.crypto.MD5;
-import by.blooddy.crypto.events.ProcessEvent;
-
-var md5:MD5 = new MD5();
-md5.hash( 'text' );
-md5.addEventListener( ProcessEvent.COMPLETE, function(event:ProcessEvent):void {
-	var result:String = event.data;
-	trace( result ); // async result
-} );
-md5.addEventListener( ProcessEvent.ERROR, function(event:ProcessEvent):void {
-	var error:Error = event.data;
-	trace( error ); // async error
-} );</code></pre>
+				<p>
+					ActionScript library for processing binary data.
+				</p>
+				<p>
+					This library contains <abbr title="Message Digest 5"><a href="//en.wikipedia.org/wiki/Md5">MD5</a></abbr>,
+					<abbr title="Secure Hash Algorithm"><a href="//en.wikipedia.org/wiki/SHA-1">SHA-1</a></abbr>,
+					<abbr title="Secure Hash Algorithm"><a href="//en.wikipedia.org/wiki/SHA-2">SHA-2</a></abbr> (&nbsp;224&nbsp;&amp;&nbsp;256&nbsp;),
+					<a href="//en.wikipedia.org/wiki/Base64">Base64</a>,
+					<abbr title="Cyclic Redundancy Check"><a href="//en.wikipedia.org/wiki/Crc32">CRC32</a></abbr>
+					algorithms,
+					<abbr title="JavaScript Object Notation"><a href="//en.wikipedia.org/wiki/JSON">JSON</a></abbr> encoder &amp; decoder
+					as well as <abbr title="Portable Network Graphics"><a href="//en.wikipedia.org/wiki/Portable_Network_Graphics">PNG</a></abbr>
+					and <abbr title="Joint Photographic Experts Group"><a href="//en.wikipedia.org/wiki/JPEG">JPEG</a></abbr> encoders.
+				</p>
 			</section>
 		</main>
 		<footer>
 			<span>© 2010 <a href="mailto:blooddy@tut.by" rel="author">Nick Ryzhy</a></span>
-			<span><a href="://github.com/blooddy/blooddy_crypto"><img width="20" height="20" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMTIgMTIgNDAgNDAiPgo8cGF0aCBmaWxsPSIjMzMzMzMzIiBkPSJNMzIsMTMuNGMtMTAuNSwwLTE5LDguNS0xOSwxOWMwLDguNCw1LjUsMTUuNSwxMywxOGMxLDAuMiwxLjMtMC40LDEuMy0wLjljMC0wLjUsMC0xLjcsMC0zLjIgYy01LjMsMS4xLTYuNC0yLjYtNi40LTIuNkMyMCw0MS42LDE4LjgsNDEsMTguOCw0MWMtMS43LTEuMiwwLjEtMS4xLDAuMS0xLjFjMS45LDAuMSwyLjksMiwyLjksMmMxLjcsMi45LDQuNSwyLjEsNS41LDEuNiBjMC4yLTEuMiwwLjctMi4xLDEuMi0yLjZjLTQuMi0wLjUtOC43LTIuMS04LjctOS40YzAtMi4xLDAuNy0zLjcsMi01LjFjLTAuMi0wLjUtMC44LTIuNCwwLjItNWMwLDAsMS42LTAuNSw1LjIsMiBjMS41LTAuNCwzLjEtMC43LDQuOC0wLjdjMS42LDAsMy4zLDAuMiw0LjcsMC43YzMuNi0yLjQsNS4yLTIsNS4yLTJjMSwyLjYsMC40LDQuNiwwLjIsNWMxLjIsMS4zLDIsMywyLDUuMWMwLDcuMy00LjUsOC45LTguNyw5LjQgYzAuNywwLjYsMS4zLDEuNywxLjMsMy41YzAsMi42LDAsNC42LDAsNS4yYzAsMC41LDAuNCwxLjEsMS4zLDAuOWM3LjUtMi42LDEzLTkuNywxMy0xOC4xQzUxLDIxLjksNDIuNSwxMy40LDMyLDEzLjR6Ii8+Cjwvc3ZnPgo=" alt="Source" /></a></span>
+			<span><a href="//github.com/blooddy/blooddy_crypto"><img width="20" height="20" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMTIgMTIgNDAgNDAiPgo8cGF0aCBmaWxsPSIjMzMzMzMzIiBkPSJNMzIsMTMuNGMtMTAuNSwwLTE5LDguNS0xOSwxOWMwLDguNCw1LjUsMTUuNSwxMywxOGMxLDAuMiwxLjMtMC40LDEuMy0wLjljMC0wLjUsMC0xLjcsMC0zLjIgYy01LjMsMS4xLTYuNC0yLjYtNi40LTIuNkMyMCw0MS42LDE4LjgsNDEsMTguOCw0MWMtMS43LTEuMiwwLjEtMS4xLDAuMS0xLjFjMS45LDAuMSwyLjksMiwyLjksMmMxLjcsMi45LDQuNSwyLjEsNS41LDEuNiBjMC4yLTEuMiwwLjctMi4xLDEuMi0yLjZjLTQuMi0wLjUtOC43LTIuMS04LjctOS40YzAtMi4xLDAuNy0zLjcsMi01LjFjLTAuMi0wLjUtMC44LTIuNCwwLjItNWMwLDAsMS42LTAuNSw1LjIsMiBjMS41LTAuNCwzLjEtMC43LDQuOC0wLjdjMS42LDAsMy4zLDAuMiw0LjcsMC43YzMuNi0yLjQsNS4yLTIsNS4yLTJjMSwyLjYsMC40LDQuNiwwLjIsNWMxLjIsMS4zLDIsMywyLDUuMWMwLDcuMy00LjUsOC45LTguNyw5LjQgYzAuNywwLjYsMS4zLDEuNywxLjMsMy41YzAsMi42LDAsNC42LDAsNS4yYzAsMC41LDAuNCwxLjEsMS4zLDAuOWM3LjUtMi42LDEzLTkuNywxMy0xOC4xQzUxLDIxLjksNDIuNSwxMy40LDMyLDEzLjR6Ii8+Cjwvc3ZnPgo=" alt="Source" /></a></span>
 		</footer>
 	</div>
 
