@@ -335,7 +335,7 @@ package by.blooddy.crypto.math {
 				
 				var i:int;
 				
-				if ( l2 > l1 ) {
+				if ( l2 > l1 ) { // меняем местами
 					i = p1; p1 = p2; p2 = i;
 					i = l1; l1 = l2; l2 = i;
 				}
@@ -350,6 +350,51 @@ package by.blooddy.crypto.math {
 					var mem:ByteArray = _DOMAIN.domainMemory;
 					mem.position = i;
 					mem.writeBytes( mem, p1 + i, l1 - i );
+				}
+				
+				return new MemoryBlock( pos, i );
+				
+			}
+		}
+		
+		/**
+		 * @return		v1 ^ v2
+		 */
+		public static function xor(v1:MemoryBlock, v2:MemoryBlock, pos:int=-1):MemoryBlock {
+			
+			var l1:int = v1.len;
+			var l2:int = v2.len;
+			
+			if ( l1 == 0 ) return v2;
+			else if ( l2 == 0 ) return v1;
+			else {
+				
+				var p1:int = v1.pos;
+				var p2:int = v2.pos;
+				
+				if ( pos < 0 ) pos = Math.max( p1, p2 ) + Math.max( l1 + l2 );
+				
+				var i:int;
+				
+				if ( l2 > l1 ) { // меняем местами
+					i = p1; p1 = p2; p2 = i;
+					i = l1; l1 = l2; l2 = i;
+				}
+				
+				i = 0;
+				do {
+					si32( li32( p1 + i ) ^ li32( p2 + i ), pos + i );
+					i += 4;
+				} while ( i < l2 );
+				
+				if ( i < l1 ) {
+					var mem:ByteArray = _DOMAIN.domainMemory;
+					mem.position = i;
+					mem.writeBytes( mem, p1 + i, l1 - i );
+				} else {
+					while ( i > 0 && li32( pos + i - 4 ) == 0 ) {
+						i -= 4;
+					}
 				}
 				
 				return new MemoryBlock( pos, i );
