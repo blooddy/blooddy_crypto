@@ -540,7 +540,7 @@ package by.blooddy.crypto.math {
 				var mem:ByteArray = _TMP;
 				mem.writeBytes( this._bytes );
 				mem.writeBytes(    v._bytes );
-				mem.length += Math.max( l1, l2 );
+				mem.length += Math.min( l1, l2 );
 				
 				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 
