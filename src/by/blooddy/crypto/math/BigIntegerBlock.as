@@ -201,7 +201,47 @@ package by.blooddy.crypto.math {
 			
 		}
 		
-		
+		/**
+		 * @return		v & ~( 1 << n )
+		 */
+		public static function clearBit(v:MemoryBlock, n:uint, pos:int=-1):MemoryBlock {
+			
+			var l:int = v.len;
+			var p:int = v.pos;
+			
+			var s:int = n >>> 3; s -= s & 3;
+
+			if ( l <= s ) return v; // нечего чистить
+
+			var m:int = li32( p + s );
+			var k:int = 1 << ( n & 31 );
+			
+			if ( !( m & k ) && s < l ) {
+				
+				return v;
+				
+			} else {
+				
+				if ( pos < 0 ) pos = p + l;
+				
+				var mem:ByteArray = _DOMAIN.domainMemory;
+				mem.position = p;
+				mem.readBytes( mem, pos, l );
+				
+				si32( m | k, pos + s );
+				
+				if ( s == l - 4 ) { // подчистить надо только если исправляли последний разряд
+					while ( l > 0 && li32( pos + l - 4 ) == 0 ) {
+						l -= 4;
+					}
+				}
+				
+				return new MemoryBlock( pos, l );
+				
+			}
+
+		}
+
 		//--------------------------------------------------------------------------
 		//  Math
 		//--------------------------------------------------------------------------
