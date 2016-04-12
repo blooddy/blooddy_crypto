@@ -16,8 +16,10 @@ package by.blooddy.crypto.math {
 	import avm2.intrinsics.memory.si16;
 	import avm2.intrinsics.memory.si32;
 	
+	import by.blooddy.math.utils.BigUint;
 	import by.blooddy.utils.MemoryBlock;
 	
+	[Exclude( kind="method", name="$getIntBitLength" )]
 	[ExcludeClass]
 	/**
 	 * @author					BlooDHounD
@@ -118,7 +120,7 @@ package by.blooddy.crypto.math {
 		public static function testBit(v:MemoryBlock, n:uint):Boolean {
 			var l:int = v.len;
 			if ( l != 0 ) {
-				var s:uint = n >>> 3;
+				var s:int = n >>> 3;
 				if ( s < l ) {
 					return li8( v.pos + s ) & ( 1 << ( n & 7 ) );
 				}
@@ -126,6 +128,42 @@ package by.blooddy.crypto.math {
 			return false;
 		}
 		
+		/**
+		 * @return		v ^ ( 1 << n )
+		 */
+		public static function flipBit(v:MemoryBlock, n:uint, pos:int=-1):MemoryBlock {
+
+			var p:int = v.pos;
+			var l:int = v.len;
+
+			var s:int = n >>> 3; s -= s & 3;
+			var k:int = ( l <= s ? 0 : li32( p + s ) ) ^ ( 1 << ( n & 31 ) );
+
+			if ( k == 0 && s == l - 4 ) {
+
+				return new MemoryBlock( p, s );
+
+			} else {
+				
+				if ( pos < 0 ) pos = p + l;
+				
+				var mem:ByteArray = _DOMAIN.domainMemory;
+				mem.position = p;
+				mem.readBytes( mem, pos, l );
+				
+				if ( l < s ) { // результат длинее оригинала: надо заполнить нулями
+					zeroFill( pos + l, l - s );
+					l = s;
+				}
+				
+				si32( k, pos + s );
+				
+				return new MemoryBlock( pos, l );
+				
+			}
+			
+		}
+
 		//--------------------------------------------------------------------------
 		//  Math
 		//--------------------------------------------------------------------------
