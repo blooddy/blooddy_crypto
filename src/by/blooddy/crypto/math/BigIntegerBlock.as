@@ -12,6 +12,7 @@ package by.blooddy.crypto.math {
 	
 	import avm2.intrinsics.memory.li16;
 	import avm2.intrinsics.memory.li32;
+	import avm2.intrinsics.memory.li8;
 	import avm2.intrinsics.memory.si16;
 	import avm2.intrinsics.memory.si32;
 	
@@ -109,6 +110,20 @@ package by.blooddy.crypto.math {
 					)
 				)
 			);
+		}
+		
+		/**
+		 * @return		v & ( 1 << n ) != 0
+		 */
+		public static function testBit(v:MemoryBlock, n:uint):Boolean {
+			var l:int = v.len;
+			if ( l != 0 ) {
+				var s:uint = n >>> 3;
+				if ( s < l ) {
+					return li8( v.pos + s ) & ( 1 << ( n & 7 ) );
+				}
+			}
+			return false;
 		}
 		
 		//--------------------------------------------------------------------------
