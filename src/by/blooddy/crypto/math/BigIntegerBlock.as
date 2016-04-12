@@ -164,6 +164,44 @@ package by.blooddy.crypto.math {
 			
 		}
 
+		/**
+		 * @return		v | ( 1 << n )
+		 */
+		public static function setBit(v:MemoryBlock, n:uint, pos:int=-1):MemoryBlock {
+			
+			var p:int = v.pos;
+			var l:int = v.len;
+			
+			var s:int = n >>> 3; s -= s & 3;
+			var m:int = l <= s ? 0 : li32( p + s );
+			var k:int = 1 << ( n & 31 );
+			
+			if ( ( m & k ) && s < l ) {
+				
+				return v;
+				
+			} else {
+				
+				if ( pos < 0 ) pos = p + l;
+				
+				var mem:ByteArray = _DOMAIN.domainMemory;
+				mem.position = p;
+				mem.readBytes( mem, pos, l );
+				
+				if ( l < s ) { // результат длинее оригинала: надо заполнить нулями
+					zeroFill( pos + l, l - s );
+					l = s;
+				}
+				
+				si32( m | k, pos + s );
+				
+				return new MemoryBlock( pos, l );
+
+			}
+			
+		}
+		
+		
 		//--------------------------------------------------------------------------
 		//  Math
 		//--------------------------------------------------------------------------
