@@ -6,6 +6,7 @@
 
 package by.blooddy.crypto.math {
 
+	import flash.errors.IllegalOperationError;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
@@ -240,6 +241,13 @@ package by.blooddy.crypto.math {
 				
 			}
 
+		}
+
+		/**
+		 * @return		v1 & v2
+		 */
+		public static function and(v1:MemoryBlock, v2:MemoryBlock, pos:int=-1):MemoryBlock {
+			throw new IllegalOperationError();
 		}
 
 		//--------------------------------------------------------------------------
