@@ -293,18 +293,19 @@ package by.blooddy.crypto.math {
 				
 				if ( pos < 0 ) pos = Math.max( p1, p2 ) + Math.max( l1 + l2 );
 				
-				if ( l2 < l1 ) l1 = l2;
+				if ( l2 > l1 ) l2 = l1;
 				
 				var i:int = 0;
 				do {
 					si32( li32( p1 + i ) & ( ~li32( p2 + i ) ), pos + i );
 					i += 4;
-				} while ( i < l1 );
+				} while ( i < l2 );
 				
 				if ( i < l1 ) {
 					var mem:ByteArray = _DOMAIN.domainMemory;
-					mem.position = i;
+					mem.position = pos + i;
 					mem.writeBytes( mem, p1 + i, l1 - i );
+					i = l1;
 				} else {
 					while ( i > 0 && li32( pos + i - 4 ) == 0 ) {
 						i -= 4;
@@ -348,8 +349,9 @@ package by.blooddy.crypto.math {
 				
 				if ( i < l1 ) {
 					var mem:ByteArray = _DOMAIN.domainMemory;
-					mem.position = i;
+					mem.position = pos + i;
 					mem.writeBytes( mem, p1 + i, l1 - i );
+					i = l1;
 				}
 				
 				return new MemoryBlock( pos, i );
@@ -389,8 +391,9 @@ package by.blooddy.crypto.math {
 				
 				if ( i < l1 ) {
 					var mem:ByteArray = _DOMAIN.domainMemory;
-					mem.position = i;
+					mem.position = pos + i;
 					mem.writeBytes( mem, p1 + i, l1 - i );
+					i = l1;
 				} else {
 					while ( i > 0 && li32( pos + i - 4 ) == 0 ) {
 						i -= 4;
