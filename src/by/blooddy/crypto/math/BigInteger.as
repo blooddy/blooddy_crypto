@@ -553,9 +553,15 @@ package by.blooddy.crypto.math {
 				
 				_DOMAIN.domainMemory = tmp;
 				
-				var result:BigInteger = new BigInteger();
-				result._sign = this._sign;
-				result._bytes = new ByteArray();
+				var result:BigInteger;
+				if ( vr.len ) {
+					result = new BigInteger();
+					result._sign = this._sign;
+					result._bytes = new ByteArray();
+					result._bytes.writeBytes( mem, vr.pos, vr.len );
+				} else {
+					result = ZERO;
+				}
 
 				mem.length = 0;
 				
@@ -593,9 +599,15 @@ package by.blooddy.crypto.math {
 				
 				_DOMAIN.domainMemory = tmp;
 				
-				var result:BigInteger = new BigInteger();
-				result._sign = this._sign;
-				result._bytes = new ByteArray();
+				var result:BigInteger;
+				if ( vr.len ) {
+					result = new BigInteger();
+					result._sign = this._sign;
+					result._bytes = new ByteArray();
+					result._bytes.writeBytes( mem, vr.pos, vr.len );
+				} else {
+					result = ZERO;
+				}
 				
 				mem.length = 0;
 				
@@ -636,6 +648,7 @@ package by.blooddy.crypto.math {
 				var result:BigInteger = new BigInteger();
 				result._sign = this._sign;
 				result._bytes = new ByteArray();
+				result._bytes.writeBytes( mem, vr.pos, vr.len );
 				
 				mem.length = 0;
 				
@@ -673,9 +686,15 @@ package by.blooddy.crypto.math {
 				
 				_DOMAIN.domainMemory = tmp;
 				
-				var result:BigInteger = new BigInteger();
-				result._sign = this._sign;
-				result._bytes = new ByteArray();
+				var result:BigInteger;
+				if ( vr.len ) {
+					result = new BigInteger();
+					result._sign = this._sign;
+					result._bytes = new ByteArray();
+					result._bytes.writeBytes( mem, vr.pos, vr.len );
+				} else {
+					result = ZERO;
+				}
 				
 				mem.length = 0;
 				
