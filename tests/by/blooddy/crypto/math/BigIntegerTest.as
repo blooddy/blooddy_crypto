@@ -465,11 +465,87 @@ package by.blooddy.crypto.math {
 			[ '123', 8, '23' ]
 		];
 		
-		[Test( order="3", dataProvider="$clearBit" )]
+		[Test( dataProvider="$clearBit" )]
 		public function clearBit(v:String, n:uint, result:String):void {
 			var R:BigInteger = BigInteger.fromString( v, 16 ).clearBit( n );
 			Assert.assertEquals(
 				R.toString( 16 ).toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  and
+		//----------------------------------
+		
+		public static var $and:Array = [
+			[ '0', '123', '0' ],
+			[ '123', '0', '0' ],
+			[ '9012345678', 'ffffff0000000912345678', '12345678' ],
+			[ 'ffffff0000000912345678', '9012345678', '12345678' ],
+		];
+		
+		[Test( dataProvider="$and" )]
+		public function and(v1:String, v2:String, result:String):void {
+			var R:String = BigInteger.fromString( v1, 16 ).and( BigInteger.fromString( v2, 16 ) ).toString( 16 );
+			Assert.assertEquals(
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  andNot
+		//----------------------------------
+		
+		public static var $andNot:Array = [
+			[ '0', '123', '0' ],
+			[ '123', '0', '123' ],
+			[ '9012345678', 'ffffff0000000912345678', '9000000000' ],
+			[ 'ffffff0000000912345678', '9012345678', 'ffffff0000000900000000' ],
+		];
+		
+		[Test( dataProvider="$andNot" )]
+		public function andNot(v1:String, v2:String, result:String):void {
+			var R:String = BigInteger.fromString( v1, 16 ).andNot( BigInteger.fromString( v2, 16 ) ).toString( 16 );
+			Assert.assertEquals(
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  or
+		//----------------------------------
+		
+		public static var $or:Array = [
+			[ '0', '123', '123' ],
+			[ '123', '0', '123' ],
+			[ '9012345678', 'ffffff0000000912345678', 'ffffff0000009912345678' ],
+			[ 'ffffff0000000912345678', '9012345678', 'ffffff0000009912345678' ],
+		];
+		
+		[Test( dataProvider="$or" )]
+		public function or(v1:String, v2:String, result:String):void {
+			var R:String = BigInteger.fromString( v1, 16 ).or( BigInteger.fromString( v2, 16 ) ).toString( 16 );
+			Assert.assertEquals(
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  xor
+		//----------------------------------
+		
+		public static var $xor:Array = [
+			[ '0', '123', '123' ],
+			[ '123', '0', '123' ],
+			[ '9012345678', 'ffffff0000000912345678', 'ffffff0000009900000000' ],
+			[ 'ffffff0000000912345678', '9012345678', 'ffffff0000009900000000' ],
+		];
+		
+		[Test( dataProvider="$xor" )]
+		public function xor(v1:String, v2:String, result:String):void {
+			var R:String = BigInteger.fromString( v1, 16 ).xor( BigInteger.fromString( v2, 16 ) ).toString( 16 );
+			Assert.assertEquals(
+				R.toLowerCase(), result.toLowerCase()
 			);
 		}
 		
