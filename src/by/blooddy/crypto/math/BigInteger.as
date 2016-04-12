@@ -568,7 +568,40 @@ package by.blooddy.crypto.math {
 		 * @return		this & ~v
 		 */
 		public function andNot(v:BigInteger):BigInteger {
-			throw new IllegalOperationError();
+			     if ( !this._bytes ) return ZERO;
+			else if (    !v._bytes ) return this;
+			else {
+				
+				var l1:int = this._bytes.length;
+				var l2:int =    v._bytes.length;
+				
+				var tmp:ByteArray = _DOMAIN.domainMemory;
+				
+				var mem:ByteArray = _TMP;
+				mem.writeBytes( this._bytes );
+				mem.writeBytes(    v._bytes );
+				mem.length += Math.max( l1, l2 );
+				
+				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+				
+				_DOMAIN.domainMemory = mem;
+				
+				var vr:MemoryBlock = BigIntegerBlock.andNot(
+					new MemoryBlock(  0, l1 ),
+					new MemoryBlock( l1, l2 )
+				);
+				
+				_DOMAIN.domainMemory = tmp;
+				
+				var result:BigInteger = new BigInteger();
+				result._sign = this._sign;
+				result._bytes = new ByteArray();
+				
+				mem.length = 0;
+				
+				return result;
+				
+			}
 		}
 		
 		/**
