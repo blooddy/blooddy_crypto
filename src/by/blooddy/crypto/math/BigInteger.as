@@ -644,6 +644,9 @@ package by.blooddy.crypto.math {
 				else if ( c2 < c1 ) return -1;
 				else {
 					
+					var l1:int = this._bytes.length;
+					var l2:int =    v._bytes.length;
+					
 					var tmp:ByteArray = _DOMAIN.domainMemory;
 					
 					var mem:ByteArray = _TMP;
@@ -656,8 +659,8 @@ package by.blooddy.crypto.math {
 					_DOMAIN.domainMemory = mem;
 					
 					var result:int = BigIntegerBlock.compare(
-						new MemoryBlock( 0, this._bytes.length ),
-						new MemoryBlock( v._bytes.length, this._bytes.length )
+						new MemoryBlock(  0, l1 ),
+						new MemoryBlock( l1, l2 )
 					);
 					
 					_DOMAIN.domainMemory = tmp;
@@ -897,7 +900,7 @@ package by.blooddy.crypto.math {
 				_DOMAIN.domainMemory = mem;
 				
 				var vr:MemoryBlock = BigIntegerBlock.div(
-					new MemoryBlock( 0, l1 ),
+					new MemoryBlock(  0, l1 ),
 					new MemoryBlock( l1, l2 ),
 					l1 + l2
 				);
