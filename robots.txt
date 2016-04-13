@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: http://blooddy.by/sitemap.xml
+Host: blooddy.by
