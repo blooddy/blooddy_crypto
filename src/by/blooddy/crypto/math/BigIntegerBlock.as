@@ -6,7 +6,6 @@
 
 package by.blooddy.crypto.math {
 
-	import flash.errors.IllegalOperationError;
 	import flash.system.ApplicationDomain;
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
@@ -17,7 +16,6 @@ package by.blooddy.crypto.math {
 	import avm2.intrinsics.memory.si16;
 	import avm2.intrinsics.memory.si32;
 	
-	import by.blooddy.math.utils.BigUint;
 	import by.blooddy.utils.MemoryBlock;
 	
 	[Exclude( kind="method", name="$getIntBitLength" )]
@@ -405,6 +403,54 @@ package by.blooddy.crypto.math {
 			}
 		}
 		
+		/**
+		 * @return		v >> n
+		 */
+		public static function shiftRight(v:MemoryBlock, n:uint, pos:int=-1):MemoryBlock {
+			var l:int = v.len;
+			if ( l == 0 || n == 0 ) {
+				return v;
+			} else {
+				var s:int = n >>> 3;
+				if ( s >= l ) {
+					return new MemoryBlock();
+				} else {
+					var p:int = v.pos;
+					var r1:int = n & 31;
+					if ( r1 == 0 ) { // сдвиг кратен 32. можно просто откусить кусок исходного числа
+						return new MemoryBlock( p + s, l - s );
+					} else {
+						var len:int;
+						if ( ( r1 & 7 ) == 0 ) { // сдвиг кратен 8. копируем байты, а потом дописываем нолики
+							len = l - s;
+							var mem:ByteArray = _DOMAIN.domainMemory;
+							mem.position = p + s;
+							mem.readBytes( mem, pos, len );
+							si32( 0, pos + len );
+							len += s & 3;
+						} else {
+							s -= s & 3;
+							var i:int = len = l - s;
+							s += p;
+							var r2:int = 32 - r1;
+							var t1:int;
+							var t2:int = 0;
+							do {
+								i -= 4;
+								t1 = li32( s + i );
+								si32( ( t1 >>> r1 ) | t2, pos + i );
+								t2 = t1 << r2;
+							} while ( i > 0 );
+						}
+						while ( len > 0 && li32( pos + len - 4 ) == 0 ) {
+							len -= 4;
+						}
+						return new MemoryBlock( pos, len );
+					}
+				}
+			}
+		}
+
 		//--------------------------------------------------------------------------
 		//  Math
 		//--------------------------------------------------------------------------

@@ -707,7 +707,75 @@ package by.blooddy.crypto.math {
 		 * @return		this >> n
 		 */
 		public function shiftRight(n:uint):BigInteger {
-			throw new IllegalOperationError();
+			if ( !n || !this._bytes ) return this;
+			else {
+				
+				var l:int = this._bytes.length;
+				var s:int = n >>> 3;
+
+				if ( s >= l ) {
+					return ZERO;
+				} else {
+					
+					var result:BigInteger;
+					
+					var r1:int = n & 31;
+					if ( r1 == 0 ) { // сдвиг кратен 32. можно просто откусить кусок исходного числа
+
+						result = new BigInteger();
+						result._sign = this._sign;
+						result._bytes = new ByteArray();
+						result._bytes.writeBytes( this._bytes, s, l - s );
+
+					} else if ( ( r1 & 7 ) == 0 ) { // сдвиг кратен 8. копируем байты, а потом дописываем нолики
+
+						result = new BigInteger();
+						result._sign = this._sign;
+						result._bytes = new ByteArray();
+						result._bytes.writeBytes( this._bytes, s, l - s );
+						result._bytes.writeInt( 0 );
+						result._bytes.length -= 4 - ( s & 3 );
+
+					} else {
+						
+						var tmp:ByteArray = _DOMAIN.domainMemory;
+						
+						var mem:ByteArray = _TMP;
+						mem.writeBytes( this._bytes );
+						mem.length += l;
+
+						if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+						
+						_DOMAIN.domainMemory = mem;
+
+						var vr:MemoryBlock = BigIntegerBlock.shiftRight(
+							new MemoryBlock( 0, l ), n, l
+						);
+						
+						_DOMAIN.domainMemory = tmp;
+						
+						if ( vr.len ) {
+							
+							result = new BigInteger();
+							result._sign = this._sign;
+							result._bytes = new ByteArray();
+							result._bytes.writeBytes( mem, vr.pos, vr.len );
+
+						} else {
+							
+							result = ZERO;
+							
+						}
+					
+						mem.length = 0;
+						
+					}
+					
+					return result;
+					
+				}
+				
+			}
 		}
 		
 		/**
