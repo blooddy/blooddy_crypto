@@ -16,6 +16,7 @@ package by.blooddy.crypto.math {
 	import avm2.intrinsics.memory.si16;
 	import avm2.intrinsics.memory.si32;
 	
+	import by.blooddy.math.utils.BigUint;
 	import by.blooddy.utils.MemoryBlock;
 	
 	[Exclude( kind="method", name="$getIntBitLength" )]
@@ -420,6 +421,7 @@ package by.blooddy.crypto.math {
 					if ( r1 == 0 ) { // сдвиг кратен 32. можно просто откусить кусок исходного числа
 						return new MemoryBlock( p + s, l - s );
 					} else {
+						if ( pos < 0 ) pos = p + l;
 						var len:int;
 						if ( ( r1 & 7 ) == 0 ) { // сдвиг кратен 8. копируем байты, а потом дописываем нолики
 							len = l - s;
@@ -433,7 +435,7 @@ package by.blooddy.crypto.math {
 							var i:int = len = l - s;
 							s += p;
 							var r2:int = 32 - r1;
-							var t1:int;
+							var t1:int = 0;
 							var t2:int = 0;
 							do {
 								i -= 4;
@@ -451,6 +453,61 @@ package by.blooddy.crypto.math {
 			}
 		}
 
+		/**
+		 * @return		v << n
+		 */
+		public static function shiftLeft(v:MemoryBlock, n:uint, pos:int=-1):MemoryBlock {
+			var l:int = v.len;
+			if ( n == 0 || l == 0 ) return v;
+			else {
+
+				var p:int = v.pos;
+
+				if ( pos < 0 ) pos = p + l;
+
+				var s:int = n >>> 3;
+
+				var len:int = 0;
+				
+				// заполняем начало ноликами
+				zeroFill( pos, pos + s );
+				
+				if ( !( n & 7 ) ) { // сдвиг кратен 8. копируем байты, а потом дописываем нолики
+					var mem:ByteArray = _DOMAIN.domainMemory;
+					mem.position = pos + len;
+					mem.writeBytes( mem, p, l );
+					len = s + l;
+				} else {
+					s -= s & 3;
+					len += s;
+					var i:int = 0;
+					var r1:int = n & 31;
+					var r2:int = 32 - r1;
+					var t1:int = 0;
+					var t2:int = 0;
+					do {
+						t1 = li32( p + i );
+						si32( ( t1 << r1 ) | t2, pos + s + i );
+						t2 = t1 >>> r2;
+						i += 4;
+					} while ( i < l );
+					if ( t2 != 0 ) {
+						si32( t2, pos + s + i );
+						i += 4;
+					}
+					len += i;
+				}
+				if ( len & 3 ) {
+					si32( 0, pos + len );
+					len += 4 - ( len & 3 );
+				}
+				while ( len > 0 && li32( pos + len - 4 ) == 0 ) {
+					len -= 4;
+				}
+				return new MemoryBlock( pos, len );
+			}
+		}
+		
 		//--------------------------------------------------------------------------
 		//  Math
 		//--------------------------------------------------------------------------

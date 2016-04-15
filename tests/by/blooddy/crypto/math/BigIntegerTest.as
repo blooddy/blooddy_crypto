@@ -549,6 +549,49 @@ package by.blooddy.crypto.math {
 			);
 		}
 		
+		//----------------------------------
+		//  shiftRight
+		//----------------------------------
+		
+		public static var $shiftRight:Array = [
+			[ '0', 123, '0' ],
+			[ '123', 0, '123' ],
+			[ 'ffffffff', 32, '0' ],
+			[ '123ffffffff', 32, '123' ],
+			[ '12345678ffffffff', 8, '12345678ffffff' ],
+			[ '12345678ffffffff', 33, '91a2b3c' ],
+			[ 'f926cad0655a246e5fa1f9918acfa7e3a5c066275d342e9f', 55, '1f24d95a0cab448dcbf43f323159f4fc74b' ]
+		];
+		
+		[Test( order="10", dataProvider="$shiftRight" )]
+		public function shiftRight(v:String, n:uint, result:String):void {
+			var R:String = BigInteger.fromString( v, 16 ).shiftRight( n ).toString( 16 );
+			Assert.assertEquals(
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
+		//----------------------------------
+		//  shiftLeft
+		//----------------------------------
+		
+		public static var $shiftLeft:Array = [
+			[ '0', 123, '0' ],
+			[ '123', 0, '123' ],
+			[ '12', 123, '90000000000000000000000000000000' ],
+			[ '123456', 24, '123456000000' ],
+			[ '1234567890', 17, '2468acf1200000' ],
+			[ '1234567890', 26, '48d159e240000000' ]
+		];
+		
+		[Test( dataProvider="$shiftLeft" )]
+		public function shiftLeft(v:String, n:uint, result:String):void {
+			var R:String = BigInteger.fromString( v, 16 ).shiftLeft( n ).toString( 16 );
+			Assert.assertEquals(
+				R.toLowerCase(), result.toLowerCase()
+			);
+		}
+		
 	}
 	
 }

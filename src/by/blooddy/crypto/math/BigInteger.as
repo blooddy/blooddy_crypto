@@ -265,7 +265,7 @@ package by.blooddy.crypto.math {
 						setNumber( this, arguments[ 0 ] );
 						break;
 					case 'string':
-						setString( this, arguments[ 0 ], arguments[ 1 ] );
+						setString( this, arguments[ 0 ], arguments[ 1 ] || 10 );
 						break;
 					case 'object':
 						if ( arguments[ 0 ] is BigInteger ) {
@@ -782,7 +782,56 @@ package by.blooddy.crypto.math {
 		 * @return		this << n
 		 */
 		public function shiftLeft(n:uint):BigInteger {
-			throw new IllegalOperationError();
+			if ( !n || !this._bytes ) return this;
+			else {
+
+				var s:int = n >>> 3;
+				
+				var result:BigInteger;
+				
+				if ( ( n & 7 ) == 0 ) {
+					
+					result = new BigInteger();
+					result._sign = this._sign;
+					result._bytes = new ByteArray();
+					result._bytes.position =
+					result._bytes.length = s;
+					result._bytes.writeBytes( this._bytes );
+					result._bytes.writeInt( 0 );
+					result._bytes.length += 4 - ( s & 3 );
+					
+				} else {
+
+					var l:int = this._bytes.length;
+					
+					var tmp:ByteArray = _DOMAIN.domainMemory;
+					
+					var mem:ByteArray = _TMP;
+					mem.writeBytes( this._bytes );
+					mem.length += l + s;
+					
+					if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+					
+					_DOMAIN.domainMemory = mem;
+					
+					var vr:MemoryBlock = BigIntegerBlock.shiftLeft(
+						new MemoryBlock( 0, l ), n, l
+					);
+					
+					_DOMAIN.domainMemory = tmp;
+					
+					result = new BigInteger();
+					result._sign = this._sign;
+					result._bytes = new ByteArray();
+					result._bytes.writeBytes( mem, vr.pos, vr.len );
+						
+					mem.length = 0;
+
+				}
+	
+				return result;
+				
+			}
 		}
 		
 		//--------------------------------------------------------------------------
