@@ -11,7 +11,7 @@ package by.blooddy.crypto.serialization {
 	import by.blooddy.crypto.process.Process;
 
 	/**
-	 * The JSON class lets applications import and export data
+	 * The JSONer class lets applications import and export data
 	 * using JavaScript Object Notation (JSON) format.
 	 * 
 	 * @see						http://www.json.org
@@ -22,7 +22,7 @@ package by.blooddy.crypto.serialization {
 	 * @langversion				3.0
 	 * @created					01.10.2010 15:53:38
 	 */
-	public final class JSON extends Process {
+	public final class JSONer extends Process {
 
 		//--------------------------------------------------------------------------
 		//
@@ -45,7 +45,7 @@ package by.blooddy.crypto.serialization {
 		public static function encode(value:*):String {
 			return JSON$Encoder.encode( value );
 		}
-
+		
 		/**
 		 * Returns a <code>String</code>,
 		 * in JSON format, that represents an ActionScript value.
@@ -104,7 +104,7 @@ package by.blooddy.crypto.serialization {
 		//
 		//--------------------------------------------------------------------------
 		
-		[Embed( source="JSON.swf", mimeType="application/octet-stream" )]
+		[Embed( source="JSONer.swf", mimeType="application/octet-stream" )]
 		/**
 		 * @private
 		 */
@@ -117,9 +117,9 @@ package by.blooddy.crypto.serialization {
 		//--------------------------------------------------------------------------
 		
 		/**
-		 * Creates a JSON object.
+		 * Creates a JSONer object.
 		 */
-		public function JSON() {
+		public function JSONer() {
 			super( WorkerClass );
 		}
 		
