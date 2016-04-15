@@ -19,7 +19,7 @@
 		<file name="by/blooddy/crypto/MD5.swf" />
 		<file name="by/blooddy/crypto/SHA1.swf" />
 		<file name="by/blooddy/crypto/SHA2.swf" />
-		<file name="by/blooddy/crypto/serialization/JSON.swf" />
+		<file name="by/blooddy/crypto/serialization/JSONer.swf" />
 		<file name="by/blooddy/crypto/image/JPEGEncoder.swf" />
 		<file name="by/blooddy/crypto/image/PNGEncoder.swf" />
 	</filelist>
@@ -65,7 +65,7 @@
 			<antcall target="worker.compile">
 				<param name="worker.path" value="by/blooddy/crypto/serialization" />
 				<param name="worker.package" value="by.blooddy.crypto.serialization" />
-				<param name="worker.name" value="JSON" />
+				<param name="worker.name" value="JSONer" />
 			</antcall>
 			<antcall target="worker.compile">
 				<param name="worker.path" value="by/blooddy/crypto/image" />
@@ -116,7 +116,7 @@
 		<compc failonerror="true"
 			output="${swc}"
 			swf-version="10"
-			include-classes="by.blooddy.crypto.Adler32 by.blooddy.crypto.Base64 by.blooddy.crypto.CRC32 by.blooddy.crypto.MD5 by.blooddy.crypto.SHA1 by.blooddy.crypto.SHA2 by.blooddy.crypto.serialization.JSON by.blooddy.crypto.image.PNGEncoder by.blooddy.crypto.image.JPEGEncoder"
+			include-classes="by.blooddy.crypto.Adler32 by.blooddy.crypto.Base64 by.blooddy.crypto.CRC32 by.blooddy.crypto.MD5 by.blooddy.crypto.SHA1 by.blooddy.crypto.SHA2 by.blooddy.crypto.serialization.JSONer by.blooddy.crypto.image.PNGEncoder by.blooddy.crypto.image.JPEGEncoder"
 		>
 
 			<load-config filename="${flex.sdk}/frameworks/air-config.xml" />
