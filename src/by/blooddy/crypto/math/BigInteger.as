@@ -1281,6 +1281,49 @@ package by.blooddy.crypto.math {
 		}
 
 		/**
+		 * @return		1 / this % m
+		 * @throws		ArgumentError	m == 0
+		 */
+		public function modInv(m:BigInteger):BigInteger {
+			if ( !m._bytes ) throw new ArgumentError();
+			else {
+				
+				var l1:uint = this._bytes.length;
+				var l2:uint =    m._bytes.length;
+				
+				var tmp:ByteArray = _DOMAIN.domainMemory;
+				
+				var mem:ByteArray = _TMP;
+				
+				mem.writeBytes( this._bytes );
+				mem.writeBytes(    m._bytes );
+				mem.length += l1;
+				
+				if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
+				
+				_DOMAIN.domainMemory = mem;
+				
+				var vr:MemoryBlock = BigIntegerBlock.modInv(
+					new MemoryBlock( 0, l1 ),
+					new MemoryBlock( l1, l2 ),
+					l1 + l2
+				);
+				
+				_DOMAIN.domainMemory = tmp;
+				
+				var result:BigInteger = new BigInteger();
+				result._sign = this._sign;
+				result._bytes = new ByteArray();
+				result._bytes.writeBytes( mem, vr.pos, vr.len );
+				
+				mem.length = 0;
+				
+				return result;
+				
+			}
+		}
+		
+		/**
 		 * @return		pow( this, e )
 		 */
 		public function pow(e:uint):BigInteger {

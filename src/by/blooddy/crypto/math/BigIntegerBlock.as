@@ -16,7 +16,6 @@ package by.blooddy.crypto.math {
 	import avm2.intrinsics.memory.si16;
 	import avm2.intrinsics.memory.si32;
 	
-	import by.blooddy.math.utils.BigUint;
 	import by.blooddy.utils.MemoryBlock;
 	
 	[Exclude( kind="method", name="$getIntBitLength" )]
@@ -1347,6 +1346,49 @@ package by.blooddy.crypto.math {
 
 		}
 		
+		/**
+		 * @return		1 / v % m
+		 * @throws		ArgumentError	m == 0
+		 */
+		public static function modInv(v:MemoryBlock, m:MemoryBlock, pos:int=-1):MemoryBlock {
+			var l2:int = m.len;
+			if ( l2 == 0 ) throw new ArgumentError();
+			else {
+
+				var p2:int = m.pos;
+				if ( l2 == 4 && li32( p2 ) == 1 ) return new MemoryBlock();
+				
+				if ( compare( v, m ) >= 0 ) { // Calculate ( this mod m )
+					v = mod( v, m );
+				}
+				
+				var l1:int = v.len;
+				var p1:int = v.pos;
+				
+				if ( pos < 0 ) pos = Math.max( p1, p2 ) + Math.max( l1 + l2 );
+				
+				if ( l1 == 4 && li32( p1 ) == 1 ) {
+					si32( 1, pos );
+					return new MemoryBlock( pos, 4 );
+				}
+				
+				if ( ( li32( p2 ) & 1 ) == 1 ) { // Modulus is odd, use Schroeppel's algorithm
+
+					return null;
+
+				} else if ( ( li32( p1 ) & 1 ) == 0 ) { // Base and modulus are even, throw exception
+
+					throw new ArgumentError();
+
+				} else {
+					
+					return null;
+					
+				}
+				
+			}
+		}
+
 		/**
 		 * @return		pow( v, e )
 		 */
