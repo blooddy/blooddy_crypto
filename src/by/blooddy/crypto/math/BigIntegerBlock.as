@@ -500,10 +500,13 @@ package by.blooddy.crypto.math {
 					si32( 0, pos + len );
 					len += 4 - ( len & 3 );
 				}
+
 				while ( len > 0 && li32( pos + len - 4 ) == 0 ) {
 					len -= 4;
 				}
+
 				return new MemoryBlock( pos, len );
+
 			}
 		}
 		
@@ -1356,7 +1359,9 @@ package by.blooddy.crypto.math {
 			else {
 
 				var p2:int = m.pos;
-				if ( l2 == 4 && li32( p2 ) == 1 ) return new MemoryBlock();
+				var c2:int = li32( p2 );
+
+				if ( l2 == 4 && c2 == 1 ) return new MemoryBlock();
 				
 				if ( compare( v, m ) >= 0 ) { // Calculate ( this mod m )
 					v = mod( v, m );
@@ -1367,16 +1372,18 @@ package by.blooddy.crypto.math {
 				
 				if ( pos < 0 ) pos = Math.max( p1, p2 ) + Math.max( l1 + l2 );
 				
-				if ( l1 == 4 && li32( p1 ) == 1 ) {
+				var c1:int = li32( p1 );
+
+				if ( l1 == 4 && c1 == 1 ) {
 					si32( 1, pos );
 					return new MemoryBlock( pos, 4 );
 				}
 				
-				if ( ( li32( p2 ) & 1 ) == 1 ) { // Modulus is odd, use Schroeppel's algorithm
+				if ( ( c2 & 1 ) == 1 ) { // Modulus is odd, use Schroeppel's algorithm
 
-					return null;
+					return modInv$o( v, m, pos );
 
-				} else if ( ( li32( p1 ) & 1 ) == 0 ) { // Base and modulus are even, throw exception
+				} else if ( ( c1 & 1 ) == 0 ) { // Base and modulus are even, throw exception
 
 					throw new ArgumentError();
 
@@ -1387,6 +1394,106 @@ package by.blooddy.crypto.math {
 				}
 				
 			}
+		}
+
+		/**
+		 * @internal
+		 * @return		1 / v % m
+		 */
+		private static function modInv$o(v:MemoryBlock, m:MemoryBlock, pos:int):MemoryBlock {
+			
+			var p:MemoryBlock = v;
+			var f:MemoryBlock = m;
+			var g:MemoryBlock = p;
+
+			var i:int;
+			var z:int;
+			
+			var k:int = 0;
+			
+			var cs:int = 1;
+			var c:MemoryBlock = null; // new MemoryBlock( 1 );
+			
+			var ds:int = 1;
+			var d:MemoryBlock = new MemoryBlock();
+			
+			var t:MemoryBlock;
+
+			// right shift f k times until odd, left shift d k times
+			z = getLowestBit( f );
+			if ( z > 0 ) {
+				shiftRight( f, z, f.pos );
+				shiftLeft( d, z, d.pos );
+				k = z;
+			}
+			
+			// The Almost Inverse Algorithm
+			while ( f.len != 4 || li32( f.pos ) != 1 ) {
+				
+				// if gcd( f, g ) != 1, number is not invertible modulo mod
+				if ( !f.len ) throw new ArgumentError();
+				
+				// if f < g exchange f, g and c, d
+				i = compare( f, g );
+				if ( i < 0 ) {
+					t = f; f = g; g = t;
+					t = d; d = c; c = t;
+					i = ds; i = cs; cs = i;
+				}
+				
+				// f ^ ( g % 3 ) == 0
+				if ( ( li32( f.pos ) ^ ( li32( g.pos ) & 3 ) ) == 0 ) {
+					
+					f = sub( f, g, f.pos );
+					
+					i = compare( c, d );
+					if ( cs == ds ) {
+						if ( i > 0 ) {
+							c = sub( c, d, c.pos );
+						} else if ( i < 0 ) {
+							c = sub( d, c, c.pos );
+							cs = ds;
+						} else {
+							c.len = 0;
+							cs = 1;
+						}
+					} else {
+						c = add( c, d, c.pos );
+					}
+					
+				} else {
+					
+					f = add( f, g, f.pos );
+
+					i = compare( c, d );
+					if ( cs == ds ) {
+						c = add( c, d, c.pos );
+					} else {
+						if ( i > 0 ) {
+							c = sub( c, d, c.pos );
+						} else if ( i < 0 ) {
+							c = sub( d, c, c.pos );
+							cs = ds;
+						} else {
+							c.len = 0;
+							cs = 1;
+						}
+					}
+					
+				}
+				
+				// right shift f k times until odd, left shift d k times
+				z = getLowestBit( f );
+				if ( z > 0 ) {
+					shiftRight( f, z, f.pos );
+					shiftLeft( d, z, d.pos );
+					k += z;
+				}
+				
+			}
+			
+			return null;
+			
 		}
 
 		/**
@@ -1479,6 +1586,26 @@ package by.blooddy.crypto.math {
 		//  Private class methods
 		//
 		//--------------------------------------------------------------------------
+		
+		/**
+		 * @Private
+		 */
+		private static function getLowestBit(v:MemoryBlock):int {
+			if ( v.len == 0 ) return -1;
+			var c:int = 0;
+			var i:int = 0;
+			while ( ( c = li32( i ) ) == 0 ) {
+				i += 4;
+			}
+			// HD, Figure 5-14
+			var y:int;
+			var n:int = 31;
+			y = c << 16; if ( y != 0 ) { n -= 16; c = y; }
+			y = c <<  8; if ( y != 0 ) { n -=  8; c = y; }
+			y = c <<  4; if ( y != 0 ) { n -=  4; c = y; }
+			y = c <<  2; if ( y != 0 ) { n -=  2; c = y; }
+			return ( i << 5 ) + n - ( ( c << 1 ) >>> 31 );
+		}
 		
 		/**
 		 * @private
