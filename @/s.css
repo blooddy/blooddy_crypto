@@ -1,9 +1,24 @@
 
-* {
+@font-face {
+  font-family: 'FontAwesome';
+  src:	url( 'https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/fonts/fontawesome-webfont.eot?v=4.6.1' );
+  src:	url( 'https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/fonts/fontawesome-webfont.eot?#iefix&v=4.6.1' ) format( 'embedded-opentype' ),
+  		url( 'https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/fonts/fontawesome-webfont.woff2?v=4.6.1' ) format( 'woff2' ),
+  		url( 'https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/fonts/fontawesome-webfont.woff?v=4.6.1' ) format( 'woff' ),
+  		url( 'https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/fonts/fontawesome-webfont.ttf?v=4.6.1' ) format( 'truetype' ),
+  		url( 'https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/fonts/fontawesome-webfont.svg?v=4.6.1#fontawesomeregular' ) format( 'svg' );
+  font-weight: normal;
+  font-style: normal;
+}
+
+*,
+:before,
+:after {
 	margin: 0;
 	padding: 0;
 	border: 0;
 	transition: 100ms;
+	outline: none;
 }
 
 html,
@@ -30,14 +45,96 @@ a:hover img {
 	filter: saturate( 200% );
 }
 
+nav {
+	display: table-cell;
+	overflow: hidden;
+	background: #222;
+	padding: 20px 0;
+	border-right: 2px solid #181818;
+	width: 190px;
+	max-width: 190px;
+}
+
+nav.hidden {
+	width: 0;
+	max-width: 0;
+	border: 0;
+}
+
+nav li {
+	list-style: none;
+}
+
+nav span,
+nav a {
+	display: block;
+	white-space: nowrap;
+	font: bold 12px/12px "Open Sans", "Myriad Pro", Geneva ,Verdana, sans-serif;
+	color: #888;
+	line-height: 36px;
+	padding: 0 20px;
+	vertical-align: middle;
+	height: 41px;
+}
+
+nav a:hover {
+	color: #ddd;
+	background-color: #191919;
+	text-decoration: none;
+}
+
+nav a:after {
+	content: "";
+	display: inline-block;
+	width: 3px;
+	height: 41px;
+	background: #F80;
+	float: left;
+	position: relative;
+	margin-left: -23px;
+}
+
+nav a:hover:after {
+	margin-left: -20px;
+}
+
+button:before,
+nav a:before {
+	display: inline-block;
+	font-family: FontAwesome;
+	font-size: 22px;
+	margin-right: 10px;
+	color: #888;
+	position: relative;
+	top: 3px;
+}
+
+nav a[href^="//feeds.feedburner.com"]:before {
+	content: "\f09e";
+}
+
+nav a[href^="//github.com"]:before {
+	content: "\f09b";
+}
+
+nav span {
+	text-transform: uppercase;
+}
+
+nav hr {
+	border: 1px solid #393939;
+	border-top-color: #111;
+	margin: 10px 20px;
+}
+
 .container {
 	display: table-cell;
 	text-align: center;
 	vertical-align: middle;
-	padding: 20px 0;
 	background: #444 url( 'bg.png' ) center repeat-y;
 }
 
+nav:before,
 .container:before {
 	content: "";
 	display: block;
@@ -48,13 +145,35 @@ a:hover img {
 	top: 0;
 }
 
+nav:before {
+	background: #08F;
+}
+
+button {
+	width: 40px;
+	height: 40px;
+	background: #222222;
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	cursor: pointer;
+}
+
+button:before {
+	content: "\f0c9";
+	text-align: center;
+	vertical-align: middle;
+	line-height: 40px;
+	width: 40px;
+	height: 40px;
+	position: static;
+	margin: 0;
+}
+
 .content {
 	display: inline-block;
 	width: 500px;
 	text-align: left;
-}
-
-.content > * {
 	margin: 20px 0;
 }
 
@@ -66,6 +185,10 @@ h1 {
 	color: #fff;
 	padding: 0 20px;
 	text-shadow: #222 1px 1px 4px;
+}
+
+.content main {
+	margin: 20px 0;
 }
 
 main {
@@ -117,11 +240,85 @@ p {
 	margin-bottom: 5px;
 }
 
-@media ( max-width: 500px ) {
+@media ( max-width: 700px ) {
+
+	nav {
+		width: 60px;
+		max-width: 60px;
+	}
+
+	nav.hidden {
+		width: 0;
+		max-width: 0;
+	}
+
+	nav span,
+	nav a {
+		font-size: 0;
+	}
+
+}
+
+@media ( max-width: 590px ) {
+
+	.content {
+		width: 95%;
+	}
+
+}
+
+@media ( max-width: 524px ) {
 
 	.container {
 		background-position-x: -100px;
-		vertical-align: top;
+	}
+
+	.content menu > :last-child {
+		display: none;
+	}
+
+}
+
+@media ( max-width: 480px ) {
+
+	body {
+		background: #444 url( 'bg.png' ) -100px repeat-y;
+	}
+
+	body,
+	nav,
+	.container {
+		display: block;
+	}
+
+	nav {
+		width: 100%;
+		max-width: inherit;
+		border: 0;
+	}
+
+	nav:before {
+		z-index: 1;
+	}
+
+	nav.hidden {
+		width: 100%;
+		height: 0;
+		padding: 0;
+	}
+
+	nav.hidden:before {
+		z-index: 0;
+	}
+
+	nav span,
+	nav a {
+		font-size: 14px;
+	}
+
+	.container {
+		width: 100%;
+		background: none;
 	}
 
 	.content {
@@ -130,9 +327,22 @@ p {
 		border-right-width: 0;
 	}
 
+	.content menu > :last-child {
+		display: inline-block;
+	}
+
 	main {
 		border-radius: 0;
 	}
+
+}
+
+@media ( max-width: 445px ) {
+
+	h1 {
+		font-size: 27px;
+	}
+
 }
 
 @media ( max-width: 425px ) {
@@ -141,20 +351,16 @@ p {
 		display: none;
 	}
 
-}
-
-@media ( max-width: 400px ) {
-
 	h1 {
 		font-size: 25px;
 	}
 
 }
 
-@media ( max-width: 320px ) {
+@media ( max-width: 400px ) {
 
 	h1 {
-		font-size: 20px;
+		font-size: 23px;
 	}
 
 }
