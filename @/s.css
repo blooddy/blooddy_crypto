@@ -18,7 +18,8 @@
 	padding: 0;
 	border: 0;
 	transition: 100ms;
-	outline: none;
+	outline: 0;
+	text-decoration: none;
 }
 
 html,
@@ -109,11 +110,11 @@ nav a:before {
 	top: 3px;
 }
 
-nav a[href^="//feeds.feedburner.com"]:before {
+nav a[href*="feeds.feedburner.com"]:before {
 	content: "\f09e";
 }
 
-nav a[href^="//github.com"]:before {
+nav a[href*="github.com"]:before {
 	content: "\f09b";
 }
 
