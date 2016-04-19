@@ -1492,6 +1492,15 @@ package by.blooddy.crypto.math {
 				
 			}
 			
+			while ( cs < 0 ) {
+				if ( compare( p, c ) > 0 ) {
+					sub( p, c, c.pos );
+				} else {
+					sub( c, p, c.pos );
+					cs = 1;
+				}
+			}
+			
 			return null;
 			
 		}
