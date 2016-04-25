@@ -408,3 +408,6 @@ package by.blooddy.crypto {
 	}
 
 }
+
+by.blooddy.crypto.SHA224;
+by.blooddy.crypto.SHA256;
