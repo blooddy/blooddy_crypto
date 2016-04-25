@@ -15,6 +15,7 @@
     <classEntry path="by.blooddy.crypto.image.palette.IPalette"/>
     <classEntry path="by.blooddy.crypto.image.palette.LevelsPalette"/>
     <classEntry path="by.blooddy.crypto.image.palette.MedianCutPalette"/>
+    <classEntry path="by.blooddy.crypto.serialization.JSON"/>
     <classEntry path="by.blooddy.crypto.serialization.JSONer"/>
   </includeClasses>
   <includeResources/>
