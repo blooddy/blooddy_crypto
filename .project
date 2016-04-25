@@ -11,7 +11,7 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/com.adobe.flexbuilder.project.flexbuilder (1).launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/com.adobe.flexbuilder.project.flexbuilder.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>

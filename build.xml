@@ -116,7 +116,7 @@
 		<compc failonerror="true"
 			output="${swc}"
 			swf-version="10"
-			include-classes="by.blooddy.crypto.Adler32 by.blooddy.crypto.Base64 by.blooddy.crypto.CRC32 by.blooddy.crypto.MD5 by.blooddy.crypto.SHA1 by.blooddy.crypto.SHA2 by.blooddy.crypto.serialization.JSONer by.blooddy.crypto.image.PNGEncoder by.blooddy.crypto.image.JPEGEncoder"
+			include-classes="by.blooddy.crypto.Adler32 by.blooddy.crypto.Base64 by.blooddy.crypto.CRC32 by.blooddy.crypto.MD5 by.blooddy.crypto.SHA1 by.blooddy.crypto.SHA2 by.blooddy.crypto.serialization.JSON by.blooddy.crypto.serialization.JSONer by.blooddy.crypto.image.PNGEncoder by.blooddy.crypto.image.JPEGEncoder"
 		>
 
 			<load-config filename="${flex.sdk}/frameworks/air-config.xml" />
