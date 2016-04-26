@@ -332,7 +332,7 @@ internal final class JSON$Encoder extends JSON$ {
 						if ( c > 0x100 ) {
 							l = i - j;
 							if ( l > 0 ) {
-								bytes.writeBytes( str, j, i );
+								bytes.writeBytes( str, j, l );
 							}
 							j = i + 1;
 							bytes.writeShort( c );
@@ -350,7 +350,7 @@ internal final class JSON$Encoder extends JSON$ {
 						if ( c > 0x100 ) {
 							l = i - j;
 							if ( l > 0 ) {
-								bytes.writeBytes( str, j, i );
+								bytes.writeBytes( str, j, l );
 							}
 							j = i + 1;
 							bytes.writeShort( c );
