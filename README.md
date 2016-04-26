@@ -1,7 +1,5 @@
 [BLODDY_CRYPTO](http://blooddy.by)
 ======================================
-[![Seeking new maintainer(s)](https://img.shields.io/badge/%E2%9A%A0-seeking_new_maintainer%28s%29-orange.svg)](https://github.com/blooddy/blooddy_crypto/issues/55)
---------------------------------------
 [![Wiki](https://img.shields.io/badge/wiki-GitHub-red.svg)](https://github.com/blooddy/blooddy_crypto/wiki)
 [![Download](https://img.shields.io/badge/download-ZIP-yellow.svg)](https://github.com/blooddy/blooddy_crypto/releases/latest)
 [![Last Release](https://img.shields.io/github/release/blooddy/blooddy_crypto.svg?label=version)](https://github.com/blooddy/blooddy_crypto/releases)
