@@ -846,42 +846,10 @@ package by.blooddy.crypto.serialization {
 		}
 		
 		[Test]
-		public function decode_comment_line():void {
-			Assert.assertTrue(
-				equalsObjects(
-					JSONer.decode( '5// comment' ),
-					5// comment
-				)
-			);
-		}
-		
-		[Test]
-		public function decode_comment_multiline():void {
-			Assert.assertTrue(
-				equalsObjects(
-					JSONer.decode( '[1/* line1\nline2*/,2]' ),
-					[1/* line1\nline2*/,2]
-				)
-			);
-		}
-		
-		[Test]
-		public function decode_comment_only():void {
-			Assert.assertTrue(
-				JSONer.decode( '// comment' ) === undefined
-			);
-		}
-		
-		[Test( expects="SyntaxError" )]
-		public function decode_multilineComments_noclose():void {
-			JSONer.decode( '1/* comment' );
-		}
-		
-		[Test]
 		public function decode_object_all():void {
 			Assert.assertTrue(
 				equalsObjects(
-					JSONer.decode( '{key1: {"key2" /*comment\r222\n*/: null},// comment\n   3 : [undefined,true,false,\n-   .5e3,"string",				NaN]}' ),
+					JSONer.decode( '{key1: {"key2" : null},   3 : [undefined,true,false,\n-   .5e3,"string",				NaN]}' ),
 					{ key1: { "key2" : null }, 3 : [ undefined, true, false, -.5e3, "string", NaN ] }
 				)
 			);

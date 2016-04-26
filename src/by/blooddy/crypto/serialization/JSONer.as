@@ -802,11 +802,17 @@ internal final class JSON$Decoder extends JSON$ {
 			
 			try {
 			
-				var c:int = skip( mem, li8( 0 ) & 0xFF );
+				var c:int = li8( _POS ) & 0xFF;
+				while ( _SKIP[ c ] ) c = li8( ++_POS ) & 0xFF;
+
 				if ( c != 0 ) {
+
 					// result = readValue( mem, c );
 					result = _VALUE_READERS[ c ]( mem, c )
-					c = skip( mem, li8( _POS ) & 0xFF );
+
+					c = li8( _POS ) & 0xFF;
+					while ( _SKIP[ c ] ) c = li8( ++_POS ) & 0xFF;
+
 					if ( c != 0 ) {
 						readError( mem, c );
 					}
@@ -951,6 +957,14 @@ internal final class JSON$Decoder extends JSON$ {
 			readers[ i ] = readError;
 		}
 		
+		readers[ 0x08 ] = readValue;		/* BACKSPACE */
+		readers[ 0x09 ] = readValue;		/* TAB */
+		readers[ 0x0A ] = readValue;		/* NEWLINE */
+		readers[ 0x0B ] = readValue;		/* VERTICAL_TAB */
+		readers[ 0x0C ] = readValue;		/* FORM_FEED */
+		readers[ 0x0D ] = readValue;		/* CARRIAGE_RETURN */
+		readers[ 0x20 ] = readValue;		/* SPACE */
+		
 		readers[ 0x22 ] = readString;		/* DOUBLE_QUOTE */
 		readers[ 0x27 ] = readString;		/* SINGLE_QUOTE */
 
@@ -1009,39 +1023,12 @@ internal final class JSON$Decoder extends JSON$ {
 	//  decode main methods
 	//--------------------------------------------------------------------------
 
-	private static function skip(mem:ByteArray, c:int):int {
-		if ( _SKIP[ c ] ) {
-			var pos:int = _POS;
-			do {
-				if ( c == 0x2F /* SLASH */  ) {
-					c = li8( ++pos ) & 0xFF;
-					if ( c == 0x2F /* SLASH */ ) {
-						do {
-							c = li8( ++pos ) & 0xFF;
-						} while ( !_NEWLINE[ c ] );
-					} else if ( c == 0x2A /* ASTERISK */ ) {
-						do {
-							c = li8( ++pos ) & 0xFF;
-							if ( c == 0 /* EOS */ ) {
-								readError( mem, c );
-							}
-						} while ( ( c != 0x2A || ( li8( pos + 1 ) & 0xFF ) != 0x2F ) );
-						++pos;
-					} else {
-						readError( mem, c );
-					}
-				}
-			} while ( _SKIP[ c = li8( ++pos ) & 0xFF ] );
-			_POS = pos;
-		}
-		return c;
-	}
-	
 	private static function readError(mem:ByteArray, c:int):* {
 		Error.throwError( SyntaxError, 1132 );
 	}
 	
 	private static function readValue(mem:ByteArray, c:int):* {
+		c = li8( ++_POS ) & 0xFF;
 		return _VALUE_READERS[ c ]( mem, c );
 	}
 	
@@ -1267,8 +1254,8 @@ internal final class JSON$Decoder extends JSON$ {
 	}
 	
 	private static function readDash(mem:ByteArray, c:int):Number {
-		c = skip( mem, li8( ++_POS ) );
 		// return -readValue( mem, c );
+		c = li8( ++_POS ) & 0xFF;
 		return -_VALUE_READERS[ c ]( mem, c );
 	}
 	
@@ -1280,13 +1267,16 @@ internal final class JSON$Decoder extends JSON$ {
 		
 		do {
 			
-			c = skip( mem, li8( ++_POS ) & 0xFF );
+			c = li8( ++_POS ) & 0xFF;
+			while ( _SKIP[ c ] ) c = li8( ++_POS ) & 0xFF;
+
 			if ( c == 0x2C /* COMMA */ ) {
 				result.push( undefined );
 			} else if ( c != 0x5D /* RIGHT_BRACKET */ ) {
 				// result.push( readValue( mem, c ) );
 				result.push( valueReaders[ c ]( mem, c ) );
-				c = skip( mem, li8( _POS ) & 0xFF );
+				c = li8( _POS ) & 0xFF;
+				while ( _SKIP[ c ] ) c = li8( ++_POS ) & 0xFF;
 			}
 			
 		} while ( c == 0x2C /* COMMA */ );
@@ -1312,17 +1302,24 @@ internal final class JSON$Decoder extends JSON$ {
 		
 		do {
 	
-			c = skip( mem, li8( ++_POS ) & 0xFF );
+			c = li8( ++_POS ) & 0xFF;
+			while ( _SKIP[ c ] ) c = li8( ++_POS ) & 0xFF;
+
 			if ( c != 0x7D /* RIGHT_BRACE */ ) {
+
 				key = identReaders[ c ]( mem, c );
-				c = skip( mem, li8( _POS ) & 0xFF );
+
+				c = li8( _POS ) & 0xFF;
+				while ( _SKIP[ c ] ) c = li8( ++_POS ) & 0xFF;
 				
 				if ( c != 0x3A /* COLON */ ) readError( mem, c );
-				c = skip( mem, li8( ++_POS ) & 0xFF );
+				c = li8( ++_POS ) & 0xFF;
 	
 				// result[ key ] = readValue( mem, c );
 				result[ key ] = valueReaders[ c ]( mem, c );
-				c = skip( mem, li8( _POS ) & 0xFF );
+
+				c = li8( _POS ) & 0xFF;
+				while ( _SKIP[ c ] ) c = li8( ++_POS ) & 0xFF;
 
 			}
 					
