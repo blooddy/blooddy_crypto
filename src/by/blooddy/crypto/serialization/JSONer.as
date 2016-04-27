@@ -177,18 +177,7 @@ import by.blooddy.crypto.serialization.SerializationHelper;
 /**
  * @private
  */
-internal class JSON$ {
-	
-	protected static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
-	
-	protected static const _STR:ByteArray = new ByteArray();
-	
-}
-
-/**
- * @private
- */
-internal final class JSON$Encoder extends JSON$ {
+internal final class JSON$Encoder {
 
 	//--------------------------------------------------------------------------
 	//
@@ -231,6 +220,10 @@ internal final class JSON$Encoder extends JSON$ {
 	//--------------------------------------------------------------------------
 	//  encode variables
 	//--------------------------------------------------------------------------
+	
+	private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
+	
+	private static const _STR:ByteArray = new ByteArray();
 	
 	private static const _ESCAPE_EXP:RegExp = /[\f\n\r\t\v\u0008"\\]/;
 	
@@ -777,7 +770,7 @@ internal final class JSON$Encoder extends JSON$ {
 /**
  * @private
  */
-internal final class JSON$Decoder extends JSON$ {
+internal final class JSON$Decoder {
 
 	//--------------------------------------------------------------------------
 	//
@@ -834,7 +827,11 @@ internal final class JSON$Decoder extends JSON$ {
 	//--------------------------------------------------------------------------
 	//  decode variables
 	//--------------------------------------------------------------------------
+
+	private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
 	
+	private static const _STR:ByteArray = new ByteArray();
+
 	private static const _SKIP:Vector.<Boolean> = ( function():Vector.<Boolean> {
 		
 		var skip:Vector.<Boolean> = new Vector.<Boolean>( 0x100, true );
@@ -957,13 +954,13 @@ internal final class JSON$Decoder extends JSON$ {
 			readers[ i ] = readError;
 		}
 		
-		readers[ 0x08 ] = readValue;		/* BACKSPACE */
-		readers[ 0x09 ] = readValue;		/* TAB */
-		readers[ 0x0A ] = readValue;		/* NEWLINE */
-		readers[ 0x0B ] = readValue;		/* VERTICAL_TAB */
-		readers[ 0x0C ] = readValue;		/* FORM_FEED */
-		readers[ 0x0D ] = readValue;		/* CARRIAGE_RETURN */
-		readers[ 0x20 ] = readValue;		/* SPACE */
+		readers[ 0x08 ] = readEmptyValue;	/* BACKSPACE */
+		readers[ 0x09 ] = readEmptyValue;	/* TAB */
+		readers[ 0x0A ] = readEmptyValue;	/* NEWLINE */
+		readers[ 0x0B ] = readEmptyValue;	/* VERTICAL_TAB */
+		readers[ 0x0C ] = readEmptyValue;	/* FORM_FEED */
+		readers[ 0x0D ] = readEmptyValue;	/* CARRIAGE_RETURN */
+		readers[ 0x20 ] = readEmptyValue;	/* SPACE */
 		
 		readers[ 0x22 ] = readString;		/* DOUBLE_QUOTE */
 		readers[ 0x27 ] = readString;		/* SINGLE_QUOTE */
@@ -997,20 +994,28 @@ internal final class JSON$Decoder extends JSON$ {
 	private static const _IDENTIFIER_READERS:Vector.<Function> = ( function():Vector.<Function> {
 		var readers:Vector.<Function> = _VALUE_READERS.slice(); readers.fixed = true;
 		
-		readers[ 0x5B ] = readError;		/* LEFT_BRACKET */
-		readers[ 0x7B ] = readError;		/* LEFT_BRACE */
+		readers[ 0x08 ] = readEmptyIdentifier;	/* BACKSPACE */
+		readers[ 0x09 ] = readEmptyIdentifier;	/* TAB */
+		readers[ 0x0A ] = readEmptyIdentifier;	/* NEWLINE */
+		readers[ 0x0B ] = readEmptyIdentifier;	/* VERTICAL_TAB */
+		readers[ 0x0C ] = readEmptyIdentifier;	/* FORM_FEED */
+		readers[ 0x0D ] = readEmptyIdentifier;	/* CARRIAGE_RETURN */
+		readers[ 0x20 ] = readEmptyIdentifier;	/* SPACE */
+
+		readers[ 0x5B ] = readError;			/* LEFT_BRACKET */
+		readers[ 0x7B ] = readError;			/* LEFT_BRACE */
 
 		var i:int;
 		
-		readers[ 0x24 ] = readIdentifier;	// $
-		for ( i=0x41; i<=0x5A; ++i ) {		// A..Z
+		readers[ 0x24 ] = readIdentifier;		// $
+		for ( i=0x41; i<=0x5A; ++i ) {			// A..Z
 			readers[ i ] = readIdentifier;
 		}
-		readers[ 0x5F ] = readIdentifier;	// _
-		for ( i=0x61; i<=0x7A; ++i ) {		// a..z
+		readers[ 0x5F ] = readIdentifier;		// _
+		for ( i=0x61; i<=0x7A; ++i ) {			// a..z
 			readers[ i ] = readIdentifier;
 		}
-		for ( i=0x80; i<0x100; ++i ) {		// 
+		for ( i=0x80; i<0x100; ++i ) {			// 
 			readers[ i ] = readIdentifier;
 		}
 		
@@ -1027,14 +1032,14 @@ internal final class JSON$Decoder extends JSON$ {
 		Error.throwError( SyntaxError, 1132 );
 	}
 	
-	private static function readValue(mem:ByteArray, c:int):* {
-		c = li8( ++_POS ) & 0xFF;
+	private static function readEmptyValue(mem:ByteArray, c:int):* {
+		do { c = li8( ++_POS ) & 0xFF } while ( _SKIP[ c ] );
 		return _VALUE_READERS[ c ]( mem, c );
 	}
 	
 	private static function readString(mem:ByteArray, to:int):String {
 		
-		var result:String = '';
+		var result:String;
 		
 		var pos:int = _POS + 1;
 		var c:int = 0;
@@ -1116,6 +1121,10 @@ internal final class JSON$Decoder extends JSON$ {
 			result = str.readUTFBytes( str.length );
 
 			str.length = 0;
+			
+		} else {
+			
+			result = '';
 			
 		}
 
@@ -1254,7 +1263,6 @@ internal final class JSON$Decoder extends JSON$ {
 	}
 	
 	private static function readDash(mem:ByteArray, c:int):Number {
-		// return -readValue( mem, c );
 		c = li8( ++_POS ) & 0xFF;
 		return -_VALUE_READERS[ c ]( mem, c );
 	}
@@ -1263,28 +1271,43 @@ internal final class JSON$Decoder extends JSON$ {
 
 		var result:Array = [];
 		
-		var valueReaders:Vector.<Function> = _VALUE_READERS;
-		
-		do {
-			
-			c = li8( ++_POS ) & 0xFF;
-			while ( _SKIP[ c ] ) c = li8( ++_POS ) & 0xFF;
+		c = li8( ++_POS ) & 0xFF;
+		if ( c != 0x5D ) {
 
-			if ( c == 0x2C /* COMMA */ ) {
-				result.push( undefined );
-			} else if ( c != 0x5D /* RIGHT_BRACKET */ ) {
-				// result.push( readValue( mem, c ) );
-				result.push( valueReaders[ c ]( mem, c ) );
-				c = li8( _POS ) & 0xFF;
-				while ( _SKIP[ c ] ) c = li8( ++_POS ) & 0xFF;
+			var skip:Vector.<Boolean> = _SKIP;
+			
+			while ( skip[ c ] ) { c = li8( ++_POS ) & 0xFF };
+
+			if ( c != 0x5D ) {
+				
+				var valueReaders:Vector.<Function> = _VALUE_READERS;
+				
+				do {
+					
+					if ( c == 0x2C /* COMMA */ ) {
+
+						result.push( undefined );
+
+					} else {
+		
+						result.push( valueReaders[ c ]( mem, c ) );
+
+						c = li8( _POS ) & 0xFF;
+						if ( c != 0x2C /* COMMA */ ) {
+							while ( skip[ c ] ) c = li8( ++_POS ) & 0xFF;
+							if ( c != 0x2C /* COMMA */ ) break;
+						}
+						
+					}
+					
+					do { c = li8( ++_POS ) & 0xFF } while ( skip[ c ] );
+					
+				} while ( c != 0x5D );
+				
 			}
-			
-		} while ( c == 0x2C /* COMMA */ );
-		
-		if ( c != 0x5D /* RIGHT_BRACKET */ ) {
-			readError( mem, c );
-		}
 
+		}
+		
 		++_POS;
 		
 		return result;
@@ -1295,38 +1318,49 @@ internal final class JSON$Decoder extends JSON$ {
 
 		var result:Object = {};
 		
-		var valueReaders:Vector.<Function> = _VALUE_READERS;
-		var identReaders:Vector.<Function> = _IDENTIFIER_READERS;
+		c = li8( ++_POS ) & 0xFF;
+		if ( c != 0x7D ) {
 		
-		var key:String;
-		
-		do {
-	
-			c = li8( ++_POS ) & 0xFF;
-			while ( _SKIP[ c ] ) c = li8( ++_POS ) & 0xFF;
+			var skip:Vector.<Boolean> = _SKIP;
 
-			if ( c != 0x7D /* RIGHT_BRACE */ ) {
-
-				key = identReaders[ c ]( mem, c );
-
-				c = li8( _POS ) & 0xFF;
-				while ( _SKIP[ c ] ) c = li8( ++_POS ) & 0xFF;
+			while ( skip[ c ] ) { c = li8( ++_POS ) & 0xFF };
+			
+			if ( c != 0x7D ) {
+			
+				var valueReaders:Vector.<Function> = _VALUE_READERS;
+				var identReaders:Vector.<Function> = _IDENTIFIER_READERS;
 				
-				if ( c != 0x3A /* COLON */ ) readError( mem, c );
-				c = li8( ++_POS ) & 0xFF;
-	
-				// result[ key ] = readValue( mem, c );
-				result[ key ] = valueReaders[ c ]( mem, c );
-
-				c = li8( _POS ) & 0xFF;
-				while ( _SKIP[ c ] ) c = li8( ++_POS ) & 0xFF;
+				var key:String;
+				
+				do {
+			
+					key = identReaders[ c ]( mem, c );
+		
+					c = li8( _POS ) & 0xFF;
+					if ( c != 0x3A /* COLON */ ) {
+						while ( skip[ c ] ) c = li8( ++_POS ) & 0xFF;
+						if ( c != 0x3A /* COLON */ ) readError( mem, c );
+					}
+		
+					c = li8( ++_POS ) & 0xFF;
+					result[ key ] = valueReaders[ c ]( mem, c );
+		
+					c = li8( _POS ) & 0xFF;
+					if ( c != 0x2C /* COMMA */ ) {
+						while ( skip[ c ] ) c = li8( ++_POS ) & 0xFF;
+						if ( c != 0x2C /* COMMA */ ) break;
+					}
+		
+					c = li8( ++_POS ) & 0xFF;
+					
+				} while ( true );
+				
+				if ( c != 0x7D /* RIGHT_BRACE */ ) {
+					readError( mem, c );
+				}
 
 			}
-					
-		} while ( c == 0x2C /* COMMA */ );
-
-		if ( c != 0x7D /* RIGHT_BRACE */ ) {
-			readError( mem, c );
+	
 		}
 
 		++_POS;
@@ -1378,6 +1412,11 @@ internal final class JSON$Decoder extends JSON$ {
 		return undefined;
 	}
 
+	private static function readEmptyIdentifier(mem:ByteArray, c:int):* {
+		do { c = li8( ++_POS ) & 0xFF } while ( _SKIP[ c ] );
+		return _IDENTIFIER_READERS[ c ]( mem, c );
+	}
+	
 	private static function readIdentifier(mem:ByteArray, c:int):String {
 		
 		var pos:int = _POS;
