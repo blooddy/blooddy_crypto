@@ -181,11 +181,13 @@ button:before {
 h1 {
 	display: inline-block;
 	font-size: 30px;
+	line-height: 40px;
 	font-weight: bold;
-	height: 30px;
+	height: 40px;
 	color: #fff;
 	padding: 0 20px;
 	text-shadow: #222 1px 1px 4px;
+	vertical-align: middle;
 }
 
 h1 a,
@@ -354,9 +356,9 @@ p {
 
 }
 
-@media ( max-width: 425px ) {
+@media ( max-width: 450px ) {
 
-	.content menu > :last-child {
+	.content menu:first-child > :nth-child( n + 4 ) {
 		display: none;
 	}
 
@@ -366,10 +368,26 @@ p {
 
 }
 
-@media ( max-width: 400px ) {
+@media ( max-width: 380px ) {
 
 	h1 {
-		font-size: 23px;
+		font-size: 22px;
+	}
+
+}
+
+@media ( max-width: 370px ) {
+
+	.content menu:first-child > :nth-child( n + 3 ) {
+		display: none;
+	}
+
+}
+
+@media ( max-width: 340px ) {
+
+	h1 {
+		font-size: 16px;
 	}
 
 }
