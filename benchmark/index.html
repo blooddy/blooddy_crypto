@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" lang="ru">
+
+<head>
+
+	<title>blooddy_crypto.swc</title>
+
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta http-equiv="Content-Script-Type" content="text/javascript" />
+
+	<meta http-equiv="Content-Language" content="en" />
+	<meta property="og:locale" content="en" />
+
+	<meta property="og:url" content="//blooddy.by" />
+	<link rel="canonical" href="//blooddy.by" />
+
+	<meta property="og:title" name="title" content="Benchmark | blooddy_crypto.swc" />
+
+	<meta name="description" property="og:description" content="ActionScript (AS3) library for processing binary data. This library contains MD5, SHA-1, SHA-2 ( 224 & 256 ), Base64, CRC32 algorithms, JSON encoder & decoder as well as PNG and JPEG encoders." />
+	<meta name="keywords" content="blooddy,BlooDHounD,AS3,ActionScript,crypto,PNGEncoder,JPEGEncoder,Base64,MD5,CRC32,Adler32,SHA1,SHA2,SHA256,SHA224,JSON" />
+
+	<link rel="meta" type="application/rdf+xml" title="FOAF" href="/foaf.rdf" />
+	<link rel="alternate" hreflang="en" type="application/rss+xml" href="https://feeds.feedburner.com/blooddy_crypto" title="blooddy_crypto.swc" />
+
+	<meta name="author" content="BlooDHounD" />
+	<meta name="copyright" content="BlooDHounD" />
+	<link rel="publisher author creator" href="https://plus.google.com/100541322208500221597" />
+
+	<meta property="og:type" content="site" />
+	<meta property="og:country-name" content="BY" />
+	<meta property="og:email" content="blooddy@tut.by" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<link rel="mask-icon" href="https://assets-cdn.github.com/pinned-octocat.svg" color="#4078c0" />
+	<link rel="icon" type="image/x-icon" href="https://assets-cdn.github.com/favicon.ico" />
+
+	<link rel="stylesheet" type="text/css" media="screen" href="//blooddy.by/@/s.css" />
+	<style type="text/css">/*<![CDATA[*/
+
+		table {
+			width: 100%;
+			margin-bottom: 10px;
+		}
+
+		table td a,
+		table td a:hover{
+			color: #FFF;
+		}
+
+		table * {
+			white-space: pre;
+			font-family: "Courier New", sans-serif;
+		}
+
+		table caption {
+			text-align: left;
+		}
+
+		table tr > td:nth-child( 1 ) {
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		table tr > td:nth-child( 2 ) {
+			width: 100px;
+			text-align: left;
+			margin-left: 10px;
+		}
+
+		table tr > td:nth-child( 3 ) {
+			width: 40px;
+			text-align: right;
+			margin-left: 10px;
+		}
+
+	/*]]>*/</style>
+
+	<script type="application/javascript">//<![CDATA[
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+		ga('create','UA-3924886-3','auto');
+		ga('send','pageview');
+	//]]></script>
+
+</head>
+
+<body>
+<button onclick=" var e = document.getElementById( 'nav' ); e.className= e.className ? '' : 'hidden'; "></button>
+<nav id="nav" class="hidden">
+	<span>Follow me</span>
+	<hr />
+	<menu>
+		<li><a href="https://feeds.feedburner.com/blooddy_crypto">RSS</a></li>
+		<li><a href="https://github.com/blooddy">GitHub</a></li>
+	</menu>
+</nav>
+<div class="container">
+	<div class="content">
+		<h1><a href="//blooddy.by">blooddy_crypto.swc</a></h1>
+		<main>
+			<section id="benchmark">
+				<table>
+					<caption><a href="https://en.wikipedia.org/wiki/Md5"><abbr title="Message Digest 5">MD5</abbr></a></caption>
+					<tbody>
+						<tr><td><a href="https://github.com/blooddy/blooddy_crypto/blob/master/src/by/blooddy/crypto/MD5.as">by.blooddy.crypto.MD5</a></td><td></td><td>14</td></tr>
+						<tr><td><a href="https://github.com/mikechambers/as3corelib/blob/master/src/com/adobe/crypto/MD5.as">com.adobe.crypto.MD5</a></td><td></td><td>1624</td></tr>
+					</tbody>
+				</table>
+				<table>
+					<caption><a href="https://en.wikipedia.org/wiki/SHA-1"><abbr title="Secure Hash Algorithm">SHA</abbr>-1</a></caption>
+					<tbody>
+						<tr><td><a href="https://github.com/blooddy/blooddy_crypto/blob/master/src/by/blooddy/crypto/SHA1.as">by.blooddy.crypto.SHA1</a></td><td></td><td>36</td></tr>
+						<tr><td><a href="https://github.com/mikechambers/as3corelib/blob/master/src/com/adobe/crypto/SHA1.as">com.adobe.crypto.SHA1</a></td><td></td><td>1078</td></tr>
+					</tbody>
+				</table>
+				<table>
+					<caption><a href="https://en.wikipedia.org/wiki/SHA-2"><abbr title="Secure Hash Algorithm">SHA</abbr>-2</a></caption>
+					<tbody>
+						<tr><td><a href="https://github.com/blooddy/blooddy_crypto/blob/master/src/by/blooddy/crypto/SHA224.as">by.blooddy.crypto.SHA224</a></td><td></td><td>55</td></tr>
+						<tr><td><a href="https://github.com/mikechambers/as3corelib/blob/master/src/com/adobe/crypto/SHA224.as">com.adobe.crypto.SHA224</a></td><td></td><td>4237</td></tr>
+						<tr><td><a href="https://github.com/blooddy/blooddy_crypto/blob/master/src/by/blooddy/crypto/SHA256.as">by.blooddy.crypto.SHA256</a></td><td></td><td>56</td></tr>
+						<tr><td><a href="https://github.com/mikechambers/as3corelib/blob/master/src/com/adobe/crypto/SHA256.as">com.adobe.crypto.SHA256</a></td><td></td><td>4306</td></tr>
+						<tr><td><a href="https://github.com/apache/flex-sdk/blob/master/frameworks/projects/framework/src/mx/utils/SHA256.as">mx.utils.SHA256</a></td><td></td><td>781</td></tr>
+					</tbody>
+				</table>
+				<table>
+					<caption><a href="https://en.wikipedia.org/wiki/JSON"><abbr title="JavaScript Object Notation">JSON</abbr></a></caption>
+					<tbody>
+						<tr><td><a href="https://github.com/blooddy/blooddy_crypto/blob/master/src/by/blooddy/crypto/serialization/JSONer.as">by.blooddy.crypto.serialization.JSONer</a></td><td>parse</td><td>30</td></tr>
+						<tr><td><a href="https://github.com/mikechambers/as3corelib/blob/master/src/com/adobe/serialization/json/JSON.as">com.adobe.serialization.json.JSON</a></td><td>decode</td><td>132</td></tr>
+						<tr><td><a href="https://github.com/blooddy/blooddy_crypto/blob/master/src/by/blooddy/crypto/serialization/JSONer.as">by.blooddy.crypto.serialization.JSONer</a></td><td>stringify</td><td>31</td></tr>
+						<tr><td><a href="https://github.com/mikechambers/as3corelib/blob/master/src/com/adobe/serialization/json/JSON.as">com.adobe.serialization.json.JSON</a></td><td>encode</td><td>112</td></tr>
+					</tbody>
+				</table>
+				<table>
+					<caption><a href="https://en.wikipedia.org/wiki/Base64">Base64</a></caption>
+					<tbody>
+						<tr><td><a href="https://github.com/blooddy/blooddy_crypto/blob/master/src/by/blooddy/crypto/Base64.as">by.blooddy.crypto.Base64</a></td><td>decode</td><td>34</td></tr>
+						<tr><td><a href="https://github.com/apache/flex-sdk/blob/master/frameworks/projects/framework/src/mx/utils/Base64Decoder.as">mx.utils.Base64Encoder</a></td><td>decode</td><td>913</td></tr>
+						<tr><td><a href="https://github.com/blooddy/blooddy_crypto/blob/master/src/by/blooddy/crypto/Base64.as">by.blooddy.crypto.Base64</a></td><td>encode</td><td>49</td></tr>
+						<tr><td><a href="https://github.com/apache/flex-sdk/blob/master/frameworks/projects/framework/src/mx/utils/Base64Encoder.as">mx.utils.Base64Encoder</a></td><td>encode</td><td>557</td></tr>
+					</tbody>
+				</table>
+				<table>
+					<caption><a href="https://en.wikipedia.org/wiki/Portable_Network_Graphics"><abbr title="Portable Network Graphics">PNG</abbr>Encoder</a></caption>
+					<tbody>
+						<tr><td><a href="https://github.com/blooddy/blooddy_crypto/blob/master/src/by/blooddy/crypto/image/PNGEncoder.as">by.blooddy.crypto.image.PNGEncoder</a></td><td></td><td>113</td></tr>
+						<tr><td><a href="https://github.com/mikechambers/as3corelib/blob/master/src/com/adobe/images/PNGEncoder.as">com.adobe.images.PNGEncoder</a></td><td></td><td>457</td></tr>
+						<tr><td><a href="https://github.com/apache/flex-sdk/blob/master/frameworks/projects/framework/src/mx/graphics/codec/PNGEncoder.as">mx.graphics.codec.PNGEncoder</a></td><td></td><td>429</td></tr>
+						<tr><td><a href="https://github.com/blooddy/blooddy_crypto/blob/master/src/by/blooddy/crypto/image/PNGEncoder.as">by.blooddy.crypto.image.PNGEncoder</a></td><td>transparent</td><td>577</td></tr>
+						<tr><td><a href="https://github.com/mikechambers/as3corelib/blob/master/src/com/adobe/images/PNGEncoder.as">com.adobe.images.PNGEncoder</a></td><td>transparent</td><td>823</td></tr>
+						<tr><td><a href="https://github.com/apache/flex-sdk/blob/master/frameworks/projects/framework/src/mx/graphics/codec/PNGEncoder.as">mx.graphics.codec.PNGEncoder</a></td><td>transparent</td><td>834</td></tr>
+					</tbody>
+				</table>
+				<table>
+					<caption><a href="https://en.wikipedia.org/wiki/JPEG"><abbr title="Joint Photographic Experts Group">JPEG</abbr>Encoder</a></caption>
+					<tbody>
+						<tr><td><a href="https://github.com/blooddy/blooddy_crypto/blob/master/src/by/blooddy/crypto/image/JPEGEncoder.as">by.blooddy.crypto.image.JPEGEncoder</a></td><td></td><td>105</td></tr>
+						<tr><td><a href="https://github.com/mikechambers/as3corelib/blob/master/src/com/adobe/images/JPGEncoder.as">com.adobe.images.JPGEncoder</a></td><td></td><td>1008</td></tr>
+						<tr><td><a href="https://github.com/apache/flex-sdk/blob/master/frameworks/projects/framework/src/mx/graphics/codec/JPEGEncoder.as">mx.graphics.codec.JPEGEncoder</a></td><td></td><td>1062</td></tr>
+					</tbody>
+				</table>
+			</section>
+			<script type="application/javascript">//<![CDATA[
+			( function(document) {
+
+				var e = document.getElementById( 'benchmark' );
+				e.innerHTML = '<object type="application/x-shockwave-flash" data="//blooddy.by/f/blooddy_crypto_benchmark.swf" width="100%" height="280" bgcolor="#333"><param name="movie" value="//blooddy.by/f/blooddy_crypto_benchmark.swf" /><param name="quality" value="high" /><param name="bgcolor" value="#333" /></object>';
+
+				e = document.createElement( 'script' );
+				e.async = true;
+				e.src = 'https://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js';
+
+				var s = document.getElementsByTagName( 'script' )[ 0 ];
+				s.parentNode.insertBefore( e, s );
+
+			}( document ) );
+			//]]></script>
+			<hr />
+			<menu>
+				<li><a href="https://github.com/blooddy/blooddy_crypto_benchmark"><img src="https://img.shields.io/badge/source-GitHub-lightgray.svg" alt="Source" /></a></li>
+			</menu>
+		</main>
+		<footer>
+			<span>© 2010 <a href="mailto:blooddy@tut.by" rel="author">Nick Ryzhy</a></span>
+			<span><a href="https://github.com/blooddy/blooddy_crypto"><img width="20" height="20" src="https://assets-cdn.github.com/pinned-octocat.svg" alt="Source" /></a></span>
+		</footer>
+	</div>
+</div>
+</body>
+
+</html>

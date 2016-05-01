@@ -188,6 +188,14 @@ h1 {
 	text-shadow: #222 1px 1px 4px;
 }
 
+h1 a,
+h1 a:hover {
+	color: inherit;
+	font: inherit;
+	text-decoration: inherit;
+}
+
+
 .content main {
 	margin: 20px 0;
 }
