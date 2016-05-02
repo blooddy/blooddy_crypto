@@ -56,10 +56,12 @@ package by.blooddy.crypto.image {
 		 *
 		 * @see					flash.display.JPEGEncoderOptions
 		 */
-		public static function encode(image:BitmapData, quality:uint=60):ByteArray {
+		public static function encode(image:BitmapData, quality:uint=80):ByteArray {
 			
 			if ( image == null ) Error.throwError( TypeError, 2007, 'image' );
-			if ( quality > 100 ) Error.throwError( RangeError, 2006, 'quality' );
+
+			if ( quality > 100 ) quality = 100;
+			else if ( quality < 1 ) quality = 1;
 			
 			if ( _NATIVE ) {
 				return image.encode( image.rect, new JPEGEncoderOptions( quality ) );
@@ -80,11 +82,10 @@ package by.blooddy.crypto.image {
 		 *
 		 * @return 				a <code>ByteArray</code> representing the JPEG encoded image data.
 		 */
-		public static function encodeBytes(bytes:ByteArray, width:uint, height:uint, quality:uint=60):ByteArray {
+		public static function encodeBytes(bytes:ByteArray, width:uint, height:uint, quality:uint=80):ByteArray {
 			
 			if ( bytes == null ) Error.throwError( TypeError, 2007, 'bytes' );
-			if ( quality > 100 ) Error.throwError( RangeError, 2006, 'quality' );
-			
+
 			var image:BitmapData = new BitmapData( width, height, false );
 
 			var pos:uint = bytes.position;
@@ -285,13 +286,9 @@ package by.blooddy.crypto.image {
 		 *
 		 * @param	quality		The compression level, possible values are 1 through 100 inclusive.
 		 */
-		public function encode(image:BitmapData, quality:uint=60):void {
-			
+		public function encode(image:BitmapData, quality:uint=80):void {
 			if ( image == null ) Error.throwError( TypeError, 2007, 'image' );
-			if ( quality > 100 ) Error.throwError( RangeError, 2006, 'quality' );
-			
 			super.call( 'encodeBytes', image.getPixels( image.rect ), image.width, image.height, quality );
-			
 		}
 		
 		/**
@@ -305,13 +302,9 @@ package by.blooddy.crypto.image {
 		 *
 		 * @param	quality		The compression level, possible values are 1 through 100 inclusive.
 		 */
-		public function encodeBytes(bytes:ByteArray, width:uint, height:uint, quality:uint=60):void {
-			
+		public function encodeBytes(bytes:ByteArray, width:uint, height:uint, quality:uint=80):void {
 			if ( bytes == null ) Error.throwError( TypeError, 2007, 'bytes' );
-			if ( quality > 100 ) Error.throwError( RangeError, 2006, 'quality' );
-			
 			super.call( 'encodeBytes', bytes, width, height, quality );
-			
 		}
 		
 		}
