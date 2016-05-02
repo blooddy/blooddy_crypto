@@ -336,7 +336,7 @@ package by.blooddy.crypto.math {
 			if ( this._bytes ) {
 				var result:Number = 0;
 
-				var k:Number = 1;
+				var k:Number = this._sign;
 
 				this._bytes.position = 0;
 				while( this._bytes.bytesAvailable ) {
