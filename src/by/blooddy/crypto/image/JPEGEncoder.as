@@ -416,7 +416,7 @@ internal final class JPEGEncoder$ {
 
 				// processDU
 				
-				DCY = processDU( 256 + 512 * 0, 256 + 512 * 3 + 130, DCY, 256 + 512 * 3 + 1218 + 416,  256 + 512 * 3 + 1218 + 452  );
+				DCY = processDU( 256 + 512 * 0, 256 + 512 * 3 + 130, DCY, 256 + 512 * 3 + 1218 +  416, 256 + 512 * 3 + 1218 +  452 );
 				DCU = processDU( 256 + 512 * 1, 256 + 512 * 3 + 642, DCU, 256 + 512 * 3 + 1218 + 1205, 256 + 512 * 3 + 1218 + 1241 );
 				DCV = processDU( 256 + 512 * 2, 256 + 512 * 3 + 642, DCV, 256 + 512 * 3 + 1218 + 1205, 256 + 512 * 3 + 1218 + 1241 );
 				
@@ -452,6 +452,11 @@ internal final class JPEGEncoder$ {
 	
 	private static function processDU(CDU:int, fdtbl:int, DC:int, HTDC:int, HTAC:int):int {
 		
+		var byteout:int = _BYTE_OUT;
+		var bytepos:int = _BYTE_POS;
+		var bytenew:int = _BYTE_NEW;
+		var len:int, val:int, val2:Boolean;
+
 		// DCT & quantization core
 		var dataOff:int;
 		var d0:Number, d1:Number, d2:Number, d3:Number, d4:Number, d5:Number, d6:Number, d7:Number;
@@ -610,13 +615,80 @@ internal final class JPEGEncoder$ {
 		
 		// Encode DC
 		if ( dataOff == 0 ) {
-			writeBits( li8( HTDC ), li16( HTDC + 1 ) ); // Diff might be 0
+
+			// Diff might be 0
+			// writeBits( li8( HTDC ), li16( HTDC + 1 ) );
+			len = li8( HTDC ) - 1;
+			if ( len >= 0 ) {
+				val = li16( HTDC + 1 );
+				do {
+					if ( ( val & ( 1 << len ) ) != 0 ) {
+						bytenew |= 1 << bytepos;
+					}
+					if ( --bytepos < 0 ) {
+						if ( bytenew == 0xFF ) {
+							si16( 0x00FF, byteout );
+							byteout += 2;
+						} else {
+							si8( bytenew, byteout );
+							byteout++;
+						}
+						bytepos = 7;
+						bytenew = 0;
+					}
+				} while ( --len >= 0 );
+			}
+
 		} else {
+
 			pos = ( 32767 + dataOff ) * 3;
+
 			mpos = HTDC + li8( 256 + 512 * 3 + 3212 + pos ) * 3;
-			writeBits( li8( mpos ), li16( mpos + 1 ) );
+			// writeBits( li8( mpos ), li16( mpos + 1 ) );
+			len = li8( mpos ) - 1;
+			if ( len >= 0 ) {
+				val = li16( mpos + 1 );
+				do {
+					if ( ( val & ( 1 << len ) ) != 0 ) {
+						bytenew |= 1 << bytepos;
+					}
+					if ( --bytepos < 0 ) {
+						if ( bytenew == 0xFF ) {
+							si16( 0x00FF, byteout );
+							byteout += 2;
+						} else {
+							si8( bytenew, byteout );
+							byteout++;
+						}
+						bytepos = 7;
+						bytenew = 0;
+					}
+				} while ( --len >= 0 );
+			}
+
 			mpos = 256 + 512 * 3 + 3212 + pos;
-			writeBits( li8( mpos ), li16( mpos + 1 ) );
+			// writeBits( li8( mpos ), li16( mpos + 1 ) );
+			len = li8( mpos ) - 1;
+			if ( len >= 0 ) {
+				val = li16( mpos + 1 );
+				do {
+					if ( ( val & ( 1 << len ) ) != 0 ) {
+						bytenew |= 1 << bytepos;
+					}
+					if ( --bytepos < 0 ) {
+						if ( bytenew == 0xFF ) {
+							si16( 0x00FF, byteout );
+							byteout += 2;
+						} else {
+							si8( bytenew, byteout );
+							byteout++;
+						}
+						bytepos = 7;
+						bytenew = 0;
+					}
+				} while ( --len >= 0 );
+			}
+
 		}
 		
 		// Encode ACs
@@ -637,29 +709,123 @@ internal final class JPEGEncoder$ {
 				while ( i <= end0pos && li32( i << 2 ) == 0 ) ++i;
 				nrzeroes = i - startpos;
 				if ( nrzeroes >= 16 ) {
+	
 					lng = nrzeroes >> 4;
 					nrmarker = 1;
 					while ( nrmarker <= lng ) {
+
 						mpos = HTAC + 0xF0 * 3;
-						writeBits( li8( mpos ), li16( mpos + 1 ) );
+						// writeBits( li8( mpos ), li16( mpos + 1 ) );
+						len = li8( mpos ) - 1;
+						if ( len >= 0 ) {
+							val = li16( mpos + 1 );
+							do {
+								if ( ( val & ( 1 << len ) ) != 0 ) {
+									bytenew |= 1 << bytepos;
+								}
+								if ( --bytepos < 0 ) {
+									if ( bytenew == 0xFF ) {
+										si16( 0x00FF, byteout );
+										byteout += 2;
+									} else {
+										si8( bytenew, byteout );
+										byteout++;
+									}
+									bytepos = 7;
+									bytenew = 0;
+								}
+							} while ( --len >= 0 );
+						}
+
 						++nrmarker;
+
 					}
 					nrzeroes &= 0xF;
+
 				}
+
 				pos = ( 32767 + li32( i << 2 ) ) * 3;
+
 				mpos = HTAC + ( nrzeroes << 4 ) * 3 + li8( 256 + 512 * 3 + 3212 + pos ) * 3;
-				writeBits( li8( mpos ), li16( mpos + 1 ) );
+				// writeBits( li8( mpos ), li16( mpos + 1 ) );
+				len = li8( mpos ) - 1;
+				if ( len >= 0 ) {
+					val = li16( mpos + 1 );
+					do {
+						if ( ( val & ( 1 << len ) ) != 0 ) {
+							bytenew |= 1 << bytepos;
+						}
+						if ( --bytepos < 0 ) {
+							if ( bytenew == 0xFF ) {
+								si16( 0x00FF, byteout );
+								byteout += 2;
+							} else {
+								si8( bytenew, byteout );
+								byteout++;
+							}
+							bytepos = 7;
+							bytenew = 0;
+						}
+					} while ( --len >= 0 );
+				}
+
 				mpos = 256 + 512 * 3 + 3212 + pos;
-				writeBits( li8( mpos ), li16( mpos + 1 ) );
+				// writeBits( li8( mpos ), li16( mpos + 1 ) );
+				len = li8( mpos ) - 1;
+				if ( len >= 0 ) {
+					val = li16( mpos + 1 );
+					do {
+						if ( ( val & ( 1 << len ) ) != 0 ) {
+							bytenew |= 1 << bytepos;
+						}
+						if ( --bytepos < 0 ) {
+							if ( bytenew == 0xFF ) {
+								si16( 0x00FF, byteout );
+								byteout += 2;
+							} else {
+								si8( bytenew, byteout );
+								byteout++;
+							}
+							bytepos = 7;
+							bytenew = 0;
+						}
+					} while ( --len >= 0 );
+				}
+
 				++i;
+
 			}
 
 		}
 		
 		if ( end0pos != 63 ) {
-			writeBits( li8( HTAC ), li16( HTAC + 1 ) );
+			// writeBits( li8( HTAC ), li16( HTAC + 1 ) );
+			len = li8( HTAC ) - 1;
+			if ( len >= 0 ) {
+				val = li16( HTAC + 1 );
+				do {
+					if ( ( val & ( 1 << len ) ) != 0 ) {
+						bytenew |= 1 << bytepos;
+					}
+					if ( --bytepos < 0 ) {
+						if ( bytenew == 0xFF ) {
+							si16( 0x00FF, byteout );
+							byteout += 2;
+						} else {
+							si8( bytenew, byteout );
+							byteout++;
+						}
+						bytepos = 7;
+						bytenew = 0;
+					}
+				} while ( --len >= 0 );
+			}
 		}
 	
+		_BYTE_OUT = byteout;
+		_BYTE_POS = bytepos;
+		_BYTE_NEW = bytenew;
+
 		return DC;
 
 	}
@@ -672,8 +838,7 @@ internal final class JPEGEncoder$ {
 			if ( ( val & ( 1 << len ) ) != 0 ) {
 				_bytenew |= 1 << _bytepos;
 			}
-			_bytepos--;
-			if ( _bytepos < 0 ) {
+			if ( --_bytepos < 0 ) {
 				if ( _bytenew == 0xFF ) {
 					si16( 0x00FF, _byteout );
 					_byteout += 2;
