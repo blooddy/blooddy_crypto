@@ -8,6 +8,8 @@
 			<value>true</value>
 		</define>
 
+		<inline>true</inline>
+
 		<debug>true</debug>
 		<optimize>true</optimize>
 
