@@ -720,7 +720,7 @@ internal final class JPEGTable$ {
 	/**
 	 * @see	#getQuantTable()
 	 */
-	private static const _QUANTS:Vector.<ByteArray> = new Vector.<ByteArray>( 100, true );
+	private static const _QUANTS:Vector.<ByteArray> = new Vector.<ByteArray>( 101, true );
 	
 	/**
 	 * <table>
@@ -733,9 +733,9 @@ internal final class JPEGTable$ {
 	 * 	<tr><th>1154</th><td>							</td><td>			</td></tr>
 	 * </table>
 	 */
-	internal static function getQuantTable(quality:uint):ByteArray {
+	internal static function getQuantTable(quality:int):ByteArray {
 		
-		var mem:ByteArray = _QUANTS[ quality ];
+		var mem:ByteArray = _QUANTS[ quality - 1 ];
 		if ( !mem ) {
 			
 			var sf:int = ( quality <= 1
@@ -822,7 +822,7 @@ internal final class JPEGTable$ {
 			_DOMAIN.domainMemory = tmp;
 			
 			mem.length = 1154;
-			_QUANTS[ quality ] = mem;
+			_QUANTS[ quality - 1 ] = mem;
 			
 		}
 		
