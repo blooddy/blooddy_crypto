@@ -354,10 +354,6 @@ internal final class JPEGEncoder$ {
 		
 		_DOMAIN.domainMemory = mem;
 		
-		_BYTE_OUT = 256 + 512 * 3 + 199817;
-		_BYTE_POS = 7;
-		_BYTE_NEW = 0;
-		
 		// Encode 8x8 macroblocks
 		var DCY:int = 0;
 		var DCU:int = 0;
@@ -365,8 +361,6 @@ internal final class JPEGEncoder$ {
 		
 		var x:int = 0;
 		var y:int = 0;
-		
-		var pos:int = 0;
 		
 		var xi:int = 0;
 		var yi:int = 0;
@@ -378,6 +372,33 @@ internal final class JPEGEncoder$ {
 		var r:int = 0;
 		var g:int = 0;
 		var b:int = 0;
+		
+		var byteout:int = 256 + 512 * 3 + 199817;
+		var bytepos:int = 7;
+		var bytenew:int = 0;
+		var len:int, val:int;
+		
+		var dataOff:int;
+		var d0:Number, d1:Number, d2:Number, d3:Number, d4:Number, d5:Number, d6:Number, d7:Number;
+		var tmp0:Number, tmp1:Number, tmp2:Number, tmp3:Number, tmp4:Number, tmp5:Number, tmp6:Number, tmp7:Number;
+		var tmp10:Number, tmp11:Number, tmp12:Number, tmp13:Number;
+		var z1:Number, z2:Number, z3:Number, z4:Number, z5:Number;
+		var z11:Number, z13:Number;
+		
+		var fDCTQuant:Number;
+		var i:int;
+		
+		var pos:int = 0;
+		var mpos:int = 0;
+		
+		var end0pos:int;
+		
+		var lng:int;
+		var startpos:int;
+		var nrzeroes:int;
+		var nrmarker:int;
+
+		var CDU:int, fdtbl:int, DCV:int, HTDC:int, HTAC:int;
 		
 		y = 0;
 		do {
@@ -414,307 +435,288 @@ internal final class JPEGEncoder$ {
 					} while ( ++xi < xm );
 				} while ( ++yi < ym );
 
+				// ---
+				// DCY = processDU2( CDU, fdtbl, HTDC, HTAC, DCY )
+				// ---
+				
+				CDU =	256 + 512 * 0;
+				fdtbl =	256 + 512 * 3 + 130;
+				HTDC =	256 + 512 * 3 + 1218 + 416;
+				HTAC =	256 + 512 * 3 + 1218 + 452;
+				
+				/* Pass 1: process rows. */
+				dataOff = 0;
+				do {
+					
+					d0 = lf64( CDU + dataOff + 0 * 8 );
+					d1 = lf64( CDU + dataOff + 1 * 8 );
+					d2 = lf64( CDU + dataOff + 2 * 8 );
+					d3 = lf64( CDU + dataOff + 3 * 8 );
+					d4 = lf64( CDU + dataOff + 4 * 8 );
+					d5 = lf64( CDU + dataOff + 5 * 8 );
+					d6 = lf64( CDU + dataOff + 6 * 8 );
+					d7 = lf64( CDU + dataOff + 7 * 8 );
+					
+					tmp0 = d0 + d7;
+					tmp7 = d0 - d7;
+					tmp1 = d1 + d6;
+					tmp6 = d1 - d6;
+					tmp2 = d2 + d5;
+					tmp5 = d2 - d5;
+					tmp3 = d3 + d4;
+					tmp4 = d3 - d4;
+					
+					// Even part
+					// phase 2
+					tmp10 = tmp0 + tmp3;
+					tmp13 = tmp0 - tmp3;
+					tmp11 = tmp1 + tmp2;
+					tmp12 = tmp1 - tmp2;
+					
+					// phase 3
+					sf64( tmp10 + tmp11, CDU + dataOff + 0 * 8 );
+					sf64( tmp10 - tmp11, CDU + dataOff + 4 * 8 );
+					
+					// phase 5
+					z1 = ( tmp12 + tmp13 ) * 0.707106781;	// c4
+					sf64( tmp13 + z1, CDU + dataOff + 2 * 8 );
+					sf64( tmp13 - z1, CDU + dataOff + 6 * 8 );
+					
+					// Odd part
+					// phase 2
+					tmp10 = tmp4 + tmp5;
+					tmp11 = tmp5 + tmp6;
+					tmp12 = tmp6 + tmp7;
+					
+					// The rotator is modified from fig 4-8 to avoid extra negations.
+					z5 = ( tmp10 - tmp12 ) * 0.382683433;	// c6
+					z2 = 0.541196100 * tmp10 + z5;			// c2-c6
+					z4 = 1.306562965 * tmp12 + z5;			// c2+c6
+					z3 = tmp11 * 0.707106781;				// c4
+					
+					//phase 5
+					z11 = tmp7 + z3;
+					z13 = tmp7 - z3;
+					
+					// phase 6
+					sf64( z13 + z2, CDU + dataOff + 5 * 8 );
+					sf64( z13 - z2, CDU + dataOff + 3 * 8 );
+					sf64( z11 + z4, CDU + dataOff + 1 * 8 );
+					sf64( z11 - z4, CDU + dataOff + 7 * 8 );
+					
+					dataOff += 64; // advance pointer to next row
+					
+				} while ( dataOff < 512 );
+				
+				// Pass 2: process columns.
+				dataOff = 0;
+				do {
+					
+					d0 = lf64( CDU + dataOff +  0 * 8 );
+					d1 = lf64( CDU + dataOff +  8 * 8 );
+					d2 = lf64( CDU + dataOff + 16 * 8 );
+					d3 = lf64( CDU + dataOff + 24 * 8 );
+					d4 = lf64( CDU + dataOff + 32 * 8 );
+					d5 = lf64( CDU + dataOff + 40 * 8 );
+					d6 = lf64( CDU + dataOff + 48 * 8 );
+					d7 = lf64( CDU + dataOff + 56 * 8 );
+					
+					tmp0 = d0 + d7;
+					tmp7 = d0 - d7;
+					tmp1 = d1 + d6;
+					tmp6 = d1 - d6;
+					tmp2 = d2 + d5;
+					tmp5 = d2 - d5;
+					tmp3 = d3 + d4;
+					tmp4 = d3 - d4;
+					
+					// Even part
+					// phase 2
+					tmp10 = tmp0 + tmp3;
+					tmp13 = tmp0 - tmp3;
+					tmp11 = tmp1 + tmp2;
+					tmp12 = tmp1 - tmp2;
+					
+					// phase 3
+					sf64( tmp10 + tmp11, CDU + dataOff +  0 * 8 );
+					sf64( tmp10 - tmp11, CDU + dataOff + 32 * 8 );
+					
+					// phase 5
+					z1 = ( tmp12 + tmp13 ) * 0.707106781;	// c4
+					sf64( tmp13 + z1, CDU + dataOff + 16 * 8 );
+					sf64( tmp13 - z1, CDU + dataOff + 48 * 8 );
+					
+					// Odd part
+					// phase 2
+					tmp10 = tmp4 + tmp5;
+					tmp11 = tmp5 + tmp6;
+					tmp12 = tmp6 + tmp7;
+					
+					// The rotator is modified from fig 4-8 to avoid extra negations.
+					z5 = ( tmp10 - tmp12 ) * 0.382683433;	// c6
+					z2 = 0.541196100 * tmp10 + z5;			// c2-c6
+					z4 = 1.306562965 * tmp12 + z5;			// c2+c6
+					z3 = tmp11 * 0.707106781;				// c4
+					
+					// phase 5
+					z11 = tmp7 + z3;
+					z13 = tmp7 - z3;
+					
+					// phase 6
+					sf64( z13 + z2, CDU + dataOff + 40 * 8 );
+					sf64( z13 - z2, CDU + dataOff + 24 * 8 );
+					sf64( z11 + z4, CDU + dataOff +  8 * 8 );
+					sf64( z11 - z4, CDU + dataOff + 56 * 8 );
+					
+					dataOff += 8; // advance pointer to next column
+				} while ( dataOff < 64 );
+				
+				// Quantize/descale the coefficients
+				i = 0;
+				do {
+					// Apply the quantization and scaling factor & Round to nearest integer
+					fDCTQuant = lf64( CDU + ( i << 3 ) ) * lf64( fdtbl + ( i << 3 ) );
+					si32(
+						fDCTQuant + ( fDCTQuant > 0.0 ? 0.5 : - 0.5 ),
+						li8( 256 + 512 * 3 + 1154 + i ) << 2 // ZigZag reorder
+					);
+				} while ( ++i < 64 );
+				
 				// processDU
 				
-				DCY = processDU( 256 + 512 * 0, 256 + 512 * 3 + 130, DCY, 256 + 512 * 3 + 1218 +  416, 256 + 512 * 3 + 1218 +  452 );
-				DCU = processDU( 256 + 512 * 1, 256 + 512 * 3 + 642, DCU, 256 + 512 * 3 + 1218 + 1205, 256 + 512 * 3 + 1218 + 1241 );
-				DCV = processDU( 256 + 512 * 2, 256 + 512 * 3 + 642, DCV, 256 + 512 * 3 + 1218 + 1205, 256 + 512 * 3 + 1218 + 1241 );
+				CDU = li32( 0 );
+				dataOff = CDU - DCY;
+				DCY = CDU;
 				
-				x += 8;
-			} while ( x < width );
-			y += 8;
-		} while ( y < height );
-		
-		// Do the bit alignment of the EOI marker
-		if ( _BYTE_POS >= 0 ) {
-			writeBits( _BYTE_POS + 1, ( 1 << ( _BYTE_POS + 1 ) ) - 1 );
-		}
-		
-		_DOMAIN.domainMemory = tmp;
-		
-		mem.position = 0;
-		mem.writeBytes( mem, 256 + 512 * 3 + 199817, _BYTE_OUT - 256 - 512 * 3 - 199817 );
-		mem.length = _BYTE_OUT - 256 + 512 * 3 + 199817;
-		
-		return mem;
-		
-	}
-	
-	//--------------------------------------------------------------------------
-	//  encode main methods
-	//--------------------------------------------------------------------------
-	
-	private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
-	
-	private static var _BYTE_OUT:int = 0;
-	private static var _BYTE_POS:int = 0;
-	private static var _BYTE_NEW:int = 0;
-	
-	private static function processDU(CDU:int, fdtbl:int, DC:int, HTDC:int, HTAC:int):int {
-		
-		var byteout:int = _BYTE_OUT;
-		var bytepos:int = _BYTE_POS;
-		var bytenew:int = _BYTE_NEW;
-		var len:int, val:int, val2:Boolean;
-
-		// DCT & quantization core
-		var dataOff:int;
-		var d0:Number, d1:Number, d2:Number, d3:Number, d4:Number, d5:Number, d6:Number, d7:Number;
-		var tmp0:Number, tmp1:Number, tmp2:Number, tmp3:Number, tmp4:Number, tmp5:Number, tmp6:Number, tmp7:Number;
-		var tmp10:Number, tmp11:Number, tmp12:Number, tmp13:Number;
-		var z1:Number, z2:Number, z3:Number, z4:Number, z5:Number;
-		var z11:Number, z13:Number;
-		
-		/* Pass 1: process rows. */
-		dataOff = 0;
-		do {
-			
-			d0 = lf64( CDU + dataOff + 0 * 8 );
-			d1 = lf64( CDU + dataOff + 1 * 8 );
-			d2 = lf64( CDU + dataOff + 2 * 8 );
-			d3 = lf64( CDU + dataOff + 3 * 8 );
-			d4 = lf64( CDU + dataOff + 4 * 8 );
-			d5 = lf64( CDU + dataOff + 5 * 8 );
-			d6 = lf64( CDU + dataOff + 6 * 8 );
-			d7 = lf64( CDU + dataOff + 7 * 8 );
-			
-			tmp0 = d0 + d7;
-			tmp7 = d0 - d7;
-			tmp1 = d1 + d6;
-			tmp6 = d1 - d6;
-			tmp2 = d2 + d5;
-			tmp5 = d2 - d5;
-			tmp3 = d3 + d4;
-			tmp4 = d3 - d4;
-			
-			// Even part
-			// phase 2
-			tmp10 = tmp0 + tmp3;
-			tmp13 = tmp0 - tmp3;
-			tmp11 = tmp1 + tmp2;
-			tmp12 = tmp1 - tmp2;
-			
-			// phase 3
-			sf64( tmp10 + tmp11, CDU + dataOff + 0 * 8 );
-			sf64( tmp10 - tmp11, CDU + dataOff + 4 * 8 );
-			
-			// phase 5
-			z1 = ( tmp12 + tmp13 ) * 0.707106781;	// c4
-			sf64( tmp13 + z1, CDU + dataOff + 2 * 8 );
-			sf64( tmp13 - z1, CDU + dataOff + 6 * 8 );
-			
-			// Odd part
-			// phase 2
-			tmp10 = tmp4 + tmp5;
-			tmp11 = tmp5 + tmp6;
-			tmp12 = tmp6 + tmp7;
-			
-			// The rotator is modified from fig 4-8 to avoid extra negations.
-			z5 = ( tmp10 - tmp12 ) * 0.382683433;	// c6
-			z2 = 0.541196100 * tmp10 + z5;			// c2-c6
-			z4 = 1.306562965 * tmp12 + z5;			// c2+c6
-			z3 = tmp11 * 0.707106781;				// c4
-			
-			//phase 5
-			z11 = tmp7 + z3;
-			z13 = tmp7 - z3;
-			
-			// phase 6
-			sf64( z13 + z2, CDU + dataOff + 5 * 8 );
-			sf64( z13 - z2, CDU + dataOff + 3 * 8 );
-			sf64( z11 + z4, CDU + dataOff + 1 * 8 );
-			sf64( z11 - z4, CDU + dataOff + 7 * 8 );
-			
-			dataOff += 64; // advance pointer to next row
-			
-		} while ( dataOff < 512 );
-		
-		// Pass 2: process columns.
-		dataOff = 0;
-		do {
-			
-			d0 = lf64( CDU + dataOff +  0 * 8 );
-			d1 = lf64( CDU + dataOff +  8 * 8 );
-			d2 = lf64( CDU + dataOff + 16 * 8 );
-			d3 = lf64( CDU + dataOff + 24 * 8 );
-			d4 = lf64( CDU + dataOff + 32 * 8 );
-			d5 = lf64( CDU + dataOff + 40 * 8 );
-			d6 = lf64( CDU + dataOff + 48 * 8 );
-			d7 = lf64( CDU + dataOff + 56 * 8 );
-			
-			tmp0 = d0 + d7;
-			tmp7 = d0 - d7;
-			tmp1 = d1 + d6;
-			tmp6 = d1 - d6;
-			tmp2 = d2 + d5;
-			tmp5 = d2 - d5;
-			tmp3 = d3 + d4;
-			tmp4 = d3 - d4;
-			
-			// Even part
-			// phase 2
-			tmp10 = tmp0 + tmp3;
-			tmp13 = tmp0 - tmp3;
-			tmp11 = tmp1 + tmp2;
-			tmp12 = tmp1 - tmp2;
-			
-			// phase 3
-			sf64( tmp10 + tmp11, CDU + dataOff +  0 * 8 );
-			sf64( tmp10 - tmp11, CDU + dataOff + 32 * 8 );
-			
-			// phase 5
-			z1 = ( tmp12 + tmp13 ) * 0.707106781;	// c4
-			sf64( tmp13 + z1, CDU + dataOff + 16 * 8 );
-			sf64( tmp13 - z1, CDU + dataOff + 48 * 8 );
-			
-			// Odd part
-			// phase 2
-			tmp10 = tmp4 + tmp5;
-			tmp11 = tmp5 + tmp6;
-			tmp12 = tmp6 + tmp7;
-			
-			// The rotator is modified from fig 4-8 to avoid extra negations.
-			z5 = ( tmp10 - tmp12 ) * 0.382683433;	// c6
-			z2 = 0.541196100 * tmp10 + z5;			// c2-c6
-			z4 = 1.306562965 * tmp12 + z5;			// c2+c6
-			z3 = tmp11 * 0.707106781;				// c4
-			
-			// phase 5
-			z11 = tmp7 + z3;
-			z13 = tmp7 - z3;
-			
-			// phase 6
-			sf64( z13 + z2, CDU + dataOff + 40 * 8 );
-			sf64( z13 - z2, CDU + dataOff + 24 * 8 );
-			sf64( z11 + z4, CDU + dataOff +  8 * 8 );
-			sf64( z11 - z4, CDU + dataOff + 56 * 8 );
-			
-			dataOff += 8; // advance pointer to next column
-		} while ( dataOff < 64 );
-		
-		// Quantize/descale the coefficients
-		var fDCTQuant:Number;
-		var i:int = 0;
-		do {
-			// Apply the quantization and scaling factor & Round to nearest integer
-			fDCTQuant = lf64( CDU + ( i << 3 ) ) * lf64( fdtbl + ( i << 3 ) );
-			si32(
-				fDCTQuant + ( fDCTQuant > 0.0 ? 0.5 : - 0.5 ),
-				li8( 256 + 512 * 3 + 1154 + i ) << 2 // ZigZag reorder
-			);
-		} while ( ++i < 64 );
-
-		// processDU
-		
-		CDU = li32( 0 );
-		dataOff = CDU - DC;
-		DC = CDU;
-		
-		var pos:int;
-		var mpos:int;
-		
-		// Encode DC
-		if ( dataOff == 0 ) {
-
-			// Diff might be 0
-			// writeBits( li8( HTDC ), li16( HTDC + 1 ) );
-			len = li8( HTDC ) - 1;
-			if ( len >= 0 ) {
-				val = li16( HTDC + 1 );
-				do {
-					if ( ( val & ( 1 << len ) ) != 0 ) {
-						bytenew |= 1 << bytepos;
+				// Encode DC
+				if ( dataOff == 0 ) {
+					
+					// Diff might be 0
+					// writeBits( li8( HTDC ), li16( HTDC + 1 ) );
+					len = li8( HTDC ) - 1;
+					if ( len >= 0 ) {
+						val = li16( HTDC + 1 );
+						do {
+							if ( ( val & ( 1 << len ) ) != 0 ) {
+								bytenew |= 1 << bytepos;
+							}
+							if ( --bytepos < 0 ) {
+								if ( bytenew == 0xFF ) {
+									si16( 0x00FF, byteout );
+									byteout += 2;
+								} else {
+									si8( bytenew, byteout );
+									byteout++;
+								}
+								bytepos = 7;
+								bytenew = 0;
+							}
+						} while ( --len >= 0 );
 					}
-					if ( --bytepos < 0 ) {
-						if ( bytenew == 0xFF ) {
-							si16( 0x00FF, byteout );
-							byteout += 2;
-						} else {
-							si8( bytenew, byteout );
-							byteout++;
+					
+				} else {
+					
+					pos = ( 32767 + dataOff ) * 3;
+					
+					mpos = HTDC + li8( 256 + 512 * 3 + 3212 + pos ) * 3;
+					// writeBits( li8( mpos ), li16( mpos + 1 ) );
+					len = li8( mpos ) - 1;
+					if ( len >= 0 ) {
+						val = li16( mpos + 1 );
+						do {
+							if ( ( val & ( 1 << len ) ) != 0 ) {
+								bytenew |= 1 << bytepos;
+							}
+							if ( --bytepos < 0 ) {
+								if ( bytenew == 0xFF ) {
+									si16( 0x00FF, byteout );
+									byteout += 2;
+								} else {
+									si8( bytenew, byteout );
+									byteout++;
+								}
+								bytepos = 7;
+								bytenew = 0;
+							}
+						} while ( --len >= 0 );
+					}
+					
+					mpos = 256 + 512 * 3 + 3212 + pos;
+					// writeBits( li8( mpos ), li16( mpos + 1 ) );
+					len = li8( mpos ) - 1;
+					if ( len >= 0 ) {
+						val = li16( mpos + 1 );
+						do {
+							if ( ( val & ( 1 << len ) ) != 0 ) {
+								bytenew |= 1 << bytepos;
+							}
+							if ( --bytepos < 0 ) {
+								if ( bytenew == 0xFF ) {
+									si16( 0x00FF, byteout );
+									byteout += 2;
+								} else {
+									si8( bytenew, byteout );
+									byteout++;
+								}
+								bytepos = 7;
+								bytenew = 0;
+							}
+						} while ( --len >= 0 );
+					}
+					
+				}
+				
+				// Encode ACs
+				end0pos = 63;
+				while ( end0pos > 0 && li32( end0pos << 2 ) == 0 ) end0pos--;
+				
+				// end0pos = first element in reverse order !=0
+				if ( end0pos != 0 ) {
+					
+					i = 1;
+					while ( i <= end0pos ) {
+						startpos = i;
+						while ( i <= end0pos && li32( i << 2 ) == 0 ) ++i;
+						nrzeroes = i - startpos;
+						if ( nrzeroes >= 16 ) {
+							
+							lng = nrzeroes >> 4;
+							nrmarker = 1;
+							while ( nrmarker <= lng ) {
+								
+								mpos = HTAC + 0xF0 * 3;
+								// writeBits( li8( mpos ), li16( mpos + 1 ) );
+								len = li8( mpos ) - 1;
+								if ( len >= 0 ) {
+									val = li16( mpos + 1 );
+									do {
+										if ( ( val & ( 1 << len ) ) != 0 ) {
+											bytenew |= 1 << bytepos;
+										}
+										if ( --bytepos < 0 ) {
+											if ( bytenew == 0xFF ) {
+												si16( 0x00FF, byteout );
+												byteout += 2;
+											} else {
+												si8( bytenew, byteout );
+												byteout++;
+											}
+											bytepos = 7;
+											bytenew = 0;
+										}
+									} while ( --len >= 0 );
+								}
+								
+								++nrmarker;
+								
+							}
+							nrzeroes &= 0xF;
+							
 						}
-						bytepos = 7;
-						bytenew = 0;
-					}
-				} while ( --len >= 0 );
-			}
-
-		} else {
-
-			pos = ( 32767 + dataOff ) * 3;
-
-			mpos = HTDC + li8( 256 + 512 * 3 + 3212 + pos ) * 3;
-			// writeBits( li8( mpos ), li16( mpos + 1 ) );
-			len = li8( mpos ) - 1;
-			if ( len >= 0 ) {
-				val = li16( mpos + 1 );
-				do {
-					if ( ( val & ( 1 << len ) ) != 0 ) {
-						bytenew |= 1 << bytepos;
-					}
-					if ( --bytepos < 0 ) {
-						if ( bytenew == 0xFF ) {
-							si16( 0x00FF, byteout );
-							byteout += 2;
-						} else {
-							si8( bytenew, byteout );
-							byteout++;
-						}
-						bytepos = 7;
-						bytenew = 0;
-					}
-				} while ( --len >= 0 );
-			}
-
-			mpos = 256 + 512 * 3 + 3212 + pos;
-			// writeBits( li8( mpos ), li16( mpos + 1 ) );
-			len = li8( mpos ) - 1;
-			if ( len >= 0 ) {
-				val = li16( mpos + 1 );
-				do {
-					if ( ( val & ( 1 << len ) ) != 0 ) {
-						bytenew |= 1 << bytepos;
-					}
-					if ( --bytepos < 0 ) {
-						if ( bytenew == 0xFF ) {
-							si16( 0x00FF, byteout );
-							byteout += 2;
-						} else {
-							si8( bytenew, byteout );
-							byteout++;
-						}
-						bytepos = 7;
-						bytenew = 0;
-					}
-				} while ( --len >= 0 );
-			}
-
-		}
-		
-		// Encode ACs
-		var end0pos:int = 63;
-		while ( end0pos > 0 && li32( end0pos << 2 ) == 0 ) end0pos--;
-		
-		// end0pos = first element in reverse order !=0
-		if ( end0pos != 0 ) {
-
-			var lng:int;
-			var startpos:int;
-			var nrzeroes:int;
-			var nrmarker:int;
-
-			i = 1;
-			while ( i <= end0pos ) {
-				startpos = i;
-				while ( i <= end0pos && li32( i << 2 ) == 0 ) ++i;
-				nrzeroes = i - startpos;
-				if ( nrzeroes >= 16 ) {
-	
-					lng = nrzeroes >> 4;
-					nrmarker = 1;
-					while ( nrmarker <= lng ) {
-
-						mpos = HTAC + 0xF0 * 3;
+						
+						pos = ( 32767 + li32( i << 2 ) ) * 3;
+						
+						mpos = HTAC + ( nrzeroes << 4 ) * 3 + li8( 256 + 512 * 3 + 3212 + pos ) * 3;
 						// writeBits( li8( mpos ), li16( mpos + 1 ) );
 						len = li8( mpos ) - 1;
 						if ( len >= 0 ) {
@@ -736,74 +738,787 @@ internal final class JPEGEncoder$ {
 								}
 							} while ( --len >= 0 );
 						}
-
-						++nrmarker;
-
+						
+						mpos = 256 + 512 * 3 + 3212 + pos;
+						// writeBits( li8( mpos ), li16( mpos + 1 ) );
+						len = li8( mpos ) - 1;
+						if ( len >= 0 ) {
+							val = li16( mpos + 1 );
+							do {
+								if ( ( val & ( 1 << len ) ) != 0 ) {
+									bytenew |= 1 << bytepos;
+								}
+								if ( --bytepos < 0 ) {
+									if ( bytenew == 0xFF ) {
+										si16( 0x00FF, byteout );
+										byteout += 2;
+									} else {
+										si8( bytenew, byteout );
+										byteout++;
+									}
+									bytepos = 7;
+									bytenew = 0;
+								}
+							} while ( --len >= 0 );
+						}
+						
+						++i;
+						
 					}
-					nrzeroes &= 0xF;
-
+					
 				}
-
-				pos = ( 32767 + li32( i << 2 ) ) * 3;
-
-				mpos = HTAC + ( nrzeroes << 4 ) * 3 + li8( 256 + 512 * 3 + 3212 + pos ) * 3;
-				// writeBits( li8( mpos ), li16( mpos + 1 ) );
-				len = li8( mpos ) - 1;
-				if ( len >= 0 ) {
-					val = li16( mpos + 1 );
-					do {
-						if ( ( val & ( 1 << len ) ) != 0 ) {
-							bytenew |= 1 << bytepos;
-						}
-						if ( --bytepos < 0 ) {
-							if ( bytenew == 0xFF ) {
-								si16( 0x00FF, byteout );
-								byteout += 2;
-							} else {
-								si8( bytenew, byteout );
-								byteout++;
+				
+				if ( end0pos != 63 ) {
+					// writeBits( li8( HTAC ), li16( HTAC + 1 ) );
+					len = li8( HTAC ) - 1;
+					if ( len >= 0 ) {
+						val = li16( HTAC + 1 );
+						do {
+							if ( ( val & ( 1 << len ) ) != 0 ) {
+								bytenew |= 1 << bytepos;
 							}
-							bytepos = 7;
-							bytenew = 0;
-						}
-					} while ( --len >= 0 );
-				}
-
-				mpos = 256 + 512 * 3 + 3212 + pos;
-				// writeBits( li8( mpos ), li16( mpos + 1 ) );
-				len = li8( mpos ) - 1;
-				if ( len >= 0 ) {
-					val = li16( mpos + 1 );
-					do {
-						if ( ( val & ( 1 << len ) ) != 0 ) {
-							bytenew |= 1 << bytepos;
-						}
-						if ( --bytepos < 0 ) {
-							if ( bytenew == 0xFF ) {
-								si16( 0x00FF, byteout );
-								byteout += 2;
-							} else {
-								si8( bytenew, byteout );
-								byteout++;
+							if ( --bytepos < 0 ) {
+								if ( bytenew == 0xFF ) {
+									si16( 0x00FF, byteout );
+									byteout += 2;
+								} else {
+									si8( bytenew, byteout );
+									byteout++;
+								}
+								bytepos = 7;
+								bytenew = 0;
 							}
-							bytepos = 7;
-							bytenew = 0;
-						}
-					} while ( --len >= 0 );
+						} while ( --len >= 0 );
+					}
 				}
-
-				++i;
-
-			}
-
-		}
-		
-		if ( end0pos != 63 ) {
-			// writeBits( li8( HTAC ), li16( HTAC + 1 ) );
-			len = li8( HTAC ) - 1;
-			if ( len >= 0 ) {
-				val = li16( HTAC + 1 );
+					
+				// ---
+				// DCU = processDU2( CDU, fdtbl, HTDC, HTAC, DCU )
+				// ---
+				
+				CDU =	256 + 512 * 1;
+				fdtbl =	256 + 512 * 3 + 642;
+				HTDC =	256 + 512 * 3 + 1218 + 1205;
+				HTAC =	256 + 512 * 3 + 1218 + 1241;
+				
+				/* Pass 1: process rows. */
+				dataOff = 0;
 				do {
+					
+					d0 = lf64( CDU + dataOff + 0 * 8 );
+					d1 = lf64( CDU + dataOff + 1 * 8 );
+					d2 = lf64( CDU + dataOff + 2 * 8 );
+					d3 = lf64( CDU + dataOff + 3 * 8 );
+					d4 = lf64( CDU + dataOff + 4 * 8 );
+					d5 = lf64( CDU + dataOff + 5 * 8 );
+					d6 = lf64( CDU + dataOff + 6 * 8 );
+					d7 = lf64( CDU + dataOff + 7 * 8 );
+					
+					tmp0 = d0 + d7;
+					tmp7 = d0 - d7;
+					tmp1 = d1 + d6;
+					tmp6 = d1 - d6;
+					tmp2 = d2 + d5;
+					tmp5 = d2 - d5;
+					tmp3 = d3 + d4;
+					tmp4 = d3 - d4;
+					
+					// Even part
+					// phase 2
+					tmp10 = tmp0 + tmp3;
+					tmp13 = tmp0 - tmp3;
+					tmp11 = tmp1 + tmp2;
+					tmp12 = tmp1 - tmp2;
+					
+					// phase 3
+					sf64( tmp10 + tmp11, CDU + dataOff + 0 * 8 );
+					sf64( tmp10 - tmp11, CDU + dataOff + 4 * 8 );
+					
+					// phase 5
+					z1 = ( tmp12 + tmp13 ) * 0.707106781;	// c4
+					sf64( tmp13 + z1, CDU + dataOff + 2 * 8 );
+					sf64( tmp13 - z1, CDU + dataOff + 6 * 8 );
+					
+					// Odd part
+					// phase 2
+					tmp10 = tmp4 + tmp5;
+					tmp11 = tmp5 + tmp6;
+					tmp12 = tmp6 + tmp7;
+					
+					// The rotator is modified from fig 4-8 to avoid extra negations.
+					z5 = ( tmp10 - tmp12 ) * 0.382683433;	// c6
+					z2 = 0.541196100 * tmp10 + z5;			// c2-c6
+					z4 = 1.306562965 * tmp12 + z5;			// c2+c6
+					z3 = tmp11 * 0.707106781;				// c4
+					
+					//phase 5
+					z11 = tmp7 + z3;
+					z13 = tmp7 - z3;
+					
+					// phase 6
+					sf64( z13 + z2, CDU + dataOff + 5 * 8 );
+					sf64( z13 - z2, CDU + dataOff + 3 * 8 );
+					sf64( z11 + z4, CDU + dataOff + 1 * 8 );
+					sf64( z11 - z4, CDU + dataOff + 7 * 8 );
+					
+					dataOff += 64; // advance pointer to next row
+					
+				} while ( dataOff < 512 );
+				
+				// Pass 2: process columns.
+				dataOff = 0;
+				do {
+					
+					d0 = lf64( CDU + dataOff +  0 * 8 );
+					d1 = lf64( CDU + dataOff +  8 * 8 );
+					d2 = lf64( CDU + dataOff + 16 * 8 );
+					d3 = lf64( CDU + dataOff + 24 * 8 );
+					d4 = lf64( CDU + dataOff + 32 * 8 );
+					d5 = lf64( CDU + dataOff + 40 * 8 );
+					d6 = lf64( CDU + dataOff + 48 * 8 );
+					d7 = lf64( CDU + dataOff + 56 * 8 );
+					
+					tmp0 = d0 + d7;
+					tmp7 = d0 - d7;
+					tmp1 = d1 + d6;
+					tmp6 = d1 - d6;
+					tmp2 = d2 + d5;
+					tmp5 = d2 - d5;
+					tmp3 = d3 + d4;
+					tmp4 = d3 - d4;
+					
+					// Even part
+					// phase 2
+					tmp10 = tmp0 + tmp3;
+					tmp13 = tmp0 - tmp3;
+					tmp11 = tmp1 + tmp2;
+					tmp12 = tmp1 - tmp2;
+					
+					// phase 3
+					sf64( tmp10 + tmp11, CDU + dataOff +  0 * 8 );
+					sf64( tmp10 - tmp11, CDU + dataOff + 32 * 8 );
+					
+					// phase 5
+					z1 = ( tmp12 + tmp13 ) * 0.707106781;	// c4
+					sf64( tmp13 + z1, CDU + dataOff + 16 * 8 );
+					sf64( tmp13 - z1, CDU + dataOff + 48 * 8 );
+					
+					// Odd part
+					// phase 2
+					tmp10 = tmp4 + tmp5;
+					tmp11 = tmp5 + tmp6;
+					tmp12 = tmp6 + tmp7;
+					
+					// The rotator is modified from fig 4-8 to avoid extra negations.
+					z5 = ( tmp10 - tmp12 ) * 0.382683433;	// c6
+					z2 = 0.541196100 * tmp10 + z5;			// c2-c6
+					z4 = 1.306562965 * tmp12 + z5;			// c2+c6
+					z3 = tmp11 * 0.707106781;				// c4
+					
+					// phase 5
+					z11 = tmp7 + z3;
+					z13 = tmp7 - z3;
+					
+					// phase 6
+					sf64( z13 + z2, CDU + dataOff + 40 * 8 );
+					sf64( z13 - z2, CDU + dataOff + 24 * 8 );
+					sf64( z11 + z4, CDU + dataOff +  8 * 8 );
+					sf64( z11 - z4, CDU + dataOff + 56 * 8 );
+					
+					dataOff += 8; // advance pointer to next column
+				} while ( dataOff < 64 );
+				
+				// Quantize/descale the coefficients
+				i = 0;
+				do {
+					// Apply the quantization and scaling factor & Round to nearest integer
+					fDCTQuant = lf64( CDU + ( i << 3 ) ) * lf64( fdtbl + ( i << 3 ) );
+					si32(
+						fDCTQuant + ( fDCTQuant > 0.0 ? 0.5 : - 0.5 ),
+						li8( 256 + 512 * 3 + 1154 + i ) << 2 // ZigZag reorder
+					);
+				} while ( ++i < 64 );
+				
+				// processDU
+				
+				CDU = li32( 0 );
+				dataOff = CDU - DCU;
+				DCU = CDU;
+				
+				// Encode DC
+				if ( dataOff == 0 ) {
+					
+					// Diff might be 0
+					// writeBits( li8( HTDC ), li16( HTDC + 1 ) );
+					len = li8( HTDC ) - 1;
+					if ( len >= 0 ) {
+						val = li16( HTDC + 1 );
+						do {
+							if ( ( val & ( 1 << len ) ) != 0 ) {
+								bytenew |= 1 << bytepos;
+							}
+							if ( --bytepos < 0 ) {
+								if ( bytenew == 0xFF ) {
+									si16( 0x00FF, byteout );
+									byteout += 2;
+								} else {
+									si8( bytenew, byteout );
+									byteout++;
+								}
+								bytepos = 7;
+								bytenew = 0;
+							}
+						} while ( --len >= 0 );
+					}
+					
+				} else {
+					
+					pos = ( 32767 + dataOff ) * 3;
+					
+					mpos = HTDC + li8( 256 + 512 * 3 + 3212 + pos ) * 3;
+					// writeBits( li8( mpos ), li16( mpos + 1 ) );
+					len = li8( mpos ) - 1;
+					if ( len >= 0 ) {
+						val = li16( mpos + 1 );
+						do {
+							if ( ( val & ( 1 << len ) ) != 0 ) {
+								bytenew |= 1 << bytepos;
+							}
+							if ( --bytepos < 0 ) {
+								if ( bytenew == 0xFF ) {
+									si16( 0x00FF, byteout );
+									byteout += 2;
+								} else {
+									si8( bytenew, byteout );
+									byteout++;
+								}
+								bytepos = 7;
+								bytenew = 0;
+							}
+						} while ( --len >= 0 );
+					}
+					
+					mpos = 256 + 512 * 3 + 3212 + pos;
+					// writeBits( li8( mpos ), li16( mpos + 1 ) );
+					len = li8( mpos ) - 1;
+					if ( len >= 0 ) {
+						val = li16( mpos + 1 );
+						do {
+							if ( ( val & ( 1 << len ) ) != 0 ) {
+								bytenew |= 1 << bytepos;
+							}
+							if ( --bytepos < 0 ) {
+								if ( bytenew == 0xFF ) {
+									si16( 0x00FF, byteout );
+									byteout += 2;
+								} else {
+									si8( bytenew, byteout );
+									byteout++;
+								}
+								bytepos = 7;
+								bytenew = 0;
+							}
+						} while ( --len >= 0 );
+					}
+					
+				}
+				
+				// Encode ACs
+				end0pos = 63;
+				while ( end0pos > 0 && li32( end0pos << 2 ) == 0 ) end0pos--;
+				
+				// end0pos = first element in reverse order !=0
+				if ( end0pos != 0 ) {
+					
+					i = 1;
+					while ( i <= end0pos ) {
+						startpos = i;
+						while ( i <= end0pos && li32( i << 2 ) == 0 ) ++i;
+						nrzeroes = i - startpos;
+						if ( nrzeroes >= 16 ) {
+							
+							lng = nrzeroes >> 4;
+							nrmarker = 1;
+							while ( nrmarker <= lng ) {
+								
+								mpos = HTAC + 0xF0 * 3;
+								// writeBits( li8( mpos ), li16( mpos + 1 ) );
+								len = li8( mpos ) - 1;
+								if ( len >= 0 ) {
+									val = li16( mpos + 1 );
+									do {
+										if ( ( val & ( 1 << len ) ) != 0 ) {
+											bytenew |= 1 << bytepos;
+										}
+										if ( --bytepos < 0 ) {
+											if ( bytenew == 0xFF ) {
+												si16( 0x00FF, byteout );
+												byteout += 2;
+											} else {
+												si8( bytenew, byteout );
+												byteout++;
+											}
+											bytepos = 7;
+											bytenew = 0;
+										}
+									} while ( --len >= 0 );
+								}
+								
+								++nrmarker;
+								
+							}
+							nrzeroes &= 0xF;
+							
+						}
+						
+						pos = ( 32767 + li32( i << 2 ) ) * 3;
+						
+						mpos = HTAC + ( nrzeroes << 4 ) * 3 + li8( 256 + 512 * 3 + 3212 + pos ) * 3;
+						// writeBits( li8( mpos ), li16( mpos + 1 ) );
+						len = li8( mpos ) - 1;
+						if ( len >= 0 ) {
+							val = li16( mpos + 1 );
+							do {
+								if ( ( val & ( 1 << len ) ) != 0 ) {
+									bytenew |= 1 << bytepos;
+								}
+								if ( --bytepos < 0 ) {
+									if ( bytenew == 0xFF ) {
+										si16( 0x00FF, byteout );
+										byteout += 2;
+									} else {
+										si8( bytenew, byteout );
+										byteout++;
+									}
+									bytepos = 7;
+									bytenew = 0;
+								}
+							} while ( --len >= 0 );
+						}
+						
+						mpos = 256 + 512 * 3 + 3212 + pos;
+						// writeBits( li8( mpos ), li16( mpos + 1 ) );
+						len = li8( mpos ) - 1;
+						if ( len >= 0 ) {
+							val = li16( mpos + 1 );
+							do {
+								if ( ( val & ( 1 << len ) ) != 0 ) {
+									bytenew |= 1 << bytepos;
+								}
+								if ( --bytepos < 0 ) {
+									if ( bytenew == 0xFF ) {
+										si16( 0x00FF, byteout );
+										byteout += 2;
+									} else {
+										si8( bytenew, byteout );
+										byteout++;
+									}
+									bytepos = 7;
+									bytenew = 0;
+								}
+							} while ( --len >= 0 );
+						}
+						
+						++i;
+						
+					}
+					
+				}
+				
+				if ( end0pos != 63 ) {
+					// writeBits( li8( HTAC ), li16( HTAC + 1 ) );
+					len = li8( HTAC ) - 1;
+					if ( len >= 0 ) {
+						val = li16( HTAC + 1 );
+						do {
+							if ( ( val & ( 1 << len ) ) != 0 ) {
+								bytenew |= 1 << bytepos;
+							}
+							if ( --bytepos < 0 ) {
+								if ( bytenew == 0xFF ) {
+									si16( 0x00FF, byteout );
+									byteout += 2;
+								} else {
+									si8( bytenew, byteout );
+									byteout++;
+								}
+								bytepos = 7;
+								bytenew = 0;
+							}
+						} while ( --len >= 0 );
+					}
+				}
+					
+				// ---
+				// DCV = processDU2( CDU, fdtbl, HTDC, HTAC, DCV )
+				// ---
+				
+				CDU =	256 + 512 * 2;
+				fdtbl =	256 + 512 * 3 + 642;
+				HTDC =	256 + 512 * 3 + 1218 + 1205;
+				HTAC =	256 + 512 * 3 + 1218 + 1241;
+				
+				/* Pass 1: process rows. */
+				dataOff = 0;
+				do {
+					
+					d0 = lf64( CDU + dataOff + 0 * 8 );
+					d1 = lf64( CDU + dataOff + 1 * 8 );
+					d2 = lf64( CDU + dataOff + 2 * 8 );
+					d3 = lf64( CDU + dataOff + 3 * 8 );
+					d4 = lf64( CDU + dataOff + 4 * 8 );
+					d5 = lf64( CDU + dataOff + 5 * 8 );
+					d6 = lf64( CDU + dataOff + 6 * 8 );
+					d7 = lf64( CDU + dataOff + 7 * 8 );
+					
+					tmp0 = d0 + d7;
+					tmp7 = d0 - d7;
+					tmp1 = d1 + d6;
+					tmp6 = d1 - d6;
+					tmp2 = d2 + d5;
+					tmp5 = d2 - d5;
+					tmp3 = d3 + d4;
+					tmp4 = d3 - d4;
+					
+					// Even part
+					// phase 2
+					tmp10 = tmp0 + tmp3;
+					tmp13 = tmp0 - tmp3;
+					tmp11 = tmp1 + tmp2;
+					tmp12 = tmp1 - tmp2;
+					
+					// phase 3
+					sf64( tmp10 + tmp11, CDU + dataOff + 0 * 8 );
+					sf64( tmp10 - tmp11, CDU + dataOff + 4 * 8 );
+					
+					// phase 5
+					z1 = ( tmp12 + tmp13 ) * 0.707106781;	// c4
+					sf64( tmp13 + z1, CDU + dataOff + 2 * 8 );
+					sf64( tmp13 - z1, CDU + dataOff + 6 * 8 );
+					
+					// Odd part
+					// phase 2
+					tmp10 = tmp4 + tmp5;
+					tmp11 = tmp5 + tmp6;
+					tmp12 = tmp6 + tmp7;
+					
+					// The rotator is modified from fig 4-8 to avoid extra negations.
+					z5 = ( tmp10 - tmp12 ) * 0.382683433;	// c6
+					z2 = 0.541196100 * tmp10 + z5;			// c2-c6
+					z4 = 1.306562965 * tmp12 + z5;			// c2+c6
+					z3 = tmp11 * 0.707106781;				// c4
+					
+					//phase 5
+					z11 = tmp7 + z3;
+					z13 = tmp7 - z3;
+					
+					// phase 6
+					sf64( z13 + z2, CDU + dataOff + 5 * 8 );
+					sf64( z13 - z2, CDU + dataOff + 3 * 8 );
+					sf64( z11 + z4, CDU + dataOff + 1 * 8 );
+					sf64( z11 - z4, CDU + dataOff + 7 * 8 );
+					
+					dataOff += 64; // advance pointer to next row
+					
+				} while ( dataOff < 512 );
+				
+				// Pass 2: process columns.
+				dataOff = 0;
+				do {
+					
+					d0 = lf64( CDU + dataOff +  0 * 8 );
+					d1 = lf64( CDU + dataOff +  8 * 8 );
+					d2 = lf64( CDU + dataOff + 16 * 8 );
+					d3 = lf64( CDU + dataOff + 24 * 8 );
+					d4 = lf64( CDU + dataOff + 32 * 8 );
+					d5 = lf64( CDU + dataOff + 40 * 8 );
+					d6 = lf64( CDU + dataOff + 48 * 8 );
+					d7 = lf64( CDU + dataOff + 56 * 8 );
+					
+					tmp0 = d0 + d7;
+					tmp7 = d0 - d7;
+					tmp1 = d1 + d6;
+					tmp6 = d1 - d6;
+					tmp2 = d2 + d5;
+					tmp5 = d2 - d5;
+					tmp3 = d3 + d4;
+					tmp4 = d3 - d4;
+					
+					// Even part
+					// phase 2
+					tmp10 = tmp0 + tmp3;
+					tmp13 = tmp0 - tmp3;
+					tmp11 = tmp1 + tmp2;
+					tmp12 = tmp1 - tmp2;
+					
+					// phase 3
+					sf64( tmp10 + tmp11, CDU + dataOff +  0 * 8 );
+					sf64( tmp10 - tmp11, CDU + dataOff + 32 * 8 );
+					
+					// phase 5
+					z1 = ( tmp12 + tmp13 ) * 0.707106781;	// c4
+					sf64( tmp13 + z1, CDU + dataOff + 16 * 8 );
+					sf64( tmp13 - z1, CDU + dataOff + 48 * 8 );
+					
+					// Odd part
+					// phase 2
+					tmp10 = tmp4 + tmp5;
+					tmp11 = tmp5 + tmp6;
+					tmp12 = tmp6 + tmp7;
+					
+					// The rotator is modified from fig 4-8 to avoid extra negations.
+					z5 = ( tmp10 - tmp12 ) * 0.382683433;	// c6
+					z2 = 0.541196100 * tmp10 + z5;			// c2-c6
+					z4 = 1.306562965 * tmp12 + z5;			// c2+c6
+					z3 = tmp11 * 0.707106781;				// c4
+					
+					// phase 5
+					z11 = tmp7 + z3;
+					z13 = tmp7 - z3;
+					
+					// phase 6
+					sf64( z13 + z2, CDU + dataOff + 40 * 8 );
+					sf64( z13 - z2, CDU + dataOff + 24 * 8 );
+					sf64( z11 + z4, CDU + dataOff +  8 * 8 );
+					sf64( z11 - z4, CDU + dataOff + 56 * 8 );
+					
+					dataOff += 8; // advance pointer to next column
+				} while ( dataOff < 64 );
+				
+				// Quantize/descale the coefficients
+				i = 0;
+				do {
+					// Apply the quantization and scaling factor & Round to nearest integer
+					fDCTQuant = lf64( CDU + ( i << 3 ) ) * lf64( fdtbl + ( i << 3 ) );
+					si32(
+						fDCTQuant + ( fDCTQuant > 0.0 ? 0.5 : - 0.5 ),
+						li8( 256 + 512 * 3 + 1154 + i ) << 2 // ZigZag reorder
+					);
+				} while ( ++i < 64 );
+				
+				// processDU
+				
+				CDU = li32( 0 );
+				dataOff = CDU - DCV;
+				DCV = CDU;
+				
+				// Encode DC
+				if ( dataOff == 0 ) {
+					
+					// Diff might be 0
+					// writeBits( li8( HTDC ), li16( HTDC + 1 ) );
+					len = li8( HTDC ) - 1;
+					if ( len >= 0 ) {
+						val = li16( HTDC + 1 );
+						do {
+							if ( ( val & ( 1 << len ) ) != 0 ) {
+								bytenew |= 1 << bytepos;
+							}
+							if ( --bytepos < 0 ) {
+								if ( bytenew == 0xFF ) {
+									si16( 0x00FF, byteout );
+									byteout += 2;
+								} else {
+									si8( bytenew, byteout );
+									byteout++;
+								}
+								bytepos = 7;
+								bytenew = 0;
+							}
+						} while ( --len >= 0 );
+					}
+					
+				} else {
+					
+					pos = ( 32767 + dataOff ) * 3;
+					
+					mpos = HTDC + li8( 256 + 512 * 3 + 3212 + pos ) * 3;
+					// writeBits( li8( mpos ), li16( mpos + 1 ) );
+					len = li8( mpos ) - 1;
+					if ( len >= 0 ) {
+						val = li16( mpos + 1 );
+						do {
+							if ( ( val & ( 1 << len ) ) != 0 ) {
+								bytenew |= 1 << bytepos;
+							}
+							if ( --bytepos < 0 ) {
+								if ( bytenew == 0xFF ) {
+									si16( 0x00FF, byteout );
+									byteout += 2;
+								} else {
+									si8( bytenew, byteout );
+									byteout++;
+								}
+								bytepos = 7;
+								bytenew = 0;
+							}
+						} while ( --len >= 0 );
+					}
+					
+					mpos = 256 + 512 * 3 + 3212 + pos;
+					// writeBits( li8( mpos ), li16( mpos + 1 ) );
+					len = li8( mpos ) - 1;
+					if ( len >= 0 ) {
+						val = li16( mpos + 1 );
+						do {
+							if ( ( val & ( 1 << len ) ) != 0 ) {
+								bytenew |= 1 << bytepos;
+							}
+							if ( --bytepos < 0 ) {
+								if ( bytenew == 0xFF ) {
+									si16( 0x00FF, byteout );
+									byteout += 2;
+								} else {
+									si8( bytenew, byteout );
+									byteout++;
+								}
+								bytepos = 7;
+								bytenew = 0;
+							}
+						} while ( --len >= 0 );
+					}
+					
+				}
+				
+				// Encode ACs
+				end0pos = 63;
+				while ( end0pos > 0 && li32( end0pos << 2 ) == 0 ) end0pos--;
+				
+				// end0pos = first element in reverse order !=0
+				if ( end0pos != 0 ) {
+					
+					i = 1;
+					while ( i <= end0pos ) {
+						startpos = i;
+						while ( i <= end0pos && li32( i << 2 ) == 0 ) ++i;
+						nrzeroes = i - startpos;
+						if ( nrzeroes >= 16 ) {
+							
+							lng = nrzeroes >> 4;
+							nrmarker = 1;
+							while ( nrmarker <= lng ) {
+								
+								mpos = HTAC + 0xF0 * 3;
+								// writeBits( li8( mpos ), li16( mpos + 1 ) );
+								len = li8( mpos ) - 1;
+								if ( len >= 0 ) {
+									val = li16( mpos + 1 );
+									do {
+										if ( ( val & ( 1 << len ) ) != 0 ) {
+											bytenew |= 1 << bytepos;
+										}
+										if ( --bytepos < 0 ) {
+											if ( bytenew == 0xFF ) {
+												si16( 0x00FF, byteout );
+												byteout += 2;
+											} else {
+												si8( bytenew, byteout );
+												byteout++;
+											}
+											bytepos = 7;
+											bytenew = 0;
+										}
+									} while ( --len >= 0 );
+								}
+								
+								++nrmarker;
+								
+							}
+							nrzeroes &= 0xF;
+							
+						}
+						
+						pos = ( 32767 + li32( i << 2 ) ) * 3;
+						
+						mpos = HTAC + ( nrzeroes << 4 ) * 3 + li8( 256 + 512 * 3 + 3212 + pos ) * 3;
+						// writeBits( li8( mpos ), li16( mpos + 1 ) );
+						len = li8( mpos ) - 1;
+						if ( len >= 0 ) {
+							val = li16( mpos + 1 );
+							do {
+								if ( ( val & ( 1 << len ) ) != 0 ) {
+									bytenew |= 1 << bytepos;
+								}
+								if ( --bytepos < 0 ) {
+									if ( bytenew == 0xFF ) {
+										si16( 0x00FF, byteout );
+										byteout += 2;
+									} else {
+										si8( bytenew, byteout );
+										byteout++;
+									}
+									bytepos = 7;
+									bytenew = 0;
+								}
+							} while ( --len >= 0 );
+						}
+						
+						mpos = 256 + 512 * 3 + 3212 + pos;
+						// writeBits( li8( mpos ), li16( mpos + 1 ) );
+						len = li8( mpos ) - 1;
+						if ( len >= 0 ) {
+							val = li16( mpos + 1 );
+							do {
+								if ( ( val & ( 1 << len ) ) != 0 ) {
+									bytenew |= 1 << bytepos;
+								}
+								if ( --bytepos < 0 ) {
+									if ( bytenew == 0xFF ) {
+										si16( 0x00FF, byteout );
+										byteout += 2;
+									} else {
+										si8( bytenew, byteout );
+										byteout++;
+									}
+									bytepos = 7;
+									bytenew = 0;
+								}
+							} while ( --len >= 0 );
+						}
+						
+						++i;
+						
+					}
+					
+				}
+				
+				if ( end0pos != 63 ) {
+					// writeBits( li8( HTAC ), li16( HTAC + 1 ) );
+					len = li8( HTAC ) - 1;
+					if ( len >= 0 ) {
+						val = li16( HTAC + 1 );
+						do {
+							if ( ( val & ( 1 << len ) ) != 0 ) {
+								bytenew |= 1 << bytepos;
+							}
+							if ( --bytepos < 0 ) {
+								if ( bytenew == 0xFF ) {
+									si16( 0x00FF, byteout );
+									byteout += 2;
+								} else {
+									si8( bytenew, byteout );
+									byteout++;
+								}
+								bytepos = 7;
+								bytenew = 0;
+							}
+						} while ( --len >= 0 );
+					}
+				}
+					
+				x += 8;
+			} while ( x < width );
+			y += 8;
+		} while ( y < height );
+		
+		// Do the bit alignment of the EOI marker
+		if ( bytepos >= 0 ) {
+
+			// writeBits( _BYTE_POS + 1, ( 1 << ( _BYTE_POS + 1 ) ) - 1 );
+			len = bytepos;
+			if ( len >= 0 ) {
+				do {
+					val = ( 1 << ( bytepos + 1 ) ) - 1;
 					if ( ( val & ( 1 << len ) ) != 0 ) {
 						bytenew |= 1 << bytepos;
 					}
@@ -820,40 +1535,24 @@ internal final class JPEGEncoder$ {
 					}
 				} while ( --len >= 0 );
 			}
+
 		}
-	
-		_BYTE_OUT = byteout;
-		_BYTE_POS = bytepos;
-		_BYTE_NEW = bytenew;
-
-		return DC;
-
+		
+		_DOMAIN.domainMemory = tmp;
+		
+		mem.position = 0;
+		mem.writeBytes( mem, 256 + 512 * 3 + 199817, byteout - 256 - 512 * 3 - 199817 );
+		mem.length = byteout - 256 + 512 * 3 + 199817;
+		
+		return mem;
+		
 	}
 	
-	private static function writeBits(len:int, val:int):void {
-		var _byteout:int = _BYTE_OUT;
-		var _bytepos:int = _BYTE_POS;
-		var _bytenew:int = _BYTE_NEW;
-		while ( --len >= 0 ) {
-			if ( ( val & ( 1 << len ) ) != 0 ) {
-				_bytenew |= 1 << _bytepos;
-			}
-			if ( --_bytepos < 0 ) {
-				if ( _bytenew == 0xFF ) {
-					si16( 0x00FF, _byteout );
-					_byteout += 2;
-				} else {
-					si8( _bytenew, _byteout );
-					_byteout++;
-				}
-				_bytepos = 7;
-				_bytenew = 0;
-			}
-		}
-		_BYTE_OUT = _byteout;
-		_BYTE_POS = _bytepos;
-		_BYTE_NEW = _bytenew;
-	}
+	//--------------------------------------------------------------------------
+	//  encode main methods
+	//--------------------------------------------------------------------------
+	
+	private static const _DOMAIN:ApplicationDomain = ApplicationDomain.currentDomain;
 	
 }
 
