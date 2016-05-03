@@ -348,7 +348,7 @@ internal final class JPEGEncoder$ {
 		mem.position = 256 + 512 * 3;
 		mem.writeBytes( quantTable );
 		mem.writeBytes( jpegTable );
-		mem.length += width * height * 3;
+		mem.length += Math.max( 8, width * height ) * 3;
 		
 		if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 		
