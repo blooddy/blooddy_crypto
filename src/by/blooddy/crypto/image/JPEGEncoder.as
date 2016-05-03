@@ -35,7 +35,7 @@ package by.blooddy.crypto.image {
 		/**
 		 * @private
 		 */
-		private static const _NATIVE:Boolean = ApplicationDomain.currentDomain.hasDefinition( 'flash.display.PNGEncoderOptions' );
+		private static const _NATIVE:Boolean = ApplicationDomain.currentDomain.hasDefinition( 'flash.display.JPEGEncoderOptions' );
 		
 		//--------------------------------------------------------------------------
 		//
