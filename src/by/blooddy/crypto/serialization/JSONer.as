@@ -1090,7 +1090,7 @@ internal final class JSON$Decoder {
 							if ( c == 0x5C /* BACK_SLASH */ ) { // escape
 								
 								l = pos - p;
-								if ( l > 1 ) {
+								if ( l > 0 ) {
 									str.writeBytes( mem, p, l );
 								}
 								
