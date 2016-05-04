@@ -413,6 +413,7 @@ package by.blooddy.crypto.serialization {
 			var result:String = JSONer.encode( exp );
 //			JSON.stringify( exp )
 			Assert.assertTrue(
+				result == '{"multiline":false,"dotall":false,"ignoreCase":false,"extended":false,"source":"asd","lastIndex":0,"global":true}' ||
 				result == '{"lastIndex":0,"ignoreCase":false,"global":true,"source":"asd","multiline":false,"dotall":false,"extended":false}' ||
 				result == '{"ignoreCase":false,"multiline":false,"dotall":false,"extended":false,"source":"asd","lastIndex":0,"global":true}'
 			);
@@ -438,6 +439,7 @@ package by.blooddy.crypto.serialization {
 			var result:String = JSONer.encode( d );
 //			JSON.stringify( d )
 			Assert.assertTrue(
+				result == '{"milliseconds":555,"fullYearUTC":1970,"monthUTC":0,"dateUTC":7,"hoursUTC":10,"minutesUTC":19,"secondsUTC":15,"millisecondsUTC":555,"time":555555555,"timezoneOffset":-180,"day":3,"dayUTC":3,"fullYear":1970,"month":0,"date":7,"minutes":19,"seconds":15,"hours":13}' ||
 				result == '{"date":7,"hours":13,"minutes":19,"seconds":15,"milliseconds":555,"fullYearUTC":1970,"monthUTC":0,"dateUTC":7,"hoursUTC":10,"minutesUTC":19,"secondsUTC":15,"millisecondsUTC":555,"time":555555555,"timezoneOffset":-180,"day":3,"dayUTC":3,"fullYear":1970,"month":0}' ||
 				result == '{"fullYear":1970,"month":0,"date":7,"seconds":15,"fullYearUTC":1970,"monthUTC":0,"hoursUTC":10,"minutesUTC":19,"secondsUTC":15,"minutes":19,"time":555555555,"milliseconds":555,"day":3,"dayUTC":3,"timezoneOffset":-180,"hours":13,"dateUTC":7,"millisecondsUTC":555}'
 			);
@@ -464,6 +466,8 @@ package by.blooddy.crypto.serialization {
 			var result:String = JSONer.encode( bytes );
 //			JSON.stringify( bytes )
 			Assert.assertTrue(
+				result == '{"bytesAvailable":0,"objectEncoding":3,"endian":"bigEndian","length":4,"position":4,"shareable":false}' ||
+				result == '{"bytesAvailable":0,"objectEncoding":3,"endian":"bigEndian","length":4,"position":4}' ||
 				result == '{"bytesAvailable":0,"length":4,"endian":"bigEndian","objectEncoding":3,"position":4}' ||
 				result == '{"objectEncoding":3,"bytesAvailable":0,"endian":"bigEndian","length":4,"position":4}'
 			);
