@@ -114,32 +114,35 @@ package by.blooddy.crypto {
 		 */
 		protected static function $hashBytes(bytes:ByteArray, H:Vector.<int>):String {
 			
-			var mem:ByteArray = $digest( bytes, H );
-			
 			var tmp:ByteArray = _DOMAIN.domainMemory;
 			
-			var k:int = 0;
-			var i:int = 0;
-			var j:int = 32 + 16 - 1;
+			var mem:ByteArray = $digest( bytes, H );
 			
-			mem.position = 32;
+			mem.position = 16;
+			mem.writeBytes( mem, 0, 32 );
+
+			mem.position = 0;
 			mem.writeUTFBytes( '0123456789abcdef' );
 			
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 			
 			_DOMAIN.domainMemory = mem;
 			
+			var k:int = 0;
+			var i:int = 16;
+			var j:int = 16 + 32 - 1;
+			
 			do {
 				
 				k = li8( i );
-				si8( li8( 32 + ( k >>> 4 ) ), ++j );
-				si8( li8( 32 + ( k & 0xF ) ), ++j );
+				si8( li8( k >>> 4 ), ++j );
+				si8( li8( k & 0xF ), ++j );
 				
-			} while ( ++i < 32 );
+			} while ( ++i < 16 + 32 );
 			
 			_DOMAIN.domainMemory = tmp;
 			
-			mem.position = 32 + 16;
+			mem.position = 16 + 32;
 			return mem.readUTFBytes( 32 * 2 );
 			
 		}
