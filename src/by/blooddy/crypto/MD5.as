@@ -73,28 +73,33 @@ package by.blooddy.crypto {
 		 */
 		public static function hashBytes(bytes:ByteArray):String {
 
+			var tmp:ByteArray = _DOMAIN.domainMemory;
+
 			var mem:ByteArray = digest( bytes );
 			
-			var tmp:ByteArray = _DOMAIN.domainMemory;
-			
-			var k:int;
-			var i:int = 0;
-			var j:int = 16 + 16 - 1;
-			
 			mem.position = 16;
+			mem.writeBytes( mem, 0, 16 );
+
+			mem.position = 0;
 			mem.writeUTFBytes( '0123456789abcdef' );
+			
+			mem.length = 16 + 16 + 16 * 2;
 			
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 			
 			_DOMAIN.domainMemory = mem;
 			
+			var k:int = 0;
+			var i:int = 16;
+			var j:int = 16 + 16 - 1;
+
 			do {
 				
 				k = li8( i );
-				si8( li8( 16 + ( k >>> 4 ) ), ++j );
-				si8( li8( 16 + ( k & 0xF ) ), ++j );
+				si8( li8( k >>> 4 ), ++j );
+				si8( li8( k & 0xF ), ++j );
 				
-			} while ( ++i < 16 );
+			} while ( ++i < 16 + 16 );
 			
 			_DOMAIN.domainMemory = tmp;
 			
