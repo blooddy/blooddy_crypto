@@ -73,32 +73,37 @@ package by.blooddy.crypto {
 		 */
 		public static function hashBytes(bytes:ByteArray):String {
 			
+			var tmp:ByteArray = _DOMAIN.domainMemory;
+			
 			var mem:ByteArray = digest( bytes );
 
-			var tmp:ByteArray = _DOMAIN.domainMemory;
+			mem.position = 16;
+			mem.writeBytes( mem, 0, 20 );
 
-			var k:int = 0;
-			var i:int = 0;
-			var j:int = 20 + 16 - 1;
-			
-			mem.position = 20;
+			mem.position = 0;
 			mem.writeUTFBytes( '0123456789abcdef' );
+			
+			mem.length = 16 + 20 + 20 * 2;
 			
 			if ( mem.length < ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH ) mem.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 			
 			_DOMAIN.domainMemory = mem;
 			
+			var k:int = 0;
+			var i:int = 16;
+			var j:int = 16 + 20 - 1;
+			
 			do {
 
 				k = li8( i );
-				si8( li8( 20 + ( k >>> 4 ) ), ++j );
-				si8( li8( 20 + ( k & 0xF ) ), ++j );
+				si8( li8( k >>> 4 ), ++j );
+				si8( li8( k & 0xF ), ++j );
 
-			} while ( ++i < 20 );
+			} while ( ++i < 16 + 20 );
 			
 			_DOMAIN.domainMemory = tmp;
 			
-			mem.position = 20 + 16;
+			mem.position = 16 + 20;
 			return mem.readUTFBytes( 20 * 2 );
 			
 		}
@@ -135,10 +140,10 @@ package by.blooddy.crypto {
 			si8( i >>  8, bytesLength + 2 );
 			si8( i      , bytesLength + 3 );
 
-			var h0:int = 1732584193; //0x67452301;
-			var h1:int = -271733879; //0xEFCDAB89;
+			var h0:int =  1732584193; //0x67452301;
+			var h1:int = - 271733879; //0xEFCDAB89;
 			var h2:int = -1732584194; //0x98BADCFE;
-			var h3:int = 271733878; //0x10325476;
+			var h3:int =   271733878; //0x10325476;
 			var h4:int = -1009589776; //0xC3D2E1F0;
 
 			var a:int = 0;
@@ -206,8 +211,6 @@ package by.blooddy.crypto {
 					t += 4;
 					
 				} while ( t < 20 * 4 );
-				
-				
 				
 				// phase( a, b, c, d, e, i, t, 40 );
 				do {
