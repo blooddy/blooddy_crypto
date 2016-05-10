@@ -46,45 +46,57 @@ a:hover img {
 	filter: saturate( 200% );
 }
 
-nav {
+aside {
 	display: table-cell;
 	overflow: hidden;
 	background: #222;
 	padding: 20px 0;
 	border-right: 2px solid #181818;
-	width: 190px;
-	max-width: 190px;
+	width: 180px;
+	max-width: 180px;
+	font: bold 12px/36px "Open Sans", "Myriad Pro", Geneva ,Verdana, sans-serif;
 }
 
-nav.hidden {
+aside.hidden {
 	width: 0;
 	max-width: 0;
 	border: 0;
 }
 
-nav li {
+aside .avatar:before {
+    content: "";
+    width: 3px;
+    height: 195px;
+    background: #08F;
+    display: block;
+    float: left;
+    margin-left: -23px;
+}
+
+aside .avatar:hover:before {
+	margin-left: -20px;
+}
+
+aside li {
 	list-style: none;
 }
 
-nav span,
-nav a {
+aside span,
+aside a {
 	display: block;
 	white-space: nowrap;
-	font: bold 12px/12px "Open Sans", "Myriad Pro", Geneva ,Verdana, sans-serif;
 	color: #888;
-	line-height: 36px;
 	padding: 0 20px;
 	vertical-align: middle;
-	height: 41px;
 }
 
-nav a:hover {
+aside a:hover {
 	color: #ddd;
 	background-color: #191919;
 	text-decoration: none;
 }
 
-nav a:after {
+aside menu a:after {
 	content: "";
 	display: inline-block;
 	width: 3px;
@@ -95,12 +107,12 @@ nav a:after {
 	margin-left: -23px;
 }
 
-nav a:hover:after {
+aside menu a:hover:after {
 	margin-left: -20px;
 }
 
 button:before,
-nav a:before {
+aside menu a:before {
 	display: inline-block;
 	font-family: FontAwesome;
 	font-size: 22px;
@@ -110,19 +122,19 @@ nav a:before {
 	top: 3px;
 }
 
-nav a[href*="feeds.feedburner.com"]:before {
+aside menu a[href*="feeds.feedburner.com"]:before {
 	content: "\f09e";
 }
 
-nav a[href*="github.com"]:before {
+aside menu a[href*="github.com"]:before {
 	content: "\f09b";
 }
 
-nav span {
+aside span {
 	text-transform: uppercase;
 }
 
-nav hr {
+aside hr {
 	border: 1px solid #393939;
 	border-top-color: #111;
 	margin: 10px 20px;
@@ -135,7 +147,7 @@ nav hr {
 	background: #444 url( 'bg.png' ) center repeat-y;
 }
 
-nav:before,
+aside:before,
 .container:before {
 	content: "";
 	display: block;
@@ -146,8 +158,25 @@ nav:before,
 	top: 0;
 }
 
-nav:before {
+aside:before {
 	background: #08F;
+}
+
+aside figure > * {
+}
+
+aside figure figcaption {
+	font-size: 24px;
+	line-height: 40px;
+	vertical-align: middle;
+	position: relative;
+	top: 2px;
+}
+
+aside figure img {
+	-webkit-filter: none;
+	filter: none;
+	border-radius: 6px;
 }
 
 button {
@@ -198,11 +227,11 @@ h1 a:hover {
 }
 
 
-.content main {
+.content section {
 	margin: 20px 0;
 }
 
-main {
+section {
 	background-color: #333;
 	padding: 10px 20px 20px 20px;
 	border: 1px solid #111;
@@ -212,11 +241,11 @@ main {
 	text-align: left;
 }
 
-main > * {
+section > * {
 	margin: 10px 0;
 }
 
-main menu > li {
+section menu > li {
 	list-style: none;
 	display: inline-block;
 	border-radius: 4px;
@@ -226,7 +255,7 @@ main menu > li {
 	height: 20px;
 }
 
-main hr {
+section hr {
 	border: 1px solid #444;
 	border-top-color: #222;
 	border-left-color: #222;
@@ -251,20 +280,46 @@ p {
 	margin-bottom: 5px;
 }
 
+@media ( max-height: 380px ) {
+
+	.container {
+		vertical-align: top;
+	}
+
+}
+
 @media ( max-width: 700px ) {
 
-	nav {
+	aside {
 		width: 60px;
 		max-width: 60px;
 	}
 
-	nav.hidden {
+	aside.hidden {
 		width: 0;
 		max-width: 0;
 	}
 
-	nav span,
-	nav a {
+	aside figure {
+		padding-top: 11px;
+	}
+
+	aside .avatar {
+		height: 44px;
+	}
+
+	aside .avatar:before,
+	aside menu a:after {
+		height: 44px;
+	}
+
+	aside > span,
+	aside figure figcaption {
+		display: none;
+	}
+
+	aside span,
+	aside menu a {
 		font-size: 0;
 	}
 
@@ -278,14 +333,22 @@ p {
 
 }
 
+@media ( max-width: 555px ) {
+
+	.content menu:first-child > :nth-child( 2 ) {
+		display: none;
+	}
+
+	h1 {
+		font-size: 27px;
+	}
+
+}
+
 @media ( max-width: 524px ) {
 
 	.container {
 		background-position-x: -100px;
-	}
-
-	.content menu > :last-child {
-		display: none;
 	}
 
 }
@@ -297,33 +360,61 @@ p {
 	}
 
 	body,
-	nav,
+	aside,
 	.container {
 		display: block;
 	}
 
-	nav {
+	aside {
 		width: 100%;
 		max-width: inherit;
 		border: 0;
 	}
 
-	nav:before {
+	aside .avatar,
+	aside .avatar:before {
+		height: 40px;
+	}
+
+	aside menu a:after {
+		height: 41px;
+	}
+
+	aside > span {
+		display: inherit;
+	}
+
+	aside figure {
+		padding: 0;
+	}
+
+	aside figure figcaption {
+		display: inline-block;
+	}
+
+	aside figure img {
+		display: inline-block;
+		float: left;
+		width: 32px;
+		margin: 4px 10px 4px 0;
+	}
+
+	aside:before {
 		z-index: 1;
 	}
 
-	nav.hidden {
+	aside.hidden {
 		width: 100%;
 		height: 0;
 		padding: 0;
 	}
 
-	nav.hidden:before {
+	aside.hidden:before {
 		z-index: 0;
 	}
 
-	nav span,
-	nav a {
+	aside span,
+	aside menu a {
 		font-size: 14px;
 	}
 
@@ -342,25 +433,13 @@ p {
 		display: inline-block;
 	}
 
-	main {
+	section {
 		border-radius: 0;
 	}
 
 }
 
-@media ( max-width: 445px ) {
-
-	h1 {
-		font-size: 27px;
-	}
-
-}
-
 @media ( max-width: 450px ) {
-
-	.content menu:first-child > :nth-child( n + 4 ) {
-		display: none;
-	}
 
 	h1 {
 		font-size: 25px;
@@ -376,9 +455,9 @@ p {
 
 }
 
-@media ( max-width: 370px ) {
+@media ( max-width: 345px ) {
 
-	.content menu:first-child > :nth-child( n + 3 ) {
+	.content menu:first-child > :nth-child( 4 ) {
 		display: none;
 	}
 
